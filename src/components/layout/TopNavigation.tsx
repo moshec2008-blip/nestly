@@ -3,18 +3,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import {
-  getGlobalSearchResults,
-  type GlobalSearchResult,
-} from "@/services/globalSearch";
-import { getAppNotifications } from "@/services/notifications";
-import type { AppNotification } from "@/services/notifications";
-import { brand } from "@/lib/branding";
-import type { AppRoute } from "@/types/navigation";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { getDictionary, type CommonDictionary } from "@/i18n/dictionaries";
 import { getRouteLabel } from "@/i18n/navigation";
 import { useLanguage } from "@/i18n/useLanguage";
+import { brand } from "@/lib/branding";
+import {
+  getGlobalSearchResults,
+  type GlobalSearchResult,
+} from "@/services/globalSearch";
+import {
+  getAppNotifications,
+  type AppNotification,
+} from "@/services/notifications";
+import type { AppRoute } from "@/types/navigation";
 
 type TopNavigationProps = {
   isSidebarCollapsed: boolean;
@@ -24,33 +26,20 @@ type TopNavigationProps = {
   onCloseMobileMenu: () => void;
 };
 
-type RouteMeta = {
-  href: AppRoute;
-};
-
-const routeMeta: RouteMeta[] = [
-  { href: "/" },
-  { href: "/finance" },
-  { href: "/tasks" },
-  { href: "/dashboard" },
-  { href: "/health" },
-  { href: "/documents" },
-  { href: "/vehicles" },
-  { href: "/family" },
-  { href: "/birthdays" },
-  { href: "/shopping" },
-  { href: "/permissions" },
-  { href: "/settings" },
+const routeMeta: AppRoute[] = [
+  "/",
+  "/finance",
+  "/tasks",
+  "/dashboard",
+  "/health",
+  "/documents",
+  "/vehicles",
+  "/family",
+  "/birthdays",
+  "/shopping",
+  "/permissions",
+  "/settings",
 ];
-
-function getRouteMeta(pathname: string) {
-  return routeMeta.find((item) => item.href === pathname) ?? routeMeta[0];
-}
-
-function getBreadcrumbs(pathname: string) {
-  const currentRoute = getRouteMeta(pathname);
-  return currentRoute.href === "/" ? [currentRoute] : [routeMeta[0], currentRoute];
-}
 
 const dateLocales: Record<string, string> = {
   he: "he-IL",
@@ -61,6 +50,15 @@ const dateLocales: Record<string, string> = {
   it: "it-IT",
   es: "es-ES",
 };
+
+function getRouteMeta(pathname: string): AppRoute {
+  return routeMeta.find((route) => route === pathname) ?? "/";
+}
+
+function getBreadcrumbs(pathname: string): AppRoute[] {
+  const currentRoute = getRouteMeta(pathname);
+  return currentRoute === "/" ? [currentRoute] : ["/", currentRoute];
+}
 
 function getLocalizedDate(language: string) {
   return new Intl.DateTimeFormat(dateLocales[language] ?? "he-IL", {
@@ -113,13 +111,13 @@ function SearchBox({
         onChange={(event) => onSearchChange(event.target.value)}
         placeholder={dictionary.searchPlaceholder}
         className={[
-          "h-9 w-full rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 text-sm text-[#1d1d1f] shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#007aff]/50 focus:bg-white",
+          "h-10 w-full rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-4 text-sm font-semibold text-[#111827] shadow-sm outline-none transition placeholder:text-slate-500 focus:border-[#007aff]/55 focus:bg-white",
           direction === "rtl" ? "text-right" : "text-left",
         ].join(" ")}
       />
 
       {hasSearch && (
-        <div className="absolute left-0 right-0 top-12 z-50 rounded-2xl border border-[#e6e8ec] bg-white/95 p-2 shadow-[0_22px_70px_rgba(15,23,42,0.12)] backdrop-blur-xl">
+        <div className="absolute left-0 right-0 top-12 z-50 rounded-2xl border border-[#d9dde5] bg-white/98 p-2 shadow-[0_22px_70px_rgba(15,23,42,0.14)] backdrop-blur-xl">
           {results.length > 0 ? (
             <div className="space-y-1">
               {results.map((result) => (
@@ -128,27 +126,41 @@ function SearchBox({
                   href={result.href}
                   onClick={onNavigate}
                   className={[
-                    "block rounded-xl px-3 py-2 transition hover:bg-white/[0.08]",
+                    "block rounded-xl px-3 py-2 transition hover:bg-[#f6f7f9]",
                     direction === "rtl" ? "text-right" : "text-left",
                   ].join(" ")}
                 >
-                  <span className="block text-sm font-black text-[#1d1d1f]">
+                  <span className="block text-sm font-black text-[#111827]">
                     {result.title}
                   </span>
-                  <span className="mt-1 block text-xs text-slate-500">
-                    {result.module} · {result.description}
+                  <span className="mt-1 block text-xs font-semibold text-slate-600">
+                    {result.module} / {result.description}
                   </span>
                 </Link>
               ))}
             </div>
           ) : (
-            <p className="px-3 py-4 text-center text-sm text-slate-500">
+            <p className="px-3 py-4 text-center text-sm font-semibold text-slate-600">
               {dictionary.noSearchResults}
             </p>
           )}
         </div>
       )}
     </div>
+  );
+}
+
+function MenuGlyph({ isOpen }: { isOpen: boolean }) {
+  if (isOpen) {
+    return <span className="text-xl leading-none">x</span>;
+  }
+
+  return (
+    <span className="flex flex-col gap-1" aria-hidden="true">
+      <span className="block h-0.5 w-5 rounded-full bg-current" />
+      <span className="block h-0.5 w-5 rounded-full bg-current" />
+      <span className="block h-0.5 w-5 rounded-full bg-current" />
+    </span>
   );
 }
 
@@ -171,6 +183,7 @@ export default function TopNavigation({
     () => (searchValue.trim() ? getGlobalSearchResults(searchValue) : []),
     [searchValue]
   );
+  const accountLabel = language === "en" ? "Account" : "חשבון";
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -187,30 +200,30 @@ export default function TopNavigation({
   }
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-[#e6e8ec] bg-white/86 text-[#1d1d1f] shadow-[0_10px_28px_rgba(15,23,42,0.06)] backdrop-blur-2xl">
-      <div className="mx-auto w-full max-w-[1520px] px-4 sm:px-5">
-        <div className="flex min-h-14 items-center gap-2.5 py-1.5">
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-[#dfe3ea] bg-white/92 text-[#111827] shadow-[0_10px_28px_rgba(15,23,42,0.06)] backdrop-blur-2xl">
+      <div className="mx-auto w-full max-w-[1520px] px-3 sm:px-5">
+        <div className="flex min-h-16 items-center gap-2.5 py-2 lg:min-h-14 lg:py-1.5">
           <button
             type="button"
             onClick={onToggleMobileMenu}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-[#e6e8ec] bg-[#111827] text-lg font-black text-white shadow-sm lg:hidden"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#111827] text-white shadow-sm lg:hidden"
             aria-label={dictionary.openMenu}
             aria-expanded={isMobileMenuOpen}
           >
-            ☰
+            <MenuGlyph isOpen={isMobileMenuOpen} />
           </button>
 
           <button
             type="button"
             onClick={onToggleSidebar}
-            className="hidden h-9 w-9 items-center justify-center rounded-2xl border border-[#e6e8ec] bg-[#fafafb] text-sm font-black text-slate-600 shadow-sm transition hover:bg-white lg:inline-flex"
+            className="hidden h-10 w-10 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#fafafb] text-sm font-black text-slate-700 shadow-sm transition hover:bg-white lg:inline-flex"
             aria-label={
               isSidebarCollapsed
                 ? dictionary.expandSidebar
                 : dictionary.collapseSidebar
             }
           >
-            {isSidebarCollapsed ? "›" : "‹"}
+            {isSidebarCollapsed ? ">" : "<"}
           </button>
 
           <div
@@ -221,49 +234,51 @@ export default function TopNavigation({
           >
             <div
               className={[
-                "hidden flex-wrap items-center gap-1.5 text-[11px] font-bold text-slate-400 sm:flex",
+                "hidden flex-wrap items-center gap-1.5 text-[11px] font-bold text-slate-600 lg:flex",
                 direction === "rtl" ? "justify-end" : "justify-start",
               ].join(" ")}
             >
-              {breadcrumbs.map((item, index) => (
-                <span key={item.href} className="flex items-center gap-2">
-                  {index > 0 && <span className="text-slate-300">›</span>}
+              {breadcrumbs.map((route, index) => (
+                <span key={route} className="flex items-center gap-2">
+                  {index > 0 && <span className="text-slate-400">/</span>}
                   <Link
-                    href={item.href}
+                    href={route}
                     className="transition hover:text-[#111827]"
                     onClick={handleNavigate}
                   >
-                    {getRouteLabel(item.href, dictionary)}
+                    {getRouteLabel(route, dictionary)}
                   </Link>
                 </span>
               ))}
             </div>
+
             <div
               className={[
-                "mt-0.5 flex flex-wrap items-center gap-2",
+                "flex min-w-0 items-center gap-2 lg:mt-0.5",
                 direction === "rtl" ? "justify-end" : "justify-start",
               ].join(" ")}
             >
-              <h1 className="truncate text-base font-black sm:text-lg md:text-xl">
-                {getRouteLabel(currentRoute.href, dictionary)}
-              </h1>
               <Link
                 href="/"
                 onClick={handleNavigate}
-                className="flex items-center gap-2 rounded-2xl bg-[#111827] px-3 py-1.5 text-xs font-black text-white shadow-[0_12px_32px_rgba(15,23,42,0.14)]"
+                className="flex h-11 shrink-0 items-center gap-2 rounded-2xl px-1.5 text-sm font-black text-[#111827] transition hover:bg-[#f6f7f9] lg:h-9 lg:bg-[#111827] lg:px-3 lg:text-xs lg:text-white lg:shadow-[0_12px_32px_rgba(15,23,42,0.14)]"
                 aria-label={`${brand.productName} - ${brand.workspaceName}`}
               >
                 <span
-                  className="grid h-5 w-5 place-items-center rounded-full bg-[#f4e7c8] text-[10px] text-[#111827]"
+                  className="grid h-8 w-8 place-items-center rounded-full bg-[#f4e7c8] text-[11px] text-[#111827] lg:h-5 lg:w-5 lg:text-[10px]"
                   aria-hidden="true"
                 >
                   {brand.logoMark}
                 </span>
                 <span>{brand.productName}</span>
-                <span className="hidden text-xs font-bold opacity-70 sm:inline">
+                <span className="hidden text-xs font-bold text-white/80 lg:inline">
                   {brand.workspaceName}
                 </span>
               </Link>
+
+              <h1 className="min-w-0 truncate text-base font-black text-[#111827] sm:text-lg md:text-xl">
+                {getRouteLabel(currentRoute, dictionary)}
+              </h1>
             </div>
           </div>
 
@@ -279,7 +294,7 @@ export default function TopNavigation({
           </div>
 
           <div className="hidden items-center gap-2 xl:flex">
-            <span className="rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-3 py-2 text-[11px] font-bold text-slate-600 shadow-sm">
+            <span className="rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 py-2 text-[11px] font-bold text-slate-700 shadow-sm">
               {getLocalizedDate(language)}
             </span>
 
@@ -291,10 +306,10 @@ export default function TopNavigation({
                 onClick={() =>
                   setIsNotificationsOpen((currentValue) => !currentValue)
                 }
-                className="relative h-9 w-9 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] text-base shadow-sm transition hover:bg-white"
+                className="relative h-10 w-10 rounded-2xl border border-[#d9dde5] bg-[#fafafb] text-base font-black text-slate-800 shadow-sm transition hover:bg-white"
                 aria-label={dictionary.notifications}
               >
-                🔔
+                !
                 {notifications.length > 0 && (
                   <span className="absolute -left-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-[#b86f68] px-1 text-[10px] font-black text-white">
                     {notifications.length}
@@ -305,11 +320,11 @@ export default function TopNavigation({
               {isNotificationsOpen && (
                 <div
                   className={[
-                    "absolute left-0 top-12 z-50 w-80 rounded-2xl border border-[#e6e8ec] bg-white/95 p-3 shadow-[0_22px_70px_rgba(15,23,42,0.12)] backdrop-blur-xl",
+                    "absolute left-0 top-12 z-50 w-80 rounded-2xl border border-[#d9dde5] bg-white/98 p-3 shadow-[0_22px_70px_rgba(15,23,42,0.14)] backdrop-blur-xl",
                     direction === "rtl" ? "text-right" : "text-left",
                   ].join(" ")}
                 >
-                  <p className="mb-3 text-sm font-black">
+                  <p className="mb-3 text-sm font-black text-[#111827]">
                     {dictionary.notifications}
                   </p>
                   {notifications.length > 0 ? (
@@ -319,7 +334,7 @@ export default function TopNavigation({
                           key={notification.id}
                           href={notification.href}
                           onClick={handleNavigate}
-                          className="flex gap-3 rounded-xl p-3 transition hover:bg-white/[0.08]"
+                          className="flex gap-3 rounded-xl p-3 transition hover:bg-[#f6f7f9]"
                         >
                           <span
                             className={`mt-1 h-2.5 w-2.5 rounded-full ${getNotificationToneClass(
@@ -327,10 +342,10 @@ export default function TopNavigation({
                             )}`}
                           />
                           <span>
-                            <span className="block text-sm font-black">
+                            <span className="block text-sm font-black text-[#111827]">
                               {notification.title}
                             </span>
-                            <span className="mt-1 block text-xs leading-5 text-slate-500">
+                            <span className="mt-1 block text-xs leading-5 text-slate-600">
                               {notification.description}
                             </span>
                           </span>
@@ -338,7 +353,7 @@ export default function TopNavigation({
                       ))}
                     </div>
                   ) : (
-                    <p className="rounded-xl bg-[#fafafb] p-4 text-sm text-slate-500">
+                    <p className="rounded-xl bg-[#fafafb] p-4 text-sm font-semibold text-slate-600">
                       {dictionary.noNotifications}
                     </p>
                   )}
@@ -348,25 +363,27 @@ export default function TopNavigation({
 
             <Link
               href="/login"
-              className="flex h-9 items-center justify-center rounded-2xl border border-[#e6e8ec] bg-[#111827] px-3 text-xs font-black text-white shadow-sm transition hover:bg-[#1f2937]"
-              aria-label="כניסה לחשבון"
+              className="flex h-10 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#111827] px-3 text-xs font-black text-white shadow-sm transition hover:bg-[#1f2937]"
+              aria-label={accountLabel}
               onClick={handleNavigate}
             >
-              חשבון
+              {accountLabel}
             </Link>
 
             <Link
               href="/settings"
-              className="flex h-9 w-9 items-center justify-center rounded-2xl border border-[#e6e8ec] bg-[#fafafb] text-base shadow-sm transition hover:bg-white"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#fafafb] text-base font-black text-slate-800 shadow-sm transition hover:bg-white"
               aria-label={dictionary.nav.settings}
               onClick={handleNavigate}
             >
-              ⚙
+              *
             </Link>
           </div>
         </div>
 
-        {isMobileMenuOpen && <span className="sr-only">{dictionary.openMenu}</span>}
+        {isMobileMenuOpen && (
+          <span className="sr-only">{dictionary.closeMenu}</span>
+        )}
       </div>
     </header>
   );

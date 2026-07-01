@@ -29,7 +29,12 @@ export default function Header() {
               direction === "rtl" ? "justify-end" : "justify-start",
             ].join(" ")}
           >
-            <Badge tone="blue">{dictionary.hero.badge}</Badge>
+            <Badge
+              tone="blue"
+              className="border-[#111827] bg-[#111827] text-white"
+            >
+              {dictionary.hero.badge}
+            </Badge>
             <h1 className="truncate text-xl font-black tracking-tight md:text-2xl">
               {dictionary.appName}
             </h1>

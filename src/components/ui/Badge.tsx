@@ -7,11 +7,11 @@ type BadgeProps = {
 };
 
 const tones: Record<NonNullable<BadgeProps["tone"]>, string> = {
-  neutral: "border-[rgba(216,180,112,0.18)] bg-white/[0.07] text-[#d7cfbf]",
-  blue: "border-blue-300/20 bg-blue-400/10 text-blue-100",
-  green: "border-emerald-300/20 bg-emerald-400/10 text-emerald-100",
-  amber: "border-amber-300/20 bg-amber-400/10 text-amber-100",
-  rose: "border-rose-300/20 bg-rose-400/10 text-rose-100",
+  neutral: "border-slate-300 bg-slate-100 text-slate-900",
+  blue: "border-blue-200 bg-blue-50 text-blue-900",
+  green: "border-emerald-200 bg-emerald-50 text-emerald-900",
+  amber: "border-amber-200 bg-amber-50 text-amber-900",
+  rose: "border-rose-200 bg-rose-50 text-rose-900",
 };
 
 export default function Badge({
