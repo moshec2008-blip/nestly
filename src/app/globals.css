@@ -1,0 +1,771 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f6f7f9;
+  --foreground: #1d1d1f;
+  --surface-1: #ffffff;
+  --surface-2: #fafafb;
+  --surface-soft: rgba(255, 255, 255, 0.78);
+  --border-soft: #e6e8ec;
+  --text-muted: #6b7280;
+  --accent: #007aff;
+  --accent-emerald: #34c759;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --shadow-premium: 0 18px 44px rgba(15, 23, 42, 0.08);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  color-scheme: light;
+  font-family: "Assistant", "Heebo", "Noto Sans Hebrew", "Rubik",
+    var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Arial, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(0, 122, 255, 0.08), transparent 28%),
+    radial-gradient(circle at 86% 12%, rgba(216, 180, 112, 0.08), transparent 26%),
+    linear-gradient(180deg, #fbfcff 0%, #f6f7f9 44%, #f4f6f8 100%);
+}
+
+@keyframes soft-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-soft-in {
+  animation: soft-in 420ms ease both;
+}
+
+details > summary {
+  user-select: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] .premium-details-panel,
+details[open] > form,
+details[open] > div {
+  animation: soft-in 220ms ease both;
+}
+
+.premium-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+
+.premium-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.premium-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.35);
+}
+
+::selection {
+  background: #2563eb;
+  color: white;
+}
+
+:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+}
+
+button,
+a,
+input,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.skip-link {
+  position: fixed;
+  inset-block-start: 12px;
+  inset-inline-end: 12px;
+  z-index: 50;
+  transform: translateY(-160%);
+  border-radius: 8px;
+  background: #1d1d1f;
+  color: white;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.app-light {
+  color: #111827;
+}
+
+.app-light [class*="bg-slate-8"],
+.app-light [class*="bg-slate-9"],
+.app-light [class*="bg-[#080c18"],
+.app-light [class*="bg-[#0f172a"],
+.app-light [class*="bg-[#111827"],
+.app-light [class*="bg-[rgba(9,13,27"],
+.app-light [class*="bg-slate-950"] {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.08) !important;
+}
+
+.app-light [class*="bg-slate-800/"],
+.app-light [class*="bg-slate-900/"] {
+  border: 1px solid rgba(226, 232, 240, 0.82);
+}
+
+.app-light [class*="bg-white/["],
+.app-light [class*="bg-white/[0."],
+.app-light [class*="bg-white/10"] {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.app-light [class*="border-white/10"],
+.app-light [class*="border-white/[0."],
+.app-light [class*="border-[rgba(216,180,112"] {
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+.app-light [class*="text-[#fff9ea]"],
+.app-light [class*="text-white"] {
+  color: #111827 !important;
+}
+
+.app-light h1,
+.app-light h2,
+.app-light h3,
+.app-light h4,
+.app-light [class*="font-black"] {
+  color: #0f172a;
+}
+
+.app-light [class*="text-slate-200"] {
+  color: #475569 !important;
+}
+
+.app-light [class*="text-slate-300"],
+.app-light [class*="text-slate-400"],
+.app-light [class*="text-[#a9a295]"],
+.app-light [class*="text-[#d7cfbf]"],
+.app-light [class*="text-[#81796b]"] {
+  color: #64748b !important;
+}
+
+.app-light [class*="text-[#f4e7c8]"],
+.app-light [class*="text-[#d8b470]"],
+.app-light [class*="text-amber-100"],
+.app-light [class*="text-amber-200"] {
+  color: #b45309 !important;
+}
+
+.app-light [class*="text-emerald-100"],
+.app-light [class*="text-emerald-200"],
+.app-light [class*="text-emerald-300"] {
+  color: #047857 !important;
+}
+
+.app-light [class*="text-[#f0c6bd]"],
+.app-light [class*="text-[#e7b7a8]"],
+.app-light [class*="text-red-100"],
+.app-light [class*="text-red-200"] {
+  color: #be123c !important;
+}
+
+.app-light button,
+.app-light a {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.app-light button:hover,
+.app-light a:hover {
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.1);
+}
+
+.app-light input,
+.app-light select,
+.app-light textarea {
+  background-color: rgba(255, 255, 255, 0.86) !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+  color: #111827 !important;
+}
+
+.app-light option {
+  background: white;
+  color: #111827;
+}
+
+.app-light [class*="rounded-[18px]"][class*="bg-slate-800"],
+.app-light [class*="rounded-[22px]"][class*="bg-slate-800"],
+.app-light [class*="rounded-[24px]"][class*="bg-slate-800"],
+.app-light [class*="rounded-[28px]"][class*="bg-[rgba(9,13,27"] {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(226, 232, 240, 0.82);
+  color: #111827 !important;
+}
+
+.app-light [class*="rounded-2xl"][class*="bg-white/[0.04"],
+.app-light [class*="rounded-2xl"][class*="bg-white/[0.045"],
+.app-light [class*="rounded-2xl"][class*="bg-white/[0.05"],
+.app-light [class*="rounded-2xl"][class*="bg-white/[0.055"],
+.app-light [class*="rounded-2xl"][class*="bg-white/[0.06"],
+.app-light [class*="rounded-xl"][class*="bg-white/[0.06"],
+.app-light [class*="rounded-full"][class*="bg-white/[0.07"],
+.app-light [class*="rounded-full"][class*="bg-white/[0.08"] {
+  background-color: rgba(248, 250, 252, 0.92) !important;
+  border-color: rgba(226, 232, 240, 0.9) !important;
+  color: #334155 !important;
+}
+
+.app-light table {
+  color: #1f2937;
+}
+
+.app-light thead,
+.app-light [class*="bg-white/[0.055]"] {
+  background-color: rgba(248, 250, 252, 0.92) !important;
+}
+
+.app-light tr:hover,
+.app-light article:hover {
+  background-color: rgba(239, 246, 255, 0.72) !important;
+}
+
+.app-light [class*="border-dashed"] {
+  border-color: rgba(148, 163, 184, 0.38) !important;
+}
+
+.app-light input::placeholder,
+.app-light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.app-light [class*="bg-blue-"],
+.app-light [class*="bg-indigo-"],
+.app-light [class*="bg-purple-"],
+.app-light [class*="bg-violet-"],
+.app-light [class*="bg-fuchsia-"],
+.app-light [class*="bg-rose-"],
+.app-light [class*="bg-red-"],
+.app-light [class*="bg-emerald-"],
+.app-light [class*="bg-cyan-"],
+.app-light [class*="bg-orange-"],
+.app-light [class*="bg-amber-"],
+.app-light [class*="from-blue-"],
+.app-light [class*="from-indigo-"],
+.app-light [class*="from-purple-"],
+.app-light [class*="from-violet-"],
+.app-light [class*="from-fuchsia-"],
+.app-light [class*="from-rose-"],
+.app-light [class*="from-red-"],
+.app-light [class*="from-emerald-"],
+.app-light [class*="from-cyan-"],
+.app-light [class*="from-orange-"] {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.app-light [class*="bg-blue-"] [class*="text-white"],
+.app-light [class*="bg-indigo-"] [class*="text-white"],
+.app-light [class*="bg-purple-"] [class*="text-white"],
+.app-light [class*="bg-violet-"] [class*="text-white"],
+.app-light [class*="bg-fuchsia-"] [class*="text-white"],
+.app-light [class*="bg-rose-"] [class*="text-white"],
+.app-light [class*="bg-red-"] [class*="text-white"],
+.app-light [class*="bg-emerald-"] [class*="text-white"],
+.app-light [class*="bg-cyan-"] [class*="text-white"],
+.app-light [class*="from-blue-"] [class*="text-white"],
+.app-light [class*="from-indigo-"] [class*="text-white"],
+.app-light [class*="from-purple-"] [class*="text-white"],
+.app-light [class*="from-violet-"] [class*="text-white"],
+.app-light [class*="from-fuchsia-"] [class*="text-white"],
+.app-light [class*="from-rose-"] [class*="text-white"],
+.app-light [class*="from-red-"] [class*="text-white"],
+.app-light [class*="from-emerald-"] [class*="text-white"],
+.app-light [class*="from-cyan-"] [class*="text-white"],
+.app-light a[class*="from-blue-600"],
+.app-light a[class*="from-blue-500"],
+.app-light button[class*="bg-blue-"],
+.app-light button[class*="bg-purple-"],
+.app-light button[class*="bg-red-"],
+.app-light button[class*="bg-emerald-"],
+.app-light button[class*="bg-slate-950"],
+.app-light button[class*="from-blue-500"],
+.app-light button[class*="from-blue-600"],
+.app-light button[class*="from-fuchsia-"],
+.app-light summary[class*="from-fuchsia-500"],
+.app-light span[class*="from-blue-600"],
+.app-light span[class*="bg-blue-"],
+.app-light span[class*="bg-red-"] {
+  color: white !important;
+}
+
+.app-light details {
+  scroll-margin-top: 5.5rem;
+}
+
+.app-light details > summary {
+  min-height: 44px;
+}
+
+.app-light details[open] {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.app-premium {
+  color: #f8f3e7;
+}
+
+.app-premium h1,
+.app-premium h2,
+.app-premium h3,
+.app-premium h4,
+.app-premium [class*="font-black"] {
+  color: #fff9ea;
+}
+
+.app-premium [class*="bg-white/"],
+.app-premium [class*="bg-white/["],
+.app-premium [class*="bg-white/80"],
+.app-premium [class*="bg-white/82"],
+.app-premium [class*="bg-white/84"],
+.app-premium [class*="bg-white/86"],
+.app-premium [class*="bg-white/88"],
+.app-premium [class*="bg-white/95"],
+.app-premium [class*="bg-slate-50"],
+.app-premium [class*="bg-blue-50"],
+.app-premium [class*="bg-emerald-50"],
+.app-premium [class*="bg-amber-50"],
+.app-premium [class*="bg-violet-100"],
+.app-premium [class*="bg-amber-100"] {
+  background-color: rgba(24, 34, 51, 0.78) !important;
+}
+
+.app-premium [class*="bg-slate-800"],
+.app-premium [class*="bg-slate-900"],
+.app-premium [class*="bg-[#080c18"],
+.app-premium [class*="bg-[#111827"],
+.app-premium [class*="bg-[rgba(9,13,27"] {
+  background-color: rgba(24, 34, 51, 0.82) !important;
+}
+
+.app-premium [class*="border-slate-200"],
+.app-premium [class*="border-white/10"],
+.app-premium [class*="border-white/[0."],
+.app-premium [class*="border-[rgba(216,180,112"] {
+  border-color: rgba(248, 243, 231, 0.1) !important;
+}
+
+.app-premium [class*="text-slate-950"],
+.app-premium [class*="text-slate-900"],
+.app-premium [class*="text-[#111827]"],
+.app-premium [class*="text-[#080b16]"],
+.app-premium [class*="text-[#fff9ea]"],
+.app-premium [class*="text-white"] {
+  color: #fff9ea !important;
+}
+
+.app-premium [class*="text-slate-700"],
+.app-premium [class*="text-slate-600"],
+.app-premium [class*="text-slate-500"],
+.app-premium [class*="text-slate-400"],
+.app-premium [class*="text-slate-300"],
+.app-premium [class*="text-[#a9a295]"],
+.app-premium [class*="text-[#d7cfbf]"] {
+  color: #b8b2a7 !important;
+}
+
+.app-premium [class*="text-blue-"],
+.app-premium [class*="text-[#d8b470]"],
+.app-premium [class*="text-[#f4e7c8]"],
+.app-premium [class*="text-amber-"] {
+  color: #d8b470 !important;
+}
+
+.app-premium [class*="text-emerald-"] {
+  color: #6ee7b7 !important;
+}
+
+.app-premium [class*="text-rose-"],
+.app-premium [class*="text-red-"],
+.app-premium [class*="text-[#e7b7a8]"],
+.app-premium [class*="text-[#f0c6bd]"] {
+  color: #f0b8ac !important;
+}
+
+.app-premium input,
+.app-premium select,
+.app-premium textarea {
+  background-color: rgba(15, 23, 42, 0.72) !important;
+  border-color: rgba(248, 243, 231, 0.11) !important;
+  color: #fff9ea !important;
+}
+
+.app-premium option {
+  background: #111827;
+  color: #fff9ea;
+}
+
+.app-premium input::placeholder,
+.app-premium textarea::placeholder {
+  color: rgba(184, 178, 167, 0.74) !important;
+}
+
+.app-premium table {
+  color: #f8f3e7;
+}
+
+.app-premium [class*="shadow-[0_"] {
+  box-shadow: 0 18px 52px rgba(2, 6, 23, 0.22) !important;
+}
+
+.app-premium article:hover,
+.app-premium tr:hover {
+  background-color: rgba(255, 255, 255, 0.055) !important;
+}
+
+.app-premium a,
+.app-premium button {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.app-premium details {
+  scroll-margin-top: 5.5rem;
+}
+
+.app-premium details > summary {
+  min-height: 42px;
+}
+
+.app-premium a[class*="from-blue-"],
+.app-premium button[class*="from-blue-"],
+.app-premium button[class*="bg-blue-"],
+.app-premium button[class*="bg-purple-"],
+.app-premium button[class*="bg-emerald-"],
+.app-premium button[class*="bg-red-"],
+.app-premium button[class*="bg-slate-900"],
+.app-premium span[class*="bg-blue-"],
+.app-premium span[class*="bg-red-"],
+.app-premium summary[class*="from-fuchsia-"] {
+  color: white !important;
+}
+
+/* Final Nestly light design system: Apple-inspired, calm, compact and consistent. */
+.app-premium {
+  background: #f6f7f9;
+  color: #1d1d1f;
+}
+
+.app-premium h1,
+.app-premium h2,
+.app-premium h3,
+.app-premium h4,
+.app-premium [class*="font-black"] {
+  color: #1d1d1f !important;
+}
+
+.app-premium [class*="bg-[#111827"],
+.app-premium [class*="bg-[#182233"],
+.app-premium [class*="bg-[#080c18"],
+.app-premium [class*="bg-[#0f172a"],
+.app-premium [class*="bg-slate-800"],
+.app-premium [class*="bg-slate-900"],
+.app-premium [class*="bg-slate-950"],
+.app-premium [class*="bg-[rgba(9,13,27"],
+.app-premium [class*="bg-white/["],
+.app-premium [class*="bg-white/8"],
+.app-premium [class*="bg-white/9"] {
+  background-color: #ffffff !important;
+}
+
+.app-premium [class*="bg-white/"],
+.app-premium [class*="bg-slate-50"],
+.app-premium [class*="bg-blue-50"],
+.app-premium [class*="bg-emerald-50"],
+.app-premium [class*="bg-amber-50"],
+.app-premium [class*="bg-violet-100"],
+.app-premium [class*="bg-rose-100"] {
+  background-color: #ffffff !important;
+}
+
+.app-premium header[class*="fixed"] {
+  background: rgba(255, 255, 255, 0.86) !important;
+  border-color: #e6e8ec !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06) !important;
+  color: #1d1d1f !important;
+}
+
+.app-premium aside {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: #e6e8ec !important;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08) !important;
+}
+
+.app-premium section,
+.app-premium article,
+.app-premium details {
+  border-color: #e6e8ec !important;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.055) !important;
+}
+
+.app-premium [class*="border-white"],
+.app-premium [class*="border-slate-200"],
+.app-premium [class*="border-[rgba(216,180,112"] {
+  border-color: #e6e8ec !important;
+}
+
+.app-premium [class*="text-[#fff9ea]"],
+.app-premium [class*="text-white"],
+.app-premium [class*="text-slate-950"],
+.app-premium [class*="text-slate-900"],
+.app-premium [class*="text-[#080b16]"] {
+  color: #1d1d1f !important;
+}
+
+.app-premium [class*="text-slate-700"],
+.app-premium [class*="text-slate-600"],
+.app-premium [class*="text-slate-500"],
+.app-premium [class*="text-slate-400"],
+.app-premium [class*="text-slate-300"],
+.app-premium [class*="text-[#b8b2a7]"],
+.app-premium [class*="text-[#a9a295]"],
+.app-premium [class*="text-[#d7cfbf]"],
+.app-premium [class*="text-[#8f8879]"] {
+  color: #6b7280 !important;
+}
+
+.app-premium [class*="text-blue-"],
+.app-premium [class*="text-[#007aff]"] {
+  color: #007aff !important;
+}
+
+.app-premium [class*="text-emerald-"] {
+  color: #248a3d !important;
+}
+
+.app-premium [class*="text-rose-"],
+.app-premium [class*="text-red-"],
+.app-premium [class*="text-[#f0c6bd]"],
+.app-premium [class*="text-[#e7b7a8]"] {
+  color: #d84f45 !important;
+}
+
+.app-premium [class*="text-amber-"],
+.app-premium [class*="text-[#d8b470]"],
+.app-premium [class*="text-[#f4e7c8]"] {
+  color: #9a6b17 !important;
+}
+
+.app-premium input,
+.app-premium select,
+.app-premium textarea {
+  background: #fafafb !important;
+  border-color: #e6e8ec !important;
+  color: #1d1d1f !important;
+  box-shadow: none !important;
+}
+
+.app-premium input::placeholder,
+.app-premium textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+.app-premium option {
+  background: #ffffff;
+  color: #1d1d1f;
+}
+
+.app-premium table {
+  color: #1d1d1f;
+}
+
+.app-premium thead,
+.app-premium [class*="bg-white/[0.055]"] {
+  background: #fafafb !important;
+}
+
+.app-premium tr:hover,
+.app-premium article:hover {
+  background: #fafafb !important;
+}
+
+.app-premium [class*="shadow-[0_"] {
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.055) !important;
+}
+
+.app-premium [class*="rounded-[34px]"] {
+  border-radius: 24px !important;
+}
+
+.app-premium [class*="rounded-[28px]"] {
+  border-radius: 22px !important;
+}
+
+.app-premium [class*="rounded-[24px]"],
+.app-premium [class*="rounded-[26px]"] {
+  border-radius: 20px !important;
+}
+
+.app-premium [class*="p-8"] {
+  padding: 1.25rem !important;
+}
+
+.app-premium [class*="p-6"],
+.app-premium [class*="p-7"] {
+  padding: 1rem !important;
+}
+
+.app-premium button,
+.app-premium a {
+  box-shadow: none;
+}
+
+.app-premium a:hover,
+.app-premium button:hover {
+  transform: translateY(-1px);
+}
+
+.app-premium button[class*="bg-blue-"],
+.app-premium button[class*="bg-purple-"],
+.app-premium button[class*="bg-emerald-"],
+.app-premium button[class*="bg-red-"],
+.app-premium button[class*="from-blue-"],
+.app-premium a[class*="from-blue-"],
+.app-premium span[class*="bg-blue-"],
+.app-premium span[class*="bg-red-"] {
+  color: #ffffff !important;
+}
+
+/* Compact polish pass: reduce visual weight and enforce calmer 8px rhythm. */
+.app-premium section,
+.app-premium article,
+.app-premium details,
+.app-premium aside {
+  border-color: rgba(230, 232, 236, 0.82) !important;
+}
+
+.app-premium [class*="shadow-[0_"] {
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.045) !important;
+}
+
+.app-premium [class*="space-y-4"] {
+  row-gap: 0.75rem !important;
+}
+
+.app-premium [class*="space-y-3"] {
+  row-gap: 0.625rem !important;
+}
+
+.app-premium [class*="gap-4"] {
+  gap: 0.75rem !important;
+}
+
+.app-premium [class*="gap-3"] {
+  gap: 0.625rem !important;
+}
+
+.app-premium [class*="p-5"] {
+  padding: 1rem !important;
+}
+
+.app-premium [class*="p-4"] {
+  padding: 0.875rem !important;
+}
+
+.app-premium [class*="p-3.5"],
+.app-premium [class*="p-3"] {
+  padding: 0.75rem !important;
+}
+
+.app-premium [class*="py-4"] {
+  padding-block: 0.75rem !important;
+}
+
+.app-premium [class*="py-3"] {
+  padding-block: 0.625rem !important;
+}
+
+.app-premium [class*="px-5"] {
+  padding-inline: 1rem !important;
+}
+
+.app-premium [class*="px-4"] {
+  padding-inline: 0.875rem !important;
+}
+
+.app-premium [class*="mb-6"] {
+  margin-bottom: 0.875rem !important;
+}
+
+.app-premium [class*="mb-5"],
+.app-premium [class*="mb-4"] {
+  margin-bottom: 0.75rem !important;
+}
+
+.app-premium [class*="mt-4"] {
+  margin-top: 0.75rem !important;
+}
+
+.app-premium [class*="text-4xl"],
+.app-premium [class*="text-5xl"] {
+  font-size: 1.75rem !important;
+  line-height: 2.125rem !important;
+}
+
+.app-premium [class*="text-3xl"] {
+  font-size: 1.5rem !important;
+  line-height: 2rem !important;
+}
+
+.app-premium a[class*="bg-[#111827"],
+.app-premium button[class*="bg-[#111827"],
+.app-premium span[class*="bg-[#111827"],
+.app-premium a[class*="bg-slate-900"],
+.app-premium button[class*="bg-slate-900"] {
+  background-color: #111827 !important;
+  color: #ffffff !important;
+}
+
+.app-premium a[class*="bg-[#111827"] *,
+.app-premium button[class*="bg-[#111827"] *,
+.app-premium a[class*="bg-slate-900"] *,
+.app-premium button[class*="bg-slate-900"] * {
+  color: inherit !important;
+}

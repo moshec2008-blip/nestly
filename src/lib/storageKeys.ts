@@ -1,0 +1,13 @@
+export const storageKeys = {
+  appSettings: "beit-cohen-shor-app-settings",
+  tasks: "beit-cohen-shor-family-tasks",
+  finance: "beit-cohen-shor-finance-transactions",
+  health: "beit-cohen-shor-health-records",
+  documents: "beit-cohen-shor-documents",
+  vehicles: "beit-cohen-shor-vehicle-records",
+  family: "beit-cohen-shor-family-records",
+  birthdays: "beit-cohen-shor-birthdays",
+  shopping: "beit-cohen-shor-shopping-items",
+  permissions: "beit-cohen-shor-permissions",
+  authSession: "nestly-auth-session",
+} as const;
