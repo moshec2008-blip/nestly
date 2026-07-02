@@ -110,6 +110,21 @@ function getInitialForm(): DocumentForm {
   };
 }
 
+function getFormFromDocument(documentItem: DocumentItem): DocumentForm {
+  return {
+    title: documentItem.title,
+    description: documentItem.description,
+    owner: documentItem.owner,
+    category: documentItem.category,
+    documentType: documentItem.documentType ?? "כללי",
+    date: documentItem.date,
+    expiryDate: documentItem.expiryDate ?? "",
+    reminderDate: documentItem.reminderDate ?? "",
+    tagsText: documentItem.tags?.join(", ") ?? "",
+    files: [],
+  };
+}
+
 function formatDate(date: string) {
   return new Intl.DateTimeFormat("he-IL", {
     day: "2-digit",
@@ -216,6 +231,10 @@ export default function DocumentsManager() {
     initialDocuments
   );
   const [form, setForm] = useState<DocumentForm>(getInitialForm);
+  const [editingDocumentId, setEditingDocumentId] = useState<string | null>(
+    null
+  );
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | DocumentStatus>(
     "all"
@@ -267,6 +286,12 @@ export default function DocumentsManager() {
   const displayedDocuments = showAllDocuments
     ? visibleDocuments
     : visibleDocuments.slice(0, 5);
+
+  function resetForm() {
+    setForm(getInitialForm());
+    setAiSuggestion(null);
+    setEditingDocumentId(null);
+  }
 
   function addFiles(files: File[], source: Attachment["source"] = "upload") {
     const acceptedFiles = files.filter((file) => file.size <= maxLocalFileSize);
@@ -369,7 +394,7 @@ export default function DocumentsManager() {
       return;
     }
 
-    const attachments = await Promise.all(
+    const newAttachments = await Promise.all(
       form.files.map((file) => fileToAttachment(file))
     );
     const suggestion =
@@ -383,8 +408,7 @@ export default function DocumentsManager() {
         })),
       });
 
-    const documentItem: DocumentItem = {
-      id: crypto.randomUUID(),
+    const documentPayload = {
       title: cleanTitle,
       description: cleanDescription || "מסמך חדש ללא פירוט נוסף.",
       owner: cleanOwner,
@@ -393,8 +417,6 @@ export default function DocumentsManager() {
       date: form.date,
       expiryDate: form.expiryDate || undefined,
       reminderDate: form.reminderDate || undefined,
-      status: "open",
-      attachments,
       tags: getTagsFromText(form.tagsText).length
         ? getTagsFromText(form.tagsText)
         : suggestion.tags,
@@ -402,9 +424,38 @@ export default function DocumentsManager() {
       aiConfidence: suggestion.confidence,
     };
 
+    if (editingDocumentId) {
+      setDocuments((currentDocuments) =>
+        currentDocuments.map((item) =>
+          item.id === editingDocumentId
+            ? {
+                ...item,
+                ...documentPayload,
+                attachments: [...item.attachments, ...newAttachments],
+              }
+            : item
+        )
+      );
+      resetForm();
+      setIsFormOpen(false);
+      toast({
+        title: "המסמך עודכן",
+        description: cleanTitle,
+        tone: "success",
+      });
+      return;
+    }
+
+    const documentItem: DocumentItem = {
+      id: crypto.randomUUID(),
+      ...documentPayload,
+      status: "open",
+      attachments: newAttachments,
+    };
+
     setDocuments((currentDocuments) => [documentItem, ...currentDocuments]);
-    setForm(getInitialForm());
-    setAiSuggestion(null);
+    resetForm();
+    setIsFormOpen(false);
     toast({
       title: "מסמך חדש נוסף",
       description: documentItem.title,
@@ -420,6 +471,18 @@ export default function DocumentsManager() {
           : item
       )
     );
+  }
+
+  function startEditDocument(documentItem: DocumentItem) {
+    setEditingDocumentId(documentItem.id);
+    setForm(getFormFromDocument(documentItem));
+    setAiSuggestion(null);
+    setIsFormOpen(true);
+  }
+
+  function cancelEditDocument() {
+    resetForm();
+    setIsFormOpen(false);
   }
 
   async function deleteDocument(id: string) {
@@ -440,6 +503,10 @@ export default function DocumentsManager() {
     setDocuments((currentDocuments) =>
       currentDocuments.filter((item) => item.id !== id)
     );
+    if (editingDocumentId === id) {
+      resetForm();
+      setIsFormOpen(false);
+    }
     toast({
       title: "המסמך נמחק",
       description: title,
@@ -470,17 +537,23 @@ export default function DocumentsManager() {
         </div>
       </div>
 
-      <details className="group rounded-[18px] bg-slate-800/58 p-2.5 text-right text-[#fff9ea] shadow-[0_10px_28px_rgba(2,6,23,0.16)]">
+      <details
+        open={isFormOpen}
+        onToggle={(event) => setIsFormOpen(event.currentTarget.open)}
+        className="group rounded-[18px] bg-slate-800/58 p-2.5 text-right text-[#fff9ea] shadow-[0_10px_28px_rgba(2,6,23,0.16)]"
+      >
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
           <span className="rounded-full bg-[#f4e7c8] px-4 py-2 text-xs font-black text-slate-950 shadow-sm group-open:hidden">
-            הוסף מסמך
+            {editingDocumentId ? "עריכת מסמך" : "הוסף מסמך"}
           </span>
           <span className="hidden rounded-full bg-white/[0.08] px-4 py-2 text-xs font-black text-slate-200 group-open:inline">
             סגור
           </span>
           <div>
           <p className="mb-1 text-[11px] text-slate-400">צירוף מסמכים</p>
-            <h2 className="text-base font-black">הוספת מסמך</h2>
+            <h2 className="text-base font-black">
+              {editingDocumentId ? "עריכת מסמך" : "הוספת מסמך"}
+            </h2>
           </div>
           <p className="hidden">
             אפשר לצרף קבצים, לפתוח מצלמה לסריקה מהטלפון, ולהפעיל תיוק חכם
@@ -561,8 +634,18 @@ export default function DocumentsManager() {
             type="submit"
             className="rounded-2xl bg-[#f4e7c8] px-5 py-3 text-sm font-black text-slate-950 hover:bg-[#fff3d6]"
           >
-            שמור מסמך
+            {editingDocumentId ? "שמור שינויים" : "שמור מסמך"}
           </button>
+
+          {editingDocumentId && (
+            <button
+              type="button"
+              onClick={cancelEditDocument}
+              className="rounded-2xl border border-white/10 bg-white/[0.08] px-5 py-3 text-sm font-black text-slate-100 hover:bg-white/[0.12]"
+            >
+              ביטול עריכה
+            </button>
+          )}
 
           <textarea
             value={form.description}
@@ -739,6 +822,14 @@ export default function DocumentsManager() {
                       }
                     >
                       {item.status === "done" ? "פתח מחדש" : "סמן כבוצע"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => startEditDocument(item)}
+                      className="rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-bold text-slate-100 hover:bg-white/[0.12]"
+                    >
+                      עריכה
                     </button>
 
                     <button

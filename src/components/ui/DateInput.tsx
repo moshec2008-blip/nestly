@@ -81,6 +81,27 @@ function formatIsoDate(value: string) {
   return `${match[3]}/${match[2]}/${match[1]}`;
 }
 
+function formatDateDraft(rawValue: string) {
+  const value = rawValue.trim();
+  const parsedDate = parseDateInput(value);
+
+  if (parsedDate && /[./-]/.test(value)) {
+    return formatIsoDate(parsedDate);
+  }
+
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+
+  if (digits.length <= 2) {
+    return digits;
+  }
+
+  if (digits.length <= 4) {
+    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  }
+
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
 export default function DateInput({
   value,
   onChange,
@@ -104,31 +125,15 @@ export default function DateInput({
     }
   }
 
-  function openNativePicker() {
-    const picker = nativeDateRef.current as
-      | (HTMLInputElement & { showPicker?: () => void })
-      | null;
-
-    if (!picker) {
-      return;
-    }
-
-    if (picker.showPicker) {
-      picker.showPicker();
-      return;
-    }
-
-    picker.click();
-  }
-
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <input
         id={generatedId}
         value={displayValue}
         onChange={(event) => {
-          setDraftValue(event.target.value);
-          commitDate(event.target.value);
+          const nextValue = formatDateDraft(event.target.value);
+          setDraftValue(nextValue);
+          commitDate(nextValue);
         }}
         onBlur={() => {
           setDraftValue(null);
@@ -140,26 +145,25 @@ export default function DateInput({
         className={inputClassName}
         dir="ltr"
       />
-      <button
-        type="button"
-        onClick={openNativePicker}
-        className={buttonClassName}
-        aria-label={`בחר ${label ?? "תאריך"} מתוך לוח`}
-      >
-        לוח
-      </button>
-      <input
-        ref={nativeDateRef}
-        type="date"
-        value={value}
-        onChange={(event) => {
-          setDraftValue(null);
-          onChange(event.target.value);
-        }}
-        className="sr-only"
-        tabIndex={-1}
-        aria-hidden="true"
-      />
+      <span className="relative inline-flex shrink-0">
+        <span
+          className={`inline-flex items-center justify-center ${buttonClassName}`}
+          aria-hidden="true"
+        >
+          לוח
+        </span>
+        <input
+          ref={nativeDateRef}
+          type="date"
+          value={value}
+          onChange={(event) => {
+            setDraftValue(null);
+            onChange(event.target.value);
+          }}
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          aria-label={`בחר ${label ?? "תאריך"} מתוך לוח`}
+        />
+      </span>
     </div>
   );
 }
