@@ -65,7 +65,7 @@ export default function FinanceFilters({
         >
           <option value="all">כל הסטטוסים</option>
           <option value="done">בוצע בלבד</option>
-          <option value="pending">ממתין בלבד</option>
+          <option value="pending">פעולות עתידיות בלבד</option>
         </select>
       </div>
     </section>

@@ -17,9 +17,14 @@ export default function HealthPage() {
       <ModuleManager
         storageKey={storageKeys.health}
         initialRecords={initialHealthRecords}
-        formTitle="הוספת פריט בריאות"
+        formTitle="קביעת תור או תזכורת רפואית"
         listTitle="מעקב בריאות"
         defaultCategory="בריאות"
+        addButtonLabel="קביעת תור"
+        editTitle="עריכת תור"
+        itemLabel="תור"
+        itemPluralLabel="תורים"
+        titlePlaceholder="שם התור או הבדיקה"
       />
     </AppShell>
   );

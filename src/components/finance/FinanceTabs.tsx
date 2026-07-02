@@ -16,7 +16,6 @@ const tabs: { id: FinanceTab; label: string }[] = [
   { id: "transactions", label: "פעולות" },
   { id: "budget", label: "תקציב" },
   { id: "reports", label: "דוחות" },
-  { id: "overview", label: "סקירה" },
   { id: "backup", label: "גיבוי" },
 ];
 

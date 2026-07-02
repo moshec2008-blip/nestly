@@ -36,22 +36,22 @@ export default function HomePage() {
       <div className="space-y-2.5">
         <Header />
 
-        <div className="grid gap-2.5 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="grid gap-2.5">
           <section className="rounded-[20px] border border-[#e6e8ec] bg-white p-2.5 text-[#1d1d1f] shadow-[0_12px_30px_rgba(15,23,42,0.06)]">
             <div
               className={[
-                "mb-2.5 flex items-end justify-between gap-4",
+                "mb-2.5 flex items-end",
                 direction === "rtl" ? "text-right" : "text-left",
               ].join(" ")}
             >
-              <span className="rounded-full border border-[#e6e8ec] bg-[#fafafb] px-2.5 py-1 text-[11px] font-bold text-slate-600">
+              <span className="hidden">
                 מרכז עבודה
               </span>
               <div>
-                <p className="text-xs font-bold text-slate-500">
+                <p className="hidden">
                   {dictionary.dashboard.workspaceAreas}
                 </p>
-                <h2 className="mt-1 text-base font-black sm:text-lg">
+                <h2 className="text-base font-black sm:text-lg">
                   מה חשוב עכשיו
                 </h2>
               </div>
@@ -71,7 +71,6 @@ export default function HomePage() {
             </div>
           </section>
 
-          <DashboardLiveOverview />
         </div>
 
         <details className="rounded-[18px] border border-[#e6e8ec] bg-white p-2.5 text-[#1d1d1f] shadow-[0_10px_24px_rgba(15,23,42,0.055)]">
@@ -121,6 +120,8 @@ export default function HomePage() {
             )}
           </div>
         </details>
+
+        <DashboardLiveOverview />
       </div>
     </AppShell>
   );

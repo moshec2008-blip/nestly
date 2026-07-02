@@ -39,12 +39,6 @@ export const appModules: NavigationItem[] = [
     status: "פעיל",
   },
   {
-    label: "סקירה",
-    href: "/dashboard",
-    description: "תמונת מצב מרכזית של המערכת והמודולים.",
-    status: "פעיל",
-  },
-  {
     label: "בריאות",
     href: "/health",
     description: "תורים, בדיקות, תרופות ומעקב בריאות משפחתי.",

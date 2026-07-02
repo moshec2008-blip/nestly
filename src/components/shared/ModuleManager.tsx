@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import DateInput from "@/components/ui/DateInput";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import type { ModuleRecord, ModuleRecordStatus } from "@/types/modules";
@@ -11,6 +12,11 @@ type ModuleManagerProps = {
   formTitle: string;
   listTitle: string;
   defaultCategory: string;
+  addButtonLabel?: string;
+  editTitle?: string;
+  itemLabel?: string;
+  itemPluralLabel?: string;
+  titlePlaceholder?: string;
 };
 
 type RecordForm = {
@@ -35,6 +41,16 @@ function getInitialForm(defaultCategory: string): RecordForm {
   };
 }
 
+function getFormFromRecord(record: ModuleRecord): RecordForm {
+  return {
+    title: record.title,
+    description: record.description,
+    owner: record.owner,
+    category: record.category,
+    date: record.date,
+  };
+}
+
 function formatDate(date: string) {
   return new Intl.DateTimeFormat("he-IL", {
     day: "2-digit",
@@ -53,6 +69,11 @@ export default function ModuleManager({
   formTitle,
   listTitle,
   defaultCategory,
+  addButtonLabel = "הוסף פריט",
+  editTitle = "עריכת פריט",
+  itemLabel = "פריט",
+  itemPluralLabel = "פריטים",
+  titlePlaceholder = "שם הפריט",
 }: ModuleManagerProps) {
   const { confirm, toast } = useFeedback();
   const [records, setRecords] = usePersistentArrayState<ModuleRecord>(
@@ -62,6 +83,7 @@ export default function ModuleManager({
   const [form, setForm] = useState<RecordForm>(() =>
     getInitialForm(defaultCategory)
   );
+  const [editingRecordId, setEditingRecordId] = useState<string | null>(null);
   const [searchValue, setSearchValue] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | ModuleRecordStatus>(
     "all"
@@ -113,10 +135,36 @@ export default function ModuleManager({
       return;
     }
 
+    if (editingRecordId) {
+      setRecords((currentRecords) =>
+        currentRecords.map((record) =>
+          record.id === editingRecordId
+            ? {
+                ...record,
+                title: cleanTitle,
+                description:
+                  cleanDescription || `${itemLabel} חדש ללא פירוט נוסף.`,
+                owner: cleanOwner,
+                category: cleanCategory,
+                date: form.date,
+              }
+            : record
+        )
+      );
+      setEditingRecordId(null);
+      setForm(getInitialForm(defaultCategory));
+      toast({
+        title: `${itemLabel} עודכן`,
+        description: cleanTitle,
+        tone: "success",
+      });
+      return;
+    }
+
     const record: ModuleRecord = {
       id: crypto.randomUUID(),
       title: cleanTitle,
-      description: cleanDescription || "פריט חדש ללא פירוט נוסף.",
+      description: cleanDescription || `${itemLabel} חדש ללא פירוט נוסף.`,
       owner: cleanOwner,
       category: cleanCategory,
       date: form.date,
@@ -126,7 +174,7 @@ export default function ModuleManager({
     setRecords((currentRecords) => [record, ...currentRecords]);
     setForm(getInitialForm(defaultCategory));
     toast({
-      title: "פריט חדש נוסף",
+      title: `${itemLabel} חדש נוסף`,
       description: record.title,
       tone: "success",
     });
@@ -142,13 +190,23 @@ export default function ModuleManager({
     );
   }
 
+  function startEdit(record: ModuleRecord) {
+    setEditingRecordId(record.id);
+    setForm(getFormFromRecord(record));
+  }
+
+  function cancelEdit() {
+    setEditingRecordId(null);
+    setForm(getInitialForm(defaultCategory));
+  }
+
   async function deleteRecord(id: string) {
     const record = records.find((item) => item.id === id);
-    const title = record?.title ?? "הפריט הזה";
+    const title = record?.title ?? `${itemLabel} זה`;
     const approved = await confirm({
-      title: "מחיקת פריט",
-      description: `למחוק את "${title}"? אי אפשר לשחזר את הפריט אחרי המחיקה.`,
-      confirmLabel: "מחק פריט",
+      title: `מחיקת ${itemLabel}`,
+      description: `למחוק את "${title}"? אי אפשר לשחזר אחרי המחיקה.`,
+      confirmLabel: `מחק ${itemLabel}`,
       cancelLabel: "ביטול",
       tone: "danger",
     });
@@ -160,8 +218,11 @@ export default function ModuleManager({
     setRecords((currentRecords) =>
       currentRecords.filter((record) => record.id !== id)
     );
+    if (editingRecordId === id) {
+      cancelEdit();
+    }
     toast({
-      title: "הפריט נמחק",
+      title: `${itemLabel} נמחק`,
       description: title,
       tone: "info",
     });
@@ -189,8 +250,8 @@ export default function ModuleManager({
 
       <details className="group rounded-[22px] border border-slate-200/80 bg-white/90 p-3 text-right text-slate-950 shadow-[0_14px_36px_rgba(15,23,42,0.08)] backdrop-blur">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-1 py-1">
-          <span className="rounded-full bg-[#111827] px-4 py-2 text-xs font-black text-white shadow-[0_8px_20px_rgba(17,24,39,0.16)] group-open:hidden">
-            הוסף פריט
+            <span className="rounded-full bg-[#111827] px-4 py-2 text-xs font-black text-white shadow-[0_8px_20px_rgba(17,24,39,0.16)] group-open:hidden">
+              {addButtonLabel}
           </span>
           <span className="hidden rounded-full bg-slate-100 px-4 py-2 text-xs font-black text-slate-800 group-open:inline">
             סגור
@@ -199,7 +260,9 @@ export default function ModuleManager({
             <p className="text-[11px] font-bold text-slate-500">
               ניהול מהיר
             </p>
-            <h2 className="text-base font-black text-slate-950">{formTitle}</h2>
+            <h2 className="text-base font-black text-slate-950">
+              {editingRecordId ? editTitle : formTitle}
+            </h2>
           </div>
         </summary>
 
@@ -214,7 +277,7 @@ export default function ModuleManager({
             }
             required
             className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-slate-950 outline-none placeholder:text-slate-400 focus:border-slate-400 lg:col-span-2"
-            placeholder="שם הפריט"
+            placeholder={titlePlaceholder}
           />
 
           <input
@@ -243,25 +306,35 @@ export default function ModuleManager({
             placeholder="קטגוריה"
           />
 
-          <input
+          <DateInput
             value={form.date}
-            onChange={(event) =>
+            onChange={(date) =>
               setForm((currentForm) => ({
                 ...currentForm,
-                date: event.target.value,
+                date,
               }))
             }
             required
-            type="date"
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-slate-950 outline-none focus:border-slate-400"
+            label="תאריך"
+            inputClassName="min-h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-slate-950 outline-none focus:border-slate-400"
           />
 
           <button
             type="submit"
             className="rounded-2xl bg-[#111827] px-5 py-3 text-sm font-black text-white shadow-[0_10px_24px_rgba(17,24,39,0.18)] transition hover:-translate-y-0.5 hover:bg-slate-800"
           >
-            שמור
+            {editingRecordId ? "שמור שינויים" : "שמור"}
           </button>
+
+          {editingRecordId && (
+            <button
+              type="button"
+              onClick={cancelEdit}
+              className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-800 transition hover:bg-slate-50"
+            >
+              ביטול עריכה
+            </button>
+          )}
 
           <textarea
             value={form.description}
@@ -292,7 +365,7 @@ export default function ModuleManager({
 
           <div>
             <p className="mb-1 text-xs font-bold text-slate-500">
-              {visibleRecords.length} פריטים מוצגים
+              {visibleRecords.length} {itemPluralLabel} מוצגים
             </p>
             <h2 className="text-base font-black text-slate-950">{listTitle}</h2>
           </div>
@@ -321,7 +394,7 @@ export default function ModuleManager({
 
         {visibleRecords.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">
-            אין פריטים להצגה לפי הסינון הנוכחי.
+            אין {itemPluralLabel} להצגה לפי הסינון הנוכחי.
           </div>
         ) : (
           <div className="space-y-2">
@@ -342,6 +415,14 @@ export default function ModuleManager({
                       }
                     >
                       {record.status === "done" ? "פתח מחדש" : "סמן כבוצע"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => startEdit(record)}
+                      className="rounded-xl bg-white px-4 py-2 text-sm font-bold text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-50"
+                    >
+                      עריכה
                     </button>
 
                     <button

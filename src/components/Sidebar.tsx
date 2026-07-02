@@ -38,6 +38,84 @@ const icons: Record<AppRoute, AppIconName> = {
   "/settings": "settings",
 };
 
+const navigationAccents: Record<
+  AppRoute,
+  { dot: string; icon: string; active: string; hover: string }
+> = {
+  "/": {
+    dot: "bg-indigo-400",
+    icon: "bg-indigo-50 text-indigo-700",
+    active: "bg-[#111827] text-white shadow-[0_14px_35px_rgba(17,24,39,0.18)]",
+    hover: "hover:bg-indigo-50/80",
+  },
+  "/finance": {
+    dot: "bg-emerald-400",
+    icon: "bg-emerald-50 text-emerald-700",
+    active: "bg-emerald-700 text-white shadow-[0_14px_35px_rgba(4,120,87,0.2)]",
+    hover: "hover:bg-emerald-50/80",
+  },
+  "/tasks": {
+    dot: "bg-orange-400",
+    icon: "bg-orange-50 text-orange-700",
+    active: "bg-orange-600 text-white shadow-[0_14px_35px_rgba(234,88,12,0.18)]",
+    hover: "hover:bg-orange-50/80",
+  },
+  "/dashboard": {
+    dot: "bg-sky-400",
+    icon: "bg-sky-50 text-sky-700",
+    active: "bg-sky-700 text-white shadow-[0_14px_35px_rgba(3,105,161,0.18)]",
+    hover: "hover:bg-sky-50/80",
+  },
+  "/health": {
+    dot: "bg-rose-400",
+    icon: "bg-rose-50 text-rose-700",
+    active: "bg-rose-600 text-white shadow-[0_14px_35px_rgba(225,29,72,0.16)]",
+    hover: "hover:bg-rose-50/80",
+  },
+  "/documents": {
+    dot: "bg-violet-400",
+    icon: "bg-violet-50 text-violet-700",
+    active: "bg-violet-700 text-white shadow-[0_14px_35px_rgba(109,40,217,0.17)]",
+    hover: "hover:bg-violet-50/80",
+  },
+  "/vehicles": {
+    dot: "bg-blue-400",
+    icon: "bg-blue-50 text-blue-700",
+    active: "bg-blue-700 text-white shadow-[0_14px_35px_rgba(29,78,216,0.17)]",
+    hover: "hover:bg-blue-50/80",
+  },
+  "/family": {
+    dot: "bg-purple-400",
+    icon: "bg-purple-50 text-purple-700",
+    active: "bg-purple-700 text-white shadow-[0_14px_35px_rgba(126,34,206,0.17)]",
+    hover: "hover:bg-purple-50/80",
+  },
+  "/birthdays": {
+    dot: "bg-pink-400",
+    icon: "bg-pink-50 text-pink-700",
+    active: "bg-pink-600 text-white shadow-[0_14px_35px_rgba(219,39,119,0.16)]",
+    hover: "hover:bg-pink-50/80",
+  },
+  "/shopping": {
+    dot: "bg-cyan-400",
+    icon: "bg-cyan-50 text-cyan-700",
+    active: "bg-cyan-700 text-white shadow-[0_14px_35px_rgba(14,116,144,0.17)]",
+    hover: "hover:bg-cyan-50/80",
+  },
+  "/permissions": {
+    dot: "bg-amber-400",
+    icon: "bg-amber-50 text-amber-700",
+    active: "bg-amber-600 text-white shadow-[0_14px_35px_rgba(217,119,6,0.17)]",
+    hover: "hover:bg-amber-50/80",
+  },
+  "/settings": {
+    dot: "bg-slate-400",
+    icon: "bg-slate-100 text-slate-700",
+    active: "bg-slate-800 text-white shadow-[0_14px_35px_rgba(15,23,42,0.18)]",
+    hover: "hover:bg-slate-100/90",
+  },
+};
+
 export default function Sidebar({
   isCollapsed,
   isMobileOpen,
@@ -144,6 +222,7 @@ export default function Sidebar({
         <nav className="space-y-1" aria-label={dictionary.openMenu}>
           {primaryLinks.map((item) => {
             const isActive = pathname === item.href;
+            const accent = navigationAccents[item.href];
 
             return (
               <Link
@@ -151,20 +230,28 @@ export default function Sidebar({
                 href={item.href}
                 title={!showExpandedContent ? item.label : undefined}
                 className={[
-                  "group flex min-h-14 items-center gap-3 rounded-2xl px-3 py-2 text-sm font-bold transition-all duration-200 lg:min-h-10 lg:gap-2 lg:px-2 lg:py-1.5",
+                  "group relative flex min-h-14 items-center gap-3 rounded-2xl px-3 py-2 text-sm font-bold transition-all duration-200 lg:min-h-10 lg:gap-2 lg:px-2 lg:py-1.5",
                   showExpandedContent ? "justify-start" : "justify-center",
                   isActive
-                    ? "bg-[#111827] text-white shadow-[0_14px_35px_rgba(17,24,39,0.18)]"
-                    : "text-slate-700 hover:-translate-y-0.5 hover:bg-[#fffdf7] hover:text-[#111827]",
+                    ? accent.active
+                    : `text-slate-700 hover:-translate-y-0.5 ${accent.hover} hover:text-[#111827]`,
                 ].join(" ")}
                 onClick={isMobileOpen ? onNavigate : undefined}
               >
                 <span
                   className={[
+                    "absolute inset-y-2 right-1 w-1 rounded-full transition-opacity",
+                    isActive ? "bg-white/70 opacity-100" : `${accent.dot} opacity-55`,
+                    showExpandedContent ? "block" : "hidden",
+                  ].join(" ")}
+                  aria-hidden="true"
+                />
+                <span
+                  className={[
                     "grid h-10 w-10 shrink-0 place-items-center rounded-2xl transition lg:h-7 lg:w-7 lg:rounded-xl",
                     isActive
                       ? "bg-white/14 text-white"
-                      : "bg-[#f4f0e8] text-slate-600 group-hover:bg-white group-hover:text-[#111827]",
+                      : `${accent.icon} group-hover:bg-white`,
                   ].join(" ")}
                   aria-hidden="true"
                 >

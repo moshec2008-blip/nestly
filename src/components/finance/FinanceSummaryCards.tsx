@@ -9,7 +9,7 @@ type FinanceSummaryCardsProps = {
   cards: FinanceSummaryCard[];
 };
 
-const accents = [
+const accentClasses = [
   "bg-slate-900",
   "bg-emerald-500",
   "bg-rose-400",
@@ -18,22 +18,24 @@ const accents = [
 
 export default function FinanceSummaryCards({ cards }: FinanceSummaryCardsProps) {
   return (
-    <section className="mb-2.5 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="flex flex-wrap items-center justify-end gap-x-1 gap-y-1 rounded-[14px] border border-[#ebe4d8] bg-[#fffdf8] px-2 py-1.5 shadow-[0_6px_16px_rgba(33,43,63,0.035)] xl:flex-nowrap">
       {cards.map((card, index) => (
         <div
           key={card.title}
-          className="rounded-[16px] border border-[#e6e8ec] bg-white p-2.5 text-right shadow-[0_8px_22px_rgba(15,23,42,0.045)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#fffdf8]"
+          className="flex min-h-8 min-w-[138px] flex-1 items-center justify-end gap-2 rounded-xl px-2 py-1 text-right transition hover:bg-white"
         >
-          <div className="mb-1.5 flex items-center justify-between gap-3">
-            <span className={`h-1.5 w-7 rounded-full ${accents[index % accents.length]}`} />
-            <p className="text-xs font-bold text-slate-500">{card.title}</p>
-          </div>
-          <p className={`truncate text-lg font-black tracking-tight ${card.tone}`}>
+          <p className={`truncate text-sm font-black leading-5 ${card.tone}`}>
             {card.value}
           </p>
-          <p className="mt-1 truncate text-[11px] font-semibold text-slate-500">
-            {card.subtitle}
+          <p className="shrink-0 text-[11px] font-bold leading-4 text-slate-500">
+            {card.title}
           </p>
+          <span
+            className={`h-2 w-2 shrink-0 rounded-full ${
+              accentClasses[index % accentClasses.length]
+            }`}
+            aria-hidden="true"
+          />
         </div>
       ))}
     </section>

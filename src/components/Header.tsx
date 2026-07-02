@@ -8,11 +8,6 @@ import { useLanguage } from "@/i18n/useLanguage";
 export default function Header() {
   const { direction, language } = useLanguage();
   const dictionary = getDictionary(language);
-  const quickStats = [
-    { label: dictionary.hero.stats.activeModules, value: "11" },
-    { label: dictionary.hero.stats.localStorage, value: dictionary.hero.stats.active },
-    { label: dictionary.hero.stats.systemStatus, value: dictionary.hero.stats.healthy },
-  ];
 
   return (
     <header
@@ -21,7 +16,7 @@ export default function Header() {
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
-      <div className="flex flex-col gap-2.5 xl:flex-row xl:items-center xl:justify-between">
+      <div className="flex flex-col gap-2.5">
         <div className="min-w-0">
           <div
             className={[
@@ -56,18 +51,6 @@ export default function Header() {
               {dictionary.hero.finance}
             </LinkButton>
           </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2 xl:w-[340px]">
-          {quickStats.map((item) => (
-            <div
-              key={item.label}
-              className="rounded-[14px] border border-[#e6e8ec] bg-[#fafafb] p-2 shadow-sm"
-            >
-              <p className="truncate text-[10px] font-bold text-slate-500 sm:text-[11px]">{item.label}</p>
-              <p className="mt-1 truncate text-sm font-black text-[#1d1d1f] sm:text-base">{item.value}</p>
-            </div>
-          ))}
         </div>
       </div>
     </header>

@@ -462,14 +462,14 @@ export function getSmartFinanceInsights(
   if (stats.pendingPayments > 0) {
     insights.push({
       id: "pending-payments",
-      title: "יש תשלומים ממתינים",
-      description: `יש ${stats.pendingPayments} פעולות שעדיין מסומנות כממתינות.`,
+      title: "יש פעולות עתידיות",
+      description: `יש ${stats.pendingPayments} תשלומים או הכנסות שעדיין לא בוצעו.`,
       tone: "warning",
     });
   } else {
     insights.push({
       id: "no-pending-payments",
-      title: "אין תשלומים ממתינים",
+      title: "אין פעולות עתידיות פתוחות",
       description: "כל הפעולות מסומנות כבוצעו.",
       tone: "good",
     });

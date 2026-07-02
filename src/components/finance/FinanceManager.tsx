@@ -62,7 +62,7 @@ export default function FinanceManager() {
     string | null
   >(null);
   const [isTransactionFormOpen, setIsTransactionFormOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<FinanceTab>("overview");
+  const [activeTab, setActiveTab] = useState<FinanceTab>("transactions");
   const [activeMonth, setActiveMonth] = useState("all");
   const [searchValue, setSearchValue] = useState("");
   const [typeFilter, setTypeFilter] = useState<TransactionTypeFilter>("all");
@@ -160,10 +160,10 @@ export default function FinanceManager() {
       subtitle: "בתקופה הנבחרת",
     },
     {
-      title: "ממתינות",
-      value: stats.pendingPayments.toString(),
+      title: "פעולות עתידיות",
+      value: `${stats.pendingPayments} פעולות`,
       tone: "text-amber-700",
-      subtitle: "פעולות פתוחות",
+      subtitle: "תשלומים או הכנסות שעדיין לא בוצעו",
     },
   ];
 
@@ -213,7 +213,7 @@ export default function FinanceManager() {
     handleClearFilters();
     openTransactionsTab();
     toast({
-      title: "ייבוא הושלם",
+      title: "הייבוא הושלם",
       description: `${importedTransactions.length} פעולות נוספו לכספים.`,
       tone: "success",
     });
@@ -225,7 +225,7 @@ export default function FinanceManager() {
     setIsTransactionFormOpen(false);
     setActiveMonth("all");
     handleClearFilters();
-    setActiveTab("overview");
+    setActiveTab("transactions");
     toast({
       title: "הגיבוי שוחזר",
       description: `${restoredTransactions.length} פעולות נטענו מחדש.`,
@@ -304,7 +304,7 @@ export default function FinanceManager() {
     setIsTransactionFormOpen(false);
     setActiveMonth("all");
     handleClearFilters();
-    setActiveTab("overview");
+    setActiveTab("transactions");
     toast({
       title: "נתוני הדמו נטענו",
       tone: "success",
@@ -329,7 +329,7 @@ export default function FinanceManager() {
     setIsTransactionFormOpen(false);
     setActiveMonth("all");
     handleClearFilters();
-    setActiveTab("overview");
+    setActiveTab("transactions");
     toast({
       title: "כל הפעולות נמחקו",
       tone: "warning",
@@ -343,14 +343,61 @@ export default function FinanceManager() {
   }
 
   return (
-    <>
-      <MonthSelector
-        months={availableMonths}
-        activeMonth={activeMonth}
-        onMonthChange={setActiveMonth}
-      />
+    <section className="space-y-2.5">
+      <section className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
+        <div className="flex flex-col gap-2 xl:flex-row xl:items-center">
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+              <button
+                type="button"
+                onClick={handleStartAddTransaction}
+                className="min-h-10 w-full rounded-2xl bg-[#111827] px-4 py-2 text-sm font-black text-white shadow-[0_12px_28px_rgba(17,24,39,0.14)] transition hover:-translate-y-0.5 hover:bg-[#1f2937] md:w-auto"
+              >
+                + הוסף פעולה
+              </button>
 
-      <FinanceSummaryCards cards={financeCards} />
+              <div>
+                <p className="text-xs font-bold text-[#007aff]">מרכז כספים</p>
+                <h2 className="mt-1 text-lg font-black text-[#111827]">
+                  איפה אנחנו אוחזים החודש
+                </h2>
+                <p className="hidden">
+                  תצוגה קצרה, פעולה מהירה, ואז פירוט רק כשצריך.
+                </p>
+              </div>
+            </div>
+
+            <FinanceSummaryCards cards={financeCards} />
+          </div>
+
+          <div className="shrink-0 xl:w-[260px]">
+            <MonthSelector
+              months={availableMonths}
+              activeMonth={activeMonth}
+              onMonthChange={setActiveMonth}
+            />
+            <div className="hidden">
+              <button
+                type="button"
+                onClick={() => setActiveTab("transactions")}
+                className="rounded-2xl bg-white px-3 py-2 text-xs font-black text-slate-800 shadow-sm transition hover:bg-[#fff8eb]"
+              >
+                תנועות
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("reports")}
+                className="rounded-2xl bg-white px-3 py-2 text-xs font-black text-slate-800 shadow-sm transition hover:bg-[#fff8eb]"
+              >
+                דוחות
+              </button>
+            </div>
+            <p className="hidden">
+              הפעולות היומיומיות נמצאות קודם. דוחות, תקציב וגיבוי נשארים זמינים בטאבים.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <FinanceQuickActions
         onTabChange={setActiveTab}
@@ -360,44 +407,25 @@ export default function FinanceManager() {
 
       <FinanceTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {activeTab === "overview" && (
-        <div className="space-y-2.5">
-          <SmartFinanceSummary insights={smartInsights} />
-          <details className="rounded-[18px] border border-[#e6e8ec] bg-white p-3 text-right text-[#111827] shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
-            <summary className="cursor-pointer list-none text-sm font-black">
-              גרפים ותזרים
-            </summary>
-            <div className="mt-2.5 space-y-2.5">
-              <FinanceChart items={monthlyCashflowItems} />
-              <MonthlyCashflow items={monthlyCashflowItems} />
-            </div>
-          </details>
-        </div>
-      )}
-
       {activeTab === "transactions" && (
-        <div className="space-y-2.5">
-          <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-3 text-right shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="grid gap-2.5 xl:grid-cols-[minmax(0,380px)_1fr]">
+          <section className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between xl:flex-col xl:items-stretch">
               <button
                 type="button"
                 onClick={handleStartAddTransaction}
-                className="min-h-11 rounded-2xl bg-[#111827] px-5 py-2.5 text-sm font-black text-white shadow-[0_14px_34px_rgba(15,23,42,0.14)] transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
+                className="min-h-11 rounded-2xl bg-[#111827] px-5 py-2.5 text-sm font-black text-white shadow-[0_14px_34px_rgba(17,24,39,0.16)] transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
               >
-                + הוסף פעולה חדשה
+                + הוסף פעולה
               </button>
 
               <div>
-                <p className="text-xs font-bold text-slate-600">
-                  פעולות כספיות
-                </p>
+                <p className="text-xs font-bold text-slate-600">פעולה חדשה</p>
                 <h2 className="mt-1 text-base font-black text-[#111827]">
-                  {editingTransaction
-                    ? "עריכת פעולה קיימת"
-                    : "הוספה וניהול פעולות"}
+                  {editingTransaction ? "עריכת פעולה קיימת" : "הוספה וניהול"}
                 </h2>
                 <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-                  הוסף הכנסה או הוצאה, עדכן סטטוס, ואז המשך לטבלה ולסינון.
+                  לא צריך לנחש: פתח טופס ברור, הוסף הכנסה או הוצאה, ושמור.
                 </p>
               </div>
             </div>
@@ -415,34 +443,36 @@ export default function FinanceManager() {
               <button
                 type="button"
                 onClick={handleStartAddTransaction}
-                className="mt-3 block w-full rounded-[18px] border border-dashed border-[#cbd5e1] bg-[#fafafb] p-4 text-right transition hover:border-[#111827] hover:bg-white"
+                className="mt-3 block w-full rounded-[18px] border border-dashed border-[#cbd5e1] bg-[#fffdf8] p-4 text-right transition hover:border-[#111827] hover:bg-white hover:shadow-[0_12px_28px_rgba(33,43,63,0.08)]"
               >
                 <span className="block text-sm font-black text-[#111827]">
-                  אין טופס פתוח כרגע
+                  לחץ כאן לפתיחת טופס פעולה
                 </span>
                 <span className="mt-1 block text-sm font-semibold text-slate-600">
-                  לחץ כאן או על הכפתור “הוסף פעולה חדשה” כדי לפתוח טופס ברור ומלא.
+                  הטופס ייפתח כאן, בלי לחפש שורה נסתרת ובלי לנחש מה לעשות.
                 </span>
               </button>
             )}
           </section>
 
-          <FinanceFilters
-            searchValue={searchValue}
-            typeFilter={typeFilter}
-            statusFilter={statusFilter}
-            onSearchChange={setSearchValue}
-            onTypeFilterChange={setTypeFilter}
-            onStatusFilterChange={setStatusFilter}
-            onClearFilters={handleClearFilters}
-          />
+          <div className="space-y-2.5">
+            <FinanceFilters
+              searchValue={searchValue}
+              typeFilter={typeFilter}
+              statusFilter={statusFilter}
+              onSearchChange={setSearchValue}
+              onTypeFilterChange={setTypeFilter}
+              onStatusFilterChange={setStatusFilter}
+              onClearFilters={handleClearFilters}
+            />
 
-          <TransactionsTable
-            transactions={filteredTransactions}
-            onDelete={handleDeleteTransaction}
-            onEdit={handleEditTransaction}
-            onToggleStatus={handleToggleStatus}
-          />
+            <TransactionsTable
+              transactions={filteredTransactions}
+              onDelete={handleDeleteTransaction}
+              onEdit={handleEditTransaction}
+              onToggleStatus={handleToggleStatus}
+            />
+          </div>
         </div>
       )}
 
@@ -451,7 +481,7 @@ export default function FinanceManager() {
       {activeTab === "reports" && (
         <div className="space-y-2.5">
           <CategoryReport items={categoryReportItems} />
-          <details className="rounded-[18px] border border-[#e6e8ec] bg-white p-3 text-right text-[#111827] shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+          <details className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right text-[#111827] shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
             <summary className="cursor-pointer list-none text-sm font-black">
               תזרים חודשי מלא
             </summary>
@@ -462,8 +492,33 @@ export default function FinanceManager() {
         </div>
       )}
 
+      {activeTab === "overview" && (
+        <div className="grid gap-2.5 xl:grid-cols-[minmax(0,420px)_1fr]">
+          <SmartFinanceSummary insights={smartInsights} />
+          <details className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right text-[#111827] shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+              <span className="rounded-full bg-[#fff8eb] px-3 py-1 text-xs font-black text-[#9a6b17]">
+                פתיחה לפי צורך
+              </span>
+              <span className="text-sm font-black">גרפים ותזרים</span>
+            </summary>
+            <div className="mt-2.5 space-y-2.5">
+              <FinanceChart items={monthlyCashflowItems} />
+              <details className="rounded-[18px] border border-[#ebe4d8] bg-[#fffdf8] p-3">
+                <summary className="cursor-pointer list-none text-sm font-black text-slate-900">
+                  תזרים חודשי מפורט
+                </summary>
+                <div className="mt-2.5">
+                  <MonthlyCashflow items={monthlyCashflowItems} />
+                </div>
+              </details>
+            </div>
+          </details>
+        </div>
+      )}
+
       {activeTab === "backup" && (
-        <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-3 text-right text-[#111827] shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+        <section className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right text-[#111827] shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
           <div className="mb-3">
             <p className="mb-2 text-sm font-bold text-slate-600">
               ניהול נתונים
@@ -502,6 +557,6 @@ export default function FinanceManager() {
           </div>
         </section>
       )}
-    </>
+    </section>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import AppIcon from "@/components/ui/AppIcon";
+import DateInput from "@/components/ui/DateInput";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
 
@@ -453,31 +454,31 @@ export default function FamilyTree() {
 
             <label className="text-sm font-bold text-slate-700">
               תאריך לידה
-              <input
-                type="date"
+              <DateInput
                 value={form.birthDate}
-                onChange={(event) =>
+                onChange={(birthDate) =>
                   setForm((currentForm) => ({
                     ...currentForm,
-                    birthDate: event.target.value,
+                    birthDate,
                   }))
                 }
-                className="mt-1 min-h-11 w-full rounded-2xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-semibold outline-none focus:border-[#007aff]/60"
+                label="תאריך לידה"
+                className="mt-1"
               />
             </label>
 
             <label className="text-sm font-bold text-slate-700">
               תאריך אזכרה
-              <input
-                type="date"
+              <DateInput
                 value={form.memorialDate}
-                onChange={(event) =>
+                onChange={(memorialDate) =>
                   setForm((currentForm) => ({
                     ...currentForm,
-                    memorialDate: event.target.value,
+                    memorialDate,
                   }))
                 }
-                className="mt-1 min-h-11 w-full rounded-2xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-semibold outline-none focus:border-[#007aff]/60"
+                label="תאריך אזכרה"
+                className="mt-1"
               />
             </label>
 

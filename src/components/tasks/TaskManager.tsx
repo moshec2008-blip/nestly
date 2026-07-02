@@ -6,6 +6,7 @@ import {
   initialFamilyTasks,
   type FamilyTask,
 } from "@/data/tasks";
+import DateInput from "@/components/ui/DateInput";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
@@ -417,17 +418,17 @@ export default function TaskManager() {
               <option value="low">עדיפות נמוכה</option>
             </select>
 
-            <input
+            <DateInput
               value={taskForm.dueDate}
-              onChange={(event) =>
+              onChange={(dueDate) =>
                 setTaskForm((currentTask) => ({
                   ...currentTask,
-                  dueDate: event.target.value,
+                  dueDate,
                 }))
               }
               required
-              type="date"
-              className="min-h-10 rounded-2xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/55"
+              label="תאריך יעד"
+              inputClassName="min-h-10 w-full rounded-2xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/55"
             />
 
             <textarea

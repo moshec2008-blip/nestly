@@ -7,6 +7,7 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from "react";
+import DateInput from "@/components/ui/DateInput";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
@@ -447,42 +448,50 @@ export default function DocumentsManager() {
   }
 
   return (
-    <section className="space-y-3">
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-        <div className="rounded-[18px] bg-slate-800/62 p-3 text-right shadow-[0_10px_30px_rgba(2,6,23,0.16)]">
+    <section className="space-y-2.5">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="rounded-[16px] bg-slate-800/62 p-2.5 text-right shadow-[0_8px_22px_rgba(2,6,23,0.14)]">
           <p className="truncate text-[11px] text-slate-300">מסמכים</p>
-          <p className="mt-1 text-xl font-black">{documents.length}</p>
+          <p className="mt-0.5 text-lg font-black">{documents.length}</p>
         </div>
-        <div className="rounded-[18px] bg-slate-800/62 p-3 text-right shadow-[0_10px_30px_rgba(2,6,23,0.16)]">
+        <div className="rounded-[16px] bg-slate-800/62 p-2.5 text-right shadow-[0_8px_22px_rgba(2,6,23,0.14)]">
           <p className="truncate text-[11px] text-slate-300">קבצים</p>
-          <p className="mt-1 text-xl font-black">{attachmentsCount}</p>
+          <p className="mt-0.5 text-lg font-black">{attachmentsCount}</p>
         </div>
-        <div className="rounded-[18px] bg-slate-800/62 p-3 text-right shadow-[0_10px_30px_rgba(2,6,23,0.16)]">
+        <div className="rounded-[16px] bg-slate-800/62 p-2.5 text-right shadow-[0_8px_22px_rgba(2,6,23,0.14)]">
           <p className="truncate text-[11px] text-slate-300">פתוחים / בוצעו</p>
-          <p className="mt-1 text-xl font-black">
+          <p className="mt-0.5 text-lg font-black">
             {openCount}/{doneCount}
           </p>
         </div>
-        <div className="rounded-[18px] bg-slate-800/62 p-3 text-right shadow-[0_10px_30px_rgba(2,6,23,0.16)]">
+        <div className="rounded-[16px] bg-slate-800/62 p-2.5 text-right shadow-[0_8px_22px_rgba(2,6,23,0.14)]">
           <p className="truncate text-[11px] text-slate-300">תזכורות</p>
-          <p className="mt-1 text-xl font-black">{reminderCount}</p>
+          <p className="mt-0.5 text-lg font-black">{reminderCount}</p>
         </div>
       </div>
 
-      <details className="rounded-[22px] bg-slate-800/58 p-3 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)]">
-        <summary className="cursor-pointer list-none">
+      <details className="group rounded-[18px] bg-slate-800/58 p-2.5 text-right text-[#fff9ea] shadow-[0_10px_28px_rgba(2,6,23,0.16)]">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+          <span className="rounded-full bg-[#f4e7c8] px-4 py-2 text-xs font-black text-slate-950 shadow-sm group-open:hidden">
+            הוסף מסמך
+          </span>
+          <span className="hidden rounded-full bg-white/[0.08] px-4 py-2 text-xs font-black text-slate-200 group-open:inline">
+            סגור
+          </span>
+          <div>
           <p className="mb-1 text-[11px] text-slate-400">צירוף מסמכים</p>
-          <h2 className="text-lg font-black">הוספת מסמך</h2>
-          <p className="mt-1 line-clamp-1 text-sm leading-6 text-slate-400">
+            <h2 className="text-base font-black">הוספת מסמך</h2>
+          </div>
+          <p className="hidden">
             אפשר לצרף קבצים, לפתוח מצלמה לסריקה מהטלפון, ולהפעיל תיוק חכם
             שמציע קטגוריה ותגיות. בשלב הזה הקבצים נשמרים מקומית בדפדפן.
           </p>
-          <p className="mt-2 rounded-2xl bg-white/[0.055] px-4 py-3 text-xs leading-5 text-slate-300">
+          <p className="hidden">
             מצב AI: {documentAiStatus.description}
           </p>
         </summary>
 
-        <form onSubmit={handleSubmit} className="mt-3 grid gap-3 lg:grid-cols-6">
+        <form onSubmit={handleSubmit} className="mt-2.5 grid gap-2.5 lg:grid-cols-6">
           <input
             value={form.title}
             onChange={(event) =>
@@ -534,17 +543,18 @@ export default function DocumentsManager() {
             placeholder="סוג מסמך"
           />
 
-          <input
+          <DateInput
             value={form.date}
-            onChange={(event) =>
+            onChange={(date) =>
               setForm((currentForm) => ({
                 ...currentForm,
-                date: event.target.value,
+                date,
               }))
             }
             required
-            type="date"
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none"
+            label="תאריך מסמך"
+            inputClassName="min-h-12 w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-400"
+            buttonClassName="min-h-12 rounded-2xl border border-white/10 bg-white/[0.08] px-3 text-xs font-black text-[#fff9ea] transition hover:bg-white/[0.12]"
           />
 
           <button
@@ -562,34 +572,34 @@ export default function DocumentsManager() {
                 description: event.target.value,
               }))
             }
-            className="min-h-20 resize-y rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500 lg:col-span-2"
+            className="min-h-14 resize-y rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500 lg:col-span-2"
             placeholder="פירוט קצר"
           />
 
-          <input
+          <DateInput
             value={form.expiryDate}
-            onChange={(event) =>
+            onChange={(expiryDate) =>
               setForm((currentForm) => ({
                 ...currentForm,
-                expiryDate: event.target.value,
+                expiryDate,
               }))
             }
-            type="date"
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none"
-            aria-label="תאריך תוקף"
+            ariaLabel="תאריך תוקף"
+            inputClassName="min-h-12 w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-400"
+            buttonClassName="min-h-12 rounded-2xl border border-white/10 bg-white/[0.08] px-3 text-xs font-black text-[#fff9ea] transition hover:bg-white/[0.12]"
           />
 
-          <input
+          <DateInput
             value={form.reminderDate}
-            onChange={(event) =>
+            onChange={(reminderDate) =>
               setForm((currentForm) => ({
                 ...currentForm,
-                reminderDate: event.target.value,
+                reminderDate,
               }))
             }
-            type="date"
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none"
-            aria-label="תאריך תזכורת"
+            ariaLabel="תאריך תזכורת"
+            inputClassName="min-h-12 w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-400"
+            buttonClassName="min-h-12 rounded-2xl border border-white/10 bg-white/[0.08] px-3 text-xs font-black text-[#fff9ea] transition hover:bg-white/[0.12]"
           />
 
           <input
@@ -604,7 +614,7 @@ export default function DocumentsManager() {
             placeholder="תגיות, מופרדות בפסיקים"
           />
 
-          <div className="grid gap-3 lg:col-span-3">
+          <div className="grid gap-2.5 lg:col-span-3">
             <div className="flex flex-wrap justify-end gap-2">
               <button
                 type="button"
@@ -622,17 +632,17 @@ export default function DocumentsManager() {
               </button>
             </div>
 
-            <label className="rounded-2xl border border-dashed border-white/15 bg-white/[0.05] p-4 text-right text-sm font-bold text-slate-200">
+            <label className="rounded-2xl border border-dashed border-white/15 bg-white/[0.05] p-3 text-right text-sm font-bold text-slate-200">
               צירוף קבצים
               <input
                 type="file"
                 multiple
                 accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
                 onChange={(event) => handleFileSelection(event, "upload")}
-                className="mt-3 block w-full text-sm text-slate-300"
+                className="mt-2 block w-full text-sm text-slate-300"
               />
               {form.files.length > 0 && (
-                <span className="mt-3 block text-xs text-slate-400">
+                <span className="mt-2 block text-xs text-slate-400">
                   נבחרו {form.files.length} קבצים
                 </span>
               )}
@@ -649,7 +659,7 @@ export default function DocumentsManager() {
             />
 
             {aiSuggestion && (
-              <div className="rounded-2xl border border-[#d8b470]/20 bg-[#d8b470]/10 p-4 text-right text-sm text-[#f4e7c8]">
+              <div className="rounded-2xl border border-[#d8b470]/20 bg-[#d8b470]/10 p-3 text-right text-sm text-[#f4e7c8]">
                 <p className="font-black">הצעת תיוק חכם</p>
                 <p className="mt-1">
                   {aiSuggestion.summary} רמת ביטחון:{" "}
@@ -664,8 +674,8 @@ export default function DocumentsManager() {
         </form>
       </details>
 
-      <section className="rounded-[22px] bg-slate-800/58 p-3 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)]">
-        <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <section className="rounded-[18px] bg-slate-800/58 p-2.5 text-right text-[#fff9ea] shadow-[0_10px_28px_rgba(2,6,23,0.16)]">
+        <div className="mb-2.5 flex flex-col gap-2.5 md:flex-row md:items-center md:justify-between">
           <button
             type="button"
             onClick={() => {
@@ -678,14 +688,14 @@ export default function DocumentsManager() {
           </button>
 
           <div>
-            <p className="mb-1 text-xs text-slate-400">
+            <p className="mb-0.5 text-xs text-slate-400">
               {visibleDocuments.length} מסמכים מוצגים
             </p>
-            <h2 className="text-lg font-black">רשימת מסמכים</h2>
+            <h2 className="text-base font-black">רשימת מסמכים</h2>
           </div>
         </div>
 
-        <div className="mb-3 grid gap-3 md:grid-cols-2">
+        <div className="mb-2.5 grid gap-2.5 md:grid-cols-2">
           <input
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
@@ -711,13 +721,13 @@ export default function DocumentsManager() {
             אין מסמכים להצגה לפי הסינון הנוכחי.
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {displayedDocuments.map((item) => (
               <article
                 key={item.id}
-                className="rounded-2xl border border-white/10 bg-white/[0.045] p-3.5 text-right"
+                className="rounded-2xl border border-white/10 bg-white/[0.045] p-2.5 text-right"
               >
-                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="flex flex-col gap-2.5 md:flex-row md:items-start md:justify-between">
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
@@ -741,7 +751,7 @@ export default function DocumentsManager() {
                   </div>
 
                   <div className="max-w-3xl">
-                    <div className="mb-3 flex flex-wrap justify-end gap-2 text-xs font-bold">
+                    <div className="mb-2 flex flex-wrap justify-end gap-2 text-xs font-bold">
                       <span className="rounded-full bg-white/[0.07] px-3 py-1 text-slate-300">
                         {item.status === "done" ? "בוצע" : "פתוח"}
                       </span>
@@ -756,7 +766,7 @@ export default function DocumentsManager() {
                     </div>
 
                     <h3 className="text-base font-black text-white">{item.title}</h3>
-                    <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-400">
+                    <p className="mt-1 line-clamp-1 text-sm leading-6 text-slate-400">
                       {item.description}
                     </p>
                     <p className="mt-2 text-xs font-bold text-slate-400">
@@ -772,7 +782,7 @@ export default function DocumentsManager() {
                     )}
 
                     {(item.tags?.length ?? 0) > 0 && (
-                      <div className="mt-3 flex flex-wrap justify-end gap-2">
+                      <div className="mt-2 flex flex-wrap justify-end gap-2">
                         {item.tags?.map((tag) => (
                           <span
                             key={`${item.id}-${tag}`}
@@ -785,17 +795,17 @@ export default function DocumentsManager() {
                     )}
 
                     {item.aiSummary && (
-                      <p className="mt-3 rounded-xl bg-white/[0.055] px-4 py-3 text-sm leading-6 text-slate-300">
+                      <p className="mt-2 rounded-xl bg-white/[0.055] px-3 py-2 text-sm leading-6 text-slate-300">
                         תיוק חכם: {item.aiSummary}
                       </p>
                     )}
 
                     {item.attachments.length > 0 && (
-                      <div className="mt-4 space-y-2">
+                      <div className="mt-2.5 space-y-1.5">
                         {item.attachments.map((file) => (
                           <div
                             key={`${item.id}-${file.name}`}
-                            className="flex flex-col gap-3 rounded-xl bg-white/[0.055] px-4 py-3 text-sm text-slate-300 md:flex-row md:items-center md:justify-between"
+                            className="flex flex-col gap-2 rounded-xl bg-white/[0.055] px-3 py-2 text-sm text-slate-300 md:flex-row md:items-center md:justify-between"
                           >
                             <div>
                               <span className="font-bold text-white">
