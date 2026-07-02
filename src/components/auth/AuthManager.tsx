@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { demoAdminSession, authProviderNotes } from "@/data/auth";
 import { storageKeys } from "@/lib/storageKeys";
 import type { AuthSession } from "@/types/auth";
@@ -41,13 +41,11 @@ function getStoredSession() {
 
 export default function AuthManager() {
   const { toast } = useFeedback();
-  const [session, setSession] = useState<AuthSession | null>(null);
+  const [session, setSession] = useState<AuthSession | null>(() =>
+    getStoredSession()
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  useEffect(() => {
-    setSession(getStoredSession());
-  }, []);
 
   function persistSession(nextSession: AuthSession) {
     window.localStorage.setItem(

@@ -142,7 +142,7 @@ function getSmartNudge(): SmartNudge | null {
 export default function SmartNudgePopup() {
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
-  const nudge = useMemo(getSmartNudge, []);
+  const nudge = useMemo(() => getSmartNudge(), []);
 
   useEffect(() => {
     if (!nudge || typeof window === "undefined") {

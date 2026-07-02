@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 
 type DateInputProps = {
   value: string;
@@ -93,11 +93,8 @@ export default function DateInput({
 }: DateInputProps) {
   const generatedId = useId();
   const nativeDateRef = useRef<HTMLInputElement | null>(null);
-  const [displayValue, setDisplayValue] = useState(() => formatIsoDate(value));
-
-  useEffect(() => {
-    setDisplayValue(formatIsoDate(value));
-  }, [value]);
+  const [draftValue, setDraftValue] = useState<string | null>(null);
+  const displayValue = draftValue ?? formatIsoDate(value);
 
   function commitDate(rawValue: string) {
     const parsedDate = parseDateInput(rawValue);
@@ -130,15 +127,11 @@ export default function DateInput({
         id={generatedId}
         value={displayValue}
         onChange={(event) => {
-          setDisplayValue(event.target.value);
+          setDraftValue(event.target.value);
           commitDate(event.target.value);
         }}
         onBlur={() => {
-          const parsedDate = parseDateInput(displayValue);
-
-          if (parsedDate === null) {
-            setDisplayValue(formatIsoDate(value));
-          }
+          setDraftValue(null);
         }}
         required={required}
         inputMode="numeric"
@@ -159,7 +152,10 @@ export default function DateInput({
         ref={nativeDateRef}
         type="date"
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => {
+          setDraftValue(null);
+          onChange(event.target.value);
+        }}
         className="sr-only"
         tabIndex={-1}
         aria-hidden="true"

@@ -95,7 +95,7 @@ function getTimingText(daysUntil: number) {
 
 export default function BirthdayWelcomePopup() {
   const [isVisible, setIsVisible] = useState(false);
-  const upcomingBirthdays = useMemo(getUpcomingBirthdays, []);
+  const upcomingBirthdays = useMemo(() => getUpcomingBirthdays(), []);
   const highlightedBirthday = upcomingBirthdays[0];
 
   useEffect(() => {
