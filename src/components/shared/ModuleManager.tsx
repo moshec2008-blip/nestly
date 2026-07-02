@@ -169,36 +169,41 @@ export default function ModuleManager({
 
   return (
     <section className="space-y-3">
-      <div className="grid grid-cols-3 gap-2.5">
-        <div className="rounded-[18px] bg-slate-800/62 p-3 text-right shadow-[0_10px_30px_rgba(2,6,23,0.16)]">
-          <p className="truncate text-[11px] text-slate-300">סהכ פריטים</p>
-          <p className="mt-1 text-xl font-black">{records.length}</p>
-        </div>
-        <div className="rounded-[18px] bg-slate-800/62 p-3 text-right shadow-[0_10px_30px_rgba(2,6,23,0.16)]">
-          <p className="truncate text-[11px] text-slate-300">פתוחים</p>
-          <p className="mt-1 text-xl font-black">{openCount}</p>
-        </div>
-        <div className="rounded-[18px] bg-slate-800/62 p-3 text-right shadow-[0_10px_30px_rgba(2,6,23,0.16)]">
-          <p className="truncate text-[11px] text-slate-300">בוצעו</p>
-          <p className="mt-1 text-xl font-black">{doneCount}</p>
-        </div>
+      <div className="grid grid-cols-3 gap-2">
+        {[
+          { label: "סה״כ", value: records.length },
+          { label: "פתוחים", value: openCount },
+          { label: "בוצעו", value: doneCount },
+        ].map((item) => (
+          <div
+            key={item.label}
+            className="rounded-[18px] border border-slate-200/75 bg-white/88 p-3 text-right text-slate-950 shadow-[0_12px_32px_rgba(15,23,42,0.08)]"
+          >
+            <p className="truncate text-[11px] font-bold text-slate-500">
+              {item.label}
+            </p>
+            <p className="mt-1 text-xl font-black">{item.value}</p>
+          </div>
+        ))}
       </div>
 
-      <details className="group rounded-[22px] bg-slate-800/58 p-3 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)]">
+      <details className="group rounded-[22px] border border-slate-200/80 bg-white/90 p-3 text-right text-slate-950 shadow-[0_14px_36px_rgba(15,23,42,0.08)] backdrop-blur">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-1 py-1">
-          <span className="text-sm font-bold text-[#d8b470] group-open:hidden">
-            פתיחה
+          <span className="rounded-full bg-[#111827] px-4 py-2 text-xs font-black text-white shadow-[0_8px_20px_rgba(17,24,39,0.16)] group-open:hidden">
+            הוסף פריט
           </span>
-          <span className="text-sm font-bold text-[#d8b470] hidden group-open:inline">
-            סגירה
+          <span className="hidden rounded-full bg-slate-100 px-4 py-2 text-xs font-black text-slate-800 group-open:inline">
+            סגור
           </span>
           <div>
-            <p className="text-[11px] text-slate-400">ניהול פריטים</p>
-            <h2 className="text-lg font-black">{formTitle}</h2>
+            <p className="text-[11px] font-bold text-slate-500">
+              ניהול מהיר
+            </p>
+            <h2 className="text-base font-black text-slate-950">{formTitle}</h2>
           </div>
         </summary>
 
-        <form onSubmit={handleSubmit} className="mt-3 grid gap-3 lg:grid-cols-6">
+        <form onSubmit={handleSubmit} className="mt-3 grid gap-2.5 lg:grid-cols-6">
           <input
             value={form.title}
             onChange={(event) =>
@@ -208,7 +213,7 @@ export default function ModuleManager({
               }))
             }
             required
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500 lg:col-span-2"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-slate-950 outline-none placeholder:text-slate-400 focus:border-slate-400 lg:col-span-2"
             placeholder="שם הפריט"
           />
 
@@ -221,7 +226,7 @@ export default function ModuleManager({
               }))
             }
             required
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-slate-950 outline-none placeholder:text-slate-400 focus:border-slate-400"
             placeholder="אחראי"
           />
 
@@ -234,7 +239,7 @@ export default function ModuleManager({
               }))
             }
             required
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-slate-950 outline-none placeholder:text-slate-400 focus:border-slate-400"
             placeholder="קטגוריה"
           />
 
@@ -248,14 +253,14 @@ export default function ModuleManager({
             }
             required
             type="date"
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-slate-950 outline-none focus:border-slate-400"
           />
 
           <button
             type="submit"
-            className="rounded-2xl bg-[#f4e7c8] px-5 py-3 text-sm font-black text-slate-950 hover:bg-[#fff3d6]"
+            className="rounded-2xl bg-[#111827] px-5 py-3 text-sm font-black text-white shadow-[0_10px_24px_rgba(17,24,39,0.18)] transition hover:-translate-y-0.5 hover:bg-slate-800"
           >
-            הוסף
+            שמור
           </button>
 
           <textarea
@@ -266,13 +271,13 @@ export default function ModuleManager({
                 description: event.target.value,
               }))
             }
-            className="min-h-20 resize-y rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500 lg:col-span-6"
+            className="min-h-16 resize-y rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-slate-950 outline-none placeholder:text-slate-400 focus:border-slate-400 lg:col-span-6"
             placeholder="פירוט קצר"
           />
         </form>
       </details>
 
-      <section className="rounded-[22px] bg-slate-800/58 p-3 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)]">
+      <section className="rounded-[22px] border border-slate-200/80 bg-white/92 p-3 text-right text-slate-950 shadow-[0_14px_36px_rgba(15,23,42,0.08)] backdrop-blur">
         <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <button
             type="button"
@@ -280,24 +285,24 @@ export default function ModuleManager({
               setSearchValue("");
               setStatusFilter("all");
             }}
-            className="w-fit rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-bold text-slate-200 hover:bg-white/[0.1]"
+            className="w-fit rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-800 transition hover:bg-white"
           >
             נקה סינון
           </button>
 
           <div>
-            <p className="mb-1 text-xs text-slate-400">
+            <p className="mb-1 text-xs font-bold text-slate-500">
               {visibleRecords.length} פריטים מוצגים
             </p>
-            <h2 className="text-lg font-black">{listTitle}</h2>
+            <h2 className="text-base font-black text-slate-950">{listTitle}</h2>
           </div>
         </div>
 
-        <div className="mb-3 grid gap-3 md:grid-cols-2">
+        <div className="mb-3 grid gap-2.5 md:grid-cols-2">
           <input
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-slate-950 outline-none placeholder:text-slate-400 focus:border-slate-400"
             placeholder="חיפוש לפי שם, אחראי, קטגוריה או תאריך"
           />
 
@@ -306,7 +311,7 @@ export default function ModuleManager({
             onChange={(event) =>
               setStatusFilter(event.target.value as "all" | ModuleRecordStatus)
             }
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-slate-950 outline-none focus:border-slate-400"
           >
             <option value="all">כל הסטטוסים</option>
             <option value="open">פתוחים בלבד</option>
@@ -315,15 +320,15 @@ export default function ModuleManager({
         </div>
 
         {visibleRecords.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-8 text-center text-slate-400">
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">
             אין פריטים להצגה לפי הסינון הנוכחי.
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {displayedRecords.map((record) => (
               <article
                 key={record.id}
-                className="rounded-2xl border border-white/10 bg-white/[0.045] p-3.5 text-right"
+                className="rounded-2xl border border-slate-200/80 bg-slate-50/75 p-3 text-right transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
               >
                 <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                   <div className="flex flex-wrap gap-2">
@@ -332,8 +337,8 @@ export default function ModuleManager({
                       onClick={() => toggleStatus(record.id)}
                       className={
                         record.status === "done"
-                          ? "rounded-xl bg-slate-950 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
-                          : "rounded-xl bg-emerald-400/14 px-4 py-2 text-sm font-bold text-emerald-100 hover:bg-emerald-400/20"
+                          ? "rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-slate-800"
+                          : "rounded-xl bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-800 ring-1 ring-emerald-100 transition hover:bg-emerald-100"
                       }
                     >
                       {record.status === "done" ? "פתח מחדש" : "סמן כבוצע"}
@@ -342,26 +347,26 @@ export default function ModuleManager({
                     <button
                       type="button"
                       onClick={() => deleteRecord(record.id)}
-                      className="rounded-xl bg-[#b86f68]/14 px-4 py-2 text-sm font-bold text-[#f0c6bd] hover:bg-[#b86f68]/20"
+                      className="rounded-xl bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 ring-1 ring-rose-100 transition hover:bg-rose-100"
                     >
                       מחיקה
                     </button>
                   </div>
 
                   <div className="max-w-3xl">
-                    <div className="mb-3 flex flex-wrap justify-end gap-2 text-xs font-bold">
-                      <span className="rounded-full bg-white/[0.07] px-3 py-1 text-slate-300">
+                    <div className="mb-2 flex flex-wrap justify-end gap-2 text-xs font-bold">
+                      <span className="rounded-full bg-white px-3 py-1 text-slate-700 ring-1 ring-slate-200">
                         {getStatusLabel(record.status)}
                       </span>
-                      <span className="rounded-full bg-white/[0.07] px-3 py-1 text-slate-300">
+                      <span className="rounded-full bg-white px-3 py-1 text-slate-700 ring-1 ring-slate-200">
                         {record.category}
                       </span>
                     </div>
-                    <h3 className="text-base font-black text-white">{record.title}</h3>
-                    <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-400">
+                    <h3 className="text-base font-black text-slate-950">{record.title}</h3>
+                    <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-600">
                       {record.description}
                     </p>
-                    <p className="mt-2 text-xs font-bold text-slate-400">
+                    <p className="mt-2 text-xs font-bold text-slate-500">
                       אחראי: {record.owner} | תאריך: {formatDate(record.date)}
                     </p>
                   </div>
@@ -372,7 +377,7 @@ export default function ModuleManager({
               <button
                 type="button"
                 onClick={() => setShowAllRecords((currentValue) => !currentValue)}
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-bold text-[#d7cfbf] hover:bg-white/[0.09]"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-50"
               >
                 {showAllRecords ? "הצג פחות" : `הצג עוד ${visibleRecords.length - 5}`}
               </button>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { getDashboardContent } from "@/i18n/dashboardContent";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getRouteLabel } from "@/i18n/navigation";
@@ -18,23 +19,23 @@ type SidebarProps = {
 type SidebarLink = {
   label: string;
   href: AppRoute;
-  icon: string;
+  icon: AppIconName;
   description: string;
 };
 
-const icons: Record<AppRoute, string> = {
-  "/": "⌂",
-  "/finance": "₪",
-  "/tasks": "✓",
-  "/dashboard": "⌁",
-  "/health": "♥",
-  "/documents": "□",
-  "/vehicles": "🚗",
-  "/family": "👥",
-  "/birthdays": "✦",
-  "/shopping": "🛒",
-  "/permissions": "◈",
-  "/settings": "⚙",
+const icons: Record<AppRoute, AppIconName> = {
+  "/": "home",
+  "/finance": "finance",
+  "/tasks": "check",
+  "/dashboard": "dashboard",
+  "/health": "health",
+  "/documents": "document",
+  "/vehicles": "car",
+  "/family": "family",
+  "/birthdays": "calendar",
+  "/shopping": "shopping",
+  "/permissions": "lock",
+  "/settings": "settings",
 };
 
 export default function Sidebar({
@@ -68,14 +69,14 @@ export default function Sidebar({
         <button
           type="button"
           onClick={onNavigate}
-          className="fixed inset-0 z-20 bg-black/55 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-20 bg-slate-950/34 backdrop-blur-sm lg:hidden"
           aria-label={dictionary.closeMenu}
         />
       )}
 
       <aside
         className={[
-          "premium-scrollbar fixed bottom-3 right-3 top-16 z-30 overflow-y-auto rounded-[22px] border border-[#d9dde5] bg-white p-2.5 text-right shadow-[0_24px_70px_rgba(15,23,42,0.18)] backdrop-blur-xl transition-all duration-300 ease-out lg:sticky lg:bottom-auto lg:right-auto lg:top-auto lg:z-10 lg:h-[calc(100vh-5rem)] lg:shrink-0 lg:p-1.5 lg:shadow-[0_14px_34px_rgba(15,23,42,0.07)]",
+          "premium-scrollbar fixed bottom-3 right-3 top-16 z-30 overflow-y-auto rounded-[24px] border border-white/80 bg-white/88 p-2.5 text-right shadow-[0_24px_70px_rgba(33,43,63,0.16)] backdrop-blur-xl transition-all duration-300 ease-out lg:sticky lg:bottom-auto lg:right-auto lg:top-auto lg:z-10 lg:h-[calc(100vh-5rem)] lg:shrink-0 lg:p-1.5 lg:shadow-[0_14px_34px_rgba(33,43,63,0.08)]",
           isMobileOpen
             ? "w-[min(22rem,calc(100vw-1.5rem))] translate-x-0"
             : "w-[min(22rem,calc(100vw-1.5rem))] translate-x-[120%]",
@@ -84,15 +85,15 @@ export default function Sidebar({
         ].join(" ")}
       >
         <div
-            className={[
-              "mb-2 rounded-[18px] border border-[#e6e8ec] bg-[#fafafb] p-2.5 shadow-sm transition-all duration-300 lg:p-1.5",
-              isCollapsed
-                ? "text-center"
-                : direction === "rtl"
-                  ? "text-right"
-                  : "text-left",
-            ].join(" ")}
-          >
+          className={[
+            "mb-2 rounded-[20px] border border-[#ebe4d8] bg-gradient-to-br from-[#fffdf7] to-[#f6f8fb] p-2.5 shadow-sm transition-all duration-300 lg:p-1.5",
+            isCollapsed
+              ? "text-center"
+              : direction === "rtl"
+                ? "text-right"
+                : "text-left",
+          ].join(" ")}
+        >
           <div className="flex items-center justify-between gap-2 lg:hidden">
             <button
               type="button"
@@ -116,12 +117,10 @@ export default function Sidebar({
           <div
             className={[
               "hidden items-center gap-2 lg:flex",
-              showExpandedContent
-                ? "justify-start"
-                : "justify-center",
+              showExpandedContent ? "justify-start" : "justify-center",
             ].join(" ")}
           >
-            <span className="grid h-8 w-8 place-items-center rounded-2xl bg-[#111827] text-xs font-black text-white shadow-sm">
+            <span className="grid h-8 w-8 place-items-center rounded-2xl bg-[#111827] text-xs font-black text-white shadow-[0_10px_24px_rgba(17,24,39,0.16)]">
               {showExpandedContent ? brand.logoMark : "N"}
             </span>
             {showExpandedContent && (
@@ -150,26 +149,26 @@ export default function Sidebar({
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={onNavigate}
                 title={!showExpandedContent ? item.label : undefined}
                 className={[
                   "group flex min-h-14 items-center gap-3 rounded-2xl px-3 py-2 text-sm font-bold transition-all duration-200 lg:min-h-10 lg:gap-2 lg:px-2 lg:py-1.5",
                   showExpandedContent ? "justify-start" : "justify-center",
                   isActive
-                    ? "bg-[#111827] text-white shadow-[0_14px_35px_rgba(15,23,42,0.12)]"
-                    : "text-slate-700 hover:-translate-y-0.5 hover:bg-[#fafafb] hover:text-[#111827]",
+                    ? "bg-[#111827] text-white shadow-[0_14px_35px_rgba(17,24,39,0.18)]"
+                    : "text-slate-700 hover:-translate-y-0.5 hover:bg-[#fffdf7] hover:text-[#111827]",
                 ].join(" ")}
+                onClick={isMobileOpen ? onNavigate : undefined}
               >
                 <span
                   className={[
-                    "grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-base transition lg:h-7 lg:w-7 lg:rounded-xl lg:text-xs",
+                    "grid h-10 w-10 shrink-0 place-items-center rounded-2xl transition lg:h-7 lg:w-7 lg:rounded-xl",
                     isActive
-                      ? "bg-white/12 text-white"
-                      : "bg-[#f2f3f5] text-slate-500 group-hover:bg-white",
+                      ? "bg-white/14 text-white"
+                      : "bg-[#f4f0e8] text-slate-600 group-hover:bg-white group-hover:text-[#111827]",
                   ].join(" ")}
                   aria-hidden="true"
                 >
-                  {item.icon}
+                  <AppIcon name={item.icon} className="h-5 w-5 lg:h-4 lg:w-4" />
                 </span>
                 {showExpandedContent && (
                   <span className="min-w-0 flex-1">

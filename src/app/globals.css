@@ -12,7 +12,9 @@
   --accent-emerald: #34c759;
   --radius-lg: 24px;
   --radius-xl: 32px;
-  --shadow-premium: 0 18px 44px rgba(15, 23, 42, 0.08);
+  --shadow-premium:
+    0 14px 34px rgba(15, 23, 42, 0.075),
+    0 2px 8px rgba(15, 23, 42, 0.035);
 }
 
 @theme inline {
@@ -39,9 +41,10 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(circle at 18% 8%, rgba(0, 122, 255, 0.08), transparent 28%),
-    radial-gradient(circle at 86% 12%, rgba(216, 180, 112, 0.08), transparent 26%),
-    linear-gradient(180deg, #fbfcff 0%, #f6f7f9 44%, #f4f6f8 100%);
+    linear-gradient(135deg, rgba(255, 252, 245, 0.94) 0%, rgba(246, 249, 255, 0.96) 48%, rgba(249, 244, 235, 0.9) 100%),
+    linear-gradient(90deg, rgba(17, 24, 39, 0.025) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(17, 24, 39, 0.02) 1px, transparent 1px);
+  background-size: auto, 48px 48px, 48px 48px;
 }
 
 @keyframes soft-in {
@@ -131,10 +134,10 @@ select {
 
 .app-light [class*="bg-slate-8"],
 .app-light [class*="bg-slate-9"],
-.app-light [class*="bg-[#080c18"],
-.app-light [class*="bg-[#0f172a"],
-.app-light [class*="bg-[#111827"],
-.app-light [class*="bg-[rgba(9,13,27"],
+.app-light [class*="bg-[#080c18]"],
+.app-light [class*="bg-[#0f172a]"],
+.app-light [class*="bg-[#111827]"],
+.app-light [class*="bg-[rgba(9,13,27]"],
 .app-light [class*="bg-slate-950"] {
   background-color: rgba(255, 255, 255, 0.9) !important;
   box-shadow: 0 16px 48px rgba(15, 23, 42, 0.08) !important;
@@ -232,7 +235,7 @@ select {
 .app-light [class*="rounded-[18px]"][class*="bg-slate-800"],
 .app-light [class*="rounded-[22px]"][class*="bg-slate-800"],
 .app-light [class*="rounded-[24px]"][class*="bg-slate-800"],
-.app-light [class*="rounded-[28px]"][class*="bg-[rgba(9,13,27"] {
+.app-light [class*="rounded-[28px]"][class*="bg-[rgba(9,13,27]"] {
   background-color: rgba(255, 255, 255, 0.9) !important;
   border: 1px solid rgba(226, 232, 240, 0.82);
   color: #111827 !important;
@@ -376,9 +379,9 @@ select {
 
 .app-premium [class*="bg-slate-800"],
 .app-premium [class*="bg-slate-900"],
-.app-premium [class*="bg-[#080c18"],
-.app-premium [class*="bg-[#111827"],
-.app-premium [class*="bg-[rgba(9,13,27"] {
+.app-premium [class*="bg-[#080c18]"],
+.app-premium [class*="bg-[#111827]"],
+.app-premium [class*="bg-[rgba(9,13,27]"] {
   background-color: rgba(24, 34, 51, 0.82) !important;
 }
 
@@ -501,14 +504,14 @@ select {
   color: #1d1d1f !important;
 }
 
-.app-premium [class*="bg-[#111827"],
-.app-premium [class*="bg-[#182233"],
-.app-premium [class*="bg-[#080c18"],
-.app-premium [class*="bg-[#0f172a"],
+.app-premium [class*="bg-[#111827]"],
+.app-premium [class*="bg-[#182233]"],
+.app-premium [class*="bg-[#080c18]"],
+.app-premium [class*="bg-[#0f172a]"],
 .app-premium [class*="bg-slate-800"],
 .app-premium [class*="bg-slate-900"],
 .app-premium [class*="bg-slate-950"],
-.app-premium [class*="bg-[rgba(9,13,27"],
+.app-premium [class*="bg-[rgba(9,13,27]"],
 .app-premium [class*="bg-white/["],
 .app-premium [class*="bg-white/8"],
 .app-premium [class*="bg-white/9"] {
@@ -679,10 +682,15 @@ select {
 .app-premium details,
 .app-premium aside {
   border-color: rgba(230, 232, 236, 0.82) !important;
+  box-shadow:
+    0 14px 34px rgba(15, 23, 42, 0.07),
+    0 2px 8px rgba(15, 23, 42, 0.035) !important;
 }
 
 .app-premium [class*="shadow-[0_"] {
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.045) !important;
+  box-shadow:
+    0 12px 30px rgba(15, 23, 42, 0.065),
+    0 2px 8px rgba(15, 23, 42, 0.035) !important;
 }
 
 .app-premium [class*="space-y-4"] {
@@ -754,18 +762,79 @@ select {
   line-height: 2rem !important;
 }
 
-.app-premium a[class*="bg-[#111827"],
-.app-premium button[class*="bg-[#111827"],
-.app-premium span[class*="bg-[#111827"],
+.app-premium a[class*="bg-[#111827]"],
+.app-premium button[class*="bg-[#111827]"],
+.app-premium span[class*="bg-[#111827]"],
 .app-premium a[class*="bg-slate-900"],
 .app-premium button[class*="bg-slate-900"] {
   background-color: #111827 !important;
   color: #ffffff !important;
 }
 
-.app-premium a[class*="bg-[#111827"] *,
-.app-premium button[class*="bg-[#111827"] *,
+.app-premium a[class*="bg-[#111827]"] *,
+.app-premium button[class*="bg-[#111827]"] *,
 .app-premium a[class*="bg-slate-900"] *,
 .app-premium button[class*="bg-slate-900"] * {
   color: inherit !important;
+}
+
+.app-premium .nestly-primary-action,
+.app-premium .nestly-primary-action:hover,
+.app-premium .nestly-primary-action:focus-visible,
+.app-premium .nestly-primary-action * {
+  background-color: #111827 !important;
+  color: #ffffff !important;
+}
+
+/* Product polish pass: warmer, less institutional, still light and accessible. */
+.app-premium {
+  background:
+    linear-gradient(135deg, #fffdf7 0%, #f7f9fd 46%, #f7f1e8 100%);
+  color: #1f2937;
+}
+
+.app-premium header[class*="fixed"] {
+  background: rgba(255, 253, 248, 0.9) !important;
+  border-color: rgba(226, 217, 205, 0.86) !important;
+  box-shadow:
+    0 12px 32px rgba(33, 43, 63, 0.075),
+    0 1px 0 rgba(255, 255, 255, 0.78) inset !important;
+}
+
+.app-premium section,
+.app-premium article,
+.app-premium details,
+.app-premium aside {
+  border-color: rgba(226, 217, 205, 0.84) !important;
+  box-shadow:
+    0 14px 34px rgba(33, 43, 63, 0.072),
+    0 1px 0 rgba(255, 255, 255, 0.72) inset !important;
+}
+
+.app-premium [class*="bg-[#fafafb]"],
+.app-premium [class*="bg-slate-50"] {
+  background-color: #fffdf8 !important;
+}
+
+.app-premium [class*="border-[#e6e8ec]"],
+.app-premium [class*="border-[#d9dde5]"] {
+  border-color: rgba(226, 217, 205, 0.9) !important;
+}
+
+.app-premium [class*="hover:bg-[#fafafb]"]:hover,
+.app-premium [class*="hover:bg-slate-50"]:hover {
+  background-color: #fff8eb !important;
+}
+
+.app-premium input,
+.app-premium select,
+.app-premium textarea {
+  background: #fffdf8 !important;
+  border-color: rgba(226, 217, 205, 0.95) !important;
+}
+
+.app-premium [class*="bg-[#111827]"],
+.app-premium [class*="bg-slate-900"],
+.app-premium [class*="bg-slate-950"] {
+  box-shadow: 0 14px 30px rgba(17, 24, 39, 0.16) !important;
 }

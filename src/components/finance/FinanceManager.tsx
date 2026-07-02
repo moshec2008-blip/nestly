@@ -52,15 +52,16 @@ function getAvailableMonths(transactions: FinanceTransaction[]) {
 
 export default function FinanceManager() {
   const { confirm, toast } = useFeedback();
-  const [transactions, setTransactions] = usePersistentArrayState<FinanceTransaction>(
-    storageKeys.finance,
-    initialFinanceTransactions
-  );
+  const [transactions, setTransactions] =
+    usePersistentArrayState<FinanceTransaction>(
+      storageKeys.finance,
+      initialFinanceTransactions
+    );
 
-  const [editingTransactionId, setEditingTransactionId] = useState<string | null>(
-    null
-  );
-
+  const [editingTransactionId, setEditingTransactionId] = useState<
+    string | null
+  >(null);
+  const [isTransactionFormOpen, setIsTransactionFormOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<FinanceTab>("overview");
   const [activeMonth, setActiveMonth] = useState("all");
   const [searchValue, setSearchValue] = useState("");
@@ -134,36 +135,47 @@ export default function FinanceManager() {
       .sort((a, b) => b.date.localeCompare(a.date));
   }, [activeMonthTransactions, searchValue, typeFilter, statusFilter]);
 
-  const exportTransactions = useMemo(() => {
-    return [...transactions].sort((a, b) => b.date.localeCompare(a.date));
-  }, [transactions]);
+  const exportTransactions = useMemo(
+    () => [...transactions].sort((a, b) => b.date.localeCompare(a.date)),
+    [transactions]
+  );
 
   const financeCards = [
     {
       title: "יתרה",
       value: formatCurrency(stats.balance),
-      tone: "text-white",
+      tone: "text-[#111827]",
       subtitle: "הכנסות פחות הוצאות",
     },
     {
       title: "הכנסות",
       value: formatCurrency(stats.income),
-      tone: "text-emerald-300",
+      tone: "text-emerald-700",
       subtitle: "בתקופה הנבחרת",
     },
     {
       title: "הוצאות",
       value: formatCurrency(stats.expenses),
-      tone: "text-[#e7b7a8]",
+      tone: "text-rose-700",
       subtitle: "בתקופה הנבחרת",
     },
     {
       title: "ממתינות",
       value: stats.pendingPayments.toString(),
-      tone: "text-amber-200",
+      tone: "text-amber-700",
       subtitle: "פעולות פתוחות",
     },
   ];
+
+  function openTransactionsTab() {
+    setActiveTab("transactions");
+  }
+
+  function handleStartAddTransaction() {
+    setEditingTransactionId(null);
+    setIsTransactionFormOpen(true);
+    openTransactionsTab();
+  }
 
   function handleSaveTransaction(transaction: FinanceTransaction) {
     setTransactions((currentTransactions) => {
@@ -181,7 +193,8 @@ export default function FinanceManager() {
     });
 
     setEditingTransactionId(null);
-    setActiveTab("transactions");
+    setIsTransactionFormOpen(false);
+    openTransactionsTab();
     toast({
       title: "הפעולה נשמרה",
       description: transaction.title,
@@ -196,8 +209,9 @@ export default function FinanceManager() {
     ]);
 
     setEditingTransactionId(null);
+    setIsTransactionFormOpen(false);
     handleClearFilters();
-    setActiveTab("transactions");
+    openTransactionsTab();
     toast({
       title: "ייבוא הושלם",
       description: `${importedTransactions.length} פעולות נוספו לכספים.`,
@@ -208,6 +222,7 @@ export default function FinanceManager() {
   function handleRestoreTransactions(restoredTransactions: FinanceTransaction[]) {
     setTransactions(restoredTransactions);
     setEditingTransactionId(null);
+    setIsTransactionFormOpen(false);
     setActiveMonth("all");
     handleClearFilters();
     setActiveTab("overview");
@@ -240,6 +255,7 @@ export default function FinanceManager() {
 
     if (editingTransactionId === id) {
       setEditingTransactionId(null);
+      setIsTransactionFormOpen(false);
     }
 
     toast({
@@ -251,11 +267,13 @@ export default function FinanceManager() {
 
   function handleEditTransaction(id: string) {
     setEditingTransactionId(id);
-    setActiveTab("transactions");
+    setIsTransactionFormOpen(true);
+    openTransactionsTab();
   }
 
   function handleCancelEdit() {
     setEditingTransactionId(null);
+    setIsTransactionFormOpen(false);
   }
 
   function handleToggleStatus(id: string) {
@@ -283,6 +301,7 @@ export default function FinanceManager() {
 
     setTransactions(initialFinanceTransactions);
     setEditingTransactionId(null);
+    setIsTransactionFormOpen(false);
     setActiveMonth("all");
     handleClearFilters();
     setActiveTab("overview");
@@ -307,6 +326,7 @@ export default function FinanceManager() {
 
     setTransactions([]);
     setEditingTransactionId(null);
+    setIsTransactionFormOpen(false);
     setActiveMonth("all");
     handleClearFilters();
     setActiveTab("overview");
@@ -334,19 +354,20 @@ export default function FinanceManager() {
 
       <FinanceQuickActions
         onTabChange={setActiveTab}
+        onAddTransaction={handleStartAddTransaction}
         onResetDemoData={handleResetDemoData}
       />
 
       <FinanceTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
       {activeTab === "overview" && (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <SmartFinanceSummary insights={smartInsights} />
-          <details className="rounded-[22px] bg-slate-800/58 p-3 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)]">
-            <summary className="cursor-pointer list-none text-lg font-black">
+          <details className="rounded-[18px] border border-[#e6e8ec] bg-white p-3 text-right text-[#111827] shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+            <summary className="cursor-pointer list-none text-sm font-black">
               גרפים ותזרים
             </summary>
-            <div className="mt-3 space-y-3">
+            <div className="mt-2.5 space-y-2.5">
               <FinanceChart items={monthlyCashflowItems} />
               <MonthlyCashflow items={monthlyCashflowItems} />
             </div>
@@ -355,23 +376,56 @@ export default function FinanceManager() {
       )}
 
       {activeTab === "transactions" && (
-        <div className="space-y-3">
-          <details
-            open={Boolean(editingTransaction)}
-            className="rounded-[22px] bg-slate-800/58 p-3 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)]"
-          >
-            <summary className="cursor-pointer list-none text-lg font-black">
-              {editingTransaction ? "עריכת פעולה" : "הוספת פעולה"}
-            </summary>
-            <div className="mt-3">
-              <AddTransactionForm
-                key={editingTransaction?.id ?? "new-transaction"}
-                editingTransaction={editingTransaction}
-                onSave={handleSaveTransaction}
-                onCancelEdit={handleCancelEdit}
-              />
+        <div className="space-y-2.5">
+          <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-3 text-right shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <button
+                type="button"
+                onClick={handleStartAddTransaction}
+                className="min-h-11 rounded-2xl bg-[#111827] px-5 py-2.5 text-sm font-black text-white shadow-[0_14px_34px_rgba(15,23,42,0.14)] transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
+              >
+                + הוסף פעולה חדשה
+              </button>
+
+              <div>
+                <p className="text-xs font-bold text-slate-600">
+                  פעולות כספיות
+                </p>
+                <h2 className="mt-1 text-base font-black text-[#111827]">
+                  {editingTransaction
+                    ? "עריכת פעולה קיימת"
+                    : "הוספה וניהול פעולות"}
+                </h2>
+                <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
+                  הוסף הכנסה או הוצאה, עדכן סטטוס, ואז המשך לטבלה ולסינון.
+                </p>
+              </div>
             </div>
-          </details>
+
+            {isTransactionFormOpen ? (
+              <div className="mt-3">
+                <AddTransactionForm
+                  key={editingTransaction?.id ?? "new-transaction"}
+                  editingTransaction={editingTransaction}
+                  onSave={handleSaveTransaction}
+                  onCancelEdit={handleCancelEdit}
+                />
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleStartAddTransaction}
+                className="mt-3 block w-full rounded-[18px] border border-dashed border-[#cbd5e1] bg-[#fafafb] p-4 text-right transition hover:border-[#111827] hover:bg-white"
+              >
+                <span className="block text-sm font-black text-[#111827]">
+                  אין טופס פתוח כרגע
+                </span>
+                <span className="mt-1 block text-sm font-semibold text-slate-600">
+                  לחץ כאן או על הכפתור “הוסף פעולה חדשה” כדי לפתוח טופס ברור ומלא.
+                </span>
+              </button>
+            )}
+          </section>
 
           <FinanceFilters
             searchValue={searchValue}
@@ -395,10 +449,10 @@ export default function FinanceManager() {
       {activeTab === "budget" && <BudgetOverview items={budgetReportItems} />}
 
       {activeTab === "reports" && (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <CategoryReport items={categoryReportItems} />
-          <details className="rounded-[22px] bg-slate-800/58 p-3 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)]">
-            <summary className="cursor-pointer list-none text-lg font-black">
+          <details className="rounded-[18px] border border-[#e6e8ec] bg-white p-3 text-right text-[#111827] shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+            <summary className="cursor-pointer list-none text-sm font-black">
               תזרים חודשי מלא
             </summary>
             <div className="mt-3">
@@ -409,11 +463,13 @@ export default function FinanceManager() {
       )}
 
       {activeTab === "backup" && (
-        <section className="rounded-[28px] border border-[rgba(216,180,112,0.14)] bg-[rgba(9,13,27,0.72)] p-5 text-right text-[#fff9ea] shadow-[0_22px_64px_rgba(0,0,0,0.28)] backdrop-blur-xl">
-          <div className="mb-6">
-            <p className="mb-2 text-sm text-[#a9a295]">ניהול נתונים</p>
+        <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-3 text-right text-[#111827] shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+          <div className="mb-3">
+            <p className="mb-2 text-sm font-bold text-slate-600">
+              ניהול נתונים
+            </p>
             <h2 className="text-xl font-black">גיבוי, שחזור וייבוא</h2>
-            <p className="mt-2 text-sm leading-6 text-[#a9a295]">
+            <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
               פעולות מתקדמות לניהול המידע: ייבוא, ייצוא, גיבוי, שחזור ואיפוס.
             </p>
           </div>
@@ -431,7 +487,7 @@ export default function FinanceManager() {
             <button
               type="button"
               onClick={handleResetDemoData}
-              className="rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-bold text-[#d7cfbf] hover:bg-white/[0.1]"
+              className="rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-5 py-3 text-sm font-bold text-slate-700 hover:bg-white"
             >
               איפוס נתוני דמו
             </button>
@@ -439,7 +495,7 @@ export default function FinanceManager() {
             <button
               type="button"
               onClick={handleClearAllTransactions}
-              className="rounded-2xl border border-[#b86f68]/24 bg-[#b86f68]/16 px-5 py-3 text-sm font-bold text-[#f0c6bd] hover:bg-[#b86f68]/24"
+              className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-bold text-rose-800 hover:bg-rose-100"
             >
               מחיקת כל הנתונים
             </button>

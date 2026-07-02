@@ -6,8 +6,10 @@ export const storageKeys = {
   documents: "beit-cohen-shor-documents",
   vehicles: "beit-cohen-shor-vehicle-records",
   family: "beit-cohen-shor-family-records",
+  familyTree: "nestly-family-tree",
   birthdays: "beit-cohen-shor-birthdays",
   shopping: "beit-cohen-shor-shopping-items",
   permissions: "beit-cohen-shor-permissions",
   authSession: "nestly-auth-session",
+  smartNudge: "nestly-smart-nudge",
 } as const;

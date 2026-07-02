@@ -69,20 +69,20 @@ function formatDate(date: string) {
 
 function getPriorityClass(priority: FamilyTask["priority"]) {
   if (priority === "high") {
-    return "bg-[#b86f68]/16 text-[#f0c6bd]";
+    return "border-rose-100 bg-rose-50 text-rose-800";
   }
 
   if (priority === "medium") {
-    return "bg-[#d8b470]/14 text-[#f4e7c8]";
+    return "border-amber-100 bg-amber-50 text-amber-800";
   }
 
-  return "bg-white/[0.07] text-slate-300";
+  return "border-slate-200 bg-slate-50 text-slate-700";
 }
 
 function getStatusClass(status: FamilyTask["status"]) {
   return status === "done"
-    ? "bg-emerald-400/12 text-emerald-100"
-    : "bg-sky-400/12 text-sky-100";
+    ? "border-emerald-100 bg-emerald-50 text-emerald-800"
+    : "border-sky-100 bg-sky-50 text-sky-800";
 }
 
 function sortTasks(tasks: FamilyTask[]) {
@@ -105,6 +105,14 @@ function sortTasks(tasks: FamilyTask[]) {
   });
 }
 
+function createTaskId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `task-${Date.now()}`;
+}
+
 export default function TaskManager() {
   const { confirm, toast } = useFeedback();
   const [tasks, setTasks] = usePersistentArrayState<FamilyTask>(
@@ -113,6 +121,7 @@ export default function TaskManager() {
   );
   const [taskForm, setTaskForm] = useState<TaskForm>(getInitialTaskForm);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatusFilter>("all");
   const [priorityFilter, setPriorityFilter] =
@@ -144,11 +153,22 @@ export default function TaskManager() {
         );
       });
   }, [tasks, searchValue, statusFilter, priorityFilter]);
+
   const displayedTasks = showAllTasks ? visibleTasks : visibleTasks.slice(0, 5);
 
   function resetForm() {
     setTaskForm(getInitialTaskForm());
     setEditingTaskId(null);
+  }
+
+  function closeForm() {
+    resetForm();
+    setIsFormOpen(false);
+  }
+
+  function openCreateForm() {
+    resetForm();
+    setIsFormOpen(true);
   }
 
   function clearFilters() {
@@ -186,7 +206,7 @@ export default function TaskManager() {
         )
       );
 
-      resetForm();
+      closeForm();
       toast({
         title: "המשימה עודכנה",
         description: cleanTitle,
@@ -196,7 +216,7 @@ export default function TaskManager() {
     }
 
     const task: FamilyTask = {
-      id: crypto.randomUUID(),
+      id: createTaskId(),
       title: cleanTitle,
       description: cleanDescription || "משימה חדשה ללא פירוט נוסף.",
       owner: cleanOwner,
@@ -207,7 +227,7 @@ export default function TaskManager() {
     };
 
     setTasks((currentTasks) => [task, ...currentTasks]);
-    resetForm();
+    closeForm();
     toast({
       title: "משימה חדשה נפתחה",
       description: task.title,
@@ -224,6 +244,7 @@ export default function TaskManager() {
 
     setEditingTaskId(id);
     setTaskForm(getTaskForm(task));
+    setIsFormOpen(true);
   }
 
   async function handleDeleteTask(id: string) {
@@ -244,7 +265,7 @@ export default function TaskManager() {
     setTasks((currentTasks) => currentTasks.filter((item) => item.id !== id));
 
     if (editingTaskId === id) {
-      resetForm();
+      closeForm();
     }
 
     toast({
@@ -265,165 +286,195 @@ export default function TaskManager() {
   }
 
   const statCards = [
-    { title: "סהכ משימות", value: stats.total, note: "כל המשימות במערכת" },
-    { title: "פתוחות", value: stats.openTasks, note: "דורשות טיפול" },
-    { title: "בוצעו", value: stats.doneTasks, note: "נסגרו בהצלחה" },
     {
-      title: "עדיפות גבוהה",
+      title: 'סה"כ',
+      value: stats.total,
+      note: "כל המשימות",
+      accent: "bg-slate-900",
+    },
+    {
+      title: "פתוחות",
+      value: stats.openTasks,
+      note: "דורשות טיפול",
+      accent: "bg-sky-500",
+    },
+    {
+      title: "בוצעו",
+      value: stats.doneTasks,
+      note: "נסגרו בהצלחה",
+      accent: "bg-emerald-500",
+    },
+    {
+      title: "דחופות",
       value: stats.highPriorityTasks,
-      note: "פתוחות בלבד",
+      note: "עדיפות גבוהה",
+      accent: "bg-rose-400",
     },
   ];
 
   return (
-    <section className="space-y-3">
-      <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
+    <section className="space-y-2.5">
+      <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
         {statCards.map((card) => (
-          <div key={card.title} className="rounded-[18px] bg-slate-800/62 p-3 shadow-[0_10px_30px_rgba(2,6,23,0.16)]">
-            <p className="mb-1 truncate text-[11px] text-slate-300">{card.title}</p>
-            <p className="text-xl font-black text-white">{card.value}</p>
-            <p className="mt-1 line-clamp-1 text-[11px] text-slate-400">{card.note}</p>
+          <div
+            key={card.title}
+            className="rounded-[16px] border border-[#e6e8ec] bg-white p-2.5 text-right shadow-[0_8px_22px_rgba(15,23,42,0.045)] transition hover:-translate-y-0.5 hover:bg-[#fffdf8]"
+          >
+            <div className={`mb-1.5 h-1 w-7 rounded-full ${card.accent}`} />
+            <p className="truncate text-[11px] font-bold text-slate-500">
+              {card.title}
+            </p>
+            <p className="mt-0.5 text-lg font-black text-[#111827]">
+              {card.value}
+            </p>
+            <p className="truncate text-[11px] font-semibold text-slate-500">
+              {card.note}
+            </p>
           </div>
         ))}
       </div>
 
-      <details
-        open={isEditing}
-        className="group rounded-[22px] bg-slate-800/58 p-3 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)]"
-      >
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-1 py-1">
-          {isEditing && (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="w-fit rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-bold text-slate-200 hover:bg-white/[0.1]"
-            >
-              ביטול עריכה
-            </button>
-          )}
+      <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-2.5 text-right shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <button
+            type="button"
+            onClick={isFormOpen ? closeForm : openCreateForm}
+            className={
+              isFormOpen
+                ? "min-h-10 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 py-2 text-sm font-black text-slate-700 hover:bg-white"
+                : "min-h-10 rounded-2xl bg-[#111827] px-4 py-2 text-sm font-black text-white hover:bg-[#1f2937]"
+            }
+          >
+            {isFormOpen ? "סגור טופס" : "+ משימה חדשה"}
+          </button>
 
           <div>
-            <p className="mb-1 text-[11px] text-slate-400">
+            <p className="text-[11px] font-bold text-slate-500">
               {isEditing ? "עריכת משימה" : "פתיחת משימה"}
             </p>
-            <h2 className="text-lg font-black">
-              {isEditing ? "עדכון משימה קיימת" : "משימה חדשה"}
+            <h2 className="text-sm font-black text-[#111827]">
+              {isEditing ? "עדכון משימה קיימת" : "ניהול משימות הבית"}
             </h2>
           </div>
-        </summary>
+        </div>
 
-        <form onSubmit={handleSubmitTask} className="mt-3 grid gap-3 lg:grid-cols-6">
-          <input
-            value={taskForm.title}
-            onChange={(event) =>
-              setTaskForm((currentTask) => ({
-                ...currentTask,
-                title: event.target.value,
-              }))
-            }
-            required
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500 lg:col-span-2"
-            placeholder="שם המשימה"
-          />
-
-          <input
-            value={taskForm.owner}
-            onChange={(event) =>
-              setTaskForm((currentTask) => ({
-                ...currentTask,
-                owner: event.target.value,
-              }))
-            }
-            required
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500"
-            placeholder="אחראי"
-          />
-
-          <input
-            value={taskForm.category}
-            onChange={(event) =>
-              setTaskForm((currentTask) => ({
-                ...currentTask,
-                category: event.target.value,
-              }))
-            }
-            required
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500"
-            placeholder="קטגוריה"
-          />
-
-          <select
-            value={taskForm.priority}
-            onChange={(event) =>
-              setTaskForm((currentTask) => ({
-                ...currentTask,
-                priority: event.target.value as FamilyTask["priority"],
-              }))
-            }
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none"
+        {isFormOpen && (
+          <form
+            onSubmit={handleSubmitTask}
+            className="mt-2.5 grid gap-2 rounded-[16px] border border-[#e6e8ec] bg-[#fafafb] p-2.5 lg:grid-cols-6"
           >
-            <option value="high">עדיפות גבוהה</option>
-            <option value="medium">עדיפות בינונית</option>
-            <option value="low">עדיפות נמוכה</option>
-          </select>
+            <input
+              value={taskForm.title}
+              onChange={(event) =>
+                setTaskForm((currentTask) => ({
+                  ...currentTask,
+                  title: event.target.value,
+                }))
+              }
+              required
+              className="min-h-10 rounded-2xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/55 lg:col-span-2"
+              placeholder="שם המשימה"
+            />
 
-          <input
-            value={taskForm.dueDate}
-            onChange={(event) =>
-              setTaskForm((currentTask) => ({
-                ...currentTask,
-                dueDate: event.target.value,
-              }))
-            }
-            required
-            type="date"
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none"
-          />
+            <input
+              value={taskForm.owner}
+              onChange={(event) =>
+                setTaskForm((currentTask) => ({
+                  ...currentTask,
+                  owner: event.target.value,
+                }))
+              }
+              required
+              className="min-h-10 rounded-2xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/55"
+              placeholder="אחראי"
+            />
 
-          <textarea
-            value={taskForm.description}
-            onChange={(event) =>
-              setTaskForm((currentTask) => ({
-                ...currentTask,
-                description: event.target.value,
-              }))
-            }
-            className="min-h-20 resize-y rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500 lg:col-span-5"
-            placeholder="פירוט קצר"
-          />
+            <input
+              value={taskForm.category}
+              onChange={(event) =>
+                setTaskForm((currentTask) => ({
+                  ...currentTask,
+                  category: event.target.value,
+                }))
+              }
+              required
+              className="min-h-10 rounded-2xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/55"
+              placeholder="קטגוריה"
+            />
 
-          <button
-            type="submit"
-            className="rounded-2xl bg-[#f4e7c8] px-5 py-3 text-sm font-black text-slate-950 hover:bg-[#fff3d6]"
-          >
-            {isEditing ? "שמור שינויים" : "פתח משימה"}
-          </button>
-        </form>
-      </details>
+            <select
+              value={taskForm.priority}
+              onChange={(event) =>
+                setTaskForm((currentTask) => ({
+                  ...currentTask,
+                  priority: event.target.value as FamilyTask["priority"],
+                }))
+              }
+              className="min-h-10 rounded-2xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/55"
+            >
+              <option value="high">עדיפות גבוהה</option>
+              <option value="medium">עדיפות בינונית</option>
+              <option value="low">עדיפות נמוכה</option>
+            </select>
 
-      <section className="rounded-[22px] bg-slate-800/58 p-3 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)]">
-        <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <input
+              value={taskForm.dueDate}
+              onChange={(event) =>
+                setTaskForm((currentTask) => ({
+                  ...currentTask,
+                  dueDate: event.target.value,
+                }))
+              }
+              required
+              type="date"
+              className="min-h-10 rounded-2xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/55"
+            />
+
+            <textarea
+              value={taskForm.description}
+              onChange={(event) =>
+                setTaskForm((currentTask) => ({
+                  ...currentTask,
+                  description: event.target.value,
+                }))
+              }
+              className="min-h-16 resize-y rounded-2xl border border-[#d9dde5] bg-white px-3 py-2 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/55 lg:col-span-5"
+              placeholder="פירוט קצר"
+            />
+
+            <button
+              type="submit"
+              className="min-h-10 rounded-2xl bg-[#111827] px-4 py-2 text-sm font-black text-white hover:bg-[#1f2937]"
+            >
+              {isEditing ? "שמור" : "פתח"}
+            </button>
+          </form>
+        )}
+      </section>
+
+      <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-2.5 text-right shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+        <div className="mb-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <button
             type="button"
             onClick={clearFilters}
-            className="w-fit rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-bold text-slate-200 hover:bg-white/[0.1]"
+            className="w-fit rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-3 py-2 text-xs font-black text-slate-700 hover:bg-white"
           >
             נקה סינון
           </button>
 
           <div>
-            <p className="mb-1 text-xs text-slate-400">
+            <p className="text-[11px] font-bold text-slate-500">
               {visibleTasks.length} משימות מוצגות
             </p>
-            <h2 className="text-lg font-black">חיפוש וסינון</h2>
+            <h2 className="text-sm font-black text-[#111827]">חיפוש וסינון</h2>
           </div>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-2 md:grid-cols-3">
           <input
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500"
+            className="min-h-10 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/55"
             placeholder="חיפוש לפי שם, אחראי, קטגוריה או תאריך"
           />
 
@@ -432,7 +483,7 @@ export default function TaskManager() {
             onChange={(event) =>
               setStatusFilter(event.target.value as TaskStatusFilter)
             }
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none"
+            className="min-h-10 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/55"
           >
             <option value="all">כל הסטטוסים</option>
             <option value="open">פתוחות בלבד</option>
@@ -444,7 +495,7 @@ export default function TaskManager() {
             onChange={(event) =>
               setPriorityFilter(event.target.value as TaskPriorityFilter)
             }
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none"
+            className="min-h-10 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/55"
           >
             <option value="all">כל העדיפויות</option>
             <option value="high">גבוהה</option>
@@ -454,38 +505,38 @@ export default function TaskManager() {
         </div>
       </section>
 
-      <section className="rounded-[22px] bg-slate-800/58 p-3 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)]">
-        <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <p className="text-xs font-bold text-slate-400">
+      <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-2.5 text-right text-[#111827] shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+        <div className="mb-2.5 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <p className="text-xs font-bold text-slate-500">
             {stats.openTasks} פתוחות / {stats.doneTasks} בוצעו
           </p>
 
           <div>
-            <p className="mb-1 text-xs text-slate-400">ניהול משימות</p>
-            <h2 className="text-lg font-black">משימות הבית</h2>
+            <p className="text-[11px] font-bold text-slate-500">ניהול משימות</p>
+            <h2 className="text-sm font-black text-[#111827]">משימות הבית</h2>
           </div>
         </div>
 
         {visibleTasks.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-8 text-center text-slate-400">
+          <div className="rounded-2xl border border-dashed border-[#cbd5e1] bg-[#fafafb] p-6 text-center text-sm font-semibold text-slate-600">
             אין משימות להצגה לפי הסינון הנוכחי.
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {displayedTasks.map((task) => (
               <article
                 key={task.id}
-                className="rounded-2xl border border-white/10 bg-white/[0.045] p-3.5 text-right"
+                className="rounded-2xl border border-[#e6e8ec] bg-[#fafafb] p-3 text-right transition hover:bg-[#fffdf8]"
               >
-                <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                  <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                  <div className="flex flex-wrap gap-1.5">
                     <button
                       type="button"
                       onClick={() => toggleTaskStatus(task.id)}
                       className={
                         task.status === "done"
-                          ? "rounded-xl bg-slate-950 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
-                          : "rounded-xl bg-emerald-400/14 px-4 py-2 text-sm font-bold text-emerald-100 hover:bg-emerald-400/20"
+                          ? "rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-black text-slate-700 hover:bg-slate-50"
+                          : "rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-800 hover:bg-emerald-100"
                       }
                     >
                       {task.status === "done" ? "פתח מחדש" : "סמן כבוצעה"}
@@ -494,7 +545,7 @@ export default function TaskManager() {
                     <button
                       type="button"
                       onClick={() => handleEditTask(task.id)}
-                      className="rounded-xl bg-sky-400/12 px-4 py-2 text-sm font-bold text-sky-100 hover:bg-sky-400/18"
+                      className="rounded-xl border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-black text-blue-700 hover:bg-blue-100"
                     >
                       עריכה
                     </button>
@@ -502,49 +553,52 @@ export default function TaskManager() {
                     <button
                       type="button"
                       onClick={() => handleDeleteTask(task.id)}
-                      className="rounded-xl bg-[#b86f68]/14 px-4 py-2 text-sm font-bold text-[#f0c6bd] hover:bg-[#b86f68]/20"
+                      className="rounded-xl border border-rose-100 bg-rose-50 px-3 py-1.5 text-xs font-black text-rose-700 hover:bg-rose-100"
                     >
                       מחיקה
                     </button>
                   </div>
 
                   <div className="max-w-3xl">
-                    <div className="mb-3 flex flex-wrap justify-end gap-2 text-xs font-bold">
+                    <div className="mb-2 flex flex-wrap justify-end gap-1.5 text-xs font-bold">
                       <span
-                        className={`rounded-full px-3 py-1 ${getStatusClass(
+                        className={`rounded-full border px-2.5 py-1 ${getStatusClass(
                           task.status
                         )}`}
                       >
                         {statusLabels[task.status]}
                       </span>
                       <span
-                        className={`rounded-full px-3 py-1 ${getPriorityClass(
+                        className={`rounded-full border px-2.5 py-1 ${getPriorityClass(
                           task.priority
                         )}`}
                       >
                         עדיפות {priorityLabels[task.priority]}
                       </span>
-                      <span className="rounded-full bg-white/[0.07] px-3 py-1 text-slate-300">
+                      <span className="rounded-full border border-[#e6e8ec] bg-white px-2.5 py-1 text-slate-600">
                         {task.category}
                       </span>
                     </div>
 
-                    <h3 className="text-base font-black text-white">{task.title}</h3>
-                    <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-400">
+                    <h3 className="text-sm font-black text-[#111827]">
+                      {task.title}
+                    </h3>
+                    <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-600">
                       {task.description}
                     </p>
-                    <p className="mt-2 text-xs font-bold text-slate-400">
+                    <p className="mt-1 text-xs font-bold text-slate-500">
                       אחראי: {task.owner} | יעד: {formatDate(task.dueDate)}
                     </p>
                   </div>
                 </div>
               </article>
             ))}
+
             {visibleTasks.length > 5 && (
               <button
                 type="button"
                 onClick={() => setShowAllTasks((currentValue) => !currentValue)}
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-bold text-[#d7cfbf] hover:bg-white/[0.09]"
+                className="w-full rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 py-2.5 text-sm font-black text-slate-700 hover:bg-white"
               >
                 {showAllTasks ? "הצג פחות" : `הצג עוד ${visibleTasks.length - 5}`}
               </button>

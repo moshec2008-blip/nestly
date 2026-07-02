@@ -89,7 +89,7 @@ export default function SettingsManager() {
   async function resetSettings() {
     const approved = await confirm({
       title: "איפוס הגדרות תצוגה",
-      description: "לאפס את הגדרות התצוגה לברירת מחדל?",
+      description: "לאפס את הגדרות התצוגה לברירת המחדל?",
       confirmLabel: "אפס הגדרות",
       cancelLabel: "ביטול",
       tone: "danger",
@@ -106,94 +106,106 @@ export default function SettingsManager() {
     });
   }
 
+  const preferenceCards = [
+    {
+      key: "highContrast" as const,
+      title: "ניגודיות מוגברת",
+      description: "מחזקת קריאות טקסט וכפתורים למי שמעדיף ממשק ברור יותר.",
+      checked: settings.highContrast,
+    },
+    {
+      key: "compactMode" as const,
+      title: "תצוגה קומפקטית",
+      description: "מציגה יותר מידע במסך אחד, מתאים לעבודה יומיומית מהירה.",
+      checked: settings.compactMode,
+    },
+    {
+      key: "reducedMotion" as const,
+      title: "הפחתת תנועה",
+      description: "מצמצמת אנימציות ומעברים למי שרגיש לתנועה במסך.",
+      checked: settings.reducedMotion,
+    },
+  ];
+
   return (
     <section className="grid gap-3 lg:grid-cols-[1fr_300px]">
       <div className="space-y-3">
-        <section className="rounded-[22px] bg-slate-800/58 p-4 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)] backdrop-blur-xl">
-          <p className="mb-1 text-xs text-[#a9a295]">שפה</p>
-          <h2 className="text-lg font-black">ריבוי שפות</h2>
-          <p className="mt-2 text-sm leading-6 text-[#a9a295]">
-            עברית נשארת שפת ברירת המחדל. התשתית מוכנה לשפות נוספות ולכיוון
+        <section className="rounded-[24px] border border-white/80 bg-white/90 p-4 text-right shadow-[0_16px_40px_rgba(33,43,63,0.08)]">
+          <p className="mb-1 text-xs font-bold text-[#007aff]">שפה וכיוון</p>
+          <h2 className="text-lg font-black text-slate-950">ריבוי שפות</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+            עברית נשארת ברירת המחדל. התשתית כבר מוכנה לשפות נוספות ולכיוון
             כתיבה RTL/LTR דרך שכבת layout משותפת.
           </p>
 
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white/[0.055] p-3">
-            <p className="text-sm font-bold text-[#d7cfbf]">שפה פעילה</p>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] p-3">
+            <p className="text-sm font-bold text-slate-700">שפה פעילה</p>
             <LanguageSwitcher />
           </div>
         </section>
 
-        <section className="rounded-[22px] bg-slate-800/58 p-4 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)] backdrop-blur-xl">
-          <p className="mb-1 text-xs text-[#a9a295]">נגישות ותצוגה</p>
-          <h2 className="text-lg font-black">העדפות ממשק</h2>
-          <p className="mt-1 text-xs font-bold text-[#d8b470]">
-            נשמר אוטומטית בדפדפן
-          </p>
+        <section className="rounded-[24px] border border-white/80 bg-white/90 p-4 text-right shadow-[0_16px_40px_rgba(33,43,63,0.08)]">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="mb-1 text-xs font-bold text-[#9a6b17]">
+                נגישות ותצוגה
+              </p>
+              <h2 className="text-lg font-black text-slate-950">
+                העדפות ממשק
+              </h2>
+            </div>
+            <span className="w-fit rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">
+              נשמר אוטומטית
+            </span>
+          </div>
 
           <div className="mt-3 grid gap-2 md:grid-cols-3">
-            <label className="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.055] p-3">
-              <input
-                type="checkbox"
-                checked={settings.highContrast}
-                onChange={(event) =>
-                  updateSetting("highContrast", event.target.checked)
-                }
-                className="h-5 w-5"
-              />
-              <span className="text-sm font-bold text-[#d7cfbf]">
-                ניגודיות מוגברת
-              </span>
-            </label>
-
-            <label className="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.055] p-3">
-              <input
-                type="checkbox"
-                checked={settings.compactMode}
-                onChange={(event) =>
-                  updateSetting("compactMode", event.target.checked)
-                }
-                className="h-5 w-5"
-              />
-              <span className="text-sm font-bold text-[#d7cfbf]">
-                תצוגה צפופה יותר
-              </span>
-            </label>
-
-            <label className="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.055] p-3">
-              <input
-                type="checkbox"
-                checked={settings.reducedMotion}
-                onChange={(event) =>
-                  updateSetting("reducedMotion", event.target.checked)
-                }
-                className="h-5 w-5"
-              />
-              <span className="text-sm font-bold text-[#d7cfbf]">
-                הפחתת תנועה
-              </span>
-            </label>
+            {preferenceCards.map((item) => (
+              <label
+                key={item.key}
+                className="group flex min-h-[112px] cursor-pointer flex-col justify-between rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] p-3 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(33,43,63,0.08)]"
+              >
+                <span className="flex items-start justify-between gap-3">
+                  <input
+                    type="checkbox"
+                    checked={item.checked}
+                    onChange={(event) =>
+                      updateSetting(item.key, event.target.checked)
+                    }
+                    className="mt-1 h-5 w-5 accent-[#111827]"
+                  />
+                  <span className="text-right">
+                    <span className="block text-sm font-black text-slate-950">
+                      {item.title}
+                    </span>
+                    <span className="mt-1 block text-xs leading-5 text-slate-600">
+                      {item.description}
+                    </span>
+                  </span>
+                </span>
+              </label>
+            ))}
           </div>
-          <p className="mt-3 text-xs leading-5 text-[#a9a295]">
-            הפחתת תנועה מיועדת למשתמשים שרגישים לאנימציות ומעברים.
-          </p>
         </section>
       </div>
 
-      <aside className="rounded-[22px] bg-slate-800/58 p-4 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)] backdrop-blur-xl">
-        <p className="mb-1 text-xs text-[#a9a295]">אודות</p>
-        <h2 className="text-xl font-black">{brand.productName}</h2>
-        <p className="mt-2 text-sm font-bold text-[#d8b470]">
+      <aside className="rounded-[24px] border border-white/80 bg-gradient-to-br from-[#fff8eb] to-white p-4 text-right shadow-[0_16px_40px_rgba(33,43,63,0.08)]">
+        <p className="mb-1 text-xs font-bold text-slate-500">אודות</p>
+        <h2 className="text-xl font-black text-slate-950">{brand.productName}</h2>
+        <p className="mt-2 text-sm font-black text-[#9a6b17]">
           {brand.taglineHe}
         </p>
-        <p className="mt-3 text-sm leading-6 text-[#a9a295]">
+        <p className="mt-3 text-sm leading-6 text-slate-600">
           מרחב משפחתי: {brand.workspaceName}
         </p>
 
-        <div className="my-4 h-px bg-white/10" />
+        <div className="my-4 h-px bg-[#ebe4d8]" />
 
-        <p className="mb-2 text-sm text-[#a9a295]">נתונים מקומיים</p>
-        <h3 className="text-lg font-black">שמירה בדפדפן</h3>
-        <p className="mt-3 text-sm leading-6 text-[#a9a295]">
+        <p className="mb-2 text-sm font-bold text-slate-600">
+          נתונים מקומיים
+        </p>
+        <h3 className="text-lg font-black text-slate-950">שמירה בדפדפן</h3>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
           כספים, משימות ושאר המודולים נשמרים כרגע מקומית בדפדפן. המבנה מוכן
           לחיבור עתידי של משתמשים, הרשאות וסנכרון.
         </p>
@@ -201,7 +213,7 @@ export default function SettingsManager() {
         <button
           type="button"
           onClick={resetSettings}
-          className="mt-4 w-full rounded-2xl bg-[#f4e7c8] px-5 py-3 text-sm font-black text-[#080b16] transition hover:bg-[#fff3d6]"
+          className="mt-4 w-full rounded-2xl bg-[#111827] px-5 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
         >
           איפוס הגדרות תצוגה
         </button>

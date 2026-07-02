@@ -5,7 +5,7 @@ type ButtonTone = "primary" | "secondary" | "ghost";
 
 const tones: Record<ButtonTone, string> = {
   primary:
-    "bg-[#007aff] text-white shadow-[0_10px_22px_rgba(0,122,255,0.18)] hover:bg-[#006ee6]",
+    "nestly-primary-action bg-[#111827] text-white shadow-[0_10px_22px_rgba(15,23,42,0.16)] hover:bg-[#1f2937]",
   secondary:
     "border border-[#e6e8ec] bg-white text-[#1d1d1f] shadow-sm hover:bg-[#fafafb]",
   ghost: "text-slate-600 hover:bg-[#fafafb] hover:text-[#1d1d1f]",

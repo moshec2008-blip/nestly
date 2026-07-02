@@ -73,14 +73,14 @@ function getTransactionsSummary(
 
 function getAmountClass(type: FinanceTransaction["type"]) {
   return type === "income"
-    ? "font-black text-emerald-200"
-    : "font-black text-rose-200";
+    ? "font-black text-emerald-700"
+    : "font-black text-rose-700";
 }
 
 function getStatusClass(status: FinanceTransaction["status"]) {
   return status === "done"
-    ? "w-fit rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-100 transition hover:bg-emerald-400/15"
-    : "w-fit rounded-full border border-[#d8b470]/24 bg-[#d8b470]/10 px-3 py-1 text-xs font-bold text-[#f4e7c8] transition hover:bg-[#d8b470]/15";
+    ? "rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-black text-emerald-800 transition hover:bg-emerald-100"
+    : "rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-black text-amber-800 transition hover:bg-amber-100";
 }
 
 function getSignedAmount(transaction: FinanceTransaction) {
@@ -102,51 +102,59 @@ export default function TransactionsTable({
     : transactions.slice(0, 5);
 
   return (
-    <section className="rounded-[24px] bg-slate-800/58 p-3 text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)] backdrop-blur-xl">
-      <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-wrap gap-2 text-sm font-bold">
-          <span className="rounded-full border border-white/10 bg-white/[0.055] px-3 py-1 text-[#d7cfbf]">
-            {transactions.length} פעולות מוצגות
+    <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-3 text-right text-[#111827] shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+      <div className="mb-2.5 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-wrap gap-1.5 text-xs font-bold">
+          <span className="rounded-full border border-[#e6e8ec] bg-[#fafafb] px-2.5 py-1 text-slate-600">
+            {transactions.length} פעולות
           </span>
-          <span className="rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1 text-emerald-100">
+          <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-emerald-800">
             {summary.doneCount} בוצעו
           </span>
-          <span className="rounded-full border border-[#d8b470]/24 bg-[#d8b470]/10 px-3 py-1 text-[#f4e7c8]">
+          <span className="rounded-full border border-amber-100 bg-amber-50 px-2.5 py-1 text-amber-800">
             {summary.pendingCount} ממתינות
           </span>
         </div>
 
-        <div className="text-right">
-          <p className="mb-2 text-sm text-[#a9a295]">תנועות כספיות</p>
-          <h2 className="text-lg font-black">פעולות אחרונות</h2>
+        <div>
+          <p className="text-[11px] font-bold text-slate-500">תנועות כספיות</p>
+          <h2 className="text-sm font-black text-[#111827]">
+            פעולות אחרונות
+          </h2>
         </div>
       </div>
 
       {transactions.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[rgba(216,180,112,0.18)] bg-white/[0.04] p-8 text-center text-[#a9a295]">
+        <div className="rounded-2xl border border-dashed border-[#cbd5e1] bg-[#fafafb] p-6 text-center text-sm font-semibold text-slate-600">
           אין פעולות להצגה לפי הסינון הנוכחי.
         </div>
       ) : (
-        <div className="space-y-5">
-          <div className="grid gap-2.5 text-right text-sm font-bold md:grid-cols-3">
-            <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-3 text-emerald-100">
-              <p className="mb-1 text-xs text-emerald-200">הכנסות מוצגות</p>
-              <p className="text-lg">{formatCurrency(summary.income)}</p>
+        <div className="space-y-2">
+          <div className="grid gap-2 text-right text-xs font-bold md:grid-cols-3">
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-2 text-emerald-800">
+              <p className="text-[11px] text-emerald-700">הכנסות מוצגות</p>
+              <p className="mt-0.5 text-sm font-black">
+                {formatCurrency(summary.income)}
+              </p>
             </div>
 
-            <div className="rounded-2xl border border-[#b86f68]/20 bg-[#b86f68]/10 p-3 text-[#f0c6bd]">
-              <p className="mb-1 text-xs text-rose-200">הוצאות מוצגות</p>
-              <p className="text-lg">{formatCurrency(summary.expenses)}</p>
+            <div className="rounded-2xl border border-rose-100 bg-rose-50 p-2 text-rose-800">
+              <p className="text-[11px] text-rose-700">הוצאות מוצגות</p>
+              <p className="mt-0.5 text-sm font-black">
+                {formatCurrency(summary.expenses)}
+              </p>
             </div>
 
-            <div className="rounded-2xl border border-[rgba(216,180,112,0.18)] bg-white/[0.05] p-3 text-[#f4e7c8]">
-              <p className="mb-1 text-xs text-[#a9a295]">יתרה מסוננת</p>
-              <p className="text-lg">{formatCurrency(summary.balance)}</p>
+            <div className="rounded-2xl border border-[#e6e8ec] bg-[#fafafb] p-2 text-slate-800">
+              <p className="text-[11px] text-slate-500">יתרה מסוננת</p>
+              <p className="mt-0.5 text-sm font-black">
+                {formatCurrency(summary.balance)}
+              </p>
             </div>
           </div>
 
-          <div className="hidden overflow-hidden rounded-[24px] border border-[rgba(216,180,112,0.12)] md:block">
-            <div className="grid grid-cols-8 bg-white/[0.055] px-4 py-3 text-right text-xs font-black text-[#a9a295]">
+          <div className="hidden overflow-hidden rounded-[16px] border border-[#e6e8ec] md:block">
+            <div className="grid grid-cols-8 bg-[#fafafb] px-3 py-2 text-right text-[11px] font-black text-slate-500">
               <span>תאריך</span>
               <span className="col-span-2">פעולה</span>
               <span>קטגוריה</span>
@@ -156,23 +164,25 @@ export default function TransactionsTable({
               <span>פעולות</span>
             </div>
 
-            <div className="divide-y divide-[rgba(216,180,112,0.1)]">
+            <div className="divide-y divide-[#e6e8ec]">
               {displayedTransactions.map((transaction) => (
                 <div
                   key={transaction.id}
-                  className="grid grid-cols-8 items-center px-4 py-4 text-right text-sm transition hover:bg-white/[0.035]"
+                  className="grid grid-cols-8 items-center px-3 py-2.5 text-right text-sm transition hover:bg-[#fffdf8]"
                 >
-                  <span className="text-[#a9a295]">
+                  <span className="text-xs font-semibold text-slate-500">
                     {formatDate(transaction.date)}
                   </span>
 
-                  <span className="col-span-2 font-bold text-[#fff9ea]">
+                  <span className="col-span-2 truncate font-black text-[#111827]">
                     {transaction.title}
                   </span>
 
-                  <span className="text-[#d7cfbf]">{transaction.category}</span>
+                  <span className="truncate text-xs font-semibold text-slate-600">
+                    {transaction.category}
+                  </span>
 
-                  <span className="text-[#d7cfbf]">
+                  <span className="text-xs font-semibold text-slate-600">
                     {typeLabels[transaction.type]}
                   </span>
 
@@ -188,11 +198,11 @@ export default function TransactionsTable({
                     {getSignedAmount(transaction)}
                   </span>
 
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     <button
                       type="button"
                       onClick={() => onEdit(transaction.id)}
-                      className="rounded-xl border border-blue-300/20 bg-blue-400/10 px-3 py-2 text-xs font-bold text-blue-100 transition hover:bg-blue-400/15"
+                      className="rounded-xl border border-blue-100 bg-blue-50 px-2.5 py-1.5 text-xs font-black text-blue-700 transition hover:bg-blue-100"
                     >
                       עריכה
                     </button>
@@ -200,7 +210,7 @@ export default function TransactionsTable({
                     <button
                       type="button"
                       onClick={() => onDelete(transaction.id)}
-                      className="rounded-xl border border-rose-300/20 bg-rose-400/10 px-3 py-2 text-xs font-bold text-rose-100 transition hover:bg-rose-400/15"
+                      className="rounded-xl border border-rose-100 bg-rose-50 px-2.5 py-1.5 text-xs font-black text-rose-700 transition hover:bg-rose-100"
                     >
                       מחיקה
                     </button>
@@ -210,32 +220,32 @@ export default function TransactionsTable({
             </div>
           </div>
 
-          <div className="space-y-3 md:hidden">
+          <div className="space-y-2 md:hidden">
             {displayedTransactions.map((transaction) => (
               <article
                 key={transaction.id}
-                className="rounded-2xl border border-[rgba(216,180,112,0.12)] bg-white/[0.045] p-4 text-right text-sm"
+                className="rounded-2xl border border-[#e6e8ec] bg-[#fafafb] p-3 text-right text-sm"
               >
-                <div className="mb-3 flex items-start justify-between gap-3">
+                <div className="mb-2 flex items-start justify-between gap-3">
                   <span className={getAmountClass(transaction.type)}>
                     {getSignedAmount(transaction)}
                   </span>
 
                   <div>
-                    <h3 className="font-black text-[#fff9ea]">
+                    <h3 className="font-black text-[#111827]">
                       {transaction.title}
                     </h3>
-                    <p className="mt-1 text-xs text-[#a9a295]">
+                    <p className="mt-1 text-xs font-semibold text-slate-500">
                       {formatDate(transaction.date)}
                     </p>
                   </div>
                 </div>
 
-                <div className="mb-4 flex flex-wrap justify-end gap-2 text-xs font-bold">
-                  <span className="rounded-full bg-white/[0.08] px-3 py-1 text-[#d7cfbf]">
+                <div className="mb-3 flex flex-wrap justify-end gap-1.5 text-xs font-bold">
+                  <span className="rounded-full bg-white px-2.5 py-1 text-slate-600">
                     {transaction.category}
                   </span>
-                  <span className="rounded-full bg-white/[0.08] px-3 py-1 text-[#d7cfbf]">
+                  <span className="rounded-full bg-white px-2.5 py-1 text-slate-600">
                     {typeLabels[transaction.type]}
                   </span>
                 </div>
@@ -249,11 +259,11 @@ export default function TransactionsTable({
                     {statusLabels[transaction.status]}
                   </button>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <button
                       type="button"
                       onClick={() => onEdit(transaction.id)}
-                      className="rounded-xl border border-blue-300/20 bg-blue-400/10 px-3 py-2 text-xs font-bold text-blue-100"
+                      className="rounded-xl border border-blue-100 bg-blue-50 px-3 py-2 text-xs font-black text-blue-700"
                     >
                       עריכה
                     </button>
@@ -261,7 +271,7 @@ export default function TransactionsTable({
                     <button
                       type="button"
                       onClick={() => onDelete(transaction.id)}
-                      className="rounded-xl border border-rose-300/20 bg-rose-400/10 px-3 py-2 text-xs font-bold text-rose-100"
+                      className="rounded-xl border border-rose-100 bg-rose-50 px-3 py-2 text-xs font-black text-rose-700"
                     >
                       מחיקה
                     </button>
@@ -270,13 +280,14 @@ export default function TransactionsTable({
               </article>
             ))}
           </div>
+
           {transactions.length > 5 && (
             <button
               type="button"
               onClick={() =>
                 setShowAllTransactions((currentValue) => !currentValue)
               }
-              className="w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-bold text-[#d7cfbf] hover:bg-white/[0.09]"
+              className="w-full rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 py-2.5 text-sm font-black text-slate-700 hover:bg-white"
             >
               {showAllTransactions
                 ? "הצג פחות"

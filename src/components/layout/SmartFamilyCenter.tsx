@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { initialBirthdays } from "@/data/birthdays";
 import {
   initialFinanceTransactions,
@@ -9,11 +10,14 @@ import {
 } from "@/data/finance";
 import { initialHealthRecords, initialVehicleRecords } from "@/data/modules";
 import { initialFamilyTasks, type FamilyTask } from "@/data/tasks";
-import { getAppNotifications, type AppNotification } from "@/services/notifications";
+import { storageKeys } from "@/lib/storageKeys";
 import { documentAiStatus } from "@/services/documentAi";
+import {
+  getAppNotifications,
+  type AppNotification,
+} from "@/services/notifications";
 import type { BirthdayPerson } from "@/types/birthdays";
 import type { ModuleRecord } from "@/types/modules";
-import { storageKeys } from "@/lib/storageKeys";
 import { readStorageArray } from "@/utils/storage";
 
 type CenterCard = {
@@ -21,6 +25,7 @@ type CenterCard = {
   value: string;
   note: string;
   href: string;
+  icon: AppIconName;
   tone: string;
 };
 
@@ -92,7 +97,8 @@ function getCenterCards(): CenterCard[] {
       value: `${pendingPayments.length}`,
       note: pendingPayments[0]?.title ?? "אין תשלום ממתין כרגע",
       href: "/finance",
-      tone: "from-emerald-400/18 to-emerald-500/5",
+      icon: "finance",
+      tone: "text-emerald-700 bg-emerald-50",
     },
     {
       title: "יום הולדת הבא",
@@ -101,28 +107,32 @@ function getCenterCards(): CenterCard[] {
         ? `עוד ${getDaysUntilAnnualDate(nextBirthday.gregorianDate)} ימים`
         : "אין תאריך קרוב",
       href: "/birthdays",
-      tone: "from-pink-400/18 to-pink-500/5",
+      icon: "calendar",
+      tone: "text-pink-700 bg-pink-50",
     },
     {
       title: "בריאות",
       value: `${healthReminders.length}`,
       note: healthReminders[0]?.title ?? "אין תזכורת פתוחה",
       href: "/health",
-      tone: "from-rose-400/18 to-rose-500/5",
+      icon: "health",
+      tone: "text-rose-700 bg-rose-50",
     },
     {
       title: "רכבים",
       value: `${vehicleReminders.length}`,
       note: vehicleReminders[0]?.title ?? "אין טיפול פתוח",
       href: "/vehicles",
-      tone: "from-blue-400/18 to-blue-500/5",
+      icon: "car",
+      tone: "text-blue-700 bg-blue-50",
     },
     {
       title: "משימות להיום",
       value: `${todayTasks.length}`,
       note: todayTasks[0]?.title ?? "היום נראה נקי",
       href: "/tasks",
-      tone: "from-orange-400/18 to-orange-500/5",
+      icon: "check",
+      tone: "text-orange-700 bg-orange-50",
     },
   ];
 }
@@ -149,10 +159,15 @@ export default function SmartFamilyCenter() {
   const compactNotifications = notifications.slice(0, 2);
 
   return (
-    <aside className="hidden w-60 shrink-0 self-start rounded-[22px] border border-[#e6e8ec] bg-white p-3 text-right shadow-[0_10px_26px_rgba(15,23,42,0.045)] 2xl:block">
-      <div className="mb-3 rounded-[18px] border border-[#e6e8ec] bg-[#fafafb] p-3 shadow-sm">
+    <aside className="hidden w-60 shrink-0 self-start rounded-[24px] border border-white/80 bg-white/88 p-3 text-right shadow-[0_16px_42px_rgba(33,43,63,0.08)] backdrop-blur 2xl:block">
+      <div className="mb-3 rounded-[20px] border border-[#ebe4d8] bg-gradient-to-br from-[#fff8eb] to-[#f7f9fd] p-3 shadow-sm">
         <p className="text-[11px] font-bold text-[#007aff]">תובנות יומיות</p>
-        <h2 className="mt-1 text-lg font-black text-[#1d1d1f]">מרכז משפחתי</h2>
+        <h2 className="mt-1 text-lg font-black text-[#1d1d1f]">
+          מרכז משפחתי
+        </h2>
+        <p className="mt-1 text-[11px] font-semibold leading-4 text-slate-600">
+          הדברים שכדאי לראות לפני שממשיכים.
+        </p>
       </div>
 
       <div className="space-y-2">
@@ -160,33 +175,40 @@ export default function SmartFamilyCenter() {
           <Link
             key={card.title}
             href={card.href}
-            className="block rounded-[16px] border border-[#e6e8ec] bg-[#fafafb] p-3 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(15,23,42,0.06)]"
+            className="block rounded-[18px] border border-white/80 bg-[#fffdf8] p-3 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(33,43,63,0.09)]"
           >
             <div className="flex items-start justify-between gap-3">
-              <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-slate-600 shadow-sm">
-                פתיחה
+              <span className={`grid h-8 w-8 place-items-center rounded-2xl ${card.tone}`}>
+                <AppIcon name={card.icon} className="h-4 w-4" />
               </span>
               <div>
-                <p className="text-[11px] font-bold text-slate-500">{card.title}</p>
+                <p className="text-[11px] font-bold text-slate-600">
+                  {card.title}
+                </p>
                 <p className="mt-1 text-lg font-black text-[#1d1d1f]">
                   {card.value}
                 </p>
               </div>
             </div>
-            <p className="mt-1 truncate text-[11px] text-slate-500">{card.note}</p>
+            <p className="mt-1 truncate text-[11px] font-semibold text-slate-600">
+              {card.note}
+            </p>
           </Link>
         ))}
       </div>
 
-      <div className="mt-3 rounded-[18px] border border-[#e6e8ec] bg-[#fafafb] p-3 shadow-sm">
-        <div className="mb-3 rounded-2xl border border-[#e6e8ec] bg-white p-3">
+      <div className="mt-3 rounded-[20px] border border-white/80 bg-[#fffdf8] p-3 shadow-sm">
+        <div className="mb-3 rounded-2xl border border-[#ebe4d8] bg-white p-3">
           <div className="flex items-center justify-between gap-2">
             <p className="text-[11px] font-bold text-amber-700">AI Documents</p>
-            <span className="rounded-full bg-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-900">
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
               {documentAiStatus.mode}
             </span>
           </div>
           <h3 className="mt-1 text-sm font-black text-slate-950">תיוק חכם</h3>
+          <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-slate-600">
+            מוכן לסריקה, זיהוי וסידור מסמכים בהמשך.
+          </p>
         </div>
 
         <div className="mb-2 flex items-center justify-between">
@@ -197,24 +219,22 @@ export default function SmartFamilyCenter() {
         </div>
 
         <div className="space-y-2">
-          {compactNotifications.map(
-            (notification) => (
-              <Link
-                key={notification.id}
-                href={notification.href}
-                className="block rounded-2xl bg-slate-50 p-2.5 transition hover:bg-blue-50"
-              >
-                <p className="truncate text-xs font-bold text-slate-950">
-                  {notification.title}
-                </p>
-                <p className="mt-1 truncate text-[10px] text-slate-500">
-                  {notification.description}
-                </p>
-              </Link>
-            )
-          )}
+          {compactNotifications.map((notification) => (
+            <Link
+              key={notification.id}
+              href={notification.href}
+              className="block rounded-2xl bg-white p-2.5 transition hover:bg-[#fff8eb]"
+            >
+              <p className="truncate text-xs font-bold text-slate-950">
+                {notification.title}
+              </p>
+              <p className="mt-1 truncate text-[10px] text-slate-500">
+                {notification.description}
+              </p>
+            </Link>
+          ))}
           {notifications.length === 0 && (
-            <p className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-500">
+            <p className="rounded-2xl bg-white p-3 text-xs text-slate-500">
               אין התראות חדשות כרגע.
             </p>
           )}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { getDictionary, type CommonDictionary } from "@/i18n/dictionaries";
 import { getRouteLabel } from "@/i18n/navigation";
@@ -164,6 +164,24 @@ function MenuGlyph({ isOpen }: { isOpen: boolean }) {
   );
 }
 
+function BellIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+  );
+}
+
 export default function TopNavigation({
   isSidebarCollapsed,
   isMobileMenuOpen,
@@ -177,6 +195,7 @@ export default function TopNavigation({
   const [searchValue, setSearchValue] = useState("");
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const notificationsRef = useRef<HTMLDivElement | null>(null);
   const currentRoute = getRouteMeta(pathname);
   const breadcrumbs = getBreadcrumbs(pathname);
   const searchResults = useMemo(
@@ -192,6 +211,35 @@ export default function TopNavigation({
 
     return () => window.clearTimeout(timeoutId);
   }, []);
+
+  useEffect(() => {
+    if (!isNotificationsOpen) {
+      return;
+    }
+
+    const closeTimeoutId = window.setTimeout(() => {
+      setIsNotificationsOpen(false);
+    }, 5000);
+
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target;
+
+      if (
+        target instanceof Node &&
+        notificationsRef.current &&
+        !notificationsRef.current.contains(target)
+      ) {
+        setIsNotificationsOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => {
+      window.clearTimeout(closeTimeoutId);
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [isNotificationsOpen]);
 
   function handleNavigate() {
     setSearchValue("");
@@ -300,7 +348,7 @@ export default function TopNavigation({
 
             <LanguageSwitcher />
 
-            <div className="relative">
+            <div className="relative" ref={notificationsRef}>
               <button
                 type="button"
                 onClick={() =>
@@ -309,7 +357,9 @@ export default function TopNavigation({
                 className="relative h-10 w-10 rounded-2xl border border-[#d9dde5] bg-[#fafafb] text-base font-black text-slate-800 shadow-sm transition hover:bg-white"
                 aria-label={dictionary.notifications}
               >
-                !
+                <span className="grid h-full w-full place-items-center">
+                  <BellIcon />
+                </span>
                 {notifications.length > 0 && (
                   <span className="absolute -left-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-[#b86f68] px-1 text-[10px] font-black text-white">
                     {notifications.length}

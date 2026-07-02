@@ -8,64 +8,74 @@ type SmartFinanceSummaryProps = {
 
 function getToneClassName(tone: SmartFinanceInsight["tone"]) {
   if (tone === "danger") {
-    return "border-[#b86f68]/24 bg-[#b86f68]/12 text-[#f0c6bd]";
+    return "border-rose-100 bg-rose-50 text-rose-800";
   }
 
   if (tone === "warning") {
-    return "border-[#d8b470]/24 bg-[#d8b470]/10 text-[#f4e7c8]";
+    return "border-amber-100 bg-amber-50 text-amber-800";
   }
 
   if (tone === "good") {
-    return "border-emerald-300/20 bg-emerald-400/10 text-emerald-100";
+    return "border-emerald-100 bg-emerald-50 text-emerald-800";
   }
 
-  return "border-sky-300/20 bg-sky-400/10 text-sky-100";
+  return "border-sky-100 bg-sky-50 text-sky-800";
 }
 
-function getToneIcon(tone: SmartFinanceInsight["tone"]) {
+function getToneDotClassName(tone: SmartFinanceInsight["tone"]) {
   if (tone === "danger") {
-    return "⚠️";
+    return "bg-rose-400";
   }
 
   if (tone === "warning") {
-    return "🔔";
+    return "bg-amber-400";
   }
 
   if (tone === "good") {
-    return "✅";
+    return "bg-emerald-500";
   }
 
-  return "💡";
+  return "bg-sky-500";
 }
 
 export default function SmartFinanceSummary({
   insights,
 }: SmartFinanceSummaryProps) {
   return (
-    <section className="rounded-[28px] border border-[rgba(216,180,112,0.14)] bg-[rgba(9,13,27,0.72)] p-5 text-[#fff9ea] shadow-[0_22px_64px_rgba(0,0,0,0.28)] backdrop-blur-xl">
-      <div className="mb-5 text-right">
-        <p className="mb-2 text-xs font-bold text-[#a9a295]">מבוסס על הפעולות שלך</p>
-        <h2 className="text-xl font-black">סיכום חכם</h2>
+    <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-3 text-right text-[#1d1d1f] shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <span className="rounded-full border border-[#e6e8ec] bg-[#fafafb] px-2.5 py-1 text-[11px] font-bold text-slate-600">
+          {insights.length} תובנות
+        </span>
+        <div>
+          <p className="text-[11px] font-bold text-slate-500">
+            מבוסס על הפעולות שלך
+          </p>
+          <h2 className="text-sm font-black text-[#111827]">סיכום חכם</h2>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {insights.map((insight) => (
-          <div
+      <div className="grid gap-2 md:grid-cols-2">
+        {insights.slice(0, 4).map((insight) => (
+          <article
             key={insight.id}
-            className={`rounded-2xl border p-4 ${getToneClassName(
+            className={`rounded-2xl border p-2.5 ${getToneClassName(
               insight.tone
             )}`}
           >
-            <div className="mb-3 flex items-center justify-between gap-4">
-              <span className="text-xl">{getToneIcon(insight.tone)}</span>
-
-              <h3 className="text-right text-base font-black">
-                {insight.title}
-              </h3>
+            <div className="mb-1.5 flex items-center justify-between gap-3">
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${getToneDotClassName(
+                  insight.tone
+                )}`}
+              />
+              <h3 className="truncate text-sm font-black">{insight.title}</h3>
             </div>
 
-            <p className="text-right text-sm leading-6">{insight.description}</p>
-          </div>
+            <p className="line-clamp-2 text-xs font-semibold leading-5">
+              {insight.description}
+            </p>
+          </article>
         ))}
       </div>
     </section>

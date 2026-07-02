@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { initialBirthdays } from "@/data/birthdays";
 import {
   getFinanceStats,
@@ -19,10 +20,10 @@ import {
   initialFamilyTasks,
   type FamilyTask,
 } from "@/data/tasks";
+import { storageKeys } from "@/lib/storageKeys";
 import type { BirthdayPerson } from "@/types/birthdays";
 import type { ModuleRecord } from "@/types/modules";
 import type { ShoppingItem } from "@/types/shopping";
-import { storageKeys } from "@/lib/storageKeys";
 import { readStorageArray } from "@/utils/storage";
 
 type OverviewItem = {
@@ -30,6 +31,7 @@ type OverviewItem = {
   value: string;
   note: string;
   href: string;
+  icon: AppIconName;
   tone: string;
 };
 
@@ -114,60 +116,44 @@ function getOverviewItems(useStoredData: boolean): OverviewItem[] {
 
   return [
     {
-      title: "סיכום משימות",
+      title: "משימות",
       value: `${taskStats.openTasks} פתוחות`,
       note: `${taskStats.highPriorityTasks} בעדיפות גבוהה`,
       href: "/tasks",
-      tone: "from-orange-400/18 to-white/[0.04]",
+      icon: "check",
+      tone: "text-orange-700 bg-orange-50",
     },
     {
-      title: "סיכום כספים",
+      title: "כספים",
       value: `${financeStats.balance.toLocaleString("he-IL")} ₪`,
       note: `${financeStats.pendingPayments} תשלומים ממתינים`,
       href: "/finance",
-      tone: "from-emerald-400/18 to-white/[0.04]",
-    },
-    {
-      title: "בריאות",
-      value: `${upcomingHealth} פתוחים`,
-      note: "תורים, בדיקות ומעקב",
-      href: "/health",
-      tone: "from-rose-400/18 to-white/[0.04]",
-    },
-    {
-      title: "רכבים",
-      value: `${openVehicleItems} פתוחים`,
-      note: "טיפולים, ביטוחים וטסטים",
-      href: "/vehicles",
-      tone: "from-blue-400/18 to-white/[0.04]",
-    },
-    {
-      title: "מסמכים חדשים",
-      value: `${documentRecords.length}`,
-      note: `${attachmentsCount} קבצים מצורפים`,
-      href: "/documents",
-      tone: "from-violet-400/18 to-white/[0.04]",
-    },
-    {
-      title: "ימי הולדת",
-      value: `${upcomingBirthdays} קרובים`,
-      note: "חלון של 45 ימים",
-      href: "/birthdays",
-      tone: "from-pink-400/18 to-white/[0.04]",
+      icon: "finance",
+      tone: "text-emerald-700 bg-emerald-50",
     },
     {
       title: "קניות",
-      value: `${openShoppingItems} פתוחים`,
-      note: "רשימות משותפות למשפחה",
+      value: `${openShoppingItems} לקנות`,
+      note: "רשימות פעילות",
       href: "/shopping",
-      tone: "from-cyan-400/18 to-white/[0.04]",
+      icon: "shopping",
+      tone: "text-cyan-700 bg-cyan-50",
     },
     {
-      title: "התראות ותזכורות",
-      value: `${taskStats.openTasks + upcomingHealth + openVehicleItems}`,
-      note: "משימות ואירועים שדורשים מעקב",
+      title: "תזכורות",
+      value: `${upcomingHealth + openVehicleItems + upcomingBirthdays}`,
+      note: "בריאות, רכבים וימי הולדת",
       href: "/dashboard",
-      tone: "from-amber-400/18 to-white/[0.04]",
+      icon: "bell",
+      tone: "text-amber-700 bg-amber-50",
+    },
+    {
+      title: "מסמכים",
+      value: `${documentRecords.length}`,
+      note: `${attachmentsCount} קבצים מצורפים`,
+      href: "/documents",
+      icon: "document",
+      tone: "text-violet-700 bg-violet-50",
     },
   ];
 }
@@ -188,33 +174,42 @@ export default function DashboardLiveOverview() {
   const primaryOverviewItems = overviewItems.slice(0, 4);
 
   return (
-    <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-2.5 text-right shadow-[0_8px_20px_rgba(15,23,42,0.04)]">
-      <div className="mb-2.5 flex items-end justify-between gap-3">
-        <span className="rounded-full border border-[#e6e8ec] bg-[#fafafb] px-2.5 py-1 text-[11px] font-bold text-[#248a3d]">
-          חי
+    <section className="rounded-[20px] border border-white/80 bg-white/88 p-2.5 text-right shadow-[0_12px_30px_rgba(33,43,63,0.07)] backdrop-blur">
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-800">
+          חי עכשיו
         </span>
         <div>
-          <p className="text-xs font-bold text-slate-500">
-            נתונים חיים מהמודולים
+          <p className="text-[11px] font-bold text-slate-600">
+            מצב הבית ברגע אחד
           </p>
-          <h2 className="mt-1 text-base font-black text-[#1d1d1f] sm:text-lg">
-            פעילות אחרונה
+          <h2 className="text-sm font-black text-[#1d1d1f] sm:text-base">
+            Pulse משפחתי
           </h2>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-1.5 xl:grid-cols-4">
         {primaryOverviewItems.map((item) => (
           <Link
             key={item.title}
             href={item.href}
-            className="group rounded-[14px] border border-[#e6e8ec] bg-[#fafafb] p-2.5 transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_10px_24px_rgba(15,23,42,0.055)]"
+            className="group min-h-[64px] rounded-[16px] border border-white/80 bg-[#fffdf8] p-2 transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(33,43,63,0.09)]"
           >
-            <p className="truncate text-[11px] font-bold text-slate-500 sm:text-xs">{item.title}</p>
-            <p className="mt-1 truncate text-base font-black tracking-tight text-[#1d1d1f] sm:text-xl">
+            <div className="flex items-center justify-between gap-2">
+              <span
+                className={`grid h-7 w-7 place-items-center rounded-xl ${item.tone}`}
+              >
+                <AppIcon name={item.icon} className="h-4 w-4" />
+              </span>
+              <p className="truncate text-[11px] font-bold text-slate-600">
+                {item.title}
+              </p>
+            </div>
+            <p className="mt-1 truncate text-sm font-black tracking-tight text-[#1d1d1f] sm:text-base">
               {item.value}
             </p>
-            <p className="mt-1.5 line-clamp-1 text-[11px] leading-4 text-slate-500 sm:text-xs sm:leading-5">
+            <p className="mt-0.5 hidden truncate text-[10px] font-semibold leading-4 text-slate-600 sm:block">
               {item.note}
             </p>
           </Link>

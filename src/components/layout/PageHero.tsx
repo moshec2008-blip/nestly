@@ -17,8 +17,10 @@ export default function PageHero({
   backLabel = "חזרה לבית",
 }: PageHeroProps) {
   return (
-    <section className="mb-3 overflow-hidden rounded-[20px] border border-[#e6e8ec] bg-white p-4 text-right text-[#1d1d1f] shadow-[0_10px_26px_rgba(15,23,42,0.045)]">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <section className="relative mb-3 overflow-hidden rounded-[20px] border border-[#e6e8ec] bg-white p-4 text-right text-[#1d1d1f] shadow-[0_10px_26px_rgba(15,23,42,0.045)]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-l from-[#111827] via-[#007aff] to-[#d8b470]" />
+      <div className="pointer-events-none absolute -left-16 -top-20 h-44 w-44 rounded-full bg-[#007aff]/5 blur-3xl" />
+      <div className="relative flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         {showBackHome ? (
           <Link
             href="/"
