@@ -11,7 +11,7 @@ const quickActions = [
 
 export default function FloatingActionDock() {
   return (
-    <details className="group fixed bottom-4 left-4 z-30 lg:bottom-6 lg:left-6">
+    <details className="group fixed bottom-6 left-6 z-30 hidden lg:block">
       <summary className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full bg-[#007aff] text-xl font-black text-white shadow-[0_12px_28px_rgba(0,122,255,0.22)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#006ee6]">
         +
         <span className="sr-only">פעולות מהירות</span>

@@ -126,7 +126,7 @@ function getOverviewItems(useStoredData: boolean): OverviewItem[] {
     {
       title: "כספים",
       value: `${financeStats.balance.toLocaleString("he-IL")} ₪`,
-      note: `${financeStats.pendingPayments} תשלומים ממתינים`,
+      note: `${financeStats.pendingPayments} פעולות עתידיות`,
       href: "/finance",
       icon: "finance",
       tone: "text-emerald-700 bg-emerald-50",
@@ -184,7 +184,7 @@ export default function DashboardLiveOverview() {
             מצב הבית ברגע אחד
           </p>
           <h2 className="text-sm font-black text-[#1d1d1f] sm:text-base">
-            Pulse משפחתי
+            היום בקצרה
           </h2>
         </div>
       </div>

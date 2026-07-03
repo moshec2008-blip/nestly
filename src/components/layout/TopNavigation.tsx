@@ -250,7 +250,37 @@ export default function TopNavigation({
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-[#dfe3ea] bg-white/92 text-[#111827] shadow-[0_10px_28px_rgba(15,23,42,0.06)] backdrop-blur-2xl">
       <div className="mx-auto w-full max-w-[1520px] px-3 sm:px-5">
-        <div className="flex min-h-16 items-center gap-2.5 py-2 lg:min-h-14 lg:py-1.5">
+        <div className="flex min-h-14 items-center justify-between gap-3 py-1.5 lg:hidden">
+          <button
+            type="button"
+            onClick={onToggleMobileMenu}
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#111827] text-white shadow-sm"
+            aria-label={dictionary.openMenu}
+            aria-expanded={isMobileMenuOpen}
+          >
+            <MenuGlyph isOpen={isMobileMenuOpen} />
+          </button>
+
+          <div className="min-w-0 flex-1 text-center">
+            <p className="truncate text-[11px] font-black text-slate-500">
+              {brand.productName}
+            </p>
+            <h1 className="truncate text-base font-black text-[#111827]">
+              {getRouteLabel(currentRoute, dictionary)}
+            </h1>
+          </div>
+
+          <Link
+            href="/"
+            onClick={handleNavigate}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#e6d9c9] bg-[#fff8eb] text-xs font-black text-[#111827] shadow-sm"
+            aria-label={brand.productName}
+          >
+            {brand.logoMark}
+          </Link>
+        </div>
+
+        <div className="hidden min-h-16 items-center gap-2.5 py-2 lg:flex lg:min-h-14 lg:py-1.5">
           <button
             type="button"
             onClick={onToggleMobileMenu}

@@ -1,7 +1,6 @@
 "use client";
 
 import { LinkButton } from "@/components/ui/Button";
-import Badge from "@/components/ui/Badge";
 import { getDictionary } from "@/i18n/dictionaries";
 import { useLanguage } from "@/i18n/useLanguage";
 
@@ -24,16 +23,16 @@ export default function Header() {
               direction === "rtl" ? "justify-end" : "justify-start",
             ].join(" ")}
           >
-            <Badge
-              tone="blue"
-              className="border-[#111827] bg-[#111827] text-white"
-            >
-              {dictionary.hero.badge}
-            </Badge>
+            <span className="rounded-full bg-[#fff8eb] px-3 py-1 text-xs font-black text-[#9a6b17]">
+              היום במשפחה
+            </span>
             <h1 className="truncate text-xl font-black tracking-tight md:text-2xl">
-              {dictionary.appName}
+              מה צריך תשומת לב עכשיו
             </h1>
           </div>
+          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
+            מבט קצר על משימות, כספים, קניות ותזכורות בלי עומס מיותר.
+          </p>
 
           <div
             className={[

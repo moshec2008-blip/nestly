@@ -348,7 +348,7 @@ export default function FamilyTree() {
 
         <div className="flex items-start justify-end gap-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-[#e6e8ec] bg-purple-50 text-purple-700">
-            <AppIcon name="family" className="h-4.5 w-4.5" />
+            <AppIcon name="family" className="h-[18px] w-[18px]" />
           </span>
 
           <div>

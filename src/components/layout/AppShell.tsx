@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import Sidebar from "@/components/Sidebar";
 import BirthdayWelcomePopup from "@/components/birthdays/BirthdayWelcomePopup";
 import FloatingActionDock from "@/components/layout/FloatingActionDock";
+import MobileBottomNavigation from "@/components/layout/MobileBottomNavigation";
 import SmartFamilyCenter from "@/components/layout/SmartFamilyCenter";
 import SmartNudgePopup from "@/components/layout/SmartNudgePopup";
 import TopNavigation from "@/components/layout/TopNavigation";
@@ -15,7 +16,6 @@ type AppShellProps = {
 };
 
 const sidebarCollapsedStorageKey = "nestly-sidebar-collapsed";
-const mobileMenuOpenStorageKey = "nestly-mobile-menu-open";
 
 function getStoredBoolean(key: string, fallback: boolean) {
   if (typeof window === "undefined") {
@@ -44,9 +44,7 @@ export default function AppShell({ children }: AppShellProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() =>
     getStoredBoolean(sidebarCollapsedStorageKey, false)
   );
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(() =>
-    getStoredBoolean(mobileMenuOpenStorageKey, false)
-  );
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   function toggleSidebar() {
     setIsSidebarCollapsed((currentValue) => {
@@ -57,15 +55,10 @@ export default function AppShell({ children }: AppShellProps) {
   }
 
   function toggleMobileMenu() {
-    setIsMobileMenuOpen((currentValue) => {
-      const nextValue = !currentValue;
-      persistBoolean(mobileMenuOpenStorageKey, nextValue);
-      return nextValue;
-    });
+    setIsMobileMenuOpen((currentValue) => !currentValue);
   }
 
   function closeMobileMenu() {
-    persistBoolean(mobileMenuOpenStorageKey, false);
     setIsMobileMenuOpen(false);
   }
 
@@ -85,7 +78,7 @@ export default function AppShell({ children }: AppShellProps) {
           onCloseMobileMenu={closeMobileMenu}
         />
 
-        <div className="mx-auto flex w-full max-w-[1480px] gap-2.5 px-3 pb-4 pt-16 sm:px-4 lg:pt-[4.25rem]">
+        <div className="mx-auto flex w-full max-w-[1480px] gap-2.5 px-3 pb-24 pt-16 sm:px-4 lg:pb-4 lg:pt-[4.25rem]">
           <Sidebar
             isCollapsed={isSidebarCollapsed}
             isMobileOpen={isMobileMenuOpen}
@@ -98,6 +91,7 @@ export default function AppShell({ children }: AppShellProps) {
         </div>
 
         <FloatingActionDock />
+        <MobileBottomNavigation onOpenMenu={toggleMobileMenu} />
         <SmartNudgePopup />
         <BirthdayWelcomePopup />
       </FeedbackProvider>

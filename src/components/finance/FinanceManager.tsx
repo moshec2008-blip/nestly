@@ -399,17 +399,19 @@ export default function FinanceManager() {
         </div>
       </section>
 
-      <FinanceQuickActions
-        onTabChange={setActiveTab}
-        onAddTransaction={handleStartAddTransaction}
-        onResetDemoData={handleResetDemoData}
-      />
+      <div className="hidden md:block">
+        <FinanceQuickActions
+          onTabChange={setActiveTab}
+          onAddTransaction={handleStartAddTransaction}
+          onResetDemoData={handleResetDemoData}
+        />
+      </div>
 
       <FinanceTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
       {activeTab === "transactions" && (
-        <div className="grid gap-2.5 xl:grid-cols-[minmax(0,380px)_1fr]">
-          <section className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
+        <div className="grid gap-2.5 lg:grid-cols-[minmax(0,360px)_1fr]">
+          <section className="hidden rounded-[20px] border border-white/80 bg-white/90 p-3 text-right shadow-[0_14px_34px_rgba(33,43,63,0.07)] lg:block">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between xl:flex-col xl:items-stretch">
               <button
                 type="button"
@@ -473,6 +475,46 @@ export default function FinanceManager() {
               onToggleStatus={handleToggleStatus}
             />
           </div>
+        </div>
+      )}
+
+      {isTransactionFormOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-slate-950/28 px-2 pb-2 backdrop-blur-[2px] lg:hidden"
+          onClick={handleCancelEdit}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-label={editingTransaction ? "עריכת פעולה" : "פעולה חדשה"}
+            onClick={(event) => event.stopPropagation()}
+            className="max-h-[88vh] w-full overflow-y-auto rounded-t-[28px] border border-[#e6d9c9] bg-white p-3 text-right shadow-[0_-18px_54px_rgba(15,23,42,0.18)]"
+          >
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 text-sm font-black text-slate-700"
+              >
+                סגור
+              </button>
+              <div>
+                <p className="text-xs font-black text-slate-500">
+                  {editingTransaction ? "עדכון פעולה" : "הזנה מהירה"}
+                </p>
+                <h2 className="text-lg font-black text-[#111827]">
+                  {editingTransaction ? "עריכת פעולה" : "פעולה חדשה"}
+                </h2>
+              </div>
+            </div>
+
+            <AddTransactionForm
+              key={editingTransaction?.id ?? "new-transaction-mobile"}
+              editingTransaction={editingTransaction}
+              onSave={handleSaveTransaction}
+              onCancelEdit={handleCancelEdit}
+            />
+          </section>
         </div>
       )}
 

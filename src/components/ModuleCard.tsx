@@ -226,19 +226,19 @@ export default function ModuleCard({
       href={href}
       className={[
         `group relative overflow-hidden rounded-[20px] border border-white/80 bg-gradient-to-br ${visual.surface} text-[#1d1d1f] shadow-[0_12px_30px_rgba(33,43,63,0.07)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(33,43,63,0.12)]`,
-        priority ? "min-h-[94px] p-3" : "min-h-[76px] p-2.5",
+        priority ? "min-h-[86px] p-2.5" : "min-h-[70px] p-2",
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
       <div className="flex h-full items-start gap-2.5">
         <span
           className={`grid shrink-0 place-items-center rounded-2xl border border-white/90 bg-white/82 shadow-sm ${visual.iconTone} ${
-            priority ? "h-9 w-9" : "h-8 w-8"
+            priority ? "h-8 w-8" : "h-7 w-7"
           }`}
         >
           <AppIcon
             name={visual.icon}
-            className={priority ? "h-[18px] w-[18px]" : "h-4 w-4"}
+            className={priority ? "h-4 w-4" : "h-3.5 w-3.5"}
           />
         </span>
 
@@ -253,12 +253,12 @@ export default function ModuleCard({
           </div>
 
           {priority && (
-            <p className="mt-1 line-clamp-1 text-[11px] leading-4 text-slate-600">
+            <p className="mt-0.5 line-clamp-1 text-[11px] leading-4 text-slate-600">
               {getShortDescription(description)}
             </p>
           )}
 
-          <p className="mt-1 truncate text-[11px] font-black text-slate-800">
+          <p className="mt-0.5 truncate text-[11px] font-black text-slate-800">
             {liveStat}
           </p>
         </div>

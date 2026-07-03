@@ -23,25 +23,25 @@ export default function FinanceFilters({
   onClearFilters,
 }: FinanceFiltersProps) {
   return (
-    <section className="rounded-[28px] border border-[rgba(216,180,112,0.14)] bg-[rgba(9,13,27,0.72)] p-5 text-[#fff9ea] shadow-[0_22px_64px_rgba(0,0,0,0.28)] backdrop-blur-xl">
-      <div className="mb-5 flex items-center justify-between gap-4">
+    <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-2.5 text-[#111827] shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+      <div className="mb-2 flex items-center justify-between gap-3">
         <button
           type="button"
           onClick={onClearFilters}
-          className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-bold text-[#d7cfbf] hover:bg-white/[0.1]"
+          className="min-h-10 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-3 text-sm font-bold text-slate-700 hover:bg-white"
         >
           נקה סינון
         </button>
 
-        <h2 className="text-right text-xl font-black">חיפוש וסינון</h2>
+        <h2 className="text-right text-sm font-black">חיפוש וסינון</h2>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-2 md:grid-cols-3">
         <input
           value={searchValue}
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder="חיפוש לפי שם, קטגוריה או תאריך"
-          className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-[#8f8879] focus:border-[#d8b470]/50"
+          className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/50"
         />
 
         <select
@@ -49,7 +49,7 @@ export default function FinanceFilters({
           onChange={(event) =>
             onTypeFilterChange(event.target.value as TransactionTypeFilter)
           }
-          className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none focus:border-[#d8b470]/50"
+          className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/50"
         >
           <option value="all">כל הסוגים</option>
           <option value="income">הכנסות בלבד</option>
@@ -61,7 +61,7 @@ export default function FinanceFilters({
           onChange={(event) =>
             onStatusFilterChange(event.target.value as TransactionStatusFilter)
           }
-          className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none focus:border-[#d8b470]/50"
+          className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/50"
         >
           <option value="all">כל הסטטוסים</option>
           <option value="done">בוצע בלבד</option>
