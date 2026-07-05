@@ -11,6 +11,7 @@ import type { ModuleRecord } from "@/types/modules";
 import type { ShoppingItem } from "@/types/shopping";
 import type { AppRoute } from "@/types/navigation";
 import { storageKeys } from "@/lib/storageKeys";
+import { getDaysUntilBirthday } from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
 
 export type AppNotification = {
@@ -28,27 +29,6 @@ function isUpcoming(date: string, daysAhead = 30) {
   const diffDays = diff / (1000 * 60 * 60 * 24);
 
   return diffDays >= -1 && diffDays <= daysAhead;
-}
-
-function getDaysUntilAnnualDate(date: string) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const sourceDate = new Date(date);
-  const targetDate = new Date(
-    today.getFullYear(),
-    sourceDate.getMonth(),
-    sourceDate.getDate()
-  );
-  targetDate.setHours(0, 0, 0, 0);
-
-  if (targetDate < today) {
-    targetDate.setFullYear(today.getFullYear() + 1);
-  }
-
-  return Math.round(
-    (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  );
 }
 
 export function getAppNotifications(): AppNotification[] {
@@ -125,7 +105,10 @@ export function getAppNotifications(): AppNotification[] {
 
   const birthdayNotifications = birthdays
     .filter((birthday) => {
-      const days = getDaysUntilAnnualDate(birthday.gregorianDate);
+      const days = getDaysUntilBirthday({
+        gregorianDate: birthday.gregorianDate,
+        calendarType: birthday.calendarType ?? "hebrew",
+      });
       return days === 7 || days === 1;
     })
     .slice(0, 2)

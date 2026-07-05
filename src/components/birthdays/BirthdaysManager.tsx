@@ -2,9 +2,21 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { initialBirthdays } from "@/data/birthdays";
-import type { BirthdayPerson } from "@/types/birthdays";
+import type { BirthdayCalendarType, BirthdayPerson, BirthdayReminder } from "@/types/birthdays";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
+import {
+  formatBirthdayDate,
+  formatHebrewDate,
+  getBirthdayDateViewMode,
+  setBirthdayDateViewMode,
+  type BirthdayDateViewMode,
+} from "@/utils/hebrewDate";
+import {
+  getBirthdayCalendarBadge,
+  getDaysUntilBirthday,
+  normalizeBirthdayPerson,
+} from "@/utils/birthdayCalendar";
 
 type ViewMode = "cards" | "table";
 
@@ -69,22 +81,6 @@ function getBirthdayThisYear(date: string) {
   return new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
 }
 
-function getDaysUntilBirthday(date: string) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const birthdayThisYear = getBirthdayThisYear(date);
-  birthdayThisYear.setHours(0, 0, 0, 0);
-
-  if (birthdayThisYear < today) {
-    birthdayThisYear.setFullYear(today.getFullYear() + 1);
-  }
-
-  return Math.round(
-    (birthdayThisYear.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  );
-}
-
 function getAgePlaceholder(date: string) {
   const birthDate = new Date(date);
   const today = new Date();
@@ -98,7 +94,7 @@ function getAgePlaceholder(date: string) {
     age -= 1;
   }
 
-  return `${Math.max(age, 0)} · חישוב עברי יחובר בהמשך`;
+  return `${Math.max(age, 0)} · גיל`;
 }
 
 function formatDate(date: string) {
@@ -113,6 +109,68 @@ function getReminderLabel(reminder: BirthdayPerson["reminders"][number]) {
   return reminder === "week-before" ? "שבוע לפני" : "יום לפני";
 }
 
+type BirthdayDisplayItem = {
+  id: string;
+  name: string;
+  relationship: string;
+  gregorianDate: string;
+  hebrewDate: string;
+  reminders: BirthdayPerson["reminders"];
+  notes: string;
+  members: BirthdayPerson[];
+};
+
+function groupBirthdaysByDate(birthdays: BirthdayPerson[]): BirthdayDisplayItem[] {
+  const groupedBirthdays = birthdays.reduce<Map<string, BirthdayPerson[]>>(
+    (groups, birthday) => {
+      const group = groups.get(birthday.gregorianDate);
+
+      if (group) {
+        group.push(birthday);
+      } else {
+        groups.set(birthday.gregorianDate, [birthday]);
+      }
+
+      return groups;
+    },
+    new Map()
+  );
+
+  return Array.from(groupedBirthdays.entries())
+    .map(([date, members]) => {
+      const primaryMember = members[0];
+      const names = members.map((member) => member.name);
+      const uniqueReminders = Array.from(
+        new Set(members.flatMap((member) => member.reminders))
+      );
+
+      return {
+        id: `${date}-${members.length > 1 ? names.join("-") : primaryMember.id}`,
+        name: names.length > 1 ? names.join(" ו") : primaryMember.name,
+        relationship: primaryMember.relationship,
+        gregorianDate: date,
+        hebrewDate: primaryMember.hebrewDate,
+        reminders: uniqueReminders,
+        notes: members
+          .map((member) => member.notes)
+          .filter(Boolean)
+          .join(" • "),
+        members,
+      } satisfies BirthdayDisplayItem;
+    })
+    .sort(
+      (first, second) =>
+        getDaysUntilBirthday({
+          gregorianDate: first.gregorianDate,
+          calendarType: first.calendarType ?? "hebrew",
+        }) -
+        getDaysUntilBirthday({
+          gregorianDate: second.gregorianDate,
+          calendarType: second.calendarType ?? "hebrew",
+        })
+    );
+}
+
 export default function BirthdaysManager() {
   const [birthdays, setBirthdays] =
     usePersistentArrayState<BirthdayPerson>(
@@ -123,6 +181,32 @@ export default function BirthdaysManager() {
   const [relationshipFilter, setRelationshipFilter] = useState("all");
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
   const [showAllBirthdays, setShowAllBirthdays] = useState(false);
+  const [showAddBirthdayForm, setShowAddBirthdayForm] = useState(false);
+  const [dateViewMode, setDateViewMode] = useState<BirthdayDateViewMode>(() =>
+    getBirthdayDateViewMode()
+  );
+  const [newBirthdayForm, setNewBirthdayForm] = useState({
+    name: "",
+    relationship: "",
+    date: "",
+    calendarType: "hebrew" as BirthdayCalendarType,
+    reminders: ["week-before"] as BirthdayReminder[],
+    notes: "",
+  });
+
+  useEffect(() => {
+    const needsMigration = birthdays.some((birthday) => !birthday.calendarType);
+
+    if (needsMigration) {
+      setBirthdays((currentBirthdays) =>
+        currentBirthdays.map((birthday) =>
+          birthday.calendarType
+            ? birthday
+            : { ...birthday, calendarType: "hebrew" as BirthdayCalendarType }
+        )
+      );
+    }
+  }, [birthdays, setBirthdays]);
 
   useEffect(() => {
     const needsIdCardSync = birthdays.some((birthday) => {
@@ -170,15 +254,20 @@ export default function BirthdaysManager() {
     });
   }, [birthdays, setBirthdays]);
 
-  const relationships = useMemo(
-    () => Array.from(new Set(birthdays.map((item) => item.relationship))),
+  const normalizedBirthdays = useMemo(
+    () => birthdays.map(normalizeBirthdayPerson),
     [birthdays]
+  );
+
+  const relationships = useMemo(
+    () => Array.from(new Set(normalizedBirthdays.map((item) => item.relationship))),
+    [normalizedBirthdays]
   );
 
   const visibleBirthdays = useMemo(() => {
     const normalizedSearch = searchValue.trim().toLowerCase();
 
-    return birthdays
+    const filteredBirthdays = normalizedBirthdays
       .filter(
         (item) =>
           relationshipFilter === "all" ||
@@ -198,18 +287,75 @@ export default function BirthdaysManager() {
       })
       .sort(
         (a, b) =>
-          getDaysUntilBirthday(a.gregorianDate) -
-          getDaysUntilBirthday(b.gregorianDate)
+          getDaysUntilBirthday({
+            gregorianDate: a.gregorianDate,
+            calendarType: a.calendarType ?? "hebrew",
+          }) -
+          getDaysUntilBirthday({
+            gregorianDate: b.gregorianDate,
+            calendarType: b.calendarType ?? "hebrew",
+          })
       );
-  }, [birthdays, relationshipFilter, searchValue]);
+
+    return groupBirthdaysByDate(filteredBirthdays);
+  }, [normalizedBirthdays, relationshipFilter, searchValue]);
 
   const upcomingBirthdays = visibleBirthdays.filter(
-    (item) => getDaysUntilBirthday(item.gregorianDate) <= 45
+    (item) => getDaysUntilBirthday({
+      gregorianDate: item.gregorianDate,
+      calendarType: item.calendarType ?? "hebrew",
+    }) <= 45
   );
   const displayedBirthdays = showAllBirthdays
     ? visibleBirthdays
     : visibleBirthdays.slice(0, 5);
   const nextBirthday = visibleBirthdays[0];
+
+  function handleDateViewChange(viewMode: BirthdayDateViewMode) {
+    setDateViewMode(viewMode);
+    setBirthdayDateViewMode(viewMode);
+  }
+
+  function handleCalendarTypeChange(id: string, calendarType: BirthdayCalendarType) {
+    setBirthdays((currentBirthdays) =>
+      currentBirthdays.map((birthday) =>
+        birthday.id === id ? { ...birthday, calendarType } : birthday
+      )
+    );
+  }
+
+  function handleAddBirthday(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!newBirthdayForm.name.trim() || !newBirthdayForm.date) {
+      return;
+    }
+
+    const createdBirthday: BirthdayPerson = {
+      id: `birthday-${Date.now()}`,
+      name: newBirthdayForm.name.trim(),
+      relationship: newBirthdayForm.relationship.trim() || "משפחה",
+      gregorianDate: newBirthdayForm.date,
+      hebrewDate:
+        newBirthdayForm.calendarType === "hebrew"
+          ? formatHebrewDate(newBirthdayForm.date, "")
+          : "",
+      calendarType: newBirthdayForm.calendarType,
+      reminders: newBirthdayForm.reminders,
+      notes: newBirthdayForm.notes.trim(),
+    };
+
+    setBirthdays((currentBirthdays) => [...currentBirthdays, createdBirthday]);
+    setShowAddBirthdayForm(false);
+    setNewBirthdayForm({
+      name: "",
+      relationship: "",
+      date: "",
+      calendarType: "hebrew",
+      reminders: ["week-before"],
+      notes: "",
+    });
+  }
 
   return (
     <section className="space-y-3">
@@ -221,18 +367,110 @@ export default function BirthdaysManager() {
             </span>
             <div>
               <p className="text-sm font-bold text-slate-300">
-                עוד {getDaysUntilBirthday(nextBirthday.gregorianDate)} ימים
+                עוד {getDaysUntilBirthday({
+                  gregorianDate: nextBirthday.gregorianDate,
+                  calendarType: nextBirthday.calendarType ?? "hebrew",
+                })} ימים
               </p>
               <h2 className="mt-1 text-2xl font-black text-white">
                 {nextBirthday.name}
               </h2>
               <p className="mt-1 text-sm text-slate-300">
-                {nextBirthday.hebrewDate} · {formatDate(nextBirthday.gregorianDate)}
+                {dateViewMode === "hebrew"
+                  ? nextBirthday.hebrewDate || formatHebrewDate(nextBirthday.gregorianDate, "אין תאריך עברי")
+                  : formatBirthdayDate(nextBirthday.gregorianDate, "gregorian", "אין תאריך לועזי")}
+              </p>
+              <p className="mt-1 text-xs font-semibold text-slate-400">
+                {dateViewMode === "hebrew"
+                  ? formatDate(nextBirthday.gregorianDate)
+                  : nextBirthday.hebrewDate || formatHebrewDate(nextBirthday.gregorianDate, "אין תאריך עברי")}
               </p>
             </div>
           </div>
         </section>
       )}
+
+      <section className="rounded-[22px] border border-white/10 bg-slate-800/45 p-3 text-right shadow-[0_12px_34px_rgba(2,6,23,0.18)]">
+        <button
+          type="button"
+          onClick={() => setShowAddBirthdayForm((currentValue) => !currentValue)}
+          className="w-full rounded-2xl bg-white/90 px-4 py-2.5 text-sm font-black text-slate-900"
+        >
+          {showAddBirthdayForm ? "סגור טופס" : "+ הוסף ימי הולדת"}
+        </button>
+
+        {showAddBirthdayForm && (
+          <form onSubmit={handleAddBirthday} className="mt-3 space-y-2.5 rounded-[18px] border border-white/10 bg-white/[0.06] p-3">
+            <input
+              value={newBirthdayForm.name}
+              onChange={(event) => setNewBirthdayForm((currentValue) => ({ ...currentValue, name: event.target.value }))}
+              className="w-full rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-2.5 text-right text-sm text-white outline-none"
+              placeholder="שם"
+              required
+            />
+            <input
+              value={newBirthdayForm.relationship}
+              onChange={(event) => setNewBirthdayForm((currentValue) => ({ ...currentValue, relationship: event.target.value }))}
+              className="w-full rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-2.5 text-right text-sm text-white outline-none"
+              placeholder="קרבה"
+            />
+            <input
+              type="date"
+              value={newBirthdayForm.date}
+              onChange={(event) => setNewBirthdayForm((currentValue) => ({ ...currentValue, date: event.target.value }))}
+              className="w-full rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-2.5 text-right text-sm text-white outline-none"
+              required
+            />
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <label className="rounded-full border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-slate-200">
+                <input
+                  type="checkbox"
+                  checked={newBirthdayForm.reminders.includes("week-before")}
+                  onChange={() => setNewBirthdayForm((currentValue) => ({
+                    ...currentValue,
+                    reminders: currentValue.reminders.includes("week-before")
+                      ? currentValue.reminders.filter((reminder) => reminder !== "week-before")
+                      : [...currentValue.reminders, "week-before"],
+                  }))}
+                  className="ml-2"
+                />
+                שבוע לפני
+              </label>
+              <label className="rounded-full border border-white/10 bg-slate-950/40 px-3 py-2 text-sm text-slate-200">
+                <input
+                  type="checkbox"
+                  checked={newBirthdayForm.reminders.includes("day-before")}
+                  onChange={() => setNewBirthdayForm((currentValue) => ({
+                    ...currentValue,
+                    reminders: currentValue.reminders.includes("day-before")
+                      ? currentValue.reminders.filter((reminder) => reminder !== "day-before")
+                      : [...currentValue.reminders, "day-before"],
+                  }))}
+                  className="ml-2"
+                />
+                יום לפני
+              </label>
+            </div>
+            <select
+              value={newBirthdayForm.calendarType}
+              onChange={(event) => setNewBirthdayForm((currentValue) => ({ ...currentValue, calendarType: event.target.value as BirthdayCalendarType }))}
+              className="w-full rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-2.5 text-right text-sm text-white outline-none"
+            >
+              <option value="hebrew">עברי</option>
+              <option value="gregorian">לועזי</option>
+            </select>
+            <textarea
+              value={newBirthdayForm.notes}
+              onChange={(event) => setNewBirthdayForm((currentValue) => ({ ...currentValue, notes: event.target.value }))}
+              className="min-h-[72px] w-full rounded-2xl border border-white/10 bg-slate-950/40 px-3 py-2.5 text-right text-sm text-white outline-none"
+              placeholder="הערות"
+            />
+            <button type="submit" className="w-full rounded-2xl bg-[#d8b470] px-4 py-2.5 text-sm font-black text-slate-900">
+              שמור ימי הולדת
+            </button>
+          </form>
+        )}
+      </section>
 
       <div className="grid grid-cols-3 gap-2.5">
         <div className="rounded-[18px] bg-slate-800/62 p-3 text-right shadow-[0_10px_30px_rgba(2,6,23,0.16)]">
@@ -253,7 +491,31 @@ export default function BirthdaysManager() {
 
       <section className="rounded-[22px] bg-slate-800/58 p-3 text-right text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)]">
         <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex rounded-full border border-white/10 bg-white/[0.06] p-1">
+              <button
+                type="button"
+                onClick={() => handleDateViewChange("hebrew")}
+                className={`rounded-full px-3 py-1.5 text-sm font-black transition ${
+                  dateViewMode === "hebrew"
+                    ? "bg-white text-[#111827]"
+                    : "text-slate-300"
+                }`}
+              >
+                עברי
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDateViewChange("gregorian")}
+                className={`rounded-full px-3 py-1.5 text-sm font-black transition ${
+                  dateViewMode === "gregorian"
+                    ? "bg-white text-[#111827]"
+                    : "text-slate-300"
+                }`}
+              >
+                לועזי
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => setViewMode("cards")}
@@ -313,9 +575,17 @@ export default function BirthdaysManager() {
             {displayedBirthdays.map((item) => (
               <article key={item.id} className="group rounded-2xl border border-white/10 bg-white/[0.045] p-3.5 transition duration-200 hover:-translate-y-0.5 hover:bg-white/[0.07]">
                 <div className="mb-3 flex items-start justify-between gap-3">
-                  <span className="rounded-full bg-white/[0.07] px-3 py-1 text-xs font-bold text-slate-300">
-                    עוד {getDaysUntilBirthday(item.gregorianDate)} ימים
-                  </span>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className="rounded-full bg-white/[0.07] px-3 py-1 text-xs font-bold text-slate-300">
+                      עוד {getDaysUntilBirthday({
+                        gregorianDate: item.gregorianDate,
+                        calendarType: item.calendarType ?? "hebrew",
+                      })} ימים
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-slate-950/40 px-2.5 py-1 text-[11px] font-bold text-slate-200">
+                      {getBirthdayCalendarBadge(item.calendarType ?? "hebrew")}
+                    </span>
+                  </div>
                   <div>
                     <h3 className="text-base font-black text-white">{item.name}</h3>
                     <p className="text-xs font-bold text-slate-400">
@@ -324,11 +594,26 @@ export default function BirthdaysManager() {
                   </div>
                 </div>
                 <div className="space-y-1 text-sm leading-6 text-slate-400">
-                  <p>לועזי: {formatDate(item.gregorianDate)}</p>
-                  <p>עברי: {item.hebrewDate}</p>
+                  <p>
+                    {dateViewMode === "hebrew" ? "עברי" : "לועזי"}: {dateViewMode === "hebrew"
+                      ? item.hebrewDate || formatHebrewDate(item.gregorianDate, "אין תאריך עברי")
+                      : formatBirthdayDate(item.gregorianDate, "gregorian", "אין תאריך לועזי")}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {dateViewMode === "hebrew"
+                      ? `לועזי: ${formatDate(item.gregorianDate)}`
+                      : `עברי: ${item.hebrewDate || formatHebrewDate(item.gregorianDate, "אין תאריך עברי")}`}
+                  </p>
                   <p>גיל: {getAgePlaceholder(item.gregorianDate)}</p>
                 </div>
                 <div className="mt-3 flex flex-wrap justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleCalendarTypeChange(item.id, item.calendarType === "gregorian" ? "hebrew" : "gregorian")}
+                    className="rounded-full border border-white/10 bg-slate-950/35 px-3 py-1 text-xs font-bold text-slate-200"
+                  >
+                    {item.calendarType === "gregorian" ? "החלף לעברי" : "החלף ללועזי"}
+                  </button>
                   {item.reminders.map((reminder) => (
                     <span
                       key={reminder}
@@ -360,7 +645,7 @@ export default function BirthdaysManager() {
                     <td className="py-3 font-black">{item.name}</td>
                     <td className="py-3">{item.relationship}</td>
                     <td className="py-3">{formatDate(item.gregorianDate)}</td>
-                    <td className="py-3">{item.hebrewDate}</td>
+                    <td className="py-3">{item.hebrewDate || formatHebrewDate(item.gregorianDate, "אין תאריך עברי")}</td>
                     <td className="py-3">{getAgePlaceholder(item.gregorianDate)}</td>
                     <td className="py-3">
                       {item.reminders.map(getReminderLabel).join(", ")}

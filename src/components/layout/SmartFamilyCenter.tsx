@@ -18,6 +18,7 @@ import {
 } from "@/services/notifications";
 import type { BirthdayPerson } from "@/types/birthdays";
 import type { ModuleRecord } from "@/types/modules";
+import { getDaysUntilBirthday } from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
 
 type CenterCard = {
@@ -28,27 +29,6 @@ type CenterCard = {
   icon: AppIconName;
   tone: string;
 };
-
-function getDaysUntilAnnualDate(date: string) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const sourceDate = new Date(date);
-  const targetDate = new Date(
-    today.getFullYear(),
-    sourceDate.getMonth(),
-    sourceDate.getDate()
-  );
-  targetDate.setHours(0, 0, 0, 0);
-
-  if (targetDate < today) {
-    targetDate.setFullYear(today.getFullYear() + 1);
-  }
-
-  return Math.round(
-    (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  );
-}
 
 function getCenterCards(): CenterCard[] {
   const tasks = readStorageArray<FamilyTask>(
@@ -81,8 +61,14 @@ function getCenterCards(): CenterCard[] {
   );
   const nextBirthday = [...birthdays].sort(
     (a, b) =>
-      getDaysUntilAnnualDate(a.gregorianDate) -
-      getDaysUntilAnnualDate(b.gregorianDate)
+      getDaysUntilBirthday({
+        gregorianDate: a.gregorianDate,
+        calendarType: a.calendarType ?? "hebrew",
+      }) -
+      getDaysUntilBirthday({
+        gregorianDate: b.gregorianDate,
+        calendarType: b.calendarType ?? "hebrew",
+      })
   )[0];
   const healthReminders = healthRecords.filter(
     (record) => record.status === "open"
@@ -104,7 +90,10 @@ function getCenterCards(): CenterCard[] {
       title: "יום הולדת הבא",
       value: nextBirthday?.name ?? "-",
       note: nextBirthday
-        ? `עוד ${getDaysUntilAnnualDate(nextBirthday.gregorianDate)} ימים`
+        ? `עוד ${getDaysUntilBirthday({
+            gregorianDate: nextBirthday.gregorianDate,
+            calendarType: nextBirthday.calendarType ?? "hebrew",
+          })} ימים`
         : "אין תאריך קרוב",
       href: "/birthdays",
       icon: "calendar",

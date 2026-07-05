@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { FinanceTransaction } from "@/data/finance";
 
 type TransactionsTableProps = {
@@ -40,7 +40,6 @@ function formatDate(date: string) {
   return new Intl.DateTimeFormat("he-IL", {
     day: "2-digit",
     month: "2-digit",
-    year: "numeric",
   }).format(new Date(date));
 }
 
@@ -73,14 +72,14 @@ function getTransactionsSummary(
 
 function getAmountClass(type: FinanceTransaction["type"]) {
   return type === "income"
-    ? "font-black text-emerald-200"
-    : "font-black text-rose-200";
+    ? "font-black text-emerald-600"
+    : "font-black text-rose-600";
 }
 
 function getStatusClass(status: FinanceTransaction["status"]) {
   return status === "done"
-    ? "w-fit rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-100 transition hover:bg-emerald-400/15"
-    : "w-fit rounded-full border border-[#d8b470]/24 bg-[#d8b470]/10 px-3 py-1 text-xs font-bold text-[#f4e7c8] transition hover:bg-[#d8b470]/15";
+    ? "rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-black text-emerald-700"
+    : "rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[10px] font-black text-amber-700";
 }
 
 function getSignedAmount(transaction: FinanceTransaction) {
@@ -95,188 +94,121 @@ export default function TransactionsTable({
   onEdit,
   onToggleStatus,
 }: TransactionsTableProps) {
-  const summary = getTransactionsSummary(transactions);
+  const summary = useMemo(() => getTransactionsSummary(transactions), [transactions]);
   const [showAllTransactions, setShowAllTransactions] = useState(false);
   const displayedTransactions = showAllTransactions
     ? transactions
     : transactions.slice(0, 5);
 
   return (
-    <section className="rounded-[24px] bg-slate-800/58 p-3 text-[#fff9ea] shadow-[0_12px_34px_rgba(2,6,23,0.18)] backdrop-blur-xl">
-      <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-wrap gap-2 text-sm font-bold">
-          <span className="rounded-full border border-white/10 bg-white/[0.055] px-3 py-1 text-[#d7cfbf]">
-          {transactions.length} פעולות מוצגות
+    <section className="rounded-[20px] border border-[#e6e8ec] bg-white/95 p-2.5 text-right shadow-[0_10px_26px_rgba(15,23,42,0.045)]">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap gap-1.5 text-[11px] font-black">
+          <span className="rounded-full border border-[#e6e8ec] bg-[#fafafb] px-2.5 py-1 text-slate-600">
+            {transactions.length} פעולות
           </span>
-          <span className="rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1 text-emerald-100">
+          <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-emerald-700">
             {summary.doneCount} בוצעו
           </span>
-          <span className="rounded-full border border-[#d8b470]/24 bg-[#d8b470]/10 px-3 py-1 text-[#f4e7c8]">
+          <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-amber-700">
             {summary.pendingCount} ממתינות
           </span>
         </div>
 
-        <div className="text-right">
-          <p className="mb-2 text-sm text-[#a9a295]">תנועות כספיות</p>
-          <h2 className="text-lg font-black">פעולות אחרונות</h2>
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+            תנועות כספיות
+          </p>
+          <h2 className="text-sm font-black text-[#111827]">פעולות אחרונות</h2>
         </div>
       </div>
 
       {transactions.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[rgba(216,180,112,0.18)] bg-white/[0.04] p-8 text-center text-[#a9a295]">
+        <div className="rounded-[18px] border border-dashed border-[#cbd5e1] bg-[#fafafb] p-6 text-center text-sm font-semibold text-slate-600">
           אין פעולות להצגה לפי הסינון הנוכחי.
         </div>
       ) : (
-        <div className="space-y-5">
-          <div className="grid gap-2.5 text-right text-sm font-bold md:grid-cols-3">
-            <div className="rounded-2xl border border-emerald-300/20 bg-emerald-400/10 p-3 text-emerald-100">
-              <p className="mb-1 text-xs text-emerald-200">הכנסות מוצגות</p>
-              <p className="text-lg">{formatCurrency(summary.income)}</p>
+        <div className="space-y-2">
+          <div className="grid gap-2 sm:grid-cols-3">
+            <div className="rounded-[16px] border border-emerald-200 bg-emerald-50 p-2.5">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-emerald-700">הכנסות</p>
+              <p className="mt-1 text-sm font-black text-emerald-700">{formatCurrency(summary.income)}</p>
             </div>
-
-            <div className="rounded-2xl border border-[#b86f68]/20 bg-[#b86f68]/10 p-3 text-[#f0c6bd]">
-              <p className="mb-1 text-xs text-rose-200">הוצאות מוצגות</p>
-              <p className="text-lg">{formatCurrency(summary.expenses)}</p>
+            <div className="rounded-[16px] border border-rose-200 bg-rose-50 p-2.5">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-rose-700">הוצאות</p>
+              <p className="mt-1 text-sm font-black text-rose-700">{formatCurrency(summary.expenses)}</p>
             </div>
-
-            <div className="rounded-2xl border border-[rgba(216,180,112,0.18)] bg-white/[0.05] p-3 text-[#f4e7c8]">
-              <p className="mb-1 text-xs text-[#a9a295]">יתרה מסוננת</p>
-              <p className="text-lg">{formatCurrency(summary.balance)}</p>
+            <div className="rounded-[16px] border border-[#e6e8ec] bg-[#fafafb] p-2.5">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">יתרה</p>
+              <p className="mt-1 text-sm font-black text-[#111827]">{formatCurrency(summary.balance)}</p>
             </div>
           </div>
 
-          <div className="hidden overflow-hidden rounded-[24px] border border-[rgba(216,180,112,0.12)] md:block">
-            <div className="grid grid-cols-8 bg-white/[0.055] px-4 py-3 text-right text-xs font-black text-[#a9a295]">
-              <span>תאריך</span>
-              <span className="col-span-2">פעולה</span>
-              <span>קטגוריה</span>
-              <span>סוג</span>
-              <span>סטטוס</span>
-              <span>סכום</span>
-              <span>פעולות</span>
-            </div>
-
-            <div className="divide-y divide-[rgba(216,180,112,0.1)]">
-              {displayedTransactions.map((transaction) => (
-              <div
-                  key={transaction.id}
-                  className="grid grid-cols-8 items-center px-4 py-4 text-right text-sm transition hover:bg-white/[0.035]"
-              >
-                  <span className="text-[#a9a295]">
-                    {formatDate(transaction.date)}
-                  </span>
-
-                  <span className="col-span-2 font-bold text-[#fff9ea]">
-                    {transaction.title}
-                  </span>
-
-                  <span className="text-[#d7cfbf]">{transaction.category}</span>
-
-                  <span className="text-[#d7cfbf]">
-                    {typeLabels[transaction.type]}
-                  </span>
-
-                <button
-                  type="button"
-                    onClick={() => onToggleStatus(transaction.id)}
-                    className={getStatusClass(transaction.status)}
-                >
-                    {statusLabels[transaction.status]}
-                </button>
-
-                  <span className={getAmountClass(transaction.type)}>
-                    {getSignedAmount(transaction)}
-                  </span>
-
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onEdit(transaction.id)}
-                      className="rounded-xl border border-blue-300/20 bg-blue-400/10 px-3 py-2 text-xs font-bold text-blue-100 transition hover:bg-blue-400/15"
-                    >
-                      עריכה
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => onDelete(transaction.id)}
-                      className="rounded-xl border border-rose-300/20 bg-rose-400/10 px-3 py-2 text-xs font-bold text-rose-100 transition hover:bg-rose-400/15"
-                    >
-                      מחיקה
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-3 md:hidden">
+          <div className="space-y-2">
             {displayedTransactions.map((transaction) => (
               <article
                 key={transaction.id}
-                className="rounded-2xl border border-[rgba(216,180,112,0.12)] bg-white/[0.045] p-4 text-right text-sm"
+                className="rounded-[16px] border border-[#e6e8ec] bg-[#fafafb] p-2.5 text-right"
               >
-                <div className="mb-3 flex items-start justify-between gap-3">
-                  <span className={getAmountClass(transaction.type)}>
-                    {getSignedAmount(transaction)}
-                </span>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={getAmountClass(transaction.type)}>
+                        {getSignedAmount(transaction)}
+                      </span>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-black text-[#111827]">
+                          {transaction.title}
+                        </h3>
+                        <p className="mt-0.5 text-[11px] font-semibold text-slate-500">
+                          {formatDate(transaction.date)} · {transaction.category}
+                        </p>
+                      </div>
+                    </div>
 
-                  <div>
-                    <h3 className="font-black text-[#fff9ea]">
-                      {transaction.title}
-                    </h3>
-                    <p className="mt-1 text-xs text-[#a9a295]">
-                      {formatDate(transaction.date)}
-                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      <span className={getStatusClass(transaction.status)}>
+                        {statusLabels[transaction.status]}
+                      </span>
+                      <span className="rounded-full border border-[#e6e8ec] bg-white px-2.5 py-1 text-[10px] font-black text-slate-600">
+                        {typeLabels[transaction.type]}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mb-4 flex flex-wrap justify-end gap-2 text-xs font-bold">
-                  <span className="rounded-full bg-white/[0.08] px-3 py-1 text-[#d7cfbf]">
-                    {transaction.category}
-                  </span>
-                  <span className="rounded-full bg-white/[0.08] px-3 py-1 text-[#d7cfbf]">
-                    {typeLabels[transaction.type]}
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap justify-between gap-2">
-                <button
-                  type="button"
+                <div className="mt-2 flex flex-wrap justify-end gap-1.5">
+                  <button
+                    type="button"
                     onClick={() => onToggleStatus(transaction.id)}
-                    className={getStatusClass(transaction.status)}
+                    className="min-h-[36px] rounded-full border border-[#e6e8ec] bg-white px-2.5 py-1 text-[11px] font-black text-slate-700"
                   >
-                    {statusLabels[transaction.status]}
+                    {transaction.status === "done" ? "פתח מחדש" : "סיים"}
                   </button>
-
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onEdit(transaction.id)}
-                      className="rounded-xl border border-blue-300/20 bg-blue-400/10 px-3 py-2 text-xs font-bold text-blue-100"
-                >
-                  עריכה
-                </button>
-
-                <button
-                  type="button"
-                      onClick={() => onDelete(transaction.id)}
-                      className="rounded-xl border border-rose-300/20 bg-rose-400/10 px-3 py-2 text-xs font-bold text-rose-100"
-                >
-                  מחיקה
-                </button>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => onEdit(transaction.id)}
+                    className="min-h-[36px] rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-black text-blue-700"
+                  >
+                    עריכה
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(transaction.id)}
+                    className="min-h-[36px] rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-black text-rose-700"
+                  >
+                    מחיקה
+                  </button>
                 </div>
               </article>
             ))}
           </div>
+
           {transactions.length > 5 && (
             <button
               type="button"
-              onClick={() =>
-                setShowAllTransactions((currentValue) => !currentValue)
-              }
-              className="w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-bold text-[#d7cfbf] hover:bg-white/[0.09]"
+              onClick={() => setShowAllTransactions((currentValue) => !currentValue)}
+              className="w-full rounded-full border border-[#e6e8ec] bg-[#fafafb] px-4 py-2 text-sm font-black text-slate-700"
             >
               {showAllTransactions
                 ? "הצג פחות"

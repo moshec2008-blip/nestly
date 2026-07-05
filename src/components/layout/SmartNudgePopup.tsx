@@ -11,6 +11,7 @@ import {
 import { initialFamilyTasks, type FamilyTask } from "@/data/tasks";
 import { storageKeys } from "@/lib/storageKeys";
 import type { BirthdayPerson } from "@/types/birthdays";
+import { getDaysUntilBirthday } from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
 
 type SmartNudge = {
@@ -28,27 +29,6 @@ const nudgeAutoCloseMs = 9000;
 
 function getTodayKey() {
   return new Date().toISOString().slice(0, 10);
-}
-
-function getDaysUntilAnnualDate(date: string) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const sourceDate = new Date(date);
-  const targetDate = new Date(
-    today.getFullYear(),
-    sourceDate.getMonth(),
-    sourceDate.getDate()
-  );
-  targetDate.setHours(0, 0, 0, 0);
-
-  if (targetDate < today) {
-    targetDate.setFullYear(today.getFullYear() + 1);
-  }
-
-  return Math.round(
-    (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  );
 }
 
 function getSmartNudge(): SmartNudge | null {
@@ -110,17 +90,30 @@ function getSmartNudge(): SmartNudge | null {
 
   const nextBirthday = [...birthdays].sort(
     (first, second) =>
-      getDaysUntilAnnualDate(first.gregorianDate) -
-      getDaysUntilAnnualDate(second.gregorianDate)
+      getDaysUntilBirthday({
+        gregorianDate: first.gregorianDate,
+        calendarType: first.calendarType ?? "hebrew",
+      }) -
+      getDaysUntilBirthday({
+        gregorianDate: second.gregorianDate,
+        calendarType: second.calendarType ?? "hebrew",
+      })
   )[0];
 
-  if (nextBirthday && getDaysUntilAnnualDate(nextBirthday.gregorianDate) <= 14) {
+  if (
+    nextBirthday &&
+    getDaysUntilBirthday({
+      gregorianDate: nextBirthday.gregorianDate,
+      calendarType: nextBirthday.calendarType ?? "hebrew",
+    }) <= 14
+  ) {
     return {
       id: `birthday-${nextBirthday.id}-${today}`,
       title: "יום הולדת מתקרב",
-      description: `${nextBirthday.name} בעוד ${getDaysUntilAnnualDate(
-        nextBirthday.gregorianDate
-      )} ימים`,
+      description: `${nextBirthday.name} בעוד ${getDaysUntilBirthday({
+        gregorianDate: nextBirthday.gregorianDate,
+        calendarType: nextBirthday.calendarType ?? "hebrew",
+      })} ימים`,
       href: "/birthdays",
       actionLabel: "פתח ימי הולדת",
       icon: "calendar",

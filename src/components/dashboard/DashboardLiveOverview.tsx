@@ -24,6 +24,7 @@ import { storageKeys } from "@/lib/storageKeys";
 import type { BirthdayPerson } from "@/types/birthdays";
 import type { ModuleRecord } from "@/types/modules";
 import type { ShoppingItem } from "@/types/shopping";
+import { getDaysUntilBirthday } from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
 
 type OverviewItem = {
@@ -38,27 +39,6 @@ type OverviewItem = {
 type DocumentOverviewRecord = ModuleRecord & {
   attachments?: { name: string; size: number; type: string }[];
 };
-
-function getDaysUntilAnnualDate(date: string) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const sourceDate = new Date(date);
-  const targetDate = new Date(
-    today.getFullYear(),
-    sourceDate.getMonth(),
-    sourceDate.getDate()
-  );
-  targetDate.setHours(0, 0, 0, 0);
-
-  if (targetDate < today) {
-    targetDate.setFullYear(today.getFullYear() + 1);
-  }
-
-  return Math.round(
-    (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  );
-}
 
 function getOverviewItems(useStoredData: boolean): OverviewItem[] {
   const tasks = useStoredData
@@ -108,7 +88,11 @@ function getOverviewItems(useStoredData: boolean): OverviewItem[] {
     0
   );
   const upcomingBirthdays = birthdays.filter(
-    (birthday) => getDaysUntilAnnualDate(birthday.gregorianDate) <= 45
+    (birthday) =>
+      getDaysUntilBirthday({
+        gregorianDate: birthday.gregorianDate,
+        calendarType: birthday.calendarType ?? "hebrew",
+      }) <= 45
   ).length;
   const openShoppingItems = shoppingItems.filter(
     (item) => !item.purchased

@@ -5,6 +5,13 @@ import { useEffect, useMemo, useState } from "react";
 import { initialBirthdays } from "@/data/birthdays";
 import { storageKeys } from "@/lib/storageKeys";
 import type { BirthdayPerson } from "@/types/birthdays";
+import {
+  formatBirthdayDate,
+  formatHebrewDate,
+  getBirthdayDateViewMode,
+  type BirthdayDateViewMode,
+} from "@/utils/hebrewDate";
+import { getDaysUntilBirthday } from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
 
 type UpcomingBirthday = BirthdayPerson & {
@@ -20,27 +27,6 @@ function getTodayKey() {
     month: "2-digit",
     year: "numeric",
   }).format(new Date());
-}
-
-function getDaysUntilAnnualDate(date: string) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const sourceDate = new Date(date);
-  const targetDate = new Date(
-    today.getFullYear(),
-    sourceDate.getMonth(),
-    sourceDate.getDate()
-  );
-  targetDate.setHours(0, 0, 0, 0);
-
-  if (targetDate < today) {
-    targetDate.setFullYear(today.getFullYear() + 1);
-  }
-
-  return Math.round(
-    (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  );
 }
 
 function getNextAge(date: string, daysUntil: number) {
@@ -61,24 +47,67 @@ function getNextAge(date: string, daysUntil: number) {
   return targetYear - sourceDate.getFullYear();
 }
 
-function getUpcomingBirthdays(): UpcomingBirthday[] {
+type BirthdayDisplayGroup = {
+  id: string;
+  name: string;
+  relationship: string;
+  gregorianDate: string;
+  hebrewDate: string;
+  age: number;
+  daysUntil: number;
+  reminders: BirthdayPerson["reminders"];
+  members: BirthdayPerson[];
+};
+
+function groupUpcomingBirthdays(birthdays: BirthdayPerson[]): BirthdayDisplayGroup[] {
+  const groupedBirthdays = birthdays.reduce<Map<string, BirthdayPerson[]>>(
+    (groups, birthday) => {
+      const group = groups.get(birthday.gregorianDate);
+
+      if (group) {
+        group.push(birthday);
+      } else {
+        groups.set(birthday.gregorianDate, [birthday]);
+      }
+
+      return groups;
+    },
+    new Map()
+  );
+
+  return Array.from(groupedBirthdays.entries())
+    .map(([date, members]) => {
+      const primaryMember = members[0];
+      const daysUntil = getDaysUntilBirthday({
+        gregorianDate: date,
+        calendarType: primaryMember.calendarType ?? "hebrew",
+      });
+      const names = members.map((member) => member.name);
+
+      return {
+        id: `${date}-${names.join("-")}`,
+        name: names.length > 1 ? names.join(" ו") : primaryMember.name,
+        relationship: primaryMember.relationship,
+        gregorianDate: date,
+        hebrewDate: primaryMember.hebrewDate,
+        age: getNextAge(date, daysUntil),
+        daysUntil,
+        calendarType: primaryMember.calendarType ?? "hebrew",
+        reminders: Array.from(new Set(members.flatMap((member) => member.reminders))),
+        members,
+      };
+    })
+    .filter((birthday) => birthday.daysUntil <= 7)
+    .sort((first, second) => first.daysUntil - second.daysUntil);
+}
+
+function getUpcomingBirthdays(): BirthdayDisplayGroup[] {
   const birthdays = readStorageArray<BirthdayPerson>(
     storageKeys.birthdays,
     initialBirthdays
   );
 
-  return birthdays
-    .map((birthday) => {
-      const daysUntil = getDaysUntilAnnualDate(birthday.gregorianDate);
-
-      return {
-        ...birthday,
-        age: getNextAge(birthday.gregorianDate, daysUntil),
-        daysUntil,
-      };
-    })
-    .filter((birthday) => birthday.daysUntil <= 7)
-    .sort((first, second) => first.daysUntil - second.daysUntil);
+  return groupUpcomingBirthdays(birthdays);
 }
 
 function getTimingText(daysUntil: number) {
@@ -95,6 +124,7 @@ function getTimingText(daysUntil: number) {
 
 export default function BirthdayWelcomePopup() {
   const [isVisible, setIsVisible] = useState(false);
+  const [dateViewMode] = useState<BirthdayDateViewMode>(() => getBirthdayDateViewMode());
   const upcomingBirthdays = useMemo(() => getUpcomingBirthdays(), []);
   const highlightedBirthday = upcomingBirthdays[0];
 
@@ -189,19 +219,29 @@ export default function BirthdayWelcomePopup() {
 
           <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
             <div className="rounded-2xl bg-white p-3">
-              <p className="text-xs font-bold text-slate-500">תאריך עברי</p>
+              <p className="text-xs font-bold text-slate-500">
+                {dateViewMode === "hebrew" ? "תאריך עברי" : "תאריך לועזי"}
+              </p>
               <p className="mt-1 font-black text-[#1d1d1f]">
-                {highlightedBirthday.hebrewDate || "לא הוזן"}
+                {formatBirthdayDate(
+                  highlightedBirthday.gregorianDate,
+                  dateViewMode,
+                  dateViewMode === "hebrew" ? "לא הוזן" : "לא הוזן"
+                )}
               </p>
             </div>
             <div className="rounded-2xl bg-white p-3">
-              <p className="text-xs font-bold text-slate-500">תאריך לועזי</p>
+              <p className="text-xs font-bold text-slate-500">
+                {dateViewMode === "hebrew" ? "תאריך לועזי" : "תאריך עברי"}
+              </p>
               <p className="mt-1 font-black text-[#1d1d1f]">
-                {new Intl.DateTimeFormat("he-IL", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                }).format(new Date(highlightedBirthday.gregorianDate))}
+                {dateViewMode === "hebrew"
+                  ? new Intl.DateTimeFormat("he-IL", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    }).format(new Date(highlightedBirthday.gregorianDate))
+                  : highlightedBirthday.hebrewDate || formatHebrewDate(highlightedBirthday.gregorianDate, "לא הוזן")}
               </p>
             </div>
           </div>

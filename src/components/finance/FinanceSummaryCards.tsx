@@ -18,24 +18,29 @@ const accentClasses = [
 
 export default function FinanceSummaryCards({ cards }: FinanceSummaryCardsProps) {
   return (
-    <section className="flex flex-wrap items-center justify-end gap-x-1 gap-y-1 rounded-[14px] border border-[#ebe4d8] bg-[#fffdf8] px-2 py-1.5 shadow-[0_6px_16px_rgba(33,43,63,0.035)] xl:flex-nowrap">
+    <section className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
       {cards.map((card, index) => (
         <div
           key={card.title}
-          className="flex min-h-8 min-w-[138px] flex-1 items-center justify-end gap-2 rounded-xl px-2 py-1 text-right transition hover:bg-white"
+          className="rounded-[18px] border border-[#e6e8ec] bg-white/95 p-2.5 text-right shadow-[0_8px_22px_rgba(15,23,42,0.035)]"
         >
-          <p className={`truncate text-sm font-black leading-5 ${card.tone}`}>
+          <div className="flex items-center justify-between gap-2">
+            <span
+              className={`h-2.5 w-2.5 shrink-0 rounded-full ${
+                accentClasses[index % accentClasses.length]
+              }`}
+              aria-hidden="true"
+            />
+            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">
+              {card.title}
+            </p>
+          </div>
+          <p className={`mt-2 text-base font-black leading-6 ${card.tone}`}>
             {card.value}
           </p>
-          <p className="shrink-0 text-[11px] font-bold leading-4 text-slate-500">
-            {card.title}
+          <p className="mt-1 text-[11px] font-semibold leading-4 text-slate-500">
+            {card.subtitle}
           </p>
-          <span
-            className={`h-2 w-2 shrink-0 rounded-full ${
-              accentClasses[index % accentClasses.length]
-            }`}
-            aria-hidden="true"
-          />
         </div>
       ))}
     </section>

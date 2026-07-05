@@ -128,6 +128,7 @@ export default function TaskManager() {
   const [priorityFilter, setPriorityFilter] =
     useState<TaskPriorityFilter>("all");
   const [showAllTasks, setShowAllTasks] = useState(false);
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
 
   const stats = useMemo(() => getTaskStats(tasks), [tasks]);
   const isEditing = Boolean(editingTaskId);
@@ -155,7 +156,7 @@ export default function TaskManager() {
       });
   }, [tasks, searchValue, statusFilter, priorityFilter]);
 
-  const displayedTasks = showAllTasks ? visibleTasks : visibleTasks.slice(0, 5);
+  const displayedTasks = showAllTasks ? visibleTasks : visibleTasks.slice(0, 4);
 
   function resetForm() {
     setTaskForm(getInitialTaskForm());
@@ -176,6 +177,10 @@ export default function TaskManager() {
     setSearchValue("");
     setStatusFilter("all");
     setPriorityFilter("all");
+  }
+
+  function toggleExpandedTask(id: string) {
+    setExpandedTaskId((currentId) => (currentId === id ? null : id));
   }
 
   function handleSubmitTask(event: FormEvent<HTMLFormElement>) {
@@ -315,22 +320,19 @@ export default function TaskManager() {
 
   return (
     <section className="space-y-2.5">
-      <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
+      <div className="flex flex-wrap gap-1.5">
         {statCards.map((card) => (
           <div
             key={card.title}
-            className="rounded-[16px] border border-[#e6e8ec] bg-white p-2.5 text-right shadow-[0_8px_22px_rgba(15,23,42,0.045)] transition hover:-translate-y-0.5 hover:bg-[#fffdf8]"
+            className="flex min-w-[110px] flex-1 items-center justify-between rounded-full border border-[#e6e8ec] bg-white px-2.5 py-2 text-right shadow-[0_6px_16px_rgba(15,23,42,0.04)]"
           >
-            <div className={`mb-1.5 h-1 w-7 rounded-full ${card.accent}`} />
-            <p className="truncate text-[11px] font-bold text-slate-500">
-              {card.title}
-            </p>
-            <p className="mt-0.5 text-lg font-black text-[#111827]">
-              {card.value}
-            </p>
-            <p className="truncate text-[11px] font-semibold text-slate-500">
-              {card.note}
-            </p>
+            <div className="min-w-0">
+              <p className="truncate text-[10px] font-black text-slate-500">
+                {card.title}
+              </p>
+              <p className="text-sm font-black text-[#111827]">{card.value}</p>
+            </div>
+            <div className={`h-2.5 w-2.5 shrink-0 rounded-full ${card.accent}`} />
           </div>
         ))}
       </div>
@@ -454,29 +456,29 @@ export default function TaskManager() {
       </section>
 
       <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-2.5 text-right shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
-        <div className="mb-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <button
             type="button"
             onClick={clearFilters}
-            className="w-fit rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-3 py-2 text-xs font-black text-slate-700 hover:bg-white"
+            className="w-fit rounded-full border border-[#e6e8ec] bg-[#fafafb] px-3 py-1.5 text-[11px] font-black text-slate-700 hover:bg-white"
           >
             נקה סינון
           </button>
 
           <div>
-            <p className="text-[11px] font-bold text-slate-500">
+            <p className="text-[10px] font-bold text-slate-500">
               {visibleTasks.length} משימות מוצגות
             </p>
             <h2 className="text-sm font-black text-[#111827]">חיפוש וסינון</h2>
           </div>
         </div>
 
-        <div className="grid gap-2 md:grid-cols-3">
+        <div className="grid gap-2 md:grid-cols-[1.4fr_0.7fr_0.7fr]">
           <input
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
-            className="min-h-10 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/55"
-            placeholder="חיפוש לפי שם, אחראי, קטגוריה או תאריך"
+            className="min-h-9 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/55"
+            placeholder="חיפוש"
           />
 
           <select
@@ -484,11 +486,11 @@ export default function TaskManager() {
             onChange={(event) =>
               setStatusFilter(event.target.value as TaskStatusFilter)
             }
-            className="min-h-10 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/55"
+            className="min-h-9 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/55"
           >
             <option value="all">כל הסטטוסים</option>
-            <option value="open">פתוחות בלבד</option>
-            <option value="done">בוצעו בלבד</option>
+            <option value="open">פתוחות</option>
+            <option value="done">בוצעו</option>
           </select>
 
           <select
@@ -496,7 +498,7 @@ export default function TaskManager() {
             onChange={(event) =>
               setPriorityFilter(event.target.value as TaskPriorityFilter)
             }
-            className="min-h-10 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/55"
+            className="min-h-9 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/55"
           >
             <option value="all">כל העדיפויות</option>
             <option value="high">גבוהה</option>
@@ -519,89 +521,138 @@ export default function TaskManager() {
         </div>
 
         {visibleTasks.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#cbd5e1] bg-[#fafafb] p-6 text-center text-sm font-semibold text-slate-600">
+          <div className="rounded-2xl border border-dashed border-[#cbd5e1] bg-[#fafafb] p-4 text-center text-sm font-semibold text-slate-600">
             אין משימות להצגה לפי הסינון הנוכחי.
           </div>
         ) : (
           <div className="space-y-2">
-            {displayedTasks.map((task) => (
-              <article
-                key={task.id}
-                className="rounded-2xl border border-[#e6e8ec] bg-[#fafafb] p-3 text-right transition hover:bg-[#fffdf8]"
-              >
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                  <div className="flex flex-wrap gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => toggleTaskStatus(task.id)}
-                      className={
-                        task.status === "done"
-                          ? "rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-black text-slate-700 hover:bg-slate-50"
-                          : "rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-800 hover:bg-emerald-100"
-                      }
-                    >
-                      {task.status === "done" ? "פתח מחדש" : "סמן כבוצעה"}
-                    </button>
+            {displayedTasks.map((task) => {
+              const isExpanded = expandedTaskId === task.id;
 
-                    <button
-                      type="button"
-                      onClick={() => handleEditTask(task.id)}
-                      className="rounded-xl border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-black text-blue-700 hover:bg-blue-100"
-                    >
-                      עריכה
-                    </button>
+              return (
+                <article
+                  key={task.id}
+                  className="rounded-2xl border border-[#e6e8ec] bg-[#fafafb] p-2.5 text-right transition hover:bg-[#fffdf8]"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap gap-1 text-[10px] font-black">
+                        <span
+                          className={`rounded-full border px-2 py-0.5 ${getStatusClass(
+                            task.status
+                          )}`}
+                        >
+                          {statusLabels[task.status]}
+                        </span>
+                        <span
+                          className={`rounded-full border px-2 py-0.5 ${getPriorityClass(
+                            task.priority
+                          )}`}
+                        >
+                          {priorityLabels[task.priority]}
+                        </span>
+                        <span className="rounded-full border border-[#e6e8ec] bg-white px-2 py-0.5 text-slate-600">
+                          {task.category}
+                        </span>
+                      </div>
 
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteTask(task.id)}
-                      className="rounded-xl border border-rose-100 bg-rose-50 px-3 py-1.5 text-xs font-black text-rose-700 hover:bg-rose-100"
-                    >
-                      מחיקה
-                    </button>
-                  </div>
-
-                  <div className="max-w-3xl">
-                    <div className="mb-2 flex flex-wrap justify-end gap-1.5 text-xs font-bold">
-                      <span
-                        className={`rounded-full border px-2.5 py-1 ${getStatusClass(
-                          task.status
-                        )}`}
-                      >
-                        {statusLabels[task.status]}
-                      </span>
-                      <span
-                        className={`rounded-full border px-2.5 py-1 ${getPriorityClass(
-                          task.priority
-                        )}`}
-                      >
-                        עדיפות {priorityLabels[task.priority]}
-                      </span>
-                      <span className="rounded-full border border-[#e6e8ec] bg-white px-2.5 py-1 text-slate-600">
-                        {task.category}
-                      </span>
+                      <h3 className="mt-1.5 text-sm font-black text-[#111827]">
+                        {task.title}
+                      </h3>
+                      <p className="mt-1 text-[11px] font-semibold text-slate-500">
+                        יעד: {formatDate(task.dueDate)}
+                      </p>
                     </div>
 
-                    <h3 className="text-sm font-black text-[#111827]">
-                      {task.title}
-                    </h3>
-                    <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-600">
-                      {task.description}
-                    </p>
-                    <p className="mt-1 text-xs font-bold text-slate-500">
-                      אחראי: {task.owner} | יעד: {formatDate(task.dueDate)}
-                    </p>
+                    <button
+                      type="button"
+                      onClick={() => toggleExpandedTask(task.id)}
+                      className="rounded-full border border-[#e6e8ec] bg-white px-2.5 py-1 text-[11px] font-black text-slate-700"
+                    >
+                      {isExpanded ? "סגור" : "פרטים"}
+                    </button>
                   </div>
-                </div>
-              </article>
-            ))}
 
-            {visibleTasks.length > 5 && (
+                  {isExpanded ? (
+                    <div className="mt-2.5 space-y-2 border-t border-[#e6e8ec] pt-2.5">
+                      <p className="text-sm leading-6 text-slate-600">
+                        {task.description}
+                      </p>
+                      <p className="text-[11px] font-semibold text-slate-500">
+                        אחראי: {task.owner}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => toggleTaskStatus(task.id)}
+                          className={
+                            task.status === "done"
+                              ? "rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-black text-slate-700"
+                              : "rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-800"
+                          }
+                        >
+                          {task.status === "done" ? "פתח מחדש" : "בוצע"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleEditTask(task.id)}
+                          className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-[11px] font-black text-blue-700"
+                        >
+                          עריכה
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteTask(task.id)}
+                          className="rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-[11px] font-black text-rose-700"
+                        >
+                          מחיקה
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-2.5 flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => toggleTaskStatus(task.id)}
+                        className={
+                          task.status === "done"
+                            ? "rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-black text-slate-700"
+                            : "rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-800"
+                        }
+                      >
+                        {task.status === "done" ? "פתח מחדש" : "בוצע"}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleEditTask(task.id)}
+                        className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-[11px] font-black text-blue-700"
+                      >
+                        עריכה
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteTask(task.id)}
+                        className="rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-[11px] font-black text-rose-700"
+                      >
+                        מחיקה
+                      </button>
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+
+            {visibleTasks.length > 4 && (
               <button
                 type="button"
                 onClick={() => setShowAllTasks((currentValue) => !currentValue)}
-                className="w-full rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 py-2.5 text-sm font-black text-slate-700 hover:bg-white"
+                className="w-full rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 py-2 text-sm font-black text-slate-700 hover:bg-white"
               >
-                {showAllTasks ? "הצג פחות" : `הצג עוד ${visibleTasks.length - 5}`}
+                {showAllTasks ? "הצג פחות" : `הצג עוד ${visibleTasks.length - 4}`}
               </button>
             )}
           </div>

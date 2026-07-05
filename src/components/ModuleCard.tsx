@@ -16,6 +16,7 @@ import { getTaskStats, initialFamilyTasks } from "@/data/tasks";
 import { useLanguage } from "@/i18n/useLanguage";
 import { storageKeys } from "@/lib/storageKeys";
 import type { AppRoute, NavigationItem } from "@/types/navigation";
+import { getDaysUntilBirthday } from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
 
 type ModuleCardProps = {
@@ -113,27 +114,6 @@ function getShortDescription(description: string) {
   return firstPart || description;
 }
 
-function getDaysUntilAnnualDate(date: string) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const sourceDate = new Date(date);
-  const targetDate = new Date(
-    today.getFullYear(),
-    sourceDate.getMonth(),
-    sourceDate.getDate()
-  );
-  targetDate.setHours(0, 0, 0, 0);
-
-  if (targetDate < today) {
-    targetDate.setFullYear(today.getFullYear() + 1);
-  }
-
-  return Math.round(
-    (targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  );
-}
-
 function getLiveStat(href: AppRoute, fallback: string) {
   if (typeof window === "undefined") {
     return fallback;
@@ -178,14 +158,21 @@ function getLiveStat(href: AppRoute, fallback: string) {
     const birthdays = readStorageArray(storageKeys.birthdays, initialBirthdays);
     const nextBirthday = [...birthdays].sort(
       (first, second) =>
-        getDaysUntilAnnualDate(first.gregorianDate) -
-        getDaysUntilAnnualDate(second.gregorianDate)
+        getDaysUntilBirthday({
+          gregorianDate: first.gregorianDate,
+          calendarType: first.calendarType ?? "hebrew",
+        }) -
+        getDaysUntilBirthday({
+          gregorianDate: second.gregorianDate,
+          calendarType: second.calendarType ?? "hebrew",
+        })
     )[0];
 
     return nextBirthday
-      ? `${nextBirthday.name} בעוד ${getDaysUntilAnnualDate(
-          nextBirthday.gregorianDate
-        )} ימים`
+      ? `${nextBirthday.name} בעוד ${getDaysUntilBirthday({
+          gregorianDate: nextBirthday.gregorianDate,
+          calendarType: nextBirthday.calendarType ?? "hebrew",
+        })} ימים`
       : fallback;
   }
 
@@ -232,7 +219,7 @@ export default function ModuleCard({
     >
       <div className="flex h-full items-start gap-2.5">
         <span
-          className={`grid shrink-0 place-items-center rounded-2xl border border-white/90 bg-white/82 shadow-sm ${visual.iconTone} ${
+          className={`grid shrink-0 place-items-center rounded-2xl border border-white/90 bg-white/95 shadow-sm ${visual.iconTone} ${
             priority ? "h-8 w-8" : "h-7 w-7"
           }`}
         >

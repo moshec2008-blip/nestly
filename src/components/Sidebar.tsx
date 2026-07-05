@@ -44,73 +44,73 @@ const navigationAccents: Record<
 > = {
   "/": {
     dot: "bg-indigo-400",
-    icon: "bg-indigo-50 text-indigo-700",
+    icon: "border-indigo-200 bg-indigo-100 text-indigo-900",
     active: "bg-[#111827] text-white shadow-[0_14px_35px_rgba(17,24,39,0.18)]",
-    hover: "hover:bg-indigo-50/80",
+    hover: "hover:bg-indigo-50/90",
   },
   "/finance": {
     dot: "bg-emerald-400",
-    icon: "bg-emerald-50 text-emerald-700",
+    icon: "border-emerald-200 bg-emerald-100 text-emerald-900",
     active: "bg-emerald-700 text-white shadow-[0_14px_35px_rgba(4,120,87,0.2)]",
-    hover: "hover:bg-emerald-50/80",
+    hover: "hover:bg-emerald-50/90",
   },
   "/tasks": {
     dot: "bg-orange-400",
-    icon: "bg-orange-50 text-orange-700",
+    icon: "border-orange-200 bg-orange-100 text-orange-900",
     active: "bg-orange-600 text-white shadow-[0_14px_35px_rgba(234,88,12,0.18)]",
-    hover: "hover:bg-orange-50/80",
+    hover: "hover:bg-orange-50/90",
   },
   "/dashboard": {
     dot: "bg-sky-400",
-    icon: "bg-sky-50 text-sky-700",
+    icon: "border-sky-200 bg-sky-100 text-sky-900",
     active: "bg-sky-700 text-white shadow-[0_14px_35px_rgba(3,105,161,0.18)]",
-    hover: "hover:bg-sky-50/80",
+    hover: "hover:bg-sky-50/90",
   },
   "/health": {
     dot: "bg-rose-400",
-    icon: "bg-rose-50 text-rose-700",
+    icon: "border-rose-200 bg-rose-100 text-rose-900",
     active: "bg-rose-600 text-white shadow-[0_14px_35px_rgba(225,29,72,0.16)]",
-    hover: "hover:bg-rose-50/80",
+    hover: "hover:bg-rose-50/90",
   },
   "/documents": {
     dot: "bg-violet-400",
-    icon: "bg-violet-50 text-violet-700",
+    icon: "border-violet-200 bg-violet-100 text-violet-900",
     active: "bg-violet-700 text-white shadow-[0_14px_35px_rgba(109,40,217,0.17)]",
-    hover: "hover:bg-violet-50/80",
+    hover: "hover:bg-violet-50/90",
   },
   "/vehicles": {
     dot: "bg-blue-400",
-    icon: "bg-blue-50 text-blue-700",
+    icon: "border-blue-200 bg-blue-100 text-blue-900",
     active: "bg-blue-700 text-white shadow-[0_14px_35px_rgba(29,78,216,0.17)]",
-    hover: "hover:bg-blue-50/80",
+    hover: "hover:bg-blue-50/90",
   },
   "/family": {
     dot: "bg-purple-400",
-    icon: "bg-purple-50 text-purple-700",
+    icon: "border-purple-200 bg-purple-100 text-purple-900",
     active: "bg-purple-700 text-white shadow-[0_14px_35px_rgba(126,34,206,0.17)]",
-    hover: "hover:bg-purple-50/80",
+    hover: "hover:bg-purple-50/90",
   },
   "/birthdays": {
     dot: "bg-pink-400",
-    icon: "bg-pink-50 text-pink-700",
+    icon: "border-pink-200 bg-pink-100 text-pink-900",
     active: "bg-pink-600 text-white shadow-[0_14px_35px_rgba(219,39,119,0.16)]",
-    hover: "hover:bg-pink-50/80",
+    hover: "hover:bg-pink-50/90",
   },
   "/shopping": {
     dot: "bg-cyan-400",
-    icon: "bg-cyan-50 text-cyan-700",
+    icon: "border-cyan-200 bg-cyan-100 text-cyan-900",
     active: "bg-cyan-700 text-white shadow-[0_14px_35px_rgba(14,116,144,0.17)]",
-    hover: "hover:bg-cyan-50/80",
+    hover: "hover:bg-cyan-50/90",
   },
   "/permissions": {
     dot: "bg-amber-400",
-    icon: "bg-amber-50 text-amber-700",
+    icon: "border-amber-200 bg-amber-100 text-amber-900",
     active: "bg-amber-600 text-white shadow-[0_14px_35px_rgba(217,119,6,0.17)]",
-    hover: "hover:bg-amber-50/80",
+    hover: "hover:bg-amber-50/90",
   },
   "/settings": {
     dot: "bg-slate-400",
-    icon: "bg-slate-100 text-slate-700",
+    icon: "border-slate-200 bg-slate-100 text-slate-900",
     active: "bg-slate-800 text-white shadow-[0_14px_35px_rgba(15,23,42,0.18)]",
     hover: "hover:bg-slate-100/90",
   },
@@ -234,7 +234,7 @@ export default function Sidebar({
                   showExpandedContent ? "justify-start" : "justify-center",
                   isActive
                     ? accent.active
-                    : `text-slate-700 hover:-translate-y-0.5 ${accent.hover} hover:text-[#111827]`,
+                    : `text-slate-800 hover:-translate-y-0.5 ${accent.hover} hover:text-[#111827]`,
                 ].join(" ")}
                 onClick={isMobileOpen ? onNavigate : undefined}
               >
@@ -248,10 +248,10 @@ export default function Sidebar({
                 />
                 <span
                   className={[
-                    "grid h-10 w-10 shrink-0 place-items-center rounded-2xl transition lg:h-7 lg:w-7 lg:rounded-xl",
+                    "grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-white/70 shadow-[0_6px_16px_rgba(15,23,42,0.06)] transition lg:h-7 lg:w-7 lg:rounded-xl",
                     isActive
-                      ? "bg-white/14 text-white"
-                      : `${accent.icon} group-hover:bg-white`,
+                      ? "bg-white/25 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
+                      : `${accent.icon}`,
                   ].join(" ")}
                   aria-hidden="true"
                 >
