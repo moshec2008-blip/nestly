@@ -45,7 +45,32 @@ function getHebrewBirthDetails(birthday: Pick<BirthdayPerson, "gregorianDate">) 
     day: hebrewDate.getDate(),
     month: hebrewDate.getMonth(),
     year: hebrewDate.getFullYear(),
+    wasLeapYear: hebrewDate.isLeapYear(),
   };
+}
+
+function isHebrewLeapYear(year: number) {
+  return ((7 * year + 1) % 19) < 7;
+}
+
+function getAnniversaryHebrewMonth(
+  birthMonth: number,
+  birthWasLeapYear: boolean,
+  targetYear: number
+) {
+  const adar = 12;
+  const adarII = 13;
+  const targetIsLeapYear = isHebrewLeapYear(targetYear);
+
+  if (birthMonth === adarII && !targetIsLeapYear) {
+    return adar;
+  }
+
+  if (birthMonth === adar && !birthWasLeapYear && targetIsLeapYear) {
+    return adarII;
+  }
+
+  return birthMonth;
 }
 
 export function getNextBirthdayOccurrenceDate(
@@ -85,7 +110,12 @@ export function getNextBirthdayOccurrenceDate(
 
   const candidates = candidateYears
     .map((year) => {
-      const candidate = new HDate(hebrewBirthDetails.day, hebrewBirthDetails.month, year);
+      const candidateMonth = getAnniversaryHebrewMonth(
+        hebrewBirthDetails.month,
+        hebrewBirthDetails.wasLeapYear,
+        year
+      );
+      const candidate = new HDate(hebrewBirthDetails.day, candidateMonth, year);
       return startOfDay(candidate.greg());
     })
     .filter((candidateDate) => candidateDate >= today);

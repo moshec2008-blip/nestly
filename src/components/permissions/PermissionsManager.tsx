@@ -204,7 +204,7 @@ export default function PermissionsManager() {
                       {(Object.keys(permissionLabels) as PermissionKey[]).map(
                         (permissionKey) => (
                           <td key={permissionKey} className="px-3 py-3">
-                            <label className="inline-flex min-h-8 cursor-pointer items-center gap-2 rounded-full bg-[#fffdf8] px-3 py-1">
+                            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full bg-[#fffdf8] px-3 py-2">
                               <input
                                 type="checkbox"
                                 checked={permission[permissionKey]}

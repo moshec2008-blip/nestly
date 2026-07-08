@@ -14,11 +14,6 @@ import {
 import { getDaysUntilBirthday } from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
 
-type UpcomingBirthday = BirthdayPerson & {
-  age: number;
-  daysUntil: number;
-};
-
 const dismissedStoragePrefix = "nestly-birthday-popup-dismissed";
 
 function getTodayKey() {

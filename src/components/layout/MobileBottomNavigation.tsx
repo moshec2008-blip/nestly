@@ -46,10 +46,10 @@ export default function MobileBottomNavigation({
               key={tab.href}
               href={tab.href}
               className={[
-                "flex min-h-[48px] min-w-[48px] flex-col items-center justify-center gap-1 rounded-[18px] px-1.5 py-1.5 text-[10px] font-black transition-colors duration-200",
+                "flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 rounded-[18px] px-1.5 py-1.5 text-[10px] font-black transition-colors duration-200",
                 isActive
                   ? "bg-[#111827] text-white shadow-[0_10px_24px_rgba(17,24,39,0.16)]"
-                  : "text-slate-600 hover:bg-[#fff8eb] hover:text-[#111827]",
+                  : "text-slate-700 hover:bg-[#fff8eb] hover:text-[#111827]",
               ].join(" ")}
             >
               <AppIcon name={tab.icon} className="h-5 w-5" />
@@ -61,7 +61,7 @@ export default function MobileBottomNavigation({
         <button
           type="button"
           onClick={onOpenMenu}
-          className="flex min-h-[48px] min-w-[48px] flex-col items-center justify-center gap-1 rounded-[18px] px-1.5 py-1.5 text-[10px] font-black text-slate-600 transition-colors duration-200 hover:bg-[#fff8eb] hover:text-[#111827]"
+          className="flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 rounded-[18px] px-1.5 py-1.5 text-[10px] font-black text-slate-700 transition-colors duration-200 hover:bg-[#fff8eb] hover:text-[#111827]"
           aria-label={dictionary.openMenu}
         >
           <span className="flex h-5 w-5 flex-col justify-center gap-0.5">

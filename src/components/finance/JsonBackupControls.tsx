@@ -37,6 +37,8 @@ function normalizeTransaction(value: unknown): FinanceTransaction | null {
   const category =
     typeof value.category === "string" ? value.category.trim() : "";
   const date = typeof value.date === "string" ? value.date.trim() : "";
+  const reminderDate =
+    typeof value.reminderDate === "string" ? value.reminderDate.trim() : "";
   const amount = Number(value.amount);
 
   if (!title || !category || !date || amount <= 0) {
@@ -54,6 +56,7 @@ function normalizeTransaction(value: unknown): FinanceTransaction | null {
     amount,
     type: normalizeType(value.type),
     status: normalizeStatus(value.status),
+    reminderDate: reminderDate || undefined,
   };
 }
 

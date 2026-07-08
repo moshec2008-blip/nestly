@@ -3,6 +3,7 @@
 import { LinkButton } from "@/components/ui/Button";
 import { getDictionary } from "@/i18n/dictionaries";
 import { useLanguage } from "@/i18n/useLanguage";
+import Image from "next/image";
 
 export default function Header() {
   const { direction, language } = useLanguage();
@@ -15,8 +16,17 @@ export default function Header() {
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
-      <div className="flex flex-col gap-2.5">
-        <div className="min-w-0">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <Image
+          src="/nestly-logo.png"
+          alt="Nestly"
+          width={72}
+          height={72}
+          className="h-14 w-14 shrink-0 self-end rounded-2xl border border-[#e6d9c9] bg-[#fff8eb] object-contain p-1.5 shadow-sm sm:self-auto"
+          priority
+        />
+
+        <div className="min-w-0 flex-1">
           <div
             className={[
               "flex flex-wrap items-center gap-2",

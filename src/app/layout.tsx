@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   title: `${brand.productName} | ${brand.taglineHe}`,
   description:
     "מערכת משפחתית פרימיום לניהול כספים, משימות, מסמכים, בריאות וכל מה שקורה בבית.",
+  icons: {
+    icon: [{ url: "/nestly-logo.png", type: "image/png" }],
+    shortcut: ["/nestly-logo.png"],
+    apple: [{ url: "/nestly-logo.png", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({

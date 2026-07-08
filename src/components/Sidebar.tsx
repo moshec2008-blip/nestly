@@ -158,7 +158,7 @@ export default function Sidebar({
           isMobileOpen
             ? "w-[min(22rem,calc(100vw-1.5rem))] translate-x-0"
             : "w-[min(22rem,calc(100vw-1.5rem))] translate-x-[120%]",
-          isCollapsed ? "lg:w-12" : "lg:w-36",
+          isCollapsed ? "lg:w-12" : "lg:w-48",
           "lg:translate-x-0",
         ].join(" ")}
       >
@@ -248,7 +248,7 @@ export default function Sidebar({
                 />
                 <span
                   className={[
-                    "grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-white/70 shadow-[0_6px_16px_rgba(15,23,42,0.06)] transition lg:h-7 lg:w-7 lg:rounded-xl",
+                    "grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-white/70 shadow-[0_6px_16px_rgba(15,23,42,0.06)] transition lg:h-8 lg:w-8 lg:rounded-xl",
                     isActive
                       ? "bg-white/25 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
                       : `${accent.icon}`,

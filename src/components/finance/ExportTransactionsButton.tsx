@@ -38,6 +38,7 @@ export default function ExportTransactionsButton({
       "קטגוריה",
       "סוג",
       "סטטוס",
+      "תאריך תזכורת",
       "סכום",
     ];
 
@@ -47,6 +48,7 @@ export default function ExportTransactionsButton({
       transaction.category,
       getTransactionTypeLabel(transaction.type),
       getTransactionStatusLabel(transaction.status),
+      transaction.reminderDate ?? "",
       transaction.amount,
     ]);
 

@@ -6,6 +6,7 @@ export type FinanceTransaction = {
   type: "income" | "expense";
   date: string;
   status: "done" | "pending";
+  reminderDate?: string;
 };
 
 export type CategoryReportItem = {

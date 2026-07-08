@@ -75,12 +75,6 @@ const idCardBirthdayUpdates: Record<
   },
 };
 
-function getBirthdayThisYear(date: string) {
-  const birthday = new Date(date);
-  const today = new Date();
-  return new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
-}
-
 function getAgePlaceholder(date: string) {
   const birthDate = new Date(date);
   const today = new Date();
@@ -115,6 +109,7 @@ type BirthdayDisplayItem = {
   relationship: string;
   gregorianDate: string;
   hebrewDate: string;
+  calendarType: BirthdayCalendarType;
   reminders: BirthdayPerson["reminders"];
   notes: string;
   members: BirthdayPerson[];
@@ -150,6 +145,7 @@ function groupBirthdaysByDate(birthdays: BirthdayPerson[]): BirthdayDisplayItem[
         relationship: primaryMember.relationship,
         gregorianDate: date,
         hebrewDate: primaryMember.hebrewDate,
+        calendarType: primaryMember.calendarType ?? "hebrew",
         reminders: uniqueReminders,
         notes: members
           .map((member) => member.notes)
@@ -316,10 +312,12 @@ export default function BirthdaysManager() {
     setBirthdayDateViewMode(viewMode);
   }
 
-  function handleCalendarTypeChange(id: string, calendarType: BirthdayCalendarType) {
+  function handleCalendarTypeChange(ids: string[], calendarType: BirthdayCalendarType) {
+    const birthdayIds = new Set(ids);
+
     setBirthdays((currentBirthdays) =>
       currentBirthdays.map((birthday) =>
-        birthday.id === id ? { ...birthday, calendarType } : birthday
+        birthdayIds.has(birthday.id) ? { ...birthday, calendarType } : birthday
       )
     );
   }
@@ -609,7 +607,12 @@ export default function BirthdaysManager() {
                 <div className="mt-3 flex flex-wrap justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => handleCalendarTypeChange(item.id, item.calendarType === "gregorian" ? "hebrew" : "gregorian")}
+                    onClick={() =>
+                      handleCalendarTypeChange(
+                        item.members.map((member) => member.id),
+                        item.calendarType === "gregorian" ? "hebrew" : "gregorian"
+                      )
+                    }
                     className="rounded-full border border-white/10 bg-slate-950/35 px-3 py-1 text-xs font-bold text-slate-200"
                   >
                     {item.calendarType === "gregorian" ? "החלף לעברי" : "החלף ללועזי"}

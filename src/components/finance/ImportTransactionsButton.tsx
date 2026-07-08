@@ -112,6 +112,11 @@ function rowToTransaction(row: CsvRow): FinanceTransaction | null {
   const category = getValue(row, ["קטגוריה", "category", "Category"]);
   const type = getValue(row, ["סוג", "type", "Type"]);
   const status = getValue(row, ["סטטוס", "status", "Status"]);
+  const reminderDate = getValue(row, [
+    "תאריך תזכורת",
+    "reminderDate",
+    "Reminder Date",
+  ]);
   const amountValue = getValue(row, ["סכום", "amount", "Amount"]);
   const amount = normalizeAmount(amountValue);
 
@@ -127,6 +132,7 @@ function rowToTransaction(row: CsvRow): FinanceTransaction | null {
     amount,
     type: normalizeType(type),
     status: normalizeStatus(status),
+    reminderDate: reminderDate || undefined,
   };
 }
 

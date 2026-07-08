@@ -33,7 +33,7 @@ export default function MonthSelector({
           <select
             value={activeMonth}
             onChange={(event) => onMonthChange(event.target.value)}
-            className="min-h-9 rounded-xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-black text-[#111827] outline-none focus:border-[#007aff]/60"
+            className="min-h-11 rounded-xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-black text-[#111827] outline-none focus:border-[#007aff]/60"
           >
             <option value="all">כל החודשים</option>
 

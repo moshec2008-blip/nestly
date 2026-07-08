@@ -10,6 +10,7 @@ export type FinanceTab =
 type FinanceTabsProps = {
   activeTab: FinanceTab;
   onTabChange: (tab: FinanceTab) => void;
+  onAddTransaction: () => void;
 };
 
 const tabs: { id: FinanceTab; label: string }[] = [
@@ -22,10 +23,19 @@ const tabs: { id: FinanceTab; label: string }[] = [
 export default function FinanceTabs({
   activeTab,
   onTabChange,
+  onAddTransaction,
 }: FinanceTabsProps) {
   return (
-    <section className="mb-2.5 overflow-x-auto rounded-[16px] border border-[#e6e8ec] bg-white p-1 shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
-      <div className="flex min-w-max gap-1">
+    <section className="mb-2.5 rounded-[18px] border border-[#e6e8ec] bg-white p-1.5 shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+      <div className="grid grid-cols-2 gap-1.5 sm:flex sm:items-center">
+        <button
+          type="button"
+          onClick={onAddTransaction}
+          className="nestly-primary-action min-h-11 rounded-[14px] bg-[#111827] px-4 text-sm font-black text-white shadow-sm sm:min-w-36"
+        >
+          + הוסף פעולה
+        </button>
+
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
 
@@ -37,8 +47,8 @@ export default function FinanceTabs({
               aria-pressed={isActive}
               className={
                 isActive
-                  ? "min-h-9 rounded-[13px] bg-[#111827] px-4 text-sm font-black text-white shadow-sm"
-                  : "min-h-9 rounded-[13px] px-4 text-sm font-black text-slate-500 transition hover:bg-[#fafafb] hover:text-[#1d1d1f]"
+                  ? "min-h-11 rounded-[14px] bg-[#111827] px-4 text-sm font-black text-white shadow-sm"
+                  : "min-h-11 rounded-[14px] px-4 text-sm font-black text-slate-700 transition hover:bg-[#fafafb] hover:text-[#1d1d1f]"
               }
             >
               {tab.label}

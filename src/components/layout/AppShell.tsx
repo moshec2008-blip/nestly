@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import BirthdayWelcomePopup from "@/components/birthdays/BirthdayWelcomePopup";
-import FloatingActionDock from "@/components/layout/FloatingActionDock";
 import MobileBottomNavigation from "@/components/layout/MobileBottomNavigation";
 import SmartFamilyCenter from "@/components/layout/SmartFamilyCenter";
 import SmartNudgePopup from "@/components/layout/SmartNudgePopup";
@@ -41,6 +41,7 @@ function persistBoolean(key: string, value: boolean) {
 
 export default function AppShell({ children }: AppShellProps) {
   const { direction, language } = useLanguage();
+  const pathname = usePathname();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() =>
     getStoredBoolean(sidebarCollapsedStorageKey, false)
   );
@@ -61,6 +62,8 @@ export default function AppShell({ children }: AppShellProps) {
   function closeMobileMenu() {
     setIsMobileMenuOpen(false);
   }
+
+  const showGlobalAssists = pathname !== "/login" && pathname !== "/settings";
 
   return (
     <main
@@ -87,13 +90,12 @@ export default function AppShell({ children }: AppShellProps) {
 
           <div className="min-w-0 flex-1 animate-soft-in">{children}</div>
 
-          <SmartFamilyCenter />
+          {showGlobalAssists && <SmartFamilyCenter />}
         </div>
 
-        <FloatingActionDock />
         <MobileBottomNavigation onOpenMenu={toggleMobileMenu} />
-        <SmartNudgePopup />
-        <BirthdayWelcomePopup />
+        {showGlobalAssists && <SmartNudgePopup />}
+        {showGlobalAssists && <BirthdayWelcomePopup />}
       </FeedbackProvider>
     </main>
   );

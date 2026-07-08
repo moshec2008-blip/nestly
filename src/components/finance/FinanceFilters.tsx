@@ -1,5 +1,7 @@
 "use client";
 
+import DateInput from "@/components/ui/DateInput";
+
 export type TransactionTypeFilter = "all" | "income" | "expense";
 export type TransactionStatusFilter = "all" | "done" | "pending";
 
@@ -7,9 +9,13 @@ type FinanceFiltersProps = {
   searchValue: string;
   typeFilter: TransactionTypeFilter;
   statusFilter: TransactionStatusFilter;
+  dateFrom: string;
+  dateTo: string;
   onSearchChange: (value: string) => void;
   onTypeFilterChange: (value: TransactionTypeFilter) => void;
   onStatusFilterChange: (value: TransactionStatusFilter) => void;
+  onDateFromChange: (value: string) => void;
+  onDateToChange: (value: string) => void;
   onClearFilters: () => void;
 };
 
@@ -17,9 +23,13 @@ export default function FinanceFilters({
   searchValue,
   typeFilter,
   statusFilter,
+  dateFrom,
+  dateTo,
   onSearchChange,
   onTypeFilterChange,
   onStatusFilterChange,
+  onDateFromChange,
+  onDateToChange,
   onClearFilters,
 }: FinanceFiltersProps) {
   return (
@@ -67,6 +77,32 @@ export default function FinanceFilters({
           <option value="done">בוצע בלבד</option>
           <option value="pending">פעולות עתידיות בלבד</option>
         </select>
+      </div>
+
+      <div className="mt-2 grid gap-2 md:grid-cols-2">
+        <label className="text-xs font-black text-slate-600">
+          מתאריך
+          <DateInput
+            value={dateFrom}
+            onChange={onDateFromChange}
+            label="מתאריך"
+            className="mt-1"
+            inputClassName="min-h-11 w-full rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/50"
+            buttonClassName="min-h-11 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-3 text-xs font-black text-slate-700 transition hover:bg-white"
+          />
+        </label>
+
+        <label className="text-xs font-black text-slate-600">
+          עד תאריך
+          <DateInput
+            value={dateTo}
+            onChange={onDateToChange}
+            label="עד תאריך"
+            className="mt-1"
+            inputClassName="min-h-11 w-full rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/50"
+            buttonClassName="min-h-11 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-3 text-xs font-black text-slate-700 transition hover:bg-white"
+          />
+        </label>
       </div>
     </section>
   );

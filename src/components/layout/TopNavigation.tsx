@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
@@ -273,10 +274,17 @@ export default function TopNavigation({
           <Link
             href="/"
             onClick={handleNavigate}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#e6d9c9] bg-[#fff8eb] text-xs font-black text-[#111827] shadow-sm"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#e6d9c9] bg-[#fff8eb] p-1.5 shadow-sm"
             aria-label={brand.productName}
           >
-            {brand.logoMark}
+            <Image
+              src="/nestly-logo.png"
+              alt=""
+              width={36}
+              height={36}
+              className="h-full w-full object-contain"
+              aria-hidden="true"
+            />
           </Link>
         </div>
 
@@ -343,10 +351,16 @@ export default function TopNavigation({
                 aria-label={`${brand.productName} - ${brand.workspaceName}`}
               >
                 <span
-                  className="grid h-8 w-8 place-items-center rounded-full bg-[#f4e7c8] text-[11px] text-[#111827] lg:h-5 lg:w-5 lg:text-[10px]"
+                  className="grid h-8 w-8 place-items-center overflow-hidden rounded-full bg-[#f4e7c8] p-1 lg:h-5 lg:w-5 lg:p-0.5"
                   aria-hidden="true"
                 >
-                  {brand.logoMark}
+                  <Image
+                    src="/nestly-logo.png"
+                    alt=""
+                    width={32}
+                    height={32}
+                    className="h-full w-full object-contain"
+                  />
                 </span>
                 <span>{brand.productName}</span>
                 <span className="hidden text-xs font-bold text-white/80 lg:inline">

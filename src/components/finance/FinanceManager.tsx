@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AddTransactionForm from "@/components/finance/AddTransactionForm";
+import FinanceBackup from "@/components/finance/FinanceBackup";
 import BudgetOverview from "@/components/finance/BudgetOverview";
 import CategoryReport from "@/components/finance/CategoryReport";
 import ExportTransactionsButton from "@/components/finance/ExportTransactionsButton";
@@ -10,7 +11,9 @@ import FinanceFilters, {
   type TransactionStatusFilter,
   type TransactionTypeFilter,
 } from "@/components/finance/FinanceFilters";
-import FinanceQuickActions from "@/components/finance/FinanceQuickActions";
+import FinanceOverview from "@/components/finance/FinanceOverview";
+import FinanceReminderDialog from "@/components/finance/FinanceReminderDialog";
+import FinanceReports from "@/components/finance/FinanceReports";
 import FinanceSummaryCards from "@/components/finance/FinanceSummaryCards";
 import FinanceTabs, { type FinanceTab } from "@/components/finance/FinanceTabs";
 import ImportTransactionsButton from "@/components/finance/ImportTransactionsButton";
@@ -40,6 +43,22 @@ function formatCurrency(amount: number) {
   }).format(amount);
 }
 
+function getTodayKey() {
+  return new Intl.DateTimeFormat("en-CA", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date());
+}
+
+function formatDateLabel(date: string) {
+  return new Intl.DateTimeFormat("he-IL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(date));
+}
+
 function getAvailableMonths(transactions: FinanceTransaction[]) {
   return Array.from(
     new Set(
@@ -49,6 +68,8 @@ function getAvailableMonths(transactions: FinanceTransaction[]) {
     )
   ).sort((a, b) => b.localeCompare(a));
 }
+
+const financeReminderDismissedPrefix = "nestly-finance-reminder-dismissed";
 
 export default function FinanceManager() {
   const { confirm, toast } = useFeedback();
@@ -68,6 +89,9 @@ export default function FinanceManager() {
   const [typeFilter, setTypeFilter] = useState<TransactionTypeFilter>("all");
   const [statusFilter, setStatusFilter] =
     useState<TransactionStatusFilter>("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [activeReminderId, setActiveReminderId] = useState<string | null>(null);
 
   const availableMonths = useMemo(
     () => getAvailableMonths(transactions),
@@ -121,6 +145,8 @@ export default function FinanceManager() {
     return [...activeMonthTransactions]
       .filter((item) => typeFilter === "all" || item.type === typeFilter)
       .filter((item) => statusFilter === "all" || item.status === statusFilter)
+      .filter((item) => !dateFrom || item.date >= dateFrom)
+      .filter((item) => !dateTo || item.date <= dateTo)
       .filter((item) => {
         if (!normalizedSearch) {
           return true;
@@ -133,12 +159,38 @@ export default function FinanceManager() {
         );
       })
       .sort((a, b) => b.date.localeCompare(a.date));
-  }, [activeMonthTransactions, searchValue, typeFilter, statusFilter]);
+  }, [
+    activeMonthTransactions,
+    dateFrom,
+    dateTo,
+    searchValue,
+    typeFilter,
+    statusFilter,
+  ]);
 
   const exportTransactions = useMemo(
     () => [...transactions].sort((a, b) => b.date.localeCompare(a.date)),
     [transactions]
   );
+
+  const dueReminderTransactions = useMemo(() => {
+    const todayKey = getTodayKey();
+
+    return transactions.filter(
+      (transaction) =>
+        transaction.status === "pending" &&
+        Boolean(transaction.reminderDate) &&
+        String(transaction.reminderDate) <= todayKey
+    );
+  }, [transactions]);
+
+  const activeReminderTransaction = useMemo(() => {
+    if (!activeReminderId) {
+      return null;
+    }
+
+    return transactions.find((item) => item.id === activeReminderId) ?? null;
+  }, [activeReminderId, transactions]);
 
   const financeCards = [
     {
@@ -175,6 +227,60 @@ export default function FinanceManager() {
     setEditingTransactionId(null);
     setIsTransactionFormOpen(true);
     openTransactionsTab();
+  }
+
+  useEffect(() => {
+    if (activeReminderId || dueReminderTransactions.length === 0) {
+      return;
+    }
+
+    const todayKey = getTodayKey();
+    const nextReminder = dueReminderTransactions.find((transaction) => {
+      const dismissedKey = `${financeReminderDismissedPrefix}-${transaction.id}-${todayKey}`;
+      return window.localStorage.getItem(dismissedKey) !== "true";
+    });
+
+    if (nextReminder) {
+      const timeoutId = window.setTimeout(() => {
+        setActiveReminderId(nextReminder.id);
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
+    }
+  }, [activeReminderId, dueReminderTransactions]);
+
+  function dismissActiveReminderForToday() {
+    if (!activeReminderTransaction) {
+      return;
+    }
+
+    const todayKey = getTodayKey();
+    window.localStorage.setItem(
+      `${financeReminderDismissedPrefix}-${activeReminderTransaction.id}-${todayKey}`,
+      "true"
+    );
+    setActiveReminderId(null);
+  }
+
+  function completeActiveReminder() {
+    if (!activeReminderTransaction) {
+      return;
+    }
+
+    setTransactions((currentTransactions) =>
+      currentTransactions.map((transaction) =>
+        transaction.id === activeReminderTransaction.id
+          ? { ...transaction, status: "done", reminderDate: undefined }
+          : transaction
+      )
+    );
+
+    toast({
+      title: "הפעולה סומנה כבוצעה",
+      description: activeReminderTransaction.title,
+      tone: "success",
+    });
+    setActiveReminderId(null);
   }
 
   function handleSaveTransaction(transaction: FinanceTransaction) {
@@ -265,12 +371,6 @@ export default function FinanceManager() {
     });
   }
 
-  function handleEditTransaction(id: string) {
-    setEditingTransactionId(id);
-    setIsTransactionFormOpen(true);
-    openTransactionsTab();
-  }
-
   function handleCancelEdit() {
     setEditingTransactionId(null);
     setIsTransactionFormOpen(false);
@@ -284,31 +384,6 @@ export default function FinanceManager() {
           : item
       )
     );
-  }
-
-  async function handleResetDemoData() {
-    const approved = await confirm({
-      title: "איפוס לנתוני דמו",
-      description: "הנתונים הנוכחיים יוחלפו בנתוני הדמו.",
-      confirmLabel: "אפס לדמו",
-      cancelLabel: "ביטול",
-      tone: "danger",
-    });
-
-    if (!approved) {
-      return;
-    }
-
-    setTransactions(initialFinanceTransactions);
-    setEditingTransactionId(null);
-    setIsTransactionFormOpen(false);
-    setActiveMonth("all");
-    handleClearFilters();
-    setActiveTab("transactions");
-    toast({
-      title: "נתוני הדמו נטענו",
-      tone: "success",
-    });
   }
 
   async function handleClearAllTransactions() {
@@ -340,6 +415,8 @@ export default function FinanceManager() {
     setSearchValue("");
     setTypeFilter("all");
     setStatusFilter("all");
+    setDateFrom("");
+    setDateTo("");
   }
 
   return (
@@ -351,7 +428,7 @@ export default function FinanceManager() {
               <button
                 type="button"
                 onClick={handleStartAddTransaction}
-                className="min-h-10 w-full rounded-2xl bg-[#111827] px-4 py-2 text-sm font-black text-white shadow-[0_12px_28px_rgba(17,24,39,0.14)] transition hover:-translate-y-0.5 hover:bg-[#1f2937] md:w-auto"
+                className="hidden"
               >
                 + הוסף פעולה
               </button>
@@ -399,19 +476,39 @@ export default function FinanceManager() {
         </div>
       </section>
 
-      <div className="hidden md:block">
-        <FinanceQuickActions
-          onTabChange={setActiveTab}
-          onAddTransaction={handleStartAddTransaction}
-          onResetDemoData={handleResetDemoData}
-        />
-      </div>
+      <FinanceTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onAddTransaction={handleStartAddTransaction}
+      />
 
-      <FinanceTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      {activeTab === "transactions" && isTransactionFormOpen && (
+        <section className="lg:hidden">
+          <AddTransactionForm
+            key={editingTransaction?.id ?? "new-transaction-mobile-inline"}
+            editingTransaction={editingTransaction}
+            onSave={handleSaveTransaction}
+            onCancelEdit={handleCancelEdit}
+            showCancelButton
+          />
+        </section>
+      )}
 
       {activeTab === "transactions" && (
-        <div className="grid gap-2.5 lg:grid-cols-[minmax(0,360px)_1fr]">
-          <section className="hidden rounded-[20px] border border-white/80 bg-white/90 p-3 text-right shadow-[0_14px_34px_rgba(33,43,63,0.07)] lg:block">
+        <div
+          className={
+            isTransactionFormOpen
+              ? "grid gap-2.5 lg:grid-cols-[minmax(0,380px)_1fr]"
+              : "grid gap-2.5"
+          }
+        >
+          <section
+            className={
+              isTransactionFormOpen
+                ? "hidden rounded-[20px] border border-white/80 bg-white/90 p-3 text-right shadow-[0_14px_34px_rgba(33,43,63,0.07)] lg:block"
+                : "hidden"
+            }
+          >
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between xl:flex-col xl:items-stretch">
               <button
                 type="button"
@@ -462,65 +559,36 @@ export default function FinanceManager() {
               searchValue={searchValue}
               typeFilter={typeFilter}
               statusFilter={statusFilter}
+              dateFrom={dateFrom}
+              dateTo={dateTo}
               onSearchChange={setSearchValue}
               onTypeFilterChange={setTypeFilter}
               onStatusFilterChange={setStatusFilter}
+              onDateFromChange={setDateFrom}
+              onDateToChange={setDateTo}
               onClearFilters={handleClearFilters}
             />
 
             <TransactionsTable
               transactions={filteredTransactions}
               onDelete={handleDeleteTransaction}
-              onEdit={handleEditTransaction}
+              onSave={handleSaveTransaction}
               onToggleStatus={handleToggleStatus}
             />
           </div>
         </div>
       )}
 
-      {isTransactionFormOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-end bg-slate-950/28 px-2 pb-2 backdrop-blur-[2px] lg:hidden"
-          onClick={handleCancelEdit}
-        >
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-label={editingTransaction ? "עריכת פעולה" : "פעולה חדשה"}
-            onClick={(event) => event.stopPropagation()}
-            className="max-h-[88vh] w-full overflow-y-auto rounded-t-[28px] border border-[#e6d9c9] bg-white p-3 text-right shadow-[0_-18px_54px_rgba(15,23,42,0.18)]"
-          >
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={handleCancelEdit}
-                className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 text-sm font-black text-slate-700"
-              >
-                סגור
-              </button>
-              <div>
-                <p className="text-xs font-black text-slate-500">
-                  {editingTransaction ? "עדכון פעולה" : "הזנה מהירה"}
-                </p>
-                <h2 className="text-lg font-black text-[#111827]">
-                  {editingTransaction ? "עריכת פעולה" : "פעולה חדשה"}
-                </h2>
-              </div>
-            </div>
-
-            <AddTransactionForm
-              key={editingTransaction?.id ?? "new-transaction-mobile"}
-              editingTransaction={editingTransaction}
-              onSave={handleSaveTransaction}
-              onCancelEdit={handleCancelEdit}
-            />
-          </section>
-        </div>
-      )}
-
       {activeTab === "budget" && <BudgetOverview items={budgetReportItems} />}
 
       {activeTab === "reports" && (
+        <FinanceReports
+          categoryReportItems={categoryReportItems}
+          monthlyCashflowItems={monthlyCashflowItems}
+        />
+      )}
+
+      {false && activeTab === "reports" && (
         <div className="space-y-2.5">
           <CategoryReport items={categoryReportItems} />
           <details className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right text-[#111827] shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
@@ -535,6 +603,13 @@ export default function FinanceManager() {
       )}
 
       {activeTab === "overview" && (
+        <FinanceOverview
+          insights={smartInsights}
+          monthlyCashflowItems={monthlyCashflowItems}
+        />
+      )}
+
+      {false && activeTab === "overview" && (
         <div className="grid gap-2.5 xl:grid-cols-[minmax(0,420px)_1fr]">
           <SmartFinanceSummary insights={smartInsights} />
           <details className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right text-[#111827] shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
@@ -560,6 +635,15 @@ export default function FinanceManager() {
       )}
 
       {activeTab === "backup" && (
+        <FinanceBackup
+          transactions={exportTransactions}
+          onImport={handleImportTransactions}
+          onRestore={handleRestoreTransactions}
+          onClearAll={handleClearAllTransactions}
+        />
+      )}
+
+      {false && activeTab === "backup" && (
         <section className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right text-[#111827] shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
           <div className="mb-3">
             <p className="mb-2 text-sm font-bold text-slate-600">
@@ -567,7 +651,7 @@ export default function FinanceManager() {
             </p>
             <h2 className="text-xl font-black">גיבוי, שחזור וייבוא</h2>
             <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
-              פעולות מתקדמות לניהול המידע: ייבוא, ייצוא, גיבוי, שחזור ואיפוס.
+              פעולות מתקדמות לניהול המידע: ייבוא, ייצוא, גיבוי ושחזור.
             </p>
           </div>
 
@@ -583,14 +667,6 @@ export default function FinanceManager() {
 
             <button
               type="button"
-              onClick={handleResetDemoData}
-              className="rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-5 py-3 text-sm font-bold text-slate-700 hover:bg-white"
-            >
-              איפוס נתוני דמו
-            </button>
-
-            <button
-              type="button"
               onClick={handleClearAllTransactions}
               className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-bold text-rose-800 hover:bg-rose-100"
             >
@@ -598,6 +674,66 @@ export default function FinanceManager() {
             </button>
           </div>
         </section>
+      )}
+
+      <FinanceReminderDialog
+        transaction={activeReminderTransaction}
+        onDismiss={dismissActiveReminderForToday}
+        onComplete={completeActiveReminder}
+      />
+
+      {activeReminderTransaction && false && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-4 backdrop-blur-[2px]"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              dismissActiveReminderForToday();
+            }
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="finance-reminder-title"
+            className="w-full max-w-md rounded-[28px] border border-[#e6d9c9] bg-white p-5 text-right text-[#111827] shadow-[0_28px_90px_rgba(15,23,42,0.28)]"
+          >
+            <p className="text-xs font-black text-[#9a6b17]">תזכורת כספית</p>
+            <h2 id="finance-reminder-title" className="mt-1 text-2xl font-black">
+              הגיע הזמן לטפל בפעולה
+            </h2>
+
+            <div className="mt-4 rounded-[20px] border border-[#e6e8ec] bg-[#fafafb] p-4">
+              <p className="text-lg font-black">{activeReminderTransaction!.title}</p>
+              <p className="mt-1 text-sm font-semibold text-slate-600">
+                {activeReminderTransaction!.category} ·{" "}
+                {formatCurrency(activeReminderTransaction!.amount)}
+              </p>
+              {activeReminderTransaction!.reminderDate && (
+                <p className="mt-2 text-xs font-bold text-slate-500">
+                  תאריך תזכורת: {formatDateLabel(activeReminderTransaction!.reminderDate ?? "")}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-5 grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={dismissActiveReminderForToday}
+                className="min-h-11 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-white"
+              >
+                הזכר לי מחר
+              </button>
+              <button
+                type="button"
+                onClick={completeActiveReminder}
+                className="min-h-11 rounded-2xl bg-[#111827] px-4 py-2 text-sm font-black text-white transition hover:bg-[#1f2937]"
+              >
+                סמן כבוצע
+              </button>
+            </div>
+          </section>
+        </div>
       )}
     </section>
   );

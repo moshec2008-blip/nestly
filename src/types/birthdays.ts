@@ -7,7 +7,7 @@ export type BirthdayPerson = {
   relationship: string;
   gregorianDate: string;
   hebrewDate: string;
-  calendarType?: BirthdayCalendarType;
+  calendarType: BirthdayCalendarType;
   reminders: BirthdayReminder[];
   notes: string;
 };
