@@ -25,7 +25,7 @@ export default function FinanceSummaryCards({ cards }: FinanceSummaryCardsProps)
           className={[
             "rounded-[18px] border p-3 text-right shadow-[0_12px_28px_rgba(33,43,63,0.065)]",
             index === 0
-              ? "border-[#d8b470]/45 bg-gradient-to-br from-[#111827] to-[#243044] text-white"
+              ? "finance-balance-card border-[#d8b470]/45 bg-gradient-to-br from-[#111827] to-[#243044] text-white"
               : "border-[#eadfcd] bg-white/95 text-[#111827]",
           ].join(" ")}
         >
