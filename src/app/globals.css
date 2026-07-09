@@ -1287,3 +1287,92 @@ button:disabled,
 .app-premium .finance-balance-card p:last-of-type {
   color: #334155 !important;
 }
+
+/* Contrast safety layer: light-tone buttons must stay readable after global
+   theme overrides, while true primary/dark buttons stay dark with white text. */
+.app-premium button[class*="bg-white"],
+.app-premium a[class*="bg-white"],
+.app-premium span[class*="bg-white"],
+.app-premium button[class*="bg-[#fff8eb]"],
+.app-premium a[class*="bg-[#fff8eb]"],
+.app-premium span[class*="bg-[#fff8eb]"],
+.app-premium button[class*="bg-[#fffdf8]"],
+.app-premium a[class*="bg-[#fffdf8]"],
+.app-premium span[class*="bg-[#fffdf8]"],
+.app-premium button[class*="bg-slate-50"],
+.app-premium a[class*="bg-slate-50"],
+.app-premium span[class*="bg-slate-50"] {
+  background-color: #ffffff !important;
+  color: #334155 !important;
+}
+
+.app-premium button[class*="bg-emerald-50"],
+.app-premium button[class*="bg-emerald-100"],
+.app-premium a[class*="bg-emerald-50"],
+.app-premium a[class*="bg-emerald-100"],
+.app-premium span[class*="bg-emerald-50"],
+.app-premium span[class*="bg-emerald-100"] {
+  background-color: #ecfdf5 !important;
+  border-color: #bbf7d0 !important;
+  color: #166534 !important;
+}
+
+.app-premium button[class*="bg-rose-50"],
+.app-premium button[class*="bg-rose-100"],
+.app-premium a[class*="bg-rose-50"],
+.app-premium a[class*="bg-rose-100"],
+.app-premium span[class*="bg-rose-50"],
+.app-premium span[class*="bg-rose-100"] {
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #be123c !important;
+}
+
+.app-premium button[class*="bg-amber-50"],
+.app-premium button[class*="bg-amber-100"],
+.app-premium a[class*="bg-amber-50"],
+.app-premium a[class*="bg-amber-100"],
+.app-premium span[class*="bg-amber-50"],
+.app-premium span[class*="bg-amber-100"],
+.app-premium button[class*="bg-[#f4e7c8]"],
+.app-premium a[class*="bg-[#f4e7c8]"],
+.app-premium span[class*="bg-[#f4e7c8]"] {
+  background-color: #fff8eb !important;
+  border-color: #eadfcd !important;
+  color: #7a5212 !important;
+}
+
+.app-premium button[class*="bg-blue-50"],
+.app-premium button[class*="bg-blue-100"],
+.app-premium a[class*="bg-blue-50"],
+.app-premium a[class*="bg-blue-100"],
+.app-premium span[class*="bg-blue-50"],
+.app-premium span[class*="bg-blue-100"] {
+  background-color: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1d4ed8 !important;
+}
+
+.app-premium button[class*="bg-[#111827]"],
+.app-premium a[class*="bg-[#111827]"],
+.app-premium span[class*="bg-[#111827]"],
+.app-premium button[class*="bg-slate-900"],
+.app-premium a[class*="bg-slate-900"],
+.app-premium span[class*="bg-slate-900"],
+.app-premium button[class*="bg-slate-950"],
+.app-premium a[class*="bg-slate-950"],
+.app-premium span[class*="bg-slate-950"],
+.app-premium .nestly-primary-action {
+  background-color: #111827 !important;
+  color: #ffffff !important;
+}
+
+.app-premium button[class*="bg-[#111827]"] *,
+.app-premium a[class*="bg-[#111827]"] *,
+.app-premium button[class*="bg-slate-900"] *,
+.app-premium a[class*="bg-slate-900"] *,
+.app-premium button[class*="bg-slate-950"] *,
+.app-premium a[class*="bg-slate-950"] *,
+.app-premium .nestly-primary-action * {
+  color: inherit !important;
+}

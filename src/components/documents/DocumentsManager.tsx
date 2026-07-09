@@ -518,21 +518,21 @@ export default function DocumentsManager() {
     <section className="space-y-2.5">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <div className="nestly-card rounded-[16px] p-2.5 text-right">
-          <p className="truncate text-[11px] text-slate-300">מסמכים</p>
+          <p className="truncate text-[11px] font-bold text-slate-600">מסמכים</p>
           <p className="mt-0.5 text-lg font-black">{documents.length}</p>
         </div>
         <div className="nestly-card rounded-[16px] p-2.5 text-right">
-          <p className="truncate text-[11px] text-slate-300">קבצים</p>
+          <p className="truncate text-[11px] font-bold text-slate-600">קבצים</p>
           <p className="mt-0.5 text-lg font-black">{attachmentsCount}</p>
         </div>
         <div className="nestly-card rounded-[16px] p-2.5 text-right">
-          <p className="truncate text-[11px] text-slate-300">פתוחים / בוצעו</p>
+          <p className="truncate text-[11px] font-bold text-slate-600">פתוחים / בוצעו</p>
           <p className="mt-0.5 text-lg font-black">
             {openCount}/{doneCount}
           </p>
         </div>
         <div className="nestly-card rounded-[16px] p-2.5 text-right">
-          <p className="truncate text-[11px] text-slate-300">תזכורות</p>
+          <p className="truncate text-[11px] font-bold text-slate-600">תזכורות</p>
           <p className="mt-0.5 text-lg font-black">{reminderCount}</p>
         </div>
       </div>
@@ -546,11 +546,11 @@ export default function DocumentsManager() {
           <span className="rounded-full bg-[#f4e7c8] px-4 py-2 text-xs font-black text-slate-950 shadow-sm group-open:hidden">
             {editingDocumentId ? "עריכת מסמך" : "הוסף מסמך"}
           </span>
-          <span className="hidden rounded-full bg-white/[0.08] px-4 py-2 text-xs font-black text-slate-200 group-open:inline">
+          <span className="hidden rounded-full border border-[#eadfcd] bg-[#fff8eb] px-4 py-2 text-xs font-black text-[#7a5212] group-open:inline">
             סגור
           </span>
           <div>
-          <p className="mb-1 text-[11px] text-slate-400">צירוף מסמכים</p>
+          <p className="mb-1 text-[11px] font-bold text-slate-600">צירוף מסמכים</p>
             <h2 className="text-base font-black">
               {editingDocumentId ? "עריכת מסמך" : "הוספת מסמך"}
             </h2>
@@ -574,7 +574,7 @@ export default function DocumentsManager() {
               }))
             }
             required
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500 lg:col-span-2"
+            className="rounded-2xl border border-[#e6e8ec] bg-[#fffdf8] px-4 py-3 text-right text-[#111827] outline-none placeholder:text-slate-500 lg:col-span-2"
             placeholder="שם המסמך"
           />
 
@@ -587,7 +587,7 @@ export default function DocumentsManager() {
               }))
             }
             required
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500"
+            className="rounded-2xl border border-[#e6e8ec] bg-[#fffdf8] px-4 py-3 text-right text-[#111827] outline-none placeholder:text-slate-500"
             placeholder="אחראי"
           />
 
@@ -600,7 +600,7 @@ export default function DocumentsManager() {
               }))
             }
             required
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500"
+            className="rounded-2xl border border-[#e6e8ec] bg-[#fffdf8] px-4 py-3 text-right text-[#111827] outline-none placeholder:text-slate-500"
             placeholder="קטגוריה"
           />
 
@@ -612,7 +612,7 @@ export default function DocumentsManager() {
                 documentType: event.target.value,
               }))
             }
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500"
+            className="rounded-2xl border border-[#e6e8ec] bg-[#fffdf8] px-4 py-3 text-right text-[#111827] outline-none placeholder:text-slate-500"
             placeholder="סוג מסמך"
           />
 
@@ -626,8 +626,8 @@ export default function DocumentsManager() {
             }
             required
             label="תאריך מסמך"
-            inputClassName="min-h-12 w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-400"
-            buttonClassName="min-h-12 rounded-2xl border border-white/10 bg-white/[0.08] px-3 text-xs font-black text-[#fff9ea] transition hover:bg-white/[0.12]"
+            inputClassName="min-h-12 w-full rounded-2xl border border-[#e6e8ec] bg-[#fffdf8] px-4 py-3 text-right text-[#111827] outline-none placeholder:text-slate-500"
+            buttonClassName="min-h-12 rounded-2xl border border-[#e6e8ec] bg-white px-3 text-xs font-black text-slate-700 transition hover:bg-[#fff8eb]"
           />
 
           <button
@@ -641,7 +641,7 @@ export default function DocumentsManager() {
             <button
               type="button"
               onClick={cancelEditDocument}
-              className="rounded-2xl border border-white/10 bg-white/[0.08] px-5 py-3 text-sm font-black text-slate-100 hover:bg-white/[0.12]"
+              className="rounded-2xl border border-[#e6e8ec] bg-white px-5 py-3 text-sm font-black text-slate-700 hover:bg-[#fff8eb]"
             >
               ביטול עריכה
             </button>
@@ -655,7 +655,7 @@ export default function DocumentsManager() {
                 description: event.target.value,
               }))
             }
-            className="min-h-14 resize-y rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500 lg:col-span-2"
+            className="min-h-14 resize-y rounded-2xl border border-[#e6e8ec] bg-[#fffdf8] px-4 py-3 text-right text-[#111827] outline-none placeholder:text-slate-500 lg:col-span-2"
             placeholder="פירוט קצר"
           />
 
@@ -668,8 +668,8 @@ export default function DocumentsManager() {
               }))
             }
             ariaLabel="תאריך תוקף"
-            inputClassName="min-h-12 w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-400"
-            buttonClassName="min-h-12 rounded-2xl border border-white/10 bg-white/[0.08] px-3 text-xs font-black text-[#fff9ea] transition hover:bg-white/[0.12]"
+            inputClassName="min-h-12 w-full rounded-2xl border border-[#e6e8ec] bg-[#fffdf8] px-4 py-3 text-right text-[#111827] outline-none placeholder:text-slate-500"
+            buttonClassName="min-h-12 rounded-2xl border border-[#e6e8ec] bg-white px-3 text-xs font-black text-slate-700 transition hover:bg-[#fff8eb]"
           />
 
           <DateInput
@@ -681,8 +681,8 @@ export default function DocumentsManager() {
               }))
             }
             ariaLabel="תאריך תזכורת"
-            inputClassName="min-h-12 w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-400"
-            buttonClassName="min-h-12 rounded-2xl border border-white/10 bg-white/[0.08] px-3 text-xs font-black text-[#fff9ea] transition hover:bg-white/[0.12]"
+            inputClassName="min-h-12 w-full rounded-2xl border border-[#e6e8ec] bg-[#fffdf8] px-4 py-3 text-right text-[#111827] outline-none placeholder:text-slate-500"
+            buttonClassName="min-h-12 rounded-2xl border border-[#e6e8ec] bg-white px-3 text-xs font-black text-slate-700 transition hover:bg-[#fff8eb]"
           />
 
           <input
@@ -693,7 +693,7 @@ export default function DocumentsManager() {
                 tagsText: event.target.value,
               }))
             }
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500 lg:col-span-2"
+            className="rounded-2xl border border-[#e6e8ec] bg-[#fffdf8] px-4 py-3 text-right text-[#111827] outline-none placeholder:text-slate-500 lg:col-span-2"
             placeholder="תגיות, מופרדות בפסיקים"
           />
 
@@ -715,17 +715,17 @@ export default function DocumentsManager() {
               </button>
             </div>
 
-            <label className="rounded-2xl border border-dashed border-white/15 bg-white/[0.05] p-3 text-right text-sm font-bold text-slate-200">
+            <label className="rounded-2xl border border-dashed border-[#d8b470] bg-[#fff8eb] p-3 text-right text-sm font-bold text-slate-700">
               צירוף קבצים
               <input
                 type="file"
                 multiple
                 accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
                 onChange={(event) => handleFileSelection(event, "upload")}
-                className="mt-2 block w-full text-sm text-slate-300"
+                className="mt-2 block w-full text-sm text-slate-700"
               />
               {form.files.length > 0 && (
-                <span className="mt-2 block text-xs text-slate-400">
+                <span className="mt-2 block text-xs text-slate-600">
                   נבחרו {form.files.length} קבצים
                 </span>
               )}
@@ -742,9 +742,9 @@ export default function DocumentsManager() {
             />
 
             {aiSuggestion && (
-              <div className="rounded-2xl border border-[#d8b470]/20 bg-[#d8b470]/10 p-3 text-right text-sm text-[#f4e7c8]">
+              <div className="rounded-2xl border border-[#d8b470]/35 bg-[#fff8eb] p-3 text-right text-sm text-slate-800">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="rounded-full bg-slate-950/35 px-3 py-1 text-[11px] font-black">
+                  <span className="rounded-full bg-[#111827] px-3 py-1 text-[11px] font-black text-white">
                     Mock AI · אין שמירה אוטומטית
                   </span>
                   <p className="font-black">סקירת ניתוח לפני אישור</p>
@@ -754,13 +754,13 @@ export default function DocumentsManager() {
                   {Math.round(aiSuggestion.confidence * 100)}%
                 </p>
                 <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
-                  <span className="rounded-xl bg-white/[0.07] px-3 py-2">
+                  <span className="rounded-xl bg-white px-3 py-2 text-slate-700">
                     סוג: {aiSuggestion.analysis.extracted.documentType}
                   </span>
-                  <span className="rounded-xl bg-white/[0.07] px-3 py-2">
+                  <span className="rounded-xl bg-white px-3 py-2 text-slate-700">
                     ספק: {aiSuggestion.analysis.extracted.providerName ?? "לא זוהה"}
                   </span>
-                  <span className="rounded-xl bg-white/[0.07] px-3 py-2">
+                  <span className="rounded-xl bg-white px-3 py-2 text-slate-700">
                     סכום:{" "}
                     {typeof aiSuggestion.analysis.extracted.amount === "number"
                       ? `${aiSuggestion.analysis.extracted.amount.toLocaleString(
@@ -768,16 +768,16 @@ export default function DocumentsManager() {
                         )} ${aiSuggestion.analysis.extracted.currency ?? "ILS"}`
                       : "לא זוהה"}
                   </span>
-                  <span className="rounded-xl bg-white/[0.07] px-3 py-2">
+                  <span className="rounded-xl bg-white px-3 py-2 text-slate-700">
                     לתשלום עד: {aiSuggestion.analysis.extracted.dueDate ?? "לא זוהה"}
                   </span>
-                  <span className="rounded-xl bg-white/[0.07] px-3 py-2">
+                  <span className="rounded-xl bg-white px-3 py-2 text-slate-700">
                     אסמכתא:{" "}
                     {aiSuggestion.analysis.extracted.referenceNumber ??
                       aiSuggestion.analysis.extracted.accountNumber ??
                       "לא זוהתה"}
                   </span>
-                  <span className="rounded-xl bg-white/[0.07] px-3 py-2">
+                  <span className="rounded-xl bg-white px-3 py-2 text-slate-700">
                     תקופה: {aiSuggestion.analysis.extracted.billingPeriod ?? "לא זוהתה"}
                   </span>
                 </div>
@@ -785,7 +785,7 @@ export default function DocumentsManager() {
                   {aiSuggestion.analysis.suggestedActions.map((action) => (
                     <span
                       key={action.id}
-                      className="rounded-full bg-slate-950/30 px-3 py-1 text-xs font-bold"
+                      className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-700"
                     >
                       {action.label}
                     </span>
@@ -808,13 +808,13 @@ export default function DocumentsManager() {
               setSearchValue("");
               setStatusFilter("all");
             }}
-            className="w-fit rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-bold text-slate-200 hover:bg-white/[0.1]"
+            className="w-fit rounded-xl border border-[#e6e8ec] bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-[#fff8eb]"
           >
             נקה סינון
           </button>
 
           <div>
-            <p className="mb-0.5 text-xs text-slate-400">
+            <p className="mb-0.5 text-xs font-bold text-slate-600">
               {visibleDocuments.length} מסמכים מוצגים
             </p>
             <h2 className="text-base font-black">רשימת מסמכים</h2>
@@ -825,7 +825,7 @@ export default function DocumentsManager() {
           <input
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none placeholder:text-slate-500"
+            className="rounded-2xl border border-[#e6e8ec] bg-[#fffdf8] px-4 py-3 text-right text-[#111827] outline-none placeholder:text-slate-500"
             placeholder="חיפוש לפי שם, קטגוריה, אחראי או קובץ"
           />
 
@@ -834,7 +834,7 @@ export default function DocumentsManager() {
             onChange={(event) =>
               setStatusFilter(event.target.value as "all" | DocumentStatus)
             }
-            className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-right text-[#fff9ea] outline-none"
+            className="rounded-2xl border border-[#e6e8ec] bg-[#fffdf8] px-4 py-3 text-right text-[#111827] outline-none"
           >
             <option value="all">כל הסטטוסים</option>
             <option value="open">פתוחים בלבד</option>
@@ -843,14 +843,14 @@ export default function DocumentsManager() {
         </div>
 
         {visibleDocuments.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-6 text-center">
-            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white/[0.08] text-2xl">
+          <div className="rounded-2xl border border-dashed border-[#d8b470] bg-[#fff8eb] p-6 text-center">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-2xl">
               📄
             </div>
-            <p className="mt-3 text-base font-black text-white">
+            <p className="mt-3 text-base font-black text-[#111827]">
               מרכז המסמכים מוכן לקובץ הראשון
             </p>
-            <p className="mx-auto mt-1 max-w-md text-sm font-semibold leading-6 text-slate-400">
+            <p className="mx-auto mt-1 max-w-md text-sm font-semibold leading-6 text-slate-600">
               העלה חשבון, פוליסה או צילום מסמך, ו-Nestly יכין סקירה לבדיקה לפני שמירה.
             </p>
             <button
@@ -866,7 +866,7 @@ export default function DocumentsManager() {
             {displayedDocuments.map((item) => (
               <article
                 key={item.id}
-                className="rounded-2xl border border-white/10 bg-white/[0.045] p-2.5 text-right"
+                className="rounded-2xl border border-[#eadfcd] bg-white p-2.5 text-right"
               >
                 <div className="flex flex-col gap-2.5 md:flex-row md:items-start md:justify-between">
                   <div className="flex flex-wrap gap-2">
@@ -875,8 +875,8 @@ export default function DocumentsManager() {
                       onClick={() => toggleStatus(item.id)}
                       className={
                         item.status === "done"
-                          ? "rounded-xl bg-slate-950 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
-                          : "rounded-xl bg-emerald-400/14 px-4 py-2 text-sm font-bold text-emerald-100 hover:bg-emerald-400/20"
+                          ? "rounded-xl bg-[#111827] px-4 py-2 text-sm font-bold text-white hover:bg-[#1f2937]"
+                          : "rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-800 hover:bg-emerald-100"
                       }
                     >
                       {item.status === "done" ? "פתח מחדש" : "סמן כבוצע"}
@@ -885,7 +885,7 @@ export default function DocumentsManager() {
                     <button
                       type="button"
                       onClick={() => startEditDocument(item)}
-                      className="rounded-xl bg-white/[0.08] px-4 py-2 text-sm font-bold text-slate-100 hover:bg-white/[0.12]"
+                      className="rounded-xl border border-[#e6e8ec] bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-[#fff8eb]"
                     >
                       עריכה
                     </button>
@@ -893,7 +893,7 @@ export default function DocumentsManager() {
                     <button
                       type="button"
                       onClick={() => deleteDocument(item.id)}
-                      className="rounded-xl bg-[#b86f68]/14 px-4 py-2 text-sm font-bold text-[#f0c6bd] hover:bg-[#b86f68]/20"
+                      className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-100"
                     >
                       מחיקה
                     </button>
@@ -901,29 +901,29 @@ export default function DocumentsManager() {
 
                   <div className="max-w-3xl">
                     <div className="mb-2 flex flex-wrap justify-end gap-2 text-xs font-bold">
-                      <span className="rounded-full bg-white/[0.07] px-3 py-1 text-slate-300">
+                      <span className="rounded-full bg-[#fff8eb] px-3 py-1 text-slate-700">
                         {item.status === "done" ? "בוצע" : "פתוח"}
                       </span>
-                      <span className="rounded-full bg-white/[0.07] px-3 py-1 text-slate-300">
+                      <span className="rounded-full bg-[#fff8eb] px-3 py-1 text-slate-700">
                         {item.category}
                       </span>
                       {item.documentType && (
-                        <span className="rounded-full bg-white/[0.07] px-3 py-1 text-slate-300">
+                        <span className="rounded-full bg-[#fff8eb] px-3 py-1 text-slate-700">
                           {item.documentType}
                         </span>
                       )}
                     </div>
 
-                    <h3 className="text-base font-black text-white">{item.title}</h3>
-                    <p className="mt-1 line-clamp-1 text-sm leading-6 text-slate-400">
+                    <h3 className="text-base font-black text-[#111827]">{item.title}</h3>
+                    <p className="mt-1 line-clamp-1 text-sm leading-6 text-slate-600">
                       {item.description}
                     </p>
-                    <p className="mt-2 text-xs font-bold text-slate-400">
+                    <p className="mt-2 text-xs font-bold text-slate-600">
                       אחראי: {item.owner} | תאריך: {formatDate(item.date)}
                     </p>
 
                     {(item.expiryDate || item.reminderDate) && (
-                      <p className="mt-2 text-xs font-bold text-slate-400">
+                      <p className="mt-2 text-xs font-bold text-slate-600">
                         {item.expiryDate ? `תוקף: ${formatDate(item.expiryDate)}` : ""}
                         {item.expiryDate && item.reminderDate ? " | " : ""}
                         {item.reminderDate ? getReminderStatus(item) : ""}
@@ -935,7 +935,7 @@ export default function DocumentsManager() {
                         {item.tags?.map((tag) => (
                           <span
                             key={`${item.id}-${tag}`}
-                            className="rounded-full bg-white/[0.07] px-3 py-1 text-xs font-bold text-slate-300"
+                            className="rounded-full bg-[#fff8eb] px-3 py-1 text-xs font-bold text-slate-700"
                           >
                             {tag}
                           </span>
@@ -944,7 +944,7 @@ export default function DocumentsManager() {
                     )}
 
                     {item.aiSummary && (
-                      <p className="mt-2 rounded-xl bg-white/[0.055] px-3 py-2 text-sm leading-6 text-slate-300">
+                      <p className="mt-2 rounded-xl bg-[#fff8eb] px-3 py-2 text-sm leading-6 text-slate-700">
                         תיוק חכם: {item.aiSummary}
                       </p>
                     )}
@@ -954,10 +954,10 @@ export default function DocumentsManager() {
                         {item.attachments.map((file) => (
                           <div
                             key={`${item.id}-${file.name}`}
-                            className="flex flex-col gap-2 rounded-xl bg-white/[0.055] px-3 py-2 text-sm text-slate-300 md:flex-row md:items-center md:justify-between"
+                            className="flex flex-col gap-2 rounded-xl bg-[#fffdf8] px-3 py-2 text-sm text-slate-700 md:flex-row md:items-center md:justify-between"
                           >
                             <div>
-                              <span className="font-bold text-white">
+                              <span className="font-bold text-[#111827]">
                                 {file.name}
                               </span>{" "}
                               · {formatFileSize(file.size)} · {file.type}
@@ -976,7 +976,7 @@ export default function DocumentsManager() {
                                     });
                                   }
                                 }}
-                                className="rounded-xl bg-white/[0.08] px-3 py-2 text-xs font-bold text-slate-200 hover:bg-white/[0.12]"
+                                className="rounded-xl border border-[#e6e8ec] bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-[#fff8eb]"
                               >
                                 תצוגה
                               </button>
@@ -1011,7 +1011,7 @@ export default function DocumentsManager() {
                 onClick={() =>
                   setShowAllDocuments((currentValue) => !currentValue)
                 }
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-bold text-[#d7cfbf] hover:bg-white/[0.09]"
+                className="w-full rounded-2xl border border-[#e6e8ec] bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:bg-[#fff8eb]"
               >
                 {showAllDocuments
                   ? "הצג פחות"
