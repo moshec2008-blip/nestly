@@ -360,7 +360,7 @@ export default function TransactionsTable({
                         <button
                           type="button"
                           onClick={() => openDetails(transaction)}
-                          className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-[14px] px-1.5 py-2.5 text-right transition hover:bg-[#fafafb] sm:grid-cols-[minmax(0,1fr)_auto_auto]"
+                          className="grid w-full grid-cols-[minmax(0,1fr)_minmax(7.75rem,max-content)] items-center gap-2 rounded-[14px] py-2.5 pl-11 pr-1.5 text-right transition hover:bg-[#fafafb] sm:grid-cols-[minmax(0,1fr)_minmax(9rem,max-content)]"
                         >
                           <div className="flex min-w-0 items-center justify-end gap-2.5">
                             <div className="min-w-0 flex-1">
@@ -393,7 +393,8 @@ export default function TransactionsTable({
                           </div>
 
                           <span
-                            className={`whitespace-nowrap text-left text-base font-black tabular-nums ${getAmountClass(
+                            dir="ltr"
+                            className={`min-w-[7.75rem] shrink-0 whitespace-nowrap text-left text-base font-black tabular-nums leading-5 sm:min-w-36 ${getAmountClass(
                               transaction.type
                             )}`}
                           >
