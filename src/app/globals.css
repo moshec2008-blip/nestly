@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --nestly-header-height: 64px;
+  --nestly-header-height: 72px;
   --nestly-header-gap: 12px;
   --nestly-bottom-nav-height: 76px;
   --nestly-safe-bottom-gap: max(12px, env(safe-area-inset-bottom));
@@ -1222,5 +1222,45 @@ button:disabled,
   .app-premium [class*="text-lg"] {
     font-size: 1rem !important;
     line-height: 1.3rem !important;
+  }
+}
+
+/* Layout safety layer: keep fixed header/footer from covering content.
+   This intentionally lives last so broad compact spacing rules cannot override it. */
+.app-premium .nestly-app-content {
+  padding-top: calc(var(--nestly-header-height) + var(--nestly-header-gap)) !important;
+  padding-bottom: calc(var(--nestly-bottom-nav-height) + var(--nestly-safe-bottom-gap)) !important;
+}
+
+.app-premium .nestly-sidebar-panel {
+  top: calc(var(--nestly-header-height) + var(--nestly-header-gap)) !important;
+  bottom: calc(var(--nestly-bottom-nav-height) + var(--nestly-safe-bottom-gap)) !important;
+}
+
+.app-premium .nestly-sticky-below-header {
+  top: calc(var(--nestly-header-height) + var(--nestly-header-gap)) !important;
+}
+
+.app-premium .nestly-toast-stack {
+  top: calc(var(--nestly-header-height) + var(--nestly-header-gap)) !important;
+}
+
+.app-premium .nestly-floating-nudge {
+  bottom: calc(var(--nestly-bottom-nav-height) + var(--nestly-safe-bottom-gap)) !important;
+}
+
+@media (min-width: 1024px) {
+  .app-premium .nestly-app-content {
+    padding-bottom: 1.25rem !important;
+  }
+
+  .app-premium .nestly-sidebar-panel {
+    top: auto !important;
+    bottom: auto !important;
+    max-height: calc(100vh - var(--nestly-header-height) - var(--nestly-header-gap) - 16px) !important;
+  }
+
+  .app-premium .nestly-floating-nudge {
+    bottom: 1rem !important;
   }
 }
