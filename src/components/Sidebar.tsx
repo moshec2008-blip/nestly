@@ -5,9 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import type { CSSProperties } from "react";
 import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
-import { getDashboardContent } from "@/i18n/dashboardContent";
 import { getDictionary } from "@/i18n/dictionaries";
-import { getRouteLabel } from "@/i18n/navigation";
 import { useLanguage } from "@/i18n/useLanguage";
 import { brand } from "@/lib/branding";
 import type { AppRoute } from "@/types/navigation";
@@ -25,20 +23,74 @@ type SidebarLink = {
   description: string;
 };
 
-const icons: Record<AppRoute, AppIconName> = {
-  "/": "home",
-  "/finance": "finance",
-  "/tasks": "check",
-  "/dashboard": "dashboard",
-  "/health": "health",
-  "/documents": "document",
-  "/vehicles": "car",
-  "/family": "family",
-  "/birthdays": "calendar",
-  "/shopping": "shopping",
-  "/permissions": "lock",
-  "/settings": "settings",
-};
+const sidebarLinks: SidebarLink[] = [
+  {
+    label: "בית",
+    href: "/",
+    icon: "home",
+    description: "מה חשוב היום בבית",
+  },
+  {
+    label: "משימות",
+    href: "/tasks",
+    icon: "check",
+    description: "משימות ותזכורות לכל הבית",
+  },
+  {
+    label: "קניות",
+    href: "/shopping",
+    icon: "shopping",
+    description: "רשימות קנייה חכמות למשפחה",
+  },
+  {
+    label: "כספים",
+    href: "/finance",
+    icon: "finance",
+    description: "הכנסות, הוצאות ותקציב",
+  },
+  {
+    label: "משפחה",
+    href: "/family",
+    icon: "family",
+    description: "מידע, קשרים ותפקידים",
+  },
+  {
+    label: "אירועי משפחה",
+    href: "/birthdays",
+    icon: "calendar",
+    description: "ימי הולדת, נישואין ואירועים",
+  },
+  {
+    label: "רכבים",
+    href: "/vehicles",
+    icon: "car",
+    description: "טיפולים, ביטוחים וטסטים",
+  },
+  {
+    label: "בריאות",
+    href: "/health",
+    icon: "health",
+    description: "תרופות, בדיקות ומעקב רפואי",
+  },
+  {
+    label: "מסמכים",
+    href: "/documents",
+    icon: "document",
+    description: "מסמכים חשובים במקום אחד",
+  },
+  {
+    label: "אבטחה",
+    href: "/permissions",
+    icon: "lock",
+    description: "התראות ומידע רגיש",
+  },
+  {
+    label: "הגדרות",
+    href: "/settings",
+    icon: "settings",
+    description: "העדפות והתאמה אישית",
+  },
+];
 
 const navigationAccents: Record<
   AppRoute,
@@ -55,7 +107,7 @@ const navigationAccents: Record<
   "/": {
     dot: "bg-indigo-400",
     icon: "border-indigo-200 bg-indigo-100 text-indigo-900",
-    active: "bg-[#111827] text-white",
+    active: "border-indigo-200 bg-indigo-50 text-[#111827] ring-1 ring-indigo-200/80",
     hover: "hover:bg-indigo-50/90",
     glow: "bg-indigo-400/20",
     shadow: "0 12px 30px rgba(99,102,241,0.24)",
@@ -64,7 +116,7 @@ const navigationAccents: Record<
   "/finance": {
     dot: "bg-emerald-400",
     icon: "border-emerald-200 bg-emerald-100 text-emerald-900",
-    active: "bg-emerald-700 text-white",
+    active: "border-emerald-200 bg-emerald-50 text-[#111827] ring-1 ring-emerald-200/80",
     hover: "hover:bg-emerald-50/90",
     glow: "bg-emerald-400/20",
     shadow: "0 12px 30px rgba(16,185,129,0.26)",
@@ -73,7 +125,7 @@ const navigationAccents: Record<
   "/tasks": {
     dot: "bg-orange-400",
     icon: "border-orange-200 bg-orange-100 text-orange-900",
-    active: "bg-orange-600 text-white",
+    active: "border-orange-200 bg-orange-50 text-[#111827] ring-1 ring-orange-200/80",
     hover: "hover:bg-orange-50/90",
     glow: "bg-orange-400/20",
     shadow: "0 12px 30px rgba(249,115,22,0.26)",
@@ -82,7 +134,7 @@ const navigationAccents: Record<
   "/dashboard": {
     dot: "bg-sky-400",
     icon: "border-sky-200 bg-sky-100 text-sky-900",
-    active: "bg-sky-700 text-white",
+    active: "border-sky-200 bg-sky-50 text-[#111827] ring-1 ring-sky-200/80",
     hover: "hover:bg-sky-50/90",
     glow: "bg-sky-400/20",
     shadow: "0 12px 30px rgba(14,165,233,0.24)",
@@ -91,7 +143,7 @@ const navigationAccents: Record<
   "/health": {
     dot: "bg-rose-400",
     icon: "border-rose-200 bg-rose-100 text-rose-900",
-    active: "bg-rose-600 text-white",
+    active: "border-rose-200 bg-rose-50 text-[#111827] ring-1 ring-rose-200/80",
     hover: "hover:bg-rose-50/90",
     glow: "bg-rose-400/20",
     shadow: "0 12px 30px rgba(244,63,94,0.24)",
@@ -100,7 +152,7 @@ const navigationAccents: Record<
   "/documents": {
     dot: "bg-violet-400",
     icon: "border-violet-200 bg-violet-100 text-violet-900",
-    active: "bg-violet-700 text-white",
+    active: "border-violet-200 bg-violet-50 text-[#111827] ring-1 ring-violet-200/80",
     hover: "hover:bg-violet-50/90",
     glow: "bg-violet-400/20",
     shadow: "0 12px 30px rgba(139,92,246,0.24)",
@@ -109,7 +161,7 @@ const navigationAccents: Record<
   "/vehicles": {
     dot: "bg-blue-400",
     icon: "border-blue-200 bg-blue-100 text-blue-900",
-    active: "bg-blue-700 text-white",
+    active: "border-blue-200 bg-blue-50 text-[#111827] ring-1 ring-blue-200/80",
     hover: "hover:bg-blue-50/90",
     glow: "bg-blue-400/20",
     shadow: "0 12px 30px rgba(59,130,246,0.24)",
@@ -118,7 +170,7 @@ const navigationAccents: Record<
   "/family": {
     dot: "bg-purple-400",
     icon: "border-purple-200 bg-purple-100 text-purple-900",
-    active: "bg-purple-700 text-white",
+    active: "border-purple-200 bg-purple-50 text-[#111827] ring-1 ring-purple-200/80",
     hover: "hover:bg-purple-50/90",
     glow: "bg-purple-400/20",
     shadow: "0 12px 30px rgba(168,85,247,0.24)",
@@ -127,7 +179,7 @@ const navigationAccents: Record<
   "/birthdays": {
     dot: "bg-pink-400",
     icon: "border-pink-200 bg-pink-100 text-pink-900",
-    active: "bg-pink-600 text-white",
+    active: "border-pink-200 bg-pink-50 text-[#111827] ring-1 ring-pink-200/80",
     hover: "hover:bg-pink-50/90",
     glow: "bg-pink-400/20",
     shadow: "0 12px 30px rgba(236,72,153,0.24)",
@@ -136,7 +188,7 @@ const navigationAccents: Record<
   "/shopping": {
     dot: "bg-cyan-400",
     icon: "border-cyan-200 bg-cyan-100 text-cyan-900",
-    active: "bg-cyan-700 text-white",
+    active: "border-cyan-200 bg-cyan-50 text-[#111827] ring-1 ring-cyan-200/80",
     hover: "hover:bg-cyan-50/90",
     glow: "bg-cyan-400/20",
     shadow: "0 12px 30px rgba(6,182,212,0.24)",
@@ -145,7 +197,7 @@ const navigationAccents: Record<
   "/permissions": {
     dot: "bg-amber-400",
     icon: "border-amber-200 bg-amber-100 text-amber-900",
-    active: "bg-amber-600 text-white",
+    active: "border-amber-200 bg-amber-50 text-[#111827] ring-1 ring-amber-200/80",
     hover: "hover:bg-amber-50/90",
     glow: "bg-amber-400/20",
     shadow: "0 12px 30px rgba(245,158,11,0.24)",
@@ -154,7 +206,7 @@ const navigationAccents: Record<
   "/settings": {
     dot: "bg-slate-400",
     icon: "border-slate-200 bg-slate-100 text-slate-900",
-    active: "bg-slate-800 text-white",
+    active: "border-slate-200 bg-slate-100 text-[#111827] ring-1 ring-slate-200/80",
     hover: "hover:bg-slate-100/90",
     glow: "bg-slate-400/20",
     shadow: "0 12px 30px rgba(100,116,139,0.22)",
@@ -170,22 +222,8 @@ export default function Sidebar({
   const pathname = usePathname();
   const { direction, language } = useLanguage();
   const dictionary = getDictionary(language);
-  const dashboardContent = getDashboardContent(language);
   const showExpandedContent = !isCollapsed || isMobileOpen;
-  const primaryLinks: SidebarLink[] = [
-    {
-      label: dictionary.nav.home,
-      href: "/",
-      icon: icons["/"],
-      description: dictionary.hero.badge,
-    },
-    ...dashboardContent.modules.map((module) => ({
-      label: getRouteLabel(module.href, dictionary),
-      href: module.href,
-      icon: icons[module.href],
-      description: module.description,
-    })),
-  ];
+  const primaryLinks = sidebarLinks;
 
   function handleLogoHomeRefresh() {
     onNavigate();
@@ -205,7 +243,7 @@ export default function Sidebar({
 
       <aside
         className={[
-          "nestly-sidebar-panel premium-scrollbar fixed right-3 z-50 overflow-y-auto rounded-[22px] border border-white/80 bg-white/88 p-2.5 text-right shadow-[0_24px_70px_rgba(33,43,63,0.16)] backdrop-blur-xl transition-all duration-300 ease-out lg:sticky lg:right-auto lg:top-auto lg:z-10 lg:h-auto lg:shrink-0 lg:p-1.5 lg:shadow-[0_12px_30px_rgba(33,43,63,0.075)]",
+          "nestly-sidebar-panel premium-scrollbar fixed right-3 z-50 overflow-y-auto rounded-[22px] border border-white/80 bg-white/88 p-2 text-right shadow-[0_24px_70px_rgba(33,43,63,0.16)] backdrop-blur-xl transition-all duration-300 ease-out lg:sticky lg:right-auto lg:top-auto lg:z-10 lg:h-auto lg:shrink-0 lg:p-1.5 lg:shadow-[0_12px_30px_rgba(33,43,63,0.075)]",
           isMobileOpen
             ? "w-[min(22rem,calc(100vw-1.5rem))] translate-x-0"
             : "w-[min(22rem,calc(100vw-1.5rem))] translate-x-[120%]",
@@ -215,7 +253,7 @@ export default function Sidebar({
       >
         <div
           className={[
-            "mb-1.5 rounded-[18px] border border-[#ebe4d8] bg-gradient-to-br from-[#fffdf7] to-[#f6f8fb] p-2.5 shadow-sm transition-all duration-300 lg:p-1.5",
+          "mb-1.5 rounded-[18px] border border-[#ebe4d8] bg-gradient-to-br from-[#fffdf7] to-[#f6f8fb] p-2 shadow-sm transition-all duration-300 lg:p-1.5",
             isCollapsed
               ? "text-center"
               : direction === "rtl"
@@ -238,7 +276,7 @@ export default function Sidebar({
                 {brand.productName}
               </h2>
               <p className="truncate text-xs font-bold text-slate-600">
-                {dictionary.workspaceLabel}: {brand.workspaceName}
+                {brand.workspaceName}
               </p>
             </div>
           </div>
@@ -265,29 +303,31 @@ export default function Sidebar({
               />
             </button>
             {showExpandedContent && (
-              <div>
+              <div className="min-w-0">
                 <h2 className="text-base font-black text-[#1d1d1f]">
                   {brand.productName}
                 </h2>
-                <p className="mt-1 inline-flex rounded-full bg-[#111827] px-2 py-0.5 text-[10px] font-bold text-white">
-                  {dictionary.tagline}
+                <p className="truncate text-[11px] font-bold text-slate-600">
+                  {brand.workspaceName}
                 </p>
               </div>
             )}
           </div>
           {showExpandedContent && (
-            <p className="mt-1 text-[11px] font-semibold leading-4 text-slate-700">
-              {dictionary.workspaceLabel}: {brand.workspaceName}
+            <p className="mt-1 hidden truncate text-[11px] font-semibold leading-4 text-slate-600 lg:block">
+              {dictionary.workspaceLabel}
             </p>
           )}
         </div>
 
-        <nav className="space-y-0.5" aria-label={dictionary.openMenu}>
+        <nav className="space-y-1" aria-label={dictionary.openMenu}>
           {primaryLinks.map((item) => {
             const isActive = pathname === item.href;
             const accent = navigationAccents[item.href];
             const linkStyle = {
-              "--nav-shadow": isActive ? accent.activeShadow : accent.shadow,
+              "--nav-shadow": isActive
+                ? "0 10px 24px rgba(15,23,42,0.08)"
+                : "0 6px 18px rgba(15,23,42,0.045)",
             } as CSSProperties;
 
             return (
@@ -297,25 +337,25 @@ export default function Sidebar({
                 style={linkStyle}
                 title={!showExpandedContent ? item.label : undefined}
                 className={[
-                  "group relative flex min-h-14 items-center gap-3 overflow-hidden rounded-2xl px-3 py-2 text-sm font-bold shadow-[var(--nav-shadow)] transition-all duration-200 lg:min-h-9 lg:gap-2 lg:px-2 lg:py-1.5",
+                  "group relative flex min-h-[50px] items-center gap-2.5 overflow-hidden rounded-2xl border px-2.5 py-1.5 text-sm font-bold shadow-[var(--nav-shadow)] transition-all duration-200 lg:min-h-11 lg:gap-2 lg:px-2 lg:py-1.5",
                   showExpandedContent ? "justify-start" : "justify-center",
                   isActive
                     ? accent.active
-                    : `text-slate-800 hover:-translate-y-0.5 ${accent.hover} hover:text-[#111827]`,
+                    : `border-transparent text-slate-800 hover:-translate-y-0.5 ${accent.hover} hover:text-[#111827]`,
                 ].join(" ")}
                 onClick={isMobileOpen ? onNavigate : undefined}
               >
                 <span
                   className={[
                     "absolute inset-y-2 right-1 w-1 rounded-full transition-opacity",
-                    isActive ? "bg-white/70 opacity-100" : `${accent.dot} opacity-55`,
+                    isActive ? `${accent.dot} opacity-100` : `${accent.dot} opacity-45`,
                     showExpandedContent ? "block" : "hidden",
                   ].join(" ")}
                   aria-hidden="true"
                 />
                 <span
                   className={`pointer-events-none absolute -top-5 h-12 w-12 rounded-full blur-xl transition-opacity ${accent.glow} ${
-                    isActive ? "opacity-100" : "opacity-70"
+                    isActive ? "opacity-95" : "opacity-55"
                   }`}
                   aria-hidden="true"
                 />
@@ -323,22 +363,22 @@ export default function Sidebar({
                   className={[
                     "relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-white/70 shadow-[0_6px_16px_rgba(15,23,42,0.06)] transition lg:h-8 lg:w-8 lg:rounded-xl",
                     isActive
-                      ? "bg-white/25 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.18)]"
+                      ? `${accent.icon} ring-2 ring-white`
                       : `${accent.icon}`,
                   ].join(" ")}
                   aria-hidden="true"
                 >
-                  <AppIcon name={item.icon} className="h-5 w-5 lg:h-4 lg:w-4" />
+                  <AppIcon name={item.icon} className="h-5 w-5 stroke-[2.35] lg:h-[18px] lg:w-[18px]" />
                 </span>
                 {showExpandedContent && (
                   <span className="relative z-10 min-w-0 flex-1">
-                    <span className="block truncate text-[15px] font-black leading-5 lg:text-sm lg:font-bold">
+                    <span className="block truncate text-[15px] font-black leading-5 lg:text-sm lg:font-black">
                       {item.label}
                     </span>
                     <span
                       className={[
-                        "mt-0.5 line-clamp-1 text-xs leading-5 lg:hidden",
-                        isActive ? "text-white/75" : "text-slate-600",
+                        "mt-0.5 block truncate text-xs font-semibold leading-4 lg:text-[10.5px]",
+                        isActive ? "text-slate-700" : "text-slate-600",
                       ].join(" ")}
                     >
                       {item.description}
