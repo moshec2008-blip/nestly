@@ -58,6 +58,16 @@ function sortShoppingItems(items: ShoppingItem[]) {
   });
 }
 
+function getQuantityNumber(quantity: string | undefined) {
+  const parsedQuantity = Number.parseInt(quantity ?? "1", 10);
+
+  if (!Number.isFinite(parsedQuantity) || parsedQuantity < 1) {
+    return 1;
+  }
+
+  return parsedQuantity;
+}
+
 export default function ShoppingManager() {
   const [items, setItems] = usePersistentArrayState<ShoppingItem>(
     storageKeys.shopping,
@@ -152,6 +162,7 @@ export default function ShoppingManager() {
     const cleanTitle = form.title.trim();
     const cleanDepartment = form.department.trim() || "כללי";
     const cleanBuyer = form.buyer.trim() || "הבית";
+    const cleanQuantity = String(getQuantityNumber(form.quantity));
 
     if (!cleanTitle) {
       return;
@@ -165,6 +176,7 @@ export default function ShoppingManager() {
                 ...item,
                 ...form,
                 title: cleanTitle,
+                quantity: cleanQuantity,
                 department: cleanDepartment,
                 buyer: cleanBuyer,
               }
@@ -180,6 +192,7 @@ export default function ShoppingManager() {
         id: crypto.randomUUID(),
         ...form,
         title: cleanTitle,
+        quantity: cleanQuantity,
         department: cleanDepartment,
         buyer: cleanBuyer,
         purchased: false,
@@ -194,6 +207,31 @@ export default function ShoppingManager() {
       currentItems.map((item) =>
         item.id === id ? { ...item, purchased: !item.purchased } : item
       )
+    );
+  }
+
+  function updateQuantity(id: string, direction: "increase" | "decrease") {
+    setItems((currentItems) =>
+      currentItems.map((item) => {
+        if (item.id !== id) {
+          return item;
+        }
+
+        const currentQuantity = getQuantityNumber(item.quantity);
+        const nextQuantity =
+          direction === "increase"
+            ? currentQuantity + 1
+            : Math.max(1, currentQuantity - 1);
+
+        if (nextQuantity === currentQuantity) {
+          return item;
+        }
+
+        return {
+          ...item,
+          quantity: String(nextQuantity),
+        };
+      })
     );
   }
 
@@ -505,7 +543,7 @@ export default function ShoppingManager() {
                     <article
                       key={item.id}
                       className={[
-                        "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-2.5 py-2 transition hover:bg-[#fafafb]",
+                        "grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 px-2.5 py-2 transition hover:bg-[#fafafb]",
                         item.purchased ? "opacity-70" : "",
                       ].join(" ")}
                     >
@@ -535,12 +573,39 @@ export default function ShoppingManager() {
                           {item.title}
                         </h3>
                         <p className="mt-0.5 truncate text-xs font-semibold text-slate-600">
-                          {item.quantity}
+                          {item.listName}
+                          {item.department ? ` · ${item.department}` : ""}
                           {item.buyer ? ` · ${item.buyer}` : ""}
                           {item.estimatedPrice > 0
                             ? ` · ${item.estimatedPrice.toLocaleString("he-IL")} ₪`
                             : ""}
                         </p>
+                      </div>
+
+                      <div
+                        className="grid h-9 grid-cols-[2rem_2rem_2rem] items-center overflow-hidden rounded-full border border-[#eadfcd] bg-[#fffdf8] text-center shadow-sm"
+                        aria-label={`כמות ${item.title}`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.id, "decrease")}
+                          disabled={getQuantityNumber(item.quantity) <= 1}
+                          className="grid h-9 w-8 place-items-center text-lg font-black text-slate-600 transition hover:bg-white disabled:cursor-not-allowed disabled:text-slate-300"
+                          aria-label={`הפחת כמות של ${item.title}`}
+                        >
+                          -
+                        </button>
+                        <span className="grid h-9 min-w-8 place-items-center border-x border-[#eadfcd] text-sm font-black tabular-nums text-[#111827]">
+                          {getQuantityNumber(item.quantity)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => updateQuantity(item.id, "increase")}
+                          className="grid h-9 w-8 place-items-center text-lg font-black text-slate-700 transition hover:bg-white"
+                          aria-label={`הגדל כמות של ${item.title}`}
+                        >
+                          +
+                        </button>
                       </div>
 
                       <button
@@ -589,7 +654,7 @@ export default function ShoppingManager() {
                   {activeItem.title}
                 </h3>
                 <p className="mt-1 text-sm font-semibold text-slate-600">
-                  כמות: {activeItem.quantity}
+                  כמות: {getQuantityNumber(activeItem.quantity)}
                   {activeItem.estimatedPrice > 0
                     ? ` · ${activeItem.estimatedPrice.toLocaleString("he-IL")} ₪`
                     : ""}
