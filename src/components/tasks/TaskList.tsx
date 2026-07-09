@@ -36,14 +36,24 @@ export default function TaskList({
         </p>
 
         <div>
-          <p className="text-[11px] font-bold text-slate-500">ניהול משימות</p>
+          <p className="text-[11px] font-bold text-slate-500">
+            משימות שחשובות עכשיו
+          </p>
           <h2 className="text-sm font-black text-[#111827]">משימות הבית</h2>
         </div>
       </div>
 
       {tasks.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#cbd5e1] bg-[#fafafb] p-4 text-center text-sm font-semibold text-slate-600">
-          אין משימות להצגה לפי הסינון הנוכחי.
+        <div className="rounded-2xl border border-dashed border-[#cbd5e1] bg-[#fafafb] p-5 text-center">
+          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-2xl shadow-sm">
+            ✓
+          </div>
+          <p className="mt-3 text-base font-black text-[#111827]">
+            הכל רגוע כאן כרגע
+          </p>
+          <p className="mx-auto mt-1 max-w-sm text-sm font-semibold leading-6 text-slate-600">
+            כשתהיה משימה חדשה למשפחה, היא תופיע כאן בצורה קצרה וברורה.
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -63,7 +73,7 @@ export default function TaskList({
             <button
               type="button"
               onClick={onToggleShowAll}
-              className="w-full rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 py-2 text-sm font-black text-slate-700 hover:bg-white"
+              className="min-h-11 w-full rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-white active:scale-[0.99]"
             >
               {showAllTasks ? "הצג פחות" : `הצג עוד ${tasks.length - 5}`}
             </button>

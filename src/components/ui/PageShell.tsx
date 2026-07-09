@@ -6,5 +6,5 @@ type PageShellProps = {
 };
 
 export default function PageShell({ children, className = "" }: PageShellProps) {
-  return <div className={`space-y-5 ${className}`}>{children}</div>;
+  return <div className={`space-y-3 ${className}`}>{children}</div>;
 }

@@ -3,7 +3,7 @@
 import { LinkButton } from "@/components/ui/Button";
 import { getDictionary } from "@/i18n/dictionaries";
 import { useLanguage } from "@/i18n/useLanguage";
-import Image from "next/image";
+import { brand } from "@/lib/branding";
 
 export default function Header() {
   const { direction, language } = useLanguage();
@@ -12,20 +12,11 @@ export default function Header() {
   return (
     <header
       className={[
-        "rounded-[20px] border border-[#e6e8ec] bg-white p-2.5 text-[#1d1d1f] shadow-[0_10px_26px_rgba(15,23,42,0.045)] md:p-3",
+        "nestly-hero rounded-[22px] p-3 text-[#1d1d1f]",
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Image
-          src="/nestly-logo.png"
-          alt="Nestly"
-          width={72}
-          height={72}
-          className="h-14 w-14 shrink-0 self-end rounded-2xl border border-[#e6d9c9] bg-[#fff8eb] object-contain p-1.5 shadow-sm sm:self-auto"
-          priority
-        />
-
+      <div className="relative z-10 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0 flex-1">
           <div
             className={[
@@ -33,20 +24,20 @@ export default function Header() {
               direction === "rtl" ? "justify-end" : "justify-start",
             ].join(" ")}
           >
-            <span className="rounded-full bg-[#fff8eb] px-3 py-1 text-xs font-black text-[#9a6b17]">
-              היום במשפחה
-            </span>
-            <h1 className="truncate text-xl font-black tracking-tight md:text-2xl">
+            <span className="nestly-eyebrow">היום במשפחה</span>
+            <h1 className="text-xl font-extrabold tracking-tight text-[#111827] md:text-2xl">
               מה צריך תשומת לב עכשיו
             </h1>
           </div>
-          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-            מבט קצר על משימות, כספים, קניות ותזכורות בלי עומס מיותר.
+
+          <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-slate-700">
+            {brand.productName} מרכזת את המשימות, הכספים, הקניות והתזכורות
+            החשובות של הבית במקום אחד רגוע.
           </p>
 
           <div
             className={[
-              "mt-2 flex flex-wrap gap-2",
+              "mt-2.5 flex flex-wrap gap-2",
               direction === "rtl" ? "justify-end" : "justify-start",
             ].join(" ")}
           >

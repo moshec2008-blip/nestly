@@ -421,7 +421,7 @@ export default function FinanceManager() {
 
   return (
     <section className="space-y-2.5">
-      <section className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
+      <section className="nestly-card-strong rounded-[22px] p-3 text-right">
         <div className="flex flex-col gap-2 xl:flex-row xl:items-center">
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
@@ -435,7 +435,7 @@ export default function FinanceManager() {
 
               <div>
                 <p className="text-xs font-bold text-[#007aff]">מרכז כספים</p>
-                <h2 className="mt-1 text-lg font-black text-[#111827]">
+                <h2 className="mt-1 text-xl font-black text-[#111827]">
                   איפה אנחנו אוחזים החודש
                 </h2>
                 <p className="hidden">

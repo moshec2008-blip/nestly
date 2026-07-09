@@ -10,7 +10,10 @@ import { initialShoppingItems } from "@/data/shopping";
 import { getTaskStats, initialFamilyTasks } from "@/data/tasks";
 import { storageKeys } from "@/lib/storageKeys";
 import type { AppRoute } from "@/types/navigation";
-import { getDaysUntilBirthday } from "@/utils/birthdayCalendar";
+import {
+  getDaysUntilFamilyEvent,
+  normalizeFamilyEvent,
+} from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
 
 export function getModuleLiveStat(href: AppRoute, fallback: string) {
@@ -54,24 +57,18 @@ export function getModuleLiveStat(href: AppRoute, fallback: string) {
   }
 
   if (href === "/birthdays") {
-    const birthdays = readStorageArray(storageKeys.birthdays, initialBirthdays);
-    const nextBirthday = [...birthdays].sort(
+    const events = readStorageArray(storageKeys.birthdays, initialBirthdays).map(
+      normalizeFamilyEvent
+    );
+    const nextEvent = [...events].sort(
       (first, second) =>
-        getDaysUntilBirthday({
-          gregorianDate: first.gregorianDate,
-          calendarType: first.calendarType,
-        }) -
-        getDaysUntilBirthday({
-          gregorianDate: second.gregorianDate,
-          calendarType: second.calendarType,
-        })
+        getDaysUntilFamilyEvent(first) - getDaysUntilFamilyEvent(second)
     )[0];
 
-    return nextBirthday
-      ? `${nextBirthday.name} בעוד ${getDaysUntilBirthday({
-          gregorianDate: nextBirthday.gregorianDate,
-          calendarType: nextBirthday.calendarType,
-        })} ימים`
+    return nextEvent
+      ? `${nextEvent.person || nextEvent.name} בעוד ${getDaysUntilFamilyEvent(
+          nextEvent
+        )} ימים`
       : fallback;
   }
 

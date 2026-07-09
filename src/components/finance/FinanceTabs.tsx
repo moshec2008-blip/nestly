@@ -26,12 +26,12 @@ export default function FinanceTabs({
   onAddTransaction,
 }: FinanceTabsProps) {
   return (
-    <section className="mb-2.5 rounded-[18px] border border-[#e6e8ec] bg-white p-1.5 shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+    <section className="mb-2.5 rounded-[18px] border border-[#eadfcd] bg-[#fffdf8]/95 p-1.5 shadow-[0_10px_26px_rgba(33,43,63,0.065)]">
       <div className="grid grid-cols-2 gap-1.5 sm:flex sm:items-center">
         <button
           type="button"
           onClick={onAddTransaction}
-          className="nestly-primary-action min-h-11 rounded-[14px] bg-[#111827] px-4 text-sm font-black text-white shadow-sm sm:min-w-36"
+          className="nestly-primary-action min-h-11 rounded-[14px] bg-[#111827] px-4 text-sm font-black text-white shadow-[0_12px_26px_rgba(17,24,39,0.18)] sm:min-w-36"
         >
           + הוסף פעולה
         </button>
@@ -47,8 +47,8 @@ export default function FinanceTabs({
               aria-pressed={isActive}
               className={
                 isActive
-                  ? "min-h-11 rounded-[14px] bg-[#111827] px-4 text-sm font-black text-white shadow-sm"
-                  : "min-h-11 rounded-[14px] px-4 text-sm font-black text-slate-700 transition hover:bg-[#fafafb] hover:text-[#1d1d1f]"
+                  ? "min-h-11 rounded-[14px] bg-white px-4 text-sm font-black text-[#111827] shadow-[0_8px_20px_rgba(33,43,63,0.08)]"
+                  : "min-h-11 rounded-[14px] px-4 text-sm font-black text-slate-700 transition hover:bg-white hover:text-[#1d1d1f]"
               }
             >
               {tab.label}

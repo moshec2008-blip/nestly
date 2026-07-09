@@ -517,21 +517,21 @@ export default function DocumentsManager() {
   return (
     <section className="space-y-2.5">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <div className="rounded-[16px] bg-slate-800/62 p-2.5 text-right shadow-[0_8px_22px_rgba(2,6,23,0.14)]">
+        <div className="nestly-card rounded-[16px] p-2.5 text-right">
           <p className="truncate text-[11px] text-slate-300">מסמכים</p>
           <p className="mt-0.5 text-lg font-black">{documents.length}</p>
         </div>
-        <div className="rounded-[16px] bg-slate-800/62 p-2.5 text-right shadow-[0_8px_22px_rgba(2,6,23,0.14)]">
+        <div className="nestly-card rounded-[16px] p-2.5 text-right">
           <p className="truncate text-[11px] text-slate-300">קבצים</p>
           <p className="mt-0.5 text-lg font-black">{attachmentsCount}</p>
         </div>
-        <div className="rounded-[16px] bg-slate-800/62 p-2.5 text-right shadow-[0_8px_22px_rgba(2,6,23,0.14)]">
+        <div className="nestly-card rounded-[16px] p-2.5 text-right">
           <p className="truncate text-[11px] text-slate-300">פתוחים / בוצעו</p>
           <p className="mt-0.5 text-lg font-black">
             {openCount}/{doneCount}
           </p>
         </div>
-        <div className="rounded-[16px] bg-slate-800/62 p-2.5 text-right shadow-[0_8px_22px_rgba(2,6,23,0.14)]">
+        <div className="nestly-card rounded-[16px] p-2.5 text-right">
           <p className="truncate text-[11px] text-slate-300">תזכורות</p>
           <p className="mt-0.5 text-lg font-black">{reminderCount}</p>
         </div>
@@ -540,7 +540,7 @@ export default function DocumentsManager() {
       <details
         open={isFormOpen}
         onToggle={(event) => setIsFormOpen(event.currentTarget.open)}
-        className="group rounded-[18px] bg-slate-800/58 p-2.5 text-right text-[#fff9ea] shadow-[0_10px_28px_rgba(2,6,23,0.16)]"
+        className="nestly-card group rounded-[18px] p-3 text-right text-[#111827]"
       >
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
           <span className="rounded-full bg-[#f4e7c8] px-4 py-2 text-xs font-black text-slate-950 shadow-sm group-open:hidden">
@@ -743,11 +743,54 @@ export default function DocumentsManager() {
 
             {aiSuggestion && (
               <div className="rounded-2xl border border-[#d8b470]/20 bg-[#d8b470]/10 p-3 text-right text-sm text-[#f4e7c8]">
-                <p className="font-black">הצעת תיוק חכם</p>
-                <p className="mt-1">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="rounded-full bg-slate-950/35 px-3 py-1 text-[11px] font-black">
+                    Mock AI · אין שמירה אוטומטית
+                  </span>
+                  <p className="font-black">סקירת ניתוח לפני אישור</p>
+                </div>
+                <p className="mt-2 leading-6">
                   {aiSuggestion.summary} רמת ביטחון:{" "}
                   {Math.round(aiSuggestion.confidence * 100)}%
                 </p>
+                <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+                  <span className="rounded-xl bg-white/[0.07] px-3 py-2">
+                    סוג: {aiSuggestion.analysis.extracted.documentType}
+                  </span>
+                  <span className="rounded-xl bg-white/[0.07] px-3 py-2">
+                    ספק: {aiSuggestion.analysis.extracted.providerName ?? "לא זוהה"}
+                  </span>
+                  <span className="rounded-xl bg-white/[0.07] px-3 py-2">
+                    סכום:{" "}
+                    {typeof aiSuggestion.analysis.extracted.amount === "number"
+                      ? `${aiSuggestion.analysis.extracted.amount.toLocaleString(
+                          "he-IL"
+                        )} ${aiSuggestion.analysis.extracted.currency ?? "ILS"}`
+                      : "לא זוהה"}
+                  </span>
+                  <span className="rounded-xl bg-white/[0.07] px-3 py-2">
+                    לתשלום עד: {aiSuggestion.analysis.extracted.dueDate ?? "לא זוהה"}
+                  </span>
+                  <span className="rounded-xl bg-white/[0.07] px-3 py-2">
+                    אסמכתא:{" "}
+                    {aiSuggestion.analysis.extracted.referenceNumber ??
+                      aiSuggestion.analysis.extracted.accountNumber ??
+                      "לא זוהתה"}
+                  </span>
+                  <span className="rounded-xl bg-white/[0.07] px-3 py-2">
+                    תקופה: {aiSuggestion.analysis.extracted.billingPeriod ?? "לא זוהתה"}
+                  </span>
+                </div>
+                <div className="mt-3 flex flex-wrap justify-end gap-2">
+                  {aiSuggestion.analysis.suggestedActions.map((action) => (
+                    <span
+                      key={action.id}
+                      className="rounded-full bg-slate-950/30 px-3 py-1 text-xs font-bold"
+                    >
+                      {action.label}
+                    </span>
+                  ))}
+                </div>
                 <p className="mt-2 text-xs font-bold">
                   תגיות: {aiSuggestion.tags.join(", ")}
                 </p>
@@ -757,7 +800,7 @@ export default function DocumentsManager() {
         </form>
       </details>
 
-      <section className="rounded-[18px] bg-slate-800/58 p-2.5 text-right text-[#fff9ea] shadow-[0_10px_28px_rgba(2,6,23,0.16)]">
+      <section className="nestly-card rounded-[18px] p-3 text-right text-[#111827]">
         <div className="mb-2.5 flex flex-col gap-2.5 md:flex-row md:items-center md:justify-between">
           <button
             type="button"
@@ -800,8 +843,23 @@ export default function DocumentsManager() {
         </div>
 
         {visibleDocuments.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-8 text-center text-slate-400">
-            אין מסמכים להצגה לפי הסינון הנוכחי.
+          <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.04] p-6 text-center">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white/[0.08] text-2xl">
+              📄
+            </div>
+            <p className="mt-3 text-base font-black text-white">
+              מרכז המסמכים מוכן לקובץ הראשון
+            </p>
+            <p className="mx-auto mt-1 max-w-md text-sm font-semibold leading-6 text-slate-400">
+              העלה חשבון, פוליסה או צילום מסמך, ו-Nestly יכין סקירה לבדיקה לפני שמירה.
+            </p>
+            <button
+              type="button"
+              onClick={() => setIsFormOpen(true)}
+              className="mt-4 min-h-11 rounded-2xl bg-[#f4e7c8] px-4 text-sm font-black text-slate-950"
+            >
+              העלה או סרוק מסמך
+            </button>
           </div>
         ) : (
           <div className="space-y-2">

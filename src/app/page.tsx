@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import ModuleCard from "@/components/ModuleCard";
 import StatCard from "@/components/StatCard";
 import DashboardLiveOverview from "@/components/dashboard/DashboardLiveOverview";
+import TodayForFamily from "@/components/dashboard/TodayForFamily";
 import AppShell from "@/components/layout/AppShell";
 import { getDashboardContent } from "@/i18n/dashboardContent";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -33,61 +34,56 @@ export default function HomePage() {
 
   return (
     <AppShell>
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         <Header />
+        <TodayForFamily />
 
-        <div className="grid gap-2.5">
-          <section className="rounded-[20px] border border-[#e6e8ec] bg-white p-2.5 text-[#1d1d1f] shadow-[0_12px_30px_rgba(15,23,42,0.06)]">
-            <div
-              className={[
-                "mb-2.5 flex items-end",
-                direction === "rtl" ? "text-right" : "text-left",
-              ].join(" ")}
-            >
-              <span className="hidden">
-                מרכז עבודה
-              </span>
-              <div>
-                <p className="hidden">
-                  {dictionary.dashboard.workspaceAreas}
-                </p>
-                <h2 className="text-base font-black sm:text-lg">
-                  מה חשוב עכשיו
-                </h2>
-              </div>
+        <section className="nestly-card rounded-[22px] p-3 text-[#1d1d1f]">
+          <div
+            className={[
+              "mb-3 flex items-end",
+              direction === "rtl" ? "text-right" : "text-left",
+            ].join(" ")}
+          >
+            <div>
+              <p className="text-xs font-bold text-slate-600">
+                ניווט מהיר לפי מה שצריך עכשיו
+              </p>
+              <h2 className="text-lg font-black text-[#111827] sm:text-xl">
+                אזורי הבית המרכזיים
+              </h2>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-              {primaryModules.map((module) => (
-                <ModuleCard
-                  key={module.href}
-                  title={getRouteLabel(module.href, dictionary)}
-                  description={module.description}
-                  href={module.href}
-                  status={module.status}
-                  priority
-                />
-              ))}
-            </div>
-          </section>
+          <div className="grid grid-cols-1 gap-2.5 min-[380px]:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {primaryModules.map((module) => (
+              <ModuleCard
+                key={module.href}
+                title={getRouteLabel(module.href, dictionary)}
+                description={module.description}
+                href={module.href}
+                status={module.status}
+                priority
+              />
+            ))}
+          </div>
+        </section>
 
-        </div>
-
-        <details className="rounded-[18px] border border-[#e6e8ec] bg-white p-2.5 text-[#1d1d1f] shadow-[0_10px_24px_rgba(15,23,42,0.055)]">
+        <details className="nestly-card rounded-[20px] p-3 text-[#1d1d1f]">
           <summary
             className={[
               "flex cursor-pointer list-none items-center justify-between gap-4",
               direction === "rtl" ? "text-right" : "text-left",
             ].join(" ")}
           >
-            <span className="rounded-full border border-[#e6e8ec] bg-[#fafafb] px-2.5 py-1 text-[11px] font-bold text-slate-600">
+            <span className="rounded-full border border-[#eadfcd] bg-[#fff8eb] px-2.5 py-1 text-[11px] font-bold text-[#7a5212]">
               {dashboardContent.modules.length} {dictionary.dashboard.modules}
             </span>
             <div>
-              <p className="text-xs font-bold text-slate-500">
+              <p className="text-xs font-bold text-slate-600">
                 מדדים ואזורים נוספים
               </p>
-              <h2 className="mt-1 text-sm font-black sm:text-base">
+              <h2 className="mt-1 text-sm font-black text-[#111827] sm:text-base">
                 לפתיחה לפי צורך
               </h2>
             </div>

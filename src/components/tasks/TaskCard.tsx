@@ -48,7 +48,7 @@ export default function TaskCard({
   onDelete,
 }: TaskCardProps) {
   return (
-    <article className="rounded-2xl border border-[#e6e8ec] bg-[#fafafb] p-2.5 text-right transition hover:bg-[#fffdf8]">
+    <article className="nestly-interactive rounded-2xl border border-[#eadfcd] bg-white p-3 text-right shadow-[0_10px_24px_rgba(33,43,63,0.055)]">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap gap-1 text-[10px] font-black">
@@ -58,7 +58,7 @@ export default function TaskCard({
             <span className={`rounded-full border px-2 py-0.5 ${getPriorityClass(task.priority)}`}>
               {priorityLabels[task.priority]}
             </span>
-            <span className="rounded-full border border-[#e6e8ec] bg-white px-2 py-0.5 text-slate-600">
+            <span className="rounded-full border border-[#eadfcd] bg-white px-2 py-0.5 text-slate-700">
               {task.category}
             </span>
           </div>
@@ -66,7 +66,7 @@ export default function TaskCard({
           <h3 className="mt-1.5 text-sm font-black text-[#111827]">
             {task.title}
           </h3>
-          <p className="mt-1 text-[11px] font-semibold text-slate-500">
+          <p className="mt-1 text-[12px] font-semibold text-slate-600">
             יעד: {formatHebrewDateLabel(task.dueDate)}
           </p>
         </div>
@@ -74,14 +74,14 @@ export default function TaskCard({
         <button
           type="button"
           onClick={() => onToggleExpanded(task.id)}
-          className="min-h-11 rounded-full border border-[#e6e8ec] bg-white px-3 py-2 text-[11px] font-black text-slate-700"
+          className="min-h-11 rounded-full border border-[#eadfcd] bg-[#fff8eb] px-3 py-2 text-[11px] font-black text-[#7a5212] transition hover:bg-white"
         >
           {isExpanded ? "סגור" : "פרטים"}
         </button>
       </div>
 
       {isExpanded && (
-        <div className="mt-2.5 space-y-2 border-t border-[#e6e8ec] pt-2.5">
+        <div className="mt-2.5 space-y-2 border-t border-[#eadfcd] pt-2.5">
           <p className="text-sm leading-6 text-slate-600">
             {task.description}
           </p>

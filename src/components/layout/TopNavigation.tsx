@@ -3,7 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent,
+} from "react";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { getDictionary, type CommonDictionary } from "@/i18n/dictionaries";
 import { getRouteLabel } from "@/i18n/navigation";
@@ -196,6 +202,7 @@ export default function TopNavigation({
   const [searchValue, setSearchValue] = useState("");
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const headerRef = useRef<HTMLElement | null>(null);
   const notificationsRef = useRef<HTMLDivElement | null>(null);
   const currentRoute = getRouteMeta(pathname);
   const breadcrumbs = getBreadcrumbs(pathname);
@@ -204,6 +211,44 @@ export default function TopNavigation({
     [searchValue]
   );
   const accountLabel = language === "en" ? "Account" : "חשבון";
+
+  useEffect(() => {
+    const headerElement = headerRef.current;
+
+    if (!headerElement) {
+      return;
+    }
+
+    function updateHeaderHeight() {
+      const measuredHeaderElement = headerRef.current;
+
+      if (!measuredHeaderElement) {
+        return;
+      }
+
+      document.documentElement.style.setProperty(
+        "--nestly-header-height",
+        `${Math.ceil(measuredHeaderElement.getBoundingClientRect().height)}px`
+      );
+    }
+
+    updateHeaderHeight();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateHeaderHeight);
+
+      return () => window.removeEventListener("resize", updateHeaderHeight);
+    }
+
+    const resizeObserver = new ResizeObserver(updateHeaderHeight);
+    resizeObserver.observe(headerElement);
+    window.addEventListener("resize", updateHeaderHeight);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateHeaderHeight);
+    };
+  }, []);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -248,14 +293,23 @@ export default function TopNavigation({
     onCloseMobileMenu();
   }
 
+  function handleLogoHomeClick(event: MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    handleNavigate();
+    window.location.assign("/");
+  }
+
   return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-[#dfe3ea] bg-white/92 text-[#111827] shadow-[0_10px_28px_rgba(15,23,42,0.06)] backdrop-blur-2xl">
+    <header
+      ref={headerRef}
+      className="fixed inset-x-0 top-0 z-40 border-b border-[#e6d9c9] bg-[#fffdf8]/92 text-[#111827] shadow-[0_12px_32px_rgba(33,43,63,0.075)] backdrop-blur-2xl"
+    >
       <div className="mx-auto w-full max-w-[1520px] px-3 sm:px-5">
         <div className="flex min-h-14 items-center justify-between gap-3 py-1.5 lg:hidden">
           <button
             type="button"
             onClick={onToggleMobileMenu}
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#111827] text-white shadow-sm"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#111827] bg-[#111827] text-white shadow-[0_12px_24px_rgba(17,24,39,0.16)]"
             aria-label={dictionary.openMenu}
             aria-expanded={isMobileMenuOpen}
           >
@@ -273,8 +327,8 @@ export default function TopNavigation({
 
           <Link
             href="/"
-            onClick={handleNavigate}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#e6d9c9] bg-[#fff8eb] p-1.5 shadow-sm"
+            onClick={handleLogoHomeClick}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#e6d9c9] bg-[#fff8eb] p-1.5 shadow-[0_10px_24px_rgba(154,107,23,0.14)] transition hover:scale-105"
             aria-label={brand.productName}
           >
             <Image
@@ -302,7 +356,7 @@ export default function TopNavigation({
           <button
             type="button"
             onClick={onToggleSidebar}
-            className="hidden h-10 w-10 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#fafafb] text-sm font-black text-slate-700 shadow-sm transition hover:bg-white lg:inline-flex"
+            className="hidden h-10 w-10 items-center justify-center rounded-2xl border border-[#e6d9c9] bg-white text-sm font-black text-slate-700 shadow-sm transition hover:bg-[#fff8eb] lg:inline-flex"
             aria-label={
               isSidebarCollapsed
                 ? dictionary.expandSidebar
@@ -346,8 +400,8 @@ export default function TopNavigation({
             >
               <Link
                 href="/"
-                onClick={handleNavigate}
-                className="flex h-11 shrink-0 items-center gap-2 rounded-2xl px-1.5 text-sm font-black text-[#111827] transition hover:bg-[#f6f7f9] lg:h-9 lg:bg-[#111827] lg:px-3 lg:text-xs lg:text-white lg:shadow-[0_12px_32px_rgba(15,23,42,0.14)]"
+                onClick={handleLogoHomeClick}
+                className="flex h-11 shrink-0 items-center gap-2 rounded-2xl px-1.5 text-sm font-black text-[#111827] transition hover:bg-[#fff8eb] lg:h-9 lg:bg-[#111827] lg:px-3 lg:text-xs lg:text-white lg:shadow-[0_12px_32px_rgba(17,24,39,0.16)]"
                 aria-label={`${brand.productName} - ${brand.workspaceName}`}
               >
                 <span

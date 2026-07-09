@@ -22,12 +22,12 @@ export default function TaskFilters({
   onClearFilters,
 }: TaskFiltersProps) {
   return (
-    <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-2.5 text-right shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
+    <section className="nestly-card rounded-[18px] p-3 text-right">
       <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <button
           type="button"
           onClick={onClearFilters}
-          className="min-h-11 w-fit rounded-full border border-[#e6e8ec] bg-[#fafafb] px-4 py-2 text-[11px] font-black text-slate-700 hover:bg-white"
+          className="min-h-11 w-fit rounded-full border border-[#eadfcd] bg-[#fff8eb] px-4 py-2 text-[11px] font-black text-[#7a5212] hover:bg-white"
         >
           נקה סינון
         </button>
@@ -44,7 +44,7 @@ export default function TaskFilters({
         <input
           value={searchValue}
           onChange={(event) => onSearchChange(event.target.value)}
-          className="min-h-11 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/55"
+          className="min-h-11 rounded-2xl border border-[#e3d8c9] bg-[#fffdf8] px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#1d4ed8]/55"
           placeholder="חיפוש"
         />
 
@@ -53,7 +53,7 @@ export default function TaskFilters({
           onChange={(event) =>
             onStatusFilterChange(event.target.value as TaskStatusFilter)
           }
-          className="min-h-11 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/55"
+          className="min-h-11 rounded-2xl border border-[#e3d8c9] bg-[#fffdf8] px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#1d4ed8]/55"
         >
           <option value="all">כל הסטטוסים</option>
           <option value="open">פתוחות</option>
@@ -65,7 +65,7 @@ export default function TaskFilters({
           onChange={(event) =>
             onPriorityFilterChange(event.target.value as TaskPriorityFilter)
           }
-          className="min-h-11 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/55"
+          className="min-h-11 rounded-2xl border border-[#e3d8c9] bg-[#fffdf8] px-3 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#1d4ed8]/55"
         >
           <option value="all">כל העדיפויות</option>
           <option value="high">גבוהה</option>
@@ -76,4 +76,3 @@ export default function TaskFilters({
     </section>
   );
 }
-

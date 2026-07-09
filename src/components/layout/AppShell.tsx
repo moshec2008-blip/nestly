@@ -70,7 +70,7 @@ export default function AppShell({ children }: AppShellProps) {
       id="main-content"
       dir={direction}
       lang={language}
-      className="app-premium min-h-screen overflow-x-hidden bg-[#f6f7f9] text-[#1d1d1f]"
+      className="app-premium nestly-page-shell min-h-screen overflow-x-hidden text-[#1d1d1f]"
     >
       <FeedbackProvider>
         <TopNavigation
@@ -81,7 +81,7 @@ export default function AppShell({ children }: AppShellProps) {
           onCloseMobileMenu={closeMobileMenu}
         />
 
-        <div className="mx-auto flex w-full max-w-[1480px] gap-2.5 px-3 pb-24 pt-16 sm:px-4 lg:pb-4 lg:pt-[4.25rem]">
+        <div className="nestly-app-content mx-auto flex w-full max-w-[1480px] gap-3 px-3 sm:px-4">
           <Sidebar
             isCollapsed={isSidebarCollapsed}
             isMobileOpen={isMobileMenuOpen}
@@ -93,7 +93,9 @@ export default function AppShell({ children }: AppShellProps) {
           {showGlobalAssists && <SmartFamilyCenter />}
         </div>
 
-        <MobileBottomNavigation onOpenMenu={toggleMobileMenu} />
+        {!isMobileMenuOpen && (
+          <MobileBottomNavigation onOpenMenu={toggleMobileMenu} />
+        )}
         {showGlobalAssists && <SmartNudgePopup />}
         {showGlobalAssists && <BirthdayWelcomePopup />}
       </FeedbackProvider>

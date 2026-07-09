@@ -22,7 +22,12 @@ export default function FinanceSummaryCards({ cards }: FinanceSummaryCardsProps)
       {cards.map((card, index) => (
         <div
           key={card.title}
-          className="rounded-[18px] border border-[#e6e8ec] bg-white/95 p-2.5 text-right shadow-[0_8px_22px_rgba(15,23,42,0.035)]"
+          className={[
+            "rounded-[18px] border p-3 text-right shadow-[0_12px_28px_rgba(33,43,63,0.065)]",
+            index === 0
+              ? "border-[#d8b470]/45 bg-gradient-to-br from-[#111827] to-[#243044] text-white"
+              : "border-[#eadfcd] bg-white/95 text-[#111827]",
+          ].join(" ")}
         >
           <div className="flex items-center justify-between gap-2">
             <span
@@ -31,14 +36,29 @@ export default function FinanceSummaryCards({ cards }: FinanceSummaryCardsProps)
               }`}
               aria-hidden="true"
             />
-            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">
+            <p
+              className={[
+                "text-[10px] font-black uppercase tracking-[0.14em]",
+                index === 0 ? "text-white/75" : "text-slate-600",
+              ].join(" ")}
+            >
               {card.title}
             </p>
           </div>
-          <p className={`mt-2 text-base font-black leading-6 ${card.tone}`}>
+          <p
+            className={[
+              "mt-2 font-black leading-6",
+              index === 0 ? "text-xl text-white" : `text-base ${card.tone}`,
+            ].join(" ")}
+          >
             {card.value}
           </p>
-          <p className="mt-1 text-[11px] font-semibold leading-4 text-slate-500">
+          <p
+            className={[
+              "mt-1 text-[11px] font-semibold leading-4",
+              index === 0 ? "text-white/72" : "text-slate-600",
+            ].join(" ")}
+          >
             {card.subtitle}
           </p>
         </div>

@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Heebo } from "next/font/google";
 import { brand } from "@/lib/branding";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const heebo = Heebo({
+  variable: "--font-heebo",
+  subsets: ["hebrew", "latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -18,10 +14,17 @@ export const metadata: Metadata = {
   description:
     "מערכת משפחתית פרימיום לניהול כספים, משימות, מסמכים, בריאות וכל מה שקורה בבית.",
   icons: {
-    icon: [{ url: "/nestly-logo.png", type: "image/png" }],
-    shortcut: ["/nestly-logo.png"],
-    apple: [{ url: "/nestly-logo.png", type: "image/png" }],
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-16.png", type: "image/png", sizes: "16x16" },
+    ],
+    shortcut: ["/favicon.ico"],
+    apple: [
+      { url: "/apple-touch-icon.png", type: "image/png", sizes: "180x180" },
+    ],
   },
+  manifest: "/manifest.webmanifest",
 };
 
 export default function RootLayout({
@@ -34,7 +37,7 @@ export default function RootLayout({
       lang="he"
       dir="rtl"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${heebo.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <a className="skip-link" href="#main-content">

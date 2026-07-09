@@ -25,7 +25,7 @@ export default function DashboardPage() {
         backLabel={dictionary.home}
       />
 
-      <section className="mb-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="mb-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
         {dashboardContent.stats.map((item) => (
           <StatCard
             key={item.title}
@@ -38,10 +38,10 @@ export default function DashboardPage() {
 
       <DashboardLiveOverview />
 
-      <section className="mt-3 rounded-[20px] border border-[#e6e8ec] bg-white p-3 text-[#1d1d1f] shadow-[0_10px_26px_rgba(15,23,42,0.045)]">
+      <section className="nestly-card mt-3 rounded-[20px] p-3 text-[#1d1d1f]">
         <div
           className={[
-            "mb-3 flex items-end justify-between gap-4",
+            "mb-2.5 flex items-end justify-between gap-3",
             direction === "rtl" ? "text-right" : "text-left",
           ].join(" ")}
         >
@@ -52,7 +52,7 @@ export default function DashboardPage() {
             <p className="text-xs font-bold text-slate-500">
               {dictionary.dashboard.modules}
             </p>
-            <h2 className="mt-1 text-lg font-black text-[#1d1d1f]">
+            <h2 className="mt-1 text-base font-extrabold text-[#1d1d1f]">
               {dictionary.nav.dashboard}
             </h2>
           </div>

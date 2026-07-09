@@ -194,8 +194,16 @@ export default function TransactionsTable({
       </div>
 
       {transactions.length === 0 ? (
-        <div className="rounded-[18px] border border-dashed border-[#cbd5e1] bg-[#fafafb] p-6 text-center text-sm font-semibold text-slate-600">
-          אין פעולות להצגה לפי הסינון הנוכחי.
+        <div className="rounded-[18px] border border-dashed border-[#cbd5e1] bg-[#fafafb] p-5 text-center">
+          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-2xl shadow-sm">
+            ₪
+          </div>
+          <p className="mt-3 text-base font-black text-[#111827]">
+            עדיין אין פעולות להצגה
+          </p>
+          <p className="mx-auto mt-1 max-w-sm text-sm font-semibold leading-6 text-slate-600">
+            ברגע שתוסיף הכנסה או הוצאה, Nestly יסדר לך תמונה כספית פשוטה וברורה.
+          </p>
         </div>
       ) : (
         <div className="space-y-2">

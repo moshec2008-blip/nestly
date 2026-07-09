@@ -1,19 +1,17 @@
 import { NextResponse } from "next/server";
-import {
-  suggestDocumentClassification,
-  type DocumentAiInput,
-} from "@/services/documentAi";
+import { analyzeDocument } from "@/services/documentAnalysis";
+import type { DocumentAnalysisInput } from "@/types/documentAnalysis";
 
-function isDocumentAiInput(value: unknown): value is DocumentAiInput {
+function isDocumentAnalysisInput(
+  value: unknown
+): value is DocumentAnalysisInput {
   if (!value || typeof value !== "object") {
     return false;
   }
 
-  const input = value as Partial<DocumentAiInput>;
+  const input = value as Partial<DocumentAnalysisInput>;
 
   return (
-    typeof input.title === "string" &&
-    typeof input.description === "string" &&
     Array.isArray(input.files) &&
     input.files.every(
       (file) =>
@@ -28,15 +26,17 @@ function isDocumentAiInput(value: unknown): value is DocumentAiInput {
 export async function POST(request: Request) {
   const body: unknown = await request.json().catch(() => null);
 
-  if (!isDocumentAiInput(body)) {
+  if (!isDocumentAnalysisInput(body)) {
     return NextResponse.json(
-      { error: "Invalid document classification payload" },
+      { error: "Invalid document analysis payload" },
       { status: 400 }
     );
   }
 
+  const analysis = await analyzeDocument(body);
+
   return NextResponse.json({
-    mode: "local-preview",
-    suggestion: suggestDocumentClassification(body),
+    mode: "mock",
+    analysis,
   });
 }

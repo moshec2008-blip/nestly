@@ -246,7 +246,7 @@ export default function ShoppingManager() {
         </div>
       </section>
 
-      <section className="sticky top-[4.6rem] z-20 rounded-[22px] border border-[#d9dde5] bg-white/95 p-3 text-right shadow-[0_14px_34px_rgba(15,23,42,0.07)] backdrop-blur-xl">
+      <section className="nestly-sticky-below-header sticky z-20 rounded-[22px] border border-[#d9dde5] bg-white/95 p-3 text-right shadow-[0_14px_34px_rgba(15,23,42,0.07)] backdrop-blur-xl">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-wrap justify-end gap-2">
             <button

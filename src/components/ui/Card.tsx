@@ -13,7 +13,9 @@ export default function Card({
   compact = false,
 }: CardProps) {
   return (
-    <section className={cn(cardBaseClass, compact ? "p-3" : "p-4", className)}>
+    <section
+      className={cn(cardBaseClass, compact ? "p-2.5" : "p-3", className)}
+    >
       {children}
     </section>
   );

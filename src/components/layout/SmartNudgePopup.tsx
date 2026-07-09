@@ -173,7 +173,7 @@ export default function SmartNudgePopup() {
   }
 
   return (
-    <aside className="fixed bottom-4 left-4 z-50 w-[min(22rem,calc(100vw-2rem))] animate-soft-in rounded-[24px] border border-white/80 bg-white/94 p-3 text-right shadow-[0_24px_70px_rgba(33,43,63,0.18)] backdrop-blur-xl">
+    <aside className="nestly-floating-nudge fixed left-4 z-50 w-[min(22rem,calc(100vw-2rem))] animate-soft-in rounded-[24px] border border-white/80 bg-white/94 p-3 text-right shadow-[0_24px_70px_rgba(33,43,63,0.18)] backdrop-blur-xl">
       <div className="flex items-start justify-between gap-3">
         <button
           type="button"

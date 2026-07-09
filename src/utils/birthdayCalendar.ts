@@ -1,23 +1,99 @@
 import { HDate } from "hebcal";
-import type { BirthdayCalendarType, BirthdayPerson } from "@/types/birthdays";
+import type {
+  BirthdayCalendarType,
+  BirthdayPerson,
+  FamilyEventType,
+} from "@/types/birthdays";
 
-export type { BirthdayCalendarType };
+export type { BirthdayCalendarType, FamilyEventType };
 
-export function normalizeBirthdayCalendarType(value: unknown): BirthdayCalendarType {
+export function normalizeBirthdayCalendarType(
+  value: unknown
+): BirthdayCalendarType {
   return value === "gregorian" ? "gregorian" : "hebrew";
 }
 
-export function normalizeBirthdayPerson(birthday: BirthdayPerson): BirthdayPerson {
+export function normalizeFamilyEventType(value: unknown): FamilyEventType {
+  if (
+    value === "anniversary" ||
+    value === "memorial" ||
+    value === "custom"
+  ) {
+    return value;
+  }
+
+  return "birthday";
+}
+
+export function getDefaultCalendarTypeForEvent(
+  eventType: FamilyEventType
+): BirthdayCalendarType {
+  return eventType === "birthday" || eventType === "memorial"
+    ? "hebrew"
+    : "gregorian";
+}
+
+export function getDefaultFamilyEventTitle(
+  eventType: FamilyEventType,
+  person = ""
+) {
+  if (eventType === "anniversary") {
+    return person ? `יום נישואין של ${person}` : "יום נישואין";
+  }
+
+  if (eventType === "memorial") {
+    return person ? `יארצייט של ${person}` : "יום זיכרון";
+  }
+
+  if (eventType === "custom") {
+    return person || "אירוע משפחתי";
+  }
+
+  return person ? `יום הולדת של ${person}` : "יום הולדת";
+}
+
+export function normalizeBirthdayPerson(
+  event: BirthdayPerson
+): BirthdayPerson {
+  const eventType = normalizeFamilyEventType(event.eventType);
+  const name = event.name || event.person || event.title || "";
+  const calendarType =
+    event.calendarType ?? getDefaultCalendarTypeForEvent(eventType);
+
   return {
-    ...birthday,
-    calendarType: normalizeBirthdayCalendarType(birthday.calendarType),
-    hebrewDate: birthday.hebrewDate || "",
+    ...event,
+    name,
+    person: event.person ?? name,
+    title: event.title || getDefaultFamilyEventTitle(eventType, name),
+    eventType,
+    calendarType: normalizeBirthdayCalendarType(calendarType),
+    recurringAnnually: event.recurringAnnually ?? true,
+    reminders: event.reminders?.length ? event.reminders : ["week-before"],
+    hebrewDate: event.hebrewDate || "",
+    giftPlan: {
+      ideas: event.giftPlan?.ideas ?? "",
+      budget: event.giftPlan?.budget ?? "",
+      purchased: Boolean(event.giftPlan?.purchased),
+      wrapped: Boolean(event.giftPlan?.wrapped),
+      delivered: Boolean(event.giftPlan?.delivered),
+    },
+    partyPlan: {
+      cake: Boolean(event.partyPlan?.cake),
+      balloons: Boolean(event.partyPlan?.balloons),
+      invitations: Boolean(event.partyPlan?.invitations),
+      food: Boolean(event.partyPlan?.food),
+      decorations: Boolean(event.partyPlan?.decorations),
+    },
   };
 }
 
-export function normalizeBirthdayPeople(birthdays: BirthdayPerson[]): BirthdayPerson[] {
+export function normalizeBirthdayPeople(
+  birthdays: BirthdayPerson[]
+): BirthdayPerson[] {
   return birthdays.map(normalizeBirthdayPerson);
 }
+
+export const normalizeFamilyEvent = normalizeBirthdayPerson;
 
 function startOfDay(date: Date) {
   const normalized = new Date(date);
@@ -34,17 +110,18 @@ function toDate(value: string | Date | null | undefined) {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-function getHebrewBirthDetails(birthday: Pick<BirthdayPerson, "gregorianDate">) {
-  const birthDate = toDate(birthday.gregorianDate);
-  if (!birthDate) {
+function getHebrewEventDetails(
+  event: Pick<BirthdayPerson, "gregorianDate">
+) {
+  const date = toDate(event.gregorianDate);
+  if (!date) {
     return null;
   }
 
-  const hebrewDate = new HDate(birthDate);
+  const hebrewDate = new HDate(date);
   return {
     day: hebrewDate.getDate(),
     month: hebrewDate.getMonth(),
-    year: hebrewDate.getFullYear(),
     wasLeapYear: hebrewDate.isLeapYear(),
   };
 }
@@ -54,35 +131,35 @@ function isHebrewLeapYear(year: number) {
 }
 
 function getAnniversaryHebrewMonth(
-  birthMonth: number,
-  birthWasLeapYear: boolean,
+  sourceMonth: number,
+  sourceWasLeapYear: boolean,
   targetYear: number
 ) {
   const adar = 12;
   const adarII = 13;
   const targetIsLeapYear = isHebrewLeapYear(targetYear);
 
-  if (birthMonth === adarII && !targetIsLeapYear) {
+  if (sourceMonth === adarII && !targetIsLeapYear) {
     return adar;
   }
 
-  if (birthMonth === adar && !birthWasLeapYear && targetIsLeapYear) {
+  if (sourceMonth === adar && !sourceWasLeapYear && targetIsLeapYear) {
     return adarII;
   }
 
-  return birthMonth;
+  return sourceMonth;
 }
 
 export function getNextBirthdayOccurrenceDate(
-  birthday: Pick<BirthdayPerson, "gregorianDate" | "calendarType">,
+  event: Pick<BirthdayPerson, "gregorianDate" | "calendarType">,
   referenceDate: Date = new Date()
 ) {
-  const baseDate = toDate(birthday.gregorianDate);
+  const baseDate = toDate(event.gregorianDate);
   if (!baseDate) {
     return null;
   }
 
-  if (birthday.calendarType === "gregorian") {
+  if (event.calendarType === "gregorian") {
     const today = startOfDay(referenceDate);
     const candidate = new Date(
       today.getFullYear(),
@@ -98,36 +175,34 @@ export function getNextBirthdayOccurrenceDate(
     return candidate;
   }
 
-  const hebrewBirthDetails = getHebrewBirthDetails(birthday);
-  if (!hebrewBirthDetails) {
+  const hebrewDetails = getHebrewEventDetails(event);
+  if (!hebrewDetails) {
     return null;
   }
 
   const today = startOfDay(referenceDate);
-  const todayHebrew = new HDate(today);
-  const currentHebrewYear = todayHebrew.getFullYear();
-  const candidateYears = [currentHebrewYear, currentHebrewYear + 1];
-
-  const candidates = candidateYears
+  const currentHebrewYear = new HDate(today).getFullYear();
+  const candidates = [currentHebrewYear, currentHebrewYear + 1]
     .map((year) => {
-      const candidateMonth = getAnniversaryHebrewMonth(
-        hebrewBirthDetails.month,
-        hebrewBirthDetails.wasLeapYear,
+      const month = getAnniversaryHebrewMonth(
+        hebrewDetails.month,
+        hebrewDetails.wasLeapYear,
         year
       );
-      const candidate = new HDate(hebrewBirthDetails.day, candidateMonth, year);
+      const candidate = new HDate(hebrewDetails.day, month, year);
       return startOfDay(candidate.greg());
     })
-    .filter((candidateDate) => candidateDate >= today);
+    .filter((candidateDate) => candidateDate >= today)
+    .sort((first, second) => first.getTime() - second.getTime());
 
   return candidates[0] ?? null;
 }
 
 export function getDaysUntilBirthday(
-  birthday: Pick<BirthdayPerson, "gregorianDate" | "calendarType">,
+  event: Pick<BirthdayPerson, "gregorianDate" | "calendarType">,
   referenceDate: Date = new Date()
 ) {
-  const nextOccurrence = getNextBirthdayOccurrenceDate(birthday, referenceDate);
+  const nextOccurrence = getNextBirthdayOccurrenceDate(event, referenceDate);
   if (!nextOccurrence) {
     return 0;
   }
@@ -139,19 +214,23 @@ export function getDaysUntilBirthday(
 }
 
 export function getBirthdayAge(
-  birthday: Pick<BirthdayPerson, "gregorianDate" | "calendarType">,
+  event: Pick<BirthdayPerson, "gregorianDate" | "calendarType">,
   referenceDate: Date = new Date()
 ) {
-  const nextOccurrence = getNextBirthdayOccurrenceDate(birthday, referenceDate);
-  const birthDate = toDate(birthday.gregorianDate);
+  const nextOccurrence = getNextBirthdayOccurrenceDate(event, referenceDate);
+  const sourceDate = toDate(event.gregorianDate);
 
-  if (!nextOccurrence || !birthDate) {
+  if (!nextOccurrence || !sourceDate) {
     return 0;
   }
 
-  return nextOccurrence.getFullYear() - birthDate.getFullYear();
+  return Math.max(nextOccurrence.getFullYear() - sourceDate.getFullYear(), 0);
 }
 
 export function getBirthdayCalendarBadge(calendarType: BirthdayCalendarType) {
-  return calendarType === "hebrew" ? "📅 עברי" : "📅 לועזי";
+  return calendarType === "hebrew" ? "עברי" : "לועזי";
 }
+
+export const getNextFamilyEventOccurrenceDate = getNextBirthdayOccurrenceDate;
+export const getDaysUntilFamilyEvent = getDaysUntilBirthday;
+export const getFamilyEventAnniversaryCount = getBirthdayAge;
