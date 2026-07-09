@@ -27,6 +27,11 @@
     0 1px 0 rgba(255, 255, 255, 0.82) inset;
 }
 
+html {
+  scroll-padding-top: calc(var(--nestly-header-height) + var(--nestly-header-gap));
+  scroll-padding-bottom: calc(var(--nestly-bottom-nav-height) + var(--nestly-safe-bottom-gap));
+}
+
 .nestly-app-content {
   padding-top: calc(var(--nestly-header-height) + var(--nestly-header-gap));
   padding-bottom: calc(var(--nestly-bottom-nav-height) + var(--nestly-safe-bottom-gap));
@@ -1186,7 +1191,7 @@ button:disabled,
 .app-premium section,
 .app-premium article,
 .app-premium details {
-  scroll-margin-top: 4.75rem;
+  scroll-margin-top: calc(var(--nestly-header-height) + var(--nestly-header-gap));
 }
 
 .app-premium input,
@@ -1230,6 +1235,7 @@ button:disabled,
 .app-premium .nestly-app-content {
   padding-top: calc(var(--nestly-header-height) + var(--nestly-header-gap)) !important;
   padding-bottom: calc(var(--nestly-bottom-nav-height) + var(--nestly-safe-bottom-gap)) !important;
+  min-height: 100vh;
 }
 
 .app-premium .nestly-sidebar-panel {
@@ -1249,6 +1255,10 @@ button:disabled,
   bottom: calc(var(--nestly-bottom-nav-height) + var(--nestly-safe-bottom-gap)) !important;
 }
 
+.app-premium .nestly-app-content > .min-w-0.flex-1 {
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
 @media (min-width: 1024px) {
   .app-premium .nestly-app-content {
     padding-bottom: 1.25rem !important;
@@ -1265,15 +1275,15 @@ button:disabled,
   }
 }
 
-.app-premium .finance-balance-card,
-.app-premium .finance-balance-card * {
-  color: #ffffff !important;
+.app-premium .finance-balance-card {
+  background: linear-gradient(135deg, #fff8eb 0%, #ffffff 100%) !important;
+  color: #111827 !important;
 }
 
 .app-premium .finance-balance-card p:first-of-type {
-  color: rgba(255, 255, 255, 0.78) !important;
+  color: #7a5212 !important;
 }
 
 .app-premium .finance-balance-card p:last-of-type {
-  color: rgba(255, 255, 255, 0.72) !important;
+  color: #334155 !important;
 }

@@ -23,7 +23,7 @@ function Suggestion({ suggestion }: { suggestion: FamilySuggestion }) {
   return (
     <Link
       href={suggestion.href}
-      className="nestly-interactive relative flex min-h-[70px] items-center justify-between gap-2.5 overflow-hidden rounded-2xl border border-[#eadfcd] bg-gradient-to-br from-[#fff8eb] to-white px-3 py-2 text-right text-[#24151f] shadow-[0_14px_34px_rgba(154,107,23,0.13)]"
+      className="nestly-interactive relative flex min-h-[68px] items-center justify-between gap-2.5 overflow-hidden rounded-2xl border border-[#eadfcd] bg-gradient-to-br from-[#fff8eb] to-white px-3 py-2 text-right text-[#24151f] shadow-[0_12px_28px_rgba(154,107,23,0.12)]"
     >
       <span
         className="absolute inset-y-3 right-1 w-1 rounded-full bg-[#d8b470]"
@@ -57,35 +57,35 @@ export default function TodayForFamily() {
     return null;
   }
 
+  const visibleItems = items.slice(0, suggestion ? 4 : 5);
+
   return (
     <section className="nestly-card-strong rounded-[22px] p-2.5 text-right">
-      <div className="mb-2.5 flex items-center justify-between gap-3">
+      <div className="mb-2 flex items-center justify-between gap-3">
         <span className="nestly-eyebrow">רגוע וממוקד</span>
         <div>
           <h2 className="text-lg font-black text-[#111827]">
             מה חשוב למשפחה היום
           </h2>
-          <p className="text-xs font-bold text-slate-600">
+          <p className="hidden text-xs font-bold text-slate-600 sm:block">
             3-5 דברים שכדאי לראות עכשיו, בלי להציף את המסך.
           </p>
         </div>
       </div>
 
-      <div className="grid gap-2 lg:grid-cols-[1fr_0.86fr]">
-        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
-          {items.map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              className={`nestly-interactive min-h-[70px] rounded-2xl border px-3 py-2 ${toneClasses[item.tone]}`}
-            >
-              <p className="line-clamp-1 text-sm font-black">{item.label}</p>
-              <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-slate-700">
-                {item.detail}
-              </p>
-            </Link>
-          ))}
-        </div>
+      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+        {visibleItems.map((item) => (
+          <Link
+            key={item.id}
+            href={item.href}
+            className={`nestly-interactive min-h-[68px] rounded-2xl border px-3 py-2 ${toneClasses[item.tone]}`}
+          >
+            <p className="line-clamp-1 text-sm font-black">{item.label}</p>
+            <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-slate-700">
+              {item.detail}
+            </p>
+          </Link>
+        ))}
 
         {suggestion && <Suggestion suggestion={suggestion} />}
       </div>

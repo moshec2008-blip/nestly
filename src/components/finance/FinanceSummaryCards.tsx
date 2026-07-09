@@ -25,7 +25,7 @@ export default function FinanceSummaryCards({ cards }: FinanceSummaryCardsProps)
           className={[
             "rounded-[18px] border p-3 text-right shadow-[0_12px_28px_rgba(33,43,63,0.065)]",
             index === 0
-              ? "finance-balance-card border-[#d8b470]/45 bg-gradient-to-br from-[#111827] to-[#243044] text-white"
+              ? "finance-balance-card border-[#d8b470]/55 bg-gradient-to-br from-[#fff8eb] to-white text-[#111827] shadow-[0_14px_32px_rgba(154,107,23,0.12)]"
               : "border-[#eadfcd] bg-white/95 text-[#111827]",
           ].join(" ")}
         >
@@ -39,7 +39,7 @@ export default function FinanceSummaryCards({ cards }: FinanceSummaryCardsProps)
             <p
               className={[
                 "text-[10px] font-black uppercase tracking-[0.14em]",
-                index === 0 ? "text-white/75" : "text-slate-600",
+                index === 0 ? "text-[#7a5212]" : "text-slate-600",
               ].join(" ")}
             >
               {card.title}
@@ -48,7 +48,7 @@ export default function FinanceSummaryCards({ cards }: FinanceSummaryCardsProps)
           <p
             className={[
               "mt-2 font-black leading-6",
-              index === 0 ? "text-xl text-white" : `text-base ${card.tone}`,
+              index === 0 ? "text-xl text-[#111827]" : `text-base ${card.tone}`,
             ].join(" ")}
           >
             {card.value}
@@ -56,7 +56,7 @@ export default function FinanceSummaryCards({ cards }: FinanceSummaryCardsProps)
           <p
             className={[
               "mt-1 text-[11px] font-semibold leading-4",
-              index === 0 ? "text-white/72" : "text-slate-600",
+              index === 0 ? "text-slate-700" : "text-slate-600",
             ].join(" ")}
           >
             {card.subtitle}

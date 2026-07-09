@@ -425,14 +425,6 @@ export default function FinanceManager() {
         <div className="flex flex-col gap-2 xl:flex-row xl:items-center">
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-              <button
-                type="button"
-                onClick={handleStartAddTransaction}
-                className="hidden"
-              >
-                + הוסף פעולה
-              </button>
-
               <div>
                 <p className="text-xs font-bold text-[#007aff]">מרכז כספים</p>
                 <h2 className="mt-1 text-xl font-black text-[#111827]">
@@ -453,25 +445,6 @@ export default function FinanceManager() {
               activeMonth={activeMonth}
               onMonthChange={setActiveMonth}
             />
-            <div className="hidden">
-              <button
-                type="button"
-                onClick={() => setActiveTab("transactions")}
-                className="rounded-2xl bg-white px-3 py-2 text-xs font-black text-slate-800 shadow-sm transition hover:bg-[#fff8eb]"
-              >
-                תנועות
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("reports")}
-                className="rounded-2xl bg-white px-3 py-2 text-xs font-black text-slate-800 shadow-sm transition hover:bg-[#fff8eb]"
-              >
-                דוחות
-              </button>
-            </div>
-            <p className="hidden">
-              הפעולות היומיומיות נמצאות קודם. דוחות, תקציב וגיבוי נשארים זמינים בטאבים.
-            </p>
           </div>
         </div>
       </section>
@@ -509,15 +482,7 @@ export default function FinanceManager() {
                 : "hidden"
             }
           >
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between xl:flex-col xl:items-stretch">
-              <button
-                type="button"
-                onClick={handleStartAddTransaction}
-                className="min-h-11 rounded-2xl bg-[#111827] px-5 py-2.5 text-sm font-black text-white shadow-[0_14px_34px_rgba(17,24,39,0.16)] transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
-              >
-                + הוסף פעולה
-              </button>
-
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between xl:flex-col xl:items-stretch">
               <div>
                 <p className="text-xs font-bold text-slate-600">פעולה חדשה</p>
                 <h2 className="mt-1 text-base font-black text-[#111827]">

@@ -205,7 +205,7 @@ export default function Sidebar({
 
       <aside
         className={[
-          "nestly-sidebar-panel premium-scrollbar fixed right-3 z-50 overflow-y-auto rounded-[24px] border border-white/80 bg-white/88 p-2.5 text-right shadow-[0_24px_70px_rgba(33,43,63,0.16)] backdrop-blur-xl transition-all duration-300 ease-out lg:sticky lg:right-auto lg:top-auto lg:z-10 lg:h-auto lg:shrink-0 lg:p-1.5 lg:shadow-[0_14px_34px_rgba(33,43,63,0.08)]",
+          "nestly-sidebar-panel premium-scrollbar fixed right-3 z-50 overflow-y-auto rounded-[22px] border border-white/80 bg-white/88 p-2.5 text-right shadow-[0_24px_70px_rgba(33,43,63,0.16)] backdrop-blur-xl transition-all duration-300 ease-out lg:sticky lg:right-auto lg:top-auto lg:z-10 lg:h-auto lg:shrink-0 lg:p-1.5 lg:shadow-[0_12px_30px_rgba(33,43,63,0.075)]",
           isMobileOpen
             ? "w-[min(22rem,calc(100vw-1.5rem))] translate-x-0"
             : "w-[min(22rem,calc(100vw-1.5rem))] translate-x-[120%]",
@@ -215,7 +215,7 @@ export default function Sidebar({
       >
         <div
           className={[
-            "mb-2 rounded-[20px] border border-[#ebe4d8] bg-gradient-to-br from-[#fffdf7] to-[#f6f8fb] p-2.5 shadow-sm transition-all duration-300 lg:p-1.5",
+            "mb-1.5 rounded-[18px] border border-[#ebe4d8] bg-gradient-to-br from-[#fffdf7] to-[#f6f8fb] p-2.5 shadow-sm transition-all duration-300 lg:p-1.5",
             isCollapsed
               ? "text-center"
               : direction === "rtl"
@@ -282,7 +282,7 @@ export default function Sidebar({
           )}
         </div>
 
-        <nav className="space-y-1" aria-label={dictionary.openMenu}>
+        <nav className="space-y-0.5" aria-label={dictionary.openMenu}>
           {primaryLinks.map((item) => {
             const isActive = pathname === item.href;
             const accent = navigationAccents[item.href];
@@ -297,7 +297,7 @@ export default function Sidebar({
                 style={linkStyle}
                 title={!showExpandedContent ? item.label : undefined}
                 className={[
-                  "group relative flex min-h-14 items-center gap-3 overflow-hidden rounded-2xl px-3 py-2 text-sm font-bold shadow-[var(--nav-shadow)] transition-all duration-200 lg:min-h-10 lg:gap-2 lg:px-2 lg:py-1.5",
+                  "group relative flex min-h-14 items-center gap-3 overflow-hidden rounded-2xl px-3 py-2 text-sm font-bold shadow-[var(--nav-shadow)] transition-all duration-200 lg:min-h-9 lg:gap-2 lg:px-2 lg:py-1.5",
                   showExpandedContent ? "justify-start" : "justify-center",
                   isActive
                     ? accent.active

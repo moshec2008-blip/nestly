@@ -117,10 +117,11 @@ export default function MobileBottomNavigation({
               key={tab.href}
               href={tab.href}
               style={tabStyle}
+              aria-current={isActive ? "page" : undefined}
               className={[
-                "relative flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[18px] px-1.5 py-1.5 text-[10px] font-black shadow-[var(--tab-shadow)] transition duration-200 active:scale-[0.98]",
+                "relative flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[18px] px-1.5 py-1.5 text-[10px] font-black shadow-[var(--tab-shadow)] ring-offset-2 ring-offset-[#fffdf8] transition duration-200 active:scale-[0.98]",
                 isActive
-                  ? "bg-[#111827] text-white"
+                  ? "border border-[#111827]/12 bg-[#fff8eb] text-[#111827] ring-1 ring-[#d8b470]/35"
                   : "border border-[#eadfcd] bg-white text-slate-700 hover:-translate-y-0.5 hover:bg-[#fff8eb] hover:text-[#111827]",
               ].join(" ")}
             >
