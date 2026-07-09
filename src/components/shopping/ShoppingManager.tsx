@@ -72,6 +72,7 @@ export default function ShoppingManager() {
   const [searchValue, setSearchValue] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showPurchased, setShowPurchased] = useState(false);
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
   const isEditing = Boolean(editingItemId);
   const remainingItems = items.filter((item) => !item.purchased);
@@ -137,6 +138,7 @@ export default function ShoppingManager() {
   const departmentEntries = Object.entries(groupedItems).sort(([a], [b]) =>
     a.localeCompare(b, "he")
   );
+  const activeItem = items.find((item) => item.id === activeItemId) ?? null;
 
   function resetForm() {
     setForm(getInitialForm());
@@ -199,10 +201,12 @@ export default function ShoppingManager() {
     setEditingItemId(item.id);
     setForm(getFormFromItem(item));
     setIsFormOpen(true);
+    setActiveItemId(null);
   }
 
   function deleteItem(id: string) {
     setItems((currentItems) => currentItems.filter((item) => item.id !== id));
+    setActiveItemId(null);
   }
 
   function clearPurchasedFromCurrentView() {
@@ -501,27 +505,28 @@ export default function ShoppingManager() {
                     <article
                       key={item.id}
                       className={[
-                        "grid gap-3 px-3 py-2.5 transition hover:bg-[#fafafb] md:grid-cols-[minmax(0,1fr)_auto]",
+                        "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-2.5 py-2 transition hover:bg-[#fafafb]",
                         item.purchased ? "opacity-70" : "",
                       ].join(" ")}
                     >
+                      <button
+                        type="button"
+                        onClick={() => togglePurchased(item.id)}
+                        className={[
+                          "grid h-11 w-11 shrink-0 place-items-center rounded-full border text-lg font-black transition",
+                          item.purchased
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            : "border-[#d9dde5] bg-white text-slate-400 hover:border-emerald-300 hover:text-emerald-700",
+                        ].join(" ")}
+                        aria-label={item.purchased ? "בטל רכישה" : "סמן נרכש"}
+                      >
+                        {item.purchased ? "✓" : ""}
+                      </button>
+
                       <div className="min-w-0 text-right">
-                        <div className="flex flex-wrap justify-end gap-2">
-                          <span className="rounded-full bg-[#f2f3f5] px-2.5 py-1 text-[11px] font-bold text-slate-700">
-                            {item.listName}
-                          </span>
-                          <span className="rounded-full bg-[#f2f3f5] px-2.5 py-1 text-[11px] font-bold text-slate-700">
-                            {item.buyer}
-                          </span>
-                          {item.estimatedPrice > 0 && (
-                            <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-800">
-                              {item.estimatedPrice.toLocaleString("he-IL")} ₪
-                            </span>
-                          )}
-                        </div>
                         <h3
                           className={[
-                            "mt-2 truncate text-base font-black",
+                            "truncate text-base font-black",
                             item.purchased
                               ? "text-slate-500 line-through"
                               : "text-[#111827]",
@@ -529,39 +534,23 @@ export default function ShoppingManager() {
                         >
                           {item.title}
                         </h3>
-                        <p className="mt-1 truncate text-sm font-semibold text-slate-600">
-                          כמות: {item.quantity}
-                          {item.notes ? ` / ${item.notes}` : ""}
+                        <p className="mt-0.5 truncate text-xs font-semibold text-slate-600">
+                          {item.quantity}
+                          {item.buyer ? ` · ${item.buyer}` : ""}
+                          {item.estimatedPrice > 0
+                            ? ` · ${item.estimatedPrice.toLocaleString("he-IL")} ₪`
+                            : ""}
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => togglePurchased(item.id)}
-                          className={
-                            item.purchased
-                              ? "min-h-11 rounded-2xl border border-[#e6e8ec] bg-white px-4 py-2 text-sm font-black text-slate-700"
-                              : "min-h-11 rounded-2xl bg-emerald-700 px-4 py-2 text-sm font-black text-white"
-                          }
-                        >
-                          {item.purchased ? "בטל רכישה" : "סמן נרכש"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => editItem(item)}
-                          className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 py-2 text-sm font-black text-slate-800 hover:bg-white"
-                        >
-                          ערוך
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => deleteItem(item.id)}
-                          className="min-h-11 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-black text-rose-800 hover:bg-rose-100"
-                        >
-                          מחק
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveItemId(item.id)}
+                        className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-lg font-black text-slate-400 transition hover:bg-[#fff8eb] hover:text-[#111827]"
+                        aria-label={`פרטי מוצר: ${item.title}`}
+                      >
+                        ...
+                      </button>
                     </article>
                   ))}
                 </div>
@@ -570,6 +559,80 @@ export default function ShoppingManager() {
           </div>
         )}
       </section>
+
+      {activeItem && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/30 px-3 pb-3 backdrop-blur-[2px] sm:items-center sm:p-6"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setActiveItemId(null);
+            }
+          }}
+        >
+          <div className="w-full max-w-md rounded-[24px] border border-[#eadfcd] bg-white p-4 text-right text-[#111827] shadow-[0_28px_90px_rgba(15,23,42,0.24)]">
+            <div className="flex items-start justify-between gap-3 border-b border-[#eef0f3] pb-3">
+              <button
+                type="button"
+                onClick={() => setActiveItemId(null)}
+                className="grid h-10 w-10 place-items-center rounded-full border border-[#e6e8ec] bg-white text-lg font-black text-slate-600"
+                aria-label="סגור"
+              >
+                ×
+              </button>
+
+              <div className="min-w-0">
+                <p className="text-xs font-black text-slate-500">
+                  {activeItem.department} · {activeItem.listName}
+                </p>
+                <h3 className="mt-1 truncate text-lg font-black text-[#111827]">
+                  {activeItem.title}
+                </h3>
+                <p className="mt-1 text-sm font-semibold text-slate-600">
+                  כמות: {activeItem.quantity}
+                  {activeItem.estimatedPrice > 0
+                    ? ` · ${activeItem.estimatedPrice.toLocaleString("he-IL")} ₪`
+                    : ""}
+                </p>
+              </div>
+            </div>
+
+            {activeItem.notes && (
+              <p className="mt-3 rounded-2xl bg-[#fff8eb] px-3 py-2 text-sm font-semibold leading-6 text-slate-700">
+                {activeItem.notes}
+              </p>
+            )}
+
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => togglePurchased(activeItem.id)}
+                className={
+                  activeItem.purchased
+                    ? "min-h-11 rounded-2xl border border-[#e6e8ec] bg-white px-4 text-sm font-black text-slate-700 hover:bg-[#fff8eb]"
+                    : "min-h-11 rounded-2xl bg-emerald-700 px-4 text-sm font-black text-white hover:bg-emerald-800"
+                }
+              >
+                {activeItem.purchased ? "החזר לרשימה" : "סמן כנרכש"}
+              </button>
+              <button
+                type="button"
+                onClick={() => editItem(activeItem)}
+                className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-white px-4 text-sm font-black text-slate-700 hover:bg-[#fff8eb]"
+              >
+                עריכה
+              </button>
+              <button
+                type="button"
+                onClick={() => deleteItem(activeItem.id)}
+                className="min-h-11 rounded-2xl border border-rose-200 bg-rose-50 px-4 text-sm font-black text-rose-700 hover:bg-rose-100 sm:col-span-2"
+              >
+                מחיקה
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showPurchased && purchasedItems.length > 0 && (
         <section className="rounded-[22px] border border-[#e6e8ec] bg-white p-3 text-right shadow-[0_10px_26px_rgba(15,23,42,0.045)]">
