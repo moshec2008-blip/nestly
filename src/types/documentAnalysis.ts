@@ -18,12 +18,14 @@ export type DocumentAnalysisInput = {
 export type ExtractedDocumentData = {
   documentType: string;
   providerName?: string;
+  issueDate?: string;
   amount?: number;
   currency?: "ILS" | "USD" | "EUR" | string;
   dueDate?: string;
   accountNumber?: string;
   referenceNumber?: string;
   billingPeriod?: string;
+  isRecurringCandidate?: boolean;
   suggestedCategory: string;
   summary: string;
   tags: string[];
@@ -34,7 +36,9 @@ export type SuggestedDocumentActionType =
   | "save-document"
   | "add-finance-expense"
   | "create-payment-task"
-  | "create-reminder";
+  | "create-reminder"
+  | "mark-recurring"
+  | "attach-document";
 
 export type SuggestedDocumentAction = {
   id: string;
@@ -43,6 +47,7 @@ export type SuggestedDocumentAction = {
   description: string;
   targetRoute: AppRoute;
   enabledByDefault: boolean;
+  requiresConfirmation: true;
 };
 
 export type DocumentAnalysisResult = {

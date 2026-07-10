@@ -1,55 +1,52 @@
 "use client";
 
-import { LinkButton } from "@/components/ui/Button";
-import { getDictionary } from "@/i18n/dictionaries";
+import Link from "next/link";
 import { useLanguage } from "@/i18n/useLanguage";
 import { brand } from "@/lib/branding";
 
+const quickActions = [
+  { href: "/tasks", label: "+ משימה" },
+  { href: "/shopping", label: "+ קנייה" },
+  { href: "/finance", label: "+ הוצאה" },
+] as const;
+
 export default function Header() {
-  const { direction, language } = useLanguage();
-  const dictionary = getDictionary(language);
+  const { direction } = useLanguage();
 
   return (
     <header
       className={[
-        "nestly-hero rounded-[22px] p-3 text-[#1d1d1f]",
+        "rounded-[22px] bg-gradient-to-br from-[#fff8eb] to-white p-3 text-[#1d1d1f] shadow-[0_12px_30px_rgba(33,43,63,0.07)]",
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
-      <div className="relative z-10 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0 flex-1">
-          <div
-            className={[
-              "flex flex-wrap items-center gap-2",
-              direction === "rtl" ? "justify-end" : "justify-start",
-            ].join(" ")}
-          >
-            <span className="nestly-eyebrow">היום במשפחה</span>
-            <h1 className="text-xl font-extrabold tracking-tight text-[#111827] md:text-2xl">
-              מה צריך תשומת לב עכשיו
-            </h1>
-          </div>
-
-          <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-slate-700">
-            {brand.productName} מרכזת את המשימות, הכספים, הקניות והתזכורות
-            החשובות של הבית במקום אחד רגוע.
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-black text-[#9a6b17]">
+            {brand.workspaceName}
           </p>
+          <h1 className="mt-0.5 text-xl font-black tracking-tight text-[#111827] md:text-2xl">
+            בוקר טוב, הנה מה שחשוב היום.
+          </h1>
+          <p className="mt-1 max-w-xl text-sm font-semibold leading-5 text-slate-600">
+            סקירה קצרה של הבית, בלי להציף.
+          </p>
+        </div>
 
-          <div
-            className={[
-              "mt-2.5 flex flex-wrap gap-2",
-              direction === "rtl" ? "justify-end" : "justify-start",
-            ].join(" ")}
-          >
-            <LinkButton href="/dashboard" tone="primary">
-              {dictionary.hero.dailyReview}
-            </LinkButton>
-            <LinkButton href="/tasks" tone="secondary">
-              {dictionary.hero.tasks}
-            </LinkButton>
-            <LinkButton href="/finance" tone="ghost">
-              {dictionary.hero.finance}
-            </LinkButton>
+        <div className="shrink-0">
+          <p className="mb-1 text-[11px] font-black text-slate-500">
+            פעולות מהירות
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {quickActions.map((action) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                className="min-h-10 rounded-2xl border border-[#eadfcd] bg-white px-3 py-2 text-xs font-black text-[#111827] shadow-sm transition hover:bg-[#fff8eb]"
+              >
+                {action.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

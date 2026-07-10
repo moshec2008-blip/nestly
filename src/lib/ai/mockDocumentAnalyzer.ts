@@ -52,9 +52,11 @@ function inferExtractedData(input: DocumentAnalysisInput): ExtractedDocumentData
       providerName: "חברת החשמל",
       amount: 430,
       currency: "ILS",
+      issueDate: addDays(new Date(), -5),
       dueDate: addDays(new Date(), 10),
       accountNumber: "לא זוהה במצב mock",
       referenceNumber: "MOCK-IEC-2026",
+      isRecurringCandidate: true,
       billingPeriod: "החודש האחרון",
       suggestedCategory: "חשבונות",
       summary: "נראה כמו חשבון חשמל. כדאי לבדוק סכום ותאריך לתשלום לפני שמירה.",
@@ -69,8 +71,10 @@ function inferExtractedData(input: DocumentAnalysisInput): ExtractedDocumentData
       providerName: "תאגיד מים",
       amount: 190,
       currency: "ILS",
+      issueDate: addDays(new Date(), -4),
       dueDate: addDays(new Date(), 12),
       referenceNumber: "MOCK-WATER-2026",
+      isRecurringCandidate: true,
       billingPeriod: "החודש האחרון",
       suggestedCategory: "חשבונות",
       summary: "נראה כמו חשבון מים עם תשלום קרוב.",
@@ -87,8 +91,10 @@ function inferExtractedData(input: DocumentAnalysisInput): ExtractedDocumentData
     return {
       documentType: "פוליסת ביטוח",
       providerName: "ספק ביטוח",
+      issueDate: addDays(new Date(), -2),
       dueDate: addDays(new Date(), 30),
       referenceNumber: "MOCK-POLICY",
+      isRecurringCandidate: true,
       suggestedCategory: "ביטוח",
       summary: "נראה כמו מסמך ביטוח. כדאי לשמור במסמכים ולהגדיר תזכורת לחידוש.",
       tags: ["ביטוח", "פוליסה", "חידוש"],
@@ -133,6 +139,7 @@ function getSuggestedActions(
       description: "לשמור את הקובץ והנתונים במודול המסמכים.",
       targetRoute: "/documents",
       enabledByDefault: true,
+      requiresConfirmation: true,
     },
   ];
 
@@ -144,6 +151,7 @@ function getSuggestedActions(
       description: `להציע הוצאה בקטגוריית ${extracted.suggestedCategory}.`,
       targetRoute: "/finance",
       enabledByDefault: false,
+      requiresConfirmation: true,
     });
   }
 
@@ -156,6 +164,7 @@ function getSuggestedActions(
         description: "להכין משימה לבדיקה ותשלום לפני התאריך האחרון.",
         targetRoute: "/tasks",
         enabledByDefault: false,
+        requiresConfirmation: true,
       },
       {
         id: "create-reminder",
@@ -164,8 +173,21 @@ function getSuggestedActions(
         description: `להציע תזכורת לפני ${extracted.dueDate}.`,
         targetRoute: "/tasks",
         enabledByDefault: false,
+        requiresConfirmation: true,
       }
     );
+  }
+
+  if (extracted.isRecurringCandidate) {
+    actions.push({
+      id: "mark-recurring",
+      type: "mark-recurring",
+      label: "סימון כתשלום חוזר",
+      description: "להציע מעקב עתידי לחשבון שחוזר באופן קבוע.",
+      targetRoute: "/finance",
+      enabledByDefault: false,
+      requiresConfirmation: true,
+    });
   }
 
   return actions;

@@ -7,34 +7,127 @@ import {
   type FamilySuggestion,
   type FamilyTodayItem,
 } from "@/services/familyToday";
+import { getAiDailyBriefing } from "@/services/aiAssistant";
+import type { AiFamilyInsight } from "@/types/aiAssistant";
 
-const toneClasses: Record<FamilyTodayItem["tone"], string> = {
-  warm: "border-orange-200 bg-orange-50/92 text-orange-950 shadow-[0_12px_30px_rgba(249,115,22,0.13)]",
-  blue: "border-sky-200 bg-sky-50/92 text-sky-950 shadow-[0_12px_30px_rgba(14,165,233,0.13)]",
-  green:
-    "border-emerald-200 bg-emerald-50/92 text-emerald-950 shadow-[0_12px_30px_rgba(16,185,129,0.13)]",
-  slate:
-    "border-slate-200 bg-slate-100/92 text-slate-950 shadow-[0_12px_30px_rgba(71,85,105,0.11)]",
-  purple:
-    "border-violet-200 bg-violet-50/92 text-violet-950 shadow-[0_12px_30px_rgba(124,58,237,0.13)]",
+const toneStyles: Record<
+  FamilyTodayItem["tone"],
+  { icon: string; accent: string; bg: string }
+> = {
+  warm: { icon: "🎂", accent: "text-orange-700", bg: "bg-orange-50" },
+  blue: { icon: "🛒", accent: "text-sky-700", bg: "bg-sky-50" },
+  green: { icon: "₪", accent: "text-emerald-700", bg: "bg-emerald-50" },
+  slate: { icon: "✓", accent: "text-slate-700", bg: "bg-slate-100" },
+  purple: { icon: "!", accent: "text-violet-700", bg: "bg-violet-50" },
+};
+
+const aiToneStyles: Record<AiFamilyInsight["tone"], string> = {
+  calm: "border-[#eadfcd] bg-[#fffdf8]",
+  good: "border-emerald-200 bg-emerald-50",
+  warning: "border-amber-200 bg-amber-50",
+  urgent: "border-rose-200 bg-rose-50",
 };
 
 function Suggestion({ suggestion }: { suggestion: FamilySuggestion }) {
   return (
     <Link
       href={suggestion.href}
-      className="nestly-interactive relative flex min-h-[68px] items-center justify-between gap-2.5 overflow-hidden rounded-2xl border border-[#eadfcd] bg-gradient-to-br from-[#fff8eb] to-white px-3 py-2 text-right text-[#24151f] shadow-[0_12px_28px_rgba(154,107,23,0.12)]"
+      className="flex min-h-12 items-center justify-between gap-3 rounded-2xl bg-[#fff8eb] px-3 py-2 text-right transition hover:bg-[#fff3d6]"
     >
-      <span
-        className="absolute inset-y-3 right-1 w-1 rounded-full bg-[#d8b470]"
-        aria-hidden="true"
-      />
-      <span className="shrink-0 rounded-full border border-[#eadfcd] bg-white px-2.5 py-1 text-[11px] font-black text-[#7a5212] shadow-sm">
+      <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-[#7a5212] shadow-sm">
         {suggestion.action}
       </span>
-      <p className="min-w-0 flex-1 text-xs font-bold leading-5 text-slate-700">
+      <p className="min-w-0 flex-1 line-clamp-2 text-xs font-bold leading-5 text-slate-700">
         {suggestion.text}
       </p>
+    </Link>
+  );
+}
+
+function AiSuggestion({ insight }: { insight: AiFamilyInsight }) {
+  return (
+    <Link
+      href={insight.targetRoute}
+      className={[
+        "flex min-h-12 items-center justify-between gap-3 rounded-2xl border px-3 py-2 text-right transition hover:-translate-y-0.5",
+        aiToneStyles[insight.tone],
+      ].join(" ")}
+    >
+      <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-[#7a5212] shadow-sm">
+        {insight.actionLabel}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[11px] font-black text-[#9a6b17]">
+          Nestly AI
+        </span>
+        <span className="line-clamp-2 text-xs font-bold leading-5 text-slate-700">
+          {insight.message}
+        </span>
+      </span>
+    </Link>
+  );
+}
+
+function BriefingRow({ item }: { item: FamilyTodayItem }) {
+  const style = toneStyles[item.tone];
+
+  return (
+    <Link
+      href={item.href}
+      className="grid min-h-[54px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl px-2 py-1.5 transition hover:bg-[#fafafb]"
+    >
+      <span
+        className={[
+          "grid h-10 w-10 place-items-center rounded-2xl text-sm font-black",
+          style.bg,
+          style.accent,
+        ].join(" ")}
+      >
+        {style.icon}
+      </span>
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-black text-[#111827]">
+          {item.label}
+        </span>
+        <span className="mt-0.5 block truncate text-xs font-semibold text-slate-600">
+          {item.detail}
+        </span>
+      </span>
+      <span className="text-[11px] font-black text-slate-400">פתח</span>
+    </Link>
+  );
+}
+
+function PrimaryBriefingItem({ item }: { item: FamilyTodayItem }) {
+  const style = toneStyles[item.tone];
+
+  return (
+    <Link
+      href={item.href}
+      className={[
+        "grid min-h-[78px] grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-[20px] px-3 py-3 text-right shadow-[0_14px_34px_rgba(33,43,63,0.08)] transition hover:-translate-y-0.5",
+        style.bg,
+      ].join(" ")}
+    >
+      <span
+        className={[
+          "grid h-12 w-12 place-items-center rounded-2xl bg-white text-base font-black shadow-sm",
+          style.accent,
+        ].join(" ")}
+      >
+        {style.icon}
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[11px] font-black text-slate-500">
+          הכי חשוב עכשיו
+        </span>
+        <span className="mt-0.5 block truncate text-base font-black text-[#111827]">
+          {item.label}
+        </span>
+        <span className="mt-1 block truncate text-sm font-bold text-slate-700">
+          {item.detail}
+        </span>
+      </span>
     </Link>
   );
 }
@@ -42,52 +135,58 @@ function Suggestion({ suggestion }: { suggestion: FamilySuggestion }) {
 export default function TodayForFamily() {
   const [items, setItems] = useState<FamilyTodayItem[]>([]);
   const [suggestion, setSuggestion] = useState<FamilySuggestion | null>(null);
+  const [aiSuggestion, setAiSuggestion] = useState<AiFamilyInsight | null>(null);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       const summary = getFamilyTodaySummary();
+      const briefing = getAiDailyBriefing({ maxItems: 4 });
       setItems(summary.items.slice(0, 5));
       setSuggestion(summary.suggestion);
+      setAiSuggestion(briefing.suggestion);
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
   }, []);
 
-  if (items.length === 0 && !suggestion) {
+  if (items.length === 0 && !suggestion && !aiSuggestion) {
     return null;
   }
 
-  const visibleItems = items.slice(0, suggestion ? 4 : 5);
+  const [primaryItem, ...secondaryItems] = items;
 
   return (
-    <section className="nestly-card-strong rounded-[22px] p-2.5 text-right">
+    <section className="rounded-[22px] bg-white/92 p-3 text-right shadow-[0_12px_30px_rgba(33,43,63,0.06)]">
       <div className="mb-2 flex items-center justify-between gap-3">
-        <span className="nestly-eyebrow">רגוע וממוקד</span>
+        <span className="rounded-full bg-[#fff8eb] px-2.5 py-1 text-[11px] font-black text-[#7a5212]">
+          רגוע וממוקד
+        </span>
         <div>
           <h2 className="text-lg font-black text-[#111827]">
             מה חשוב למשפחה היום
           </h2>
-          <p className="hidden text-xs font-bold text-slate-600 sm:block">
-            3-5 דברים שכדאי לראות עכשיו, בלי להציף את המסך.
+          <p className="text-xs font-semibold text-slate-500">
+            קודם הדחוף, אחר כך מה שיכול לחכות.
           </p>
         </div>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
-        {visibleItems.map((item) => (
-          <Link
-            key={item.id}
-            href={item.href}
-            className={`nestly-interactive min-h-[68px] rounded-2xl border px-3 py-2 ${toneClasses[item.tone]}`}
-          >
-            <p className="line-clamp-1 text-sm font-black">{item.label}</p>
-            <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-slate-700">
-              {item.detail}
-            </p>
-          </Link>
-        ))}
+      <div className="space-y-2">
+        {primaryItem && <PrimaryBriefingItem item={primaryItem} />}
 
-        {suggestion && <Suggestion suggestion={suggestion} />}
+        {secondaryItems.length > 0 && (
+          <div className="divide-y divide-[#eef0f3]">
+            {secondaryItems.slice(0, aiSuggestion || suggestion ? 3 : 4).map((item) => (
+              <BriefingRow key={item.id} item={item} />
+            ))}
+          </div>
+        )}
+
+        {aiSuggestion ? (
+          <AiSuggestion insight={aiSuggestion} />
+        ) : (
+          suggestion && <Suggestion suggestion={suggestion} />
+        )}
       </div>
     </section>
   );
