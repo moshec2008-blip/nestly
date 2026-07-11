@@ -10,7 +10,7 @@ type ShoppingForm = Omit<ShoppingItem, "id" | "purchased">;
 type PurchaseFilter = "remaining" | "all" | "purchased";
 
 const inputClass =
-  "min-h-11 rounded-2xl border border-[#d9dde5] bg-white px-4 py-2.5 text-right text-sm font-semibold text-[#111827] outline-none transition placeholder:text-slate-400 focus:border-[#007aff]/55 focus:ring-4 focus:ring-[#007aff]/10";
+  "min-h-11 rounded-2xl border border-[#cfc4b5] bg-white px-4 py-2.5 text-right text-sm font-semibold text-[#111827] outline-none transition placeholder:text-slate-600 focus:border-[#007aff]/60 focus:ring-4 focus:ring-[#007aff]/10";
 
 const purchaseFilters: Array<{ id: PurchaseFilter; label: string }> = [
   { id: "remaining", label: "לקנות" },
@@ -304,8 +304,8 @@ export default function ShoppingManager() {
   }
 
   return (
-    <section className="space-y-3 text-right">
-      <section className="rounded-[24px] border border-[#eadfcd] bg-[#fffdf8] p-3 shadow-[0_10px_28px_rgba(33,43,63,0.055)]">
+    <section className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] text-right lg:pb-0">
+      <section className="rounded-[22px] border border-[#eadfcd] bg-[#fffdf8] p-2.5 shadow-[0_10px_24px_rgba(33,43,63,0.05)]">
         <div className="flex items-center justify-between gap-3">
           <div className="flex shrink-0 items-center gap-2 rounded-2xl bg-white px-3 py-2 shadow-sm">
             <span className="text-lg font-black text-[#111827]">
@@ -324,7 +324,7 @@ export default function ShoppingManager() {
 
         <form
           onSubmit={handleQuickAdd}
-          className="mt-3 grid grid-cols-[minmax(0,1fr)_3.25rem] gap-2"
+          className="mt-2.5 flex min-h-12 items-center overflow-hidden rounded-2xl border border-[#d8caba] bg-white p-1 shadow-sm focus-within:border-[#d8b470] focus-within:ring-4 focus-within:ring-[#d8b470]/12"
         >
           <label className="sr-only" htmlFor="quick-shopping-item">
             הוסף מוצר מהיר
@@ -333,12 +333,12 @@ export default function ShoppingManager() {
             id="quick-shopping-item"
             value={quickTitle}
             onChange={(event) => setQuickTitle(event.target.value)}
-            className="min-h-14 rounded-2xl border border-[#eadfcd] bg-white px-4 text-right text-base font-black text-[#111827] outline-none transition placeholder:text-slate-400 focus:border-[#d8b470] focus:ring-4 focus:ring-[#d8b470]/15"
+            className="min-h-11 min-w-0 flex-1 bg-transparent px-3 text-right text-base font-black text-[#111827] outline-none placeholder:text-slate-600"
             placeholder="להוסיף לרשימה..."
           />
           <button
             type="submit"
-            className="grid min-h-14 place-items-center rounded-2xl bg-[#111827] text-2xl font-black text-white shadow-[0_14px_30px_rgba(15,23,42,0.18)] transition active:scale-[0.98]"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#111827] text-xl font-black text-white shadow-[0_10px_22px_rgba(15,23,42,0.16)] transition active:scale-[0.98]"
             aria-label="הוסף מוצר לרשימה"
           >
             +
@@ -349,7 +349,7 @@ export default function ShoppingManager() {
           <button
             type="button"
             onClick={openNewProductForm}
-            className="min-h-10 rounded-2xl border border-[#eadfcd] bg-white px-4 text-xs font-black text-slate-700 transition hover:bg-[#fff8eb]"
+            className="min-h-8 rounded-full border border-[#eadfcd] bg-white px-3 text-[11px] font-black text-slate-700 transition hover:bg-[#fff8eb]"
           >
             פרטים נוספים
           </button>
@@ -470,7 +470,7 @@ export default function ShoppingManager() {
       </section>
 
       <section className="overflow-hidden rounded-[22px] border border-[#e6e8ec] bg-white shadow-[0_12px_30px_rgba(15,23,42,0.055)]">
-        <div className="flex min-h-10 items-center justify-between border-b border-[#eef0f3] bg-[#fafafb] px-3">
+        <div className="flex min-h-9 items-center justify-between border-b border-[#eef0f3] bg-[#fafafb] px-3">
           <span className="text-xs font-black text-slate-500">
             {visibleItems.length} מוצגים
           </span>
@@ -507,7 +507,7 @@ export default function ShoppingManager() {
                     <article
                       key={item.id}
                       className={[
-                        "grid min-h-[70px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-2.5 py-1.5 transition hover:bg-[#fafafb]",
+                        "grid min-h-[58px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-2.5 py-1 transition hover:bg-[#fafafb]",
                         item.purchased ? "bg-[#fafafb]/70 opacity-75" : "",
                       ].join(" ")}
                     >
@@ -515,7 +515,7 @@ export default function ShoppingManager() {
                         type="button"
                         onClick={() => togglePurchased(item.id)}
                         className={[
-                          "grid h-12 w-12 shrink-0 place-items-center rounded-full border text-lg font-black transition",
+                          "grid h-10 w-10 shrink-0 place-items-center rounded-full border text-base font-black transition",
                           item.purchased
                             ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                             : "border-[#d9dde5] bg-white text-slate-400 hover:border-emerald-300 hover:text-emerald-700",
@@ -534,7 +534,7 @@ export default function ShoppingManager() {
                       >
                         <span
                           className={[
-                            "block truncate text-[16px] font-black leading-5",
+                            "block truncate text-[15px] font-black leading-5",
                             item.purchased
                               ? "text-slate-500 line-through"
                               : "text-[#111827]",
@@ -542,7 +542,7 @@ export default function ShoppingManager() {
                         >
                           {item.title}
                         </span>
-                        <span className="mt-1 block truncate text-xs font-semibold text-slate-600">
+                        <span className="mt-0.5 block truncate text-[11px] font-semibold text-slate-600">
                           {item.listName}
                           {item.buyer ? ` · ${item.buyer}` : ""}
                           {item.estimatedPrice > 0
@@ -553,25 +553,25 @@ export default function ShoppingManager() {
 
                       <div className="flex items-center gap-1">
                         <div
-                          className="grid h-10 grid-cols-[2rem_2rem_2rem] items-center overflow-hidden rounded-full border border-[#eadfcd] bg-[#fffdf8] text-center shadow-sm"
+                          className="grid h-9 grid-cols-[1.8rem_1.8rem_1.8rem] items-center overflow-hidden rounded-full border border-[#eadfcd] bg-[#fffdf8] text-center shadow-sm"
                           aria-label={`כמות ${item.title}`}
                         >
                           <button
                             type="button"
                             onClick={() => updateQuantity(item.id, "decrease")}
                             disabled={getQuantityNumber(item.quantity) <= 1}
-                            className="grid h-10 w-8 place-items-center text-lg font-black text-slate-600 transition hover:bg-white disabled:cursor-not-allowed disabled:text-slate-300"
+                            className="grid h-9 w-[1.8rem] place-items-center text-base font-black text-slate-600 transition hover:bg-white disabled:cursor-not-allowed disabled:text-slate-300"
                             aria-label={`הפחת כמות של ${item.title}`}
                           >
                             -
                           </button>
-                          <span className="grid h-10 min-w-8 place-items-center border-x border-[#eadfcd] text-sm font-black tabular-nums text-[#111827]">
+                          <span className="grid h-9 min-w-[1.8rem] place-items-center border-x border-[#eadfcd] text-sm font-black tabular-nums text-[#111827]">
                             {getQuantityNumber(item.quantity)}
                           </span>
                           <button
                             type="button"
                             onClick={() => updateQuantity(item.id, "increase")}
-                            className="grid h-10 w-8 place-items-center text-lg font-black text-slate-700 transition hover:bg-white"
+                            className="grid h-9 w-[1.8rem] place-items-center text-base font-black text-slate-700 transition hover:bg-white"
                             aria-label={`הגדל כמות של ${item.title}`}
                           >
                             +
@@ -581,7 +581,7 @@ export default function ShoppingManager() {
                         <button
                           type="button"
                           onClick={() => setActiveItemId(item.id)}
-                          className="grid h-10 w-8 shrink-0 place-items-center rounded-full text-base font-black text-slate-400 transition hover:bg-[#fff8eb] hover:text-[#111827]"
+                          className="grid h-9 w-8 shrink-0 place-items-center rounded-full text-sm font-black text-slate-400 transition hover:bg-[#fff8eb] hover:text-[#111827]"
                           aria-label={`פרטי מוצר: ${item.title}`}
                         >
                           ...

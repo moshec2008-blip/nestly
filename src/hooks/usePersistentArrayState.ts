@@ -7,6 +7,7 @@ import {
   type SetStateAction,
 } from "react";
 import {
+  getStorageScopeEventName,
   readStorageArray,
   writeStorage,
   type StorageValidator,
@@ -32,6 +33,18 @@ export function usePersistentArrayState<T>(
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
+  }, [initialValue, itemValidator, storageKey]);
+
+  useEffect(() => {
+    function reloadScopedStorage() {
+      setItems(readStorageArray(storageKey, initialValue, itemValidator));
+      setHasLoadedStorage(true);
+    }
+
+    window.addEventListener(getStorageScopeEventName(), reloadScopedStorage);
+
+    return () =>
+      window.removeEventListener(getStorageScopeEventName(), reloadScopedStorage);
   }, [initialValue, itemValidator, storageKey]);
 
   useEffect(() => {

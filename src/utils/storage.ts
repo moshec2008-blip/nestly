@@ -1,5 +1,80 @@
 export type StorageValidator<T> = (value: unknown) => value is T;
 
+const activeStorageUserScopeKey = "nestly-active-user-scope";
+const storageScopeEventName = "nestly-storage-scope-change";
+
+const userScopedStorageKeys = new Set([
+  "beit-cohen-shor-family-tasks",
+  "beit-cohen-shor-finance-transactions",
+  "beit-cohen-shor-health-records",
+  "beit-cohen-shor-documents",
+  "beit-cohen-shor-vehicle-records",
+  "beit-cohen-shor-family-records",
+  "nestly-family-tree",
+  "beit-cohen-shor-birthdays",
+  "beit-cohen-shor-shopping-items",
+  "beit-cohen-shor-permissions",
+]);
+
+function normalizeStorageScope(value: string) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9._-]/g, "_");
+}
+
+function getActiveStorageUserScope() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.localStorage.getItem(activeStorageUserScopeKey);
+}
+
+export function getStorageScopeEventName() {
+  return storageScopeEventName;
+}
+
+export function setActiveStorageUserScope(value: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const scope = normalizeStorageScope(value);
+  const currentScope = getActiveStorageUserScope();
+
+  if (!scope || currentScope === scope) {
+    return;
+  }
+
+  window.localStorage.setItem(activeStorageUserScopeKey, scope);
+  window.dispatchEvent(new CustomEvent(storageScopeEventName));
+}
+
+export function clearActiveStorageUserScope() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (!getActiveStorageUserScope()) {
+    return;
+  }
+
+  window.localStorage.removeItem(activeStorageUserScopeKey);
+  window.dispatchEvent(new CustomEvent(storageScopeEventName));
+}
+
+export function getScopedStorageKey(key: string) {
+  if (!userScopedStorageKeys.has(key)) {
+    return key;
+  }
+
+  const scope = getActiveStorageUserScope();
+
+  if (!scope) {
+    return null;
+  }
+
+  return `nestly:user:${scope}:${key}`;
+}
+
 function parseStorageValue(value: string): unknown {
   return JSON.parse(value);
 }
@@ -13,7 +88,13 @@ export function readStorage<T>(
     return fallback;
   }
 
-  const value = window.localStorage.getItem(key);
+  const scopedKey = getScopedStorageKey(key);
+
+  if (!scopedKey) {
+    return fallback;
+  }
+
+  const value = window.localStorage.getItem(scopedKey);
 
   if (!value) {
     return fallback;
@@ -38,7 +119,13 @@ export function writeStorage<T>(key: string, value: T): boolean {
   }
 
   try {
-    window.localStorage.setItem(key, JSON.stringify(value));
+    const scopedKey = getScopedStorageKey(key);
+
+    if (!scopedKey) {
+      return false;
+    }
+
+    window.localStorage.setItem(scopedKey, JSON.stringify(value));
     return true;
   } catch {
     return false;

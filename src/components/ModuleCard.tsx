@@ -19,10 +19,8 @@ type ModuleVisual = {
   fallbackStat: string;
   icon: AppIconName;
   iconTone: string;
+  iconBg: string;
   glow: string;
-  shadow: string;
-  shadowHover: string;
-  surface: string;
 };
 
 const moduleVisuals: Record<AppRoute, ModuleVisual> = {
@@ -30,133 +28,92 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     fallbackStat: "מרכז הבית",
     icon: "home",
     iconTone: "text-indigo-700",
-    glow: "bg-indigo-400/20",
-    shadow:
-      "0 18px 44px rgba(99,102,241,0.29), 0 3px 14px rgba(99,102,241,0.16)",
-    shadowHover:
-      "0 22px 56px rgba(99,102,241,0.42), 0 5px 18px rgba(99,102,241,0.21)",
-    surface: "from-indigo-50 to-white",
+    iconBg: "bg-indigo-50",
+    glow: "bg-indigo-400/10",
   },
   "/dashboard": {
     fallbackStat: "סקירה חכמה",
     icon: "dashboard",
     iconTone: "text-sky-700",
-    glow: "bg-sky-400/20",
-    shadow:
-      "0 18px 44px rgba(14,165,233,0.29), 0 3px 14px rgba(14,165,233,0.16)",
-    shadowHover:
-      "0 22px 56px rgba(14,165,233,0.42), 0 5px 18px rgba(14,165,233,0.21)",
-    surface: "from-sky-50 to-white",
+    iconBg: "bg-sky-50",
+    glow: "bg-sky-400/10",
   },
   "/finance": {
     fallbackStat: "תזרים ותקציב",
     icon: "finance",
     iconTone: "text-emerald-700",
-    glow: "bg-emerald-400/20",
-    shadow:
-      "0 18px 44px rgba(16,185,129,0.31), 0 3px 14px rgba(16,185,129,0.17)",
-    shadowHover:
-      "0 22px 56px rgba(16,185,129,0.44), 0 5px 18px rgba(16,185,129,0.22)",
-    surface: "from-emerald-50 to-white",
+    iconBg: "bg-emerald-50",
+    glow: "bg-emerald-400/10",
   },
   "/tasks": {
     fallbackStat: "משימות פתוחות",
     icon: "check",
     iconTone: "text-orange-700",
-    glow: "bg-orange-400/20",
-    shadow:
-      "0 18px 44px rgba(249,115,22,0.30), 0 3px 14px rgba(249,115,22,0.16)",
-    shadowHover:
-      "0 22px 56px rgba(249,115,22,0.43), 0 5px 18px rgba(249,115,22,0.21)",
-    surface: "from-orange-50 to-white",
+    iconBg: "bg-orange-50",
+    glow: "bg-orange-400/10",
   },
   "/health": {
     fallbackStat: "תורים ומעקב",
     icon: "health",
     iconTone: "text-rose-700",
-    glow: "bg-rose-400/20",
-    shadow:
-      "0 18px 44px rgba(244,63,94,0.29), 0 3px 14px rgba(244,63,94,0.16)",
-    shadowHover:
-      "0 22px 56px rgba(244,63,94,0.42), 0 5px 18px rgba(244,63,94,0.21)",
-    surface: "from-rose-50 to-white",
+    iconBg: "bg-rose-50",
+    glow: "bg-rose-400/10",
   },
   "/vehicles": {
     fallbackStat: "טיפולים ורישוי",
     icon: "car",
     iconTone: "text-blue-700",
-    glow: "bg-blue-400/20",
-    shadow:
-      "0 18px 44px rgba(59,130,246,0.29), 0 3px 14px rgba(59,130,246,0.16)",
-    shadowHover:
-      "0 22px 56px rgba(59,130,246,0.42), 0 5px 18px rgba(59,130,246,0.21)",
-    surface: "from-blue-50 to-white",
+    iconBg: "bg-blue-50",
+    glow: "bg-blue-400/10",
   },
   "/documents": {
     fallbackStat: "קבצים ומסמכים",
     icon: "document",
     iconTone: "text-violet-700",
-    glow: "bg-violet-400/20",
-    shadow:
-      "0 18px 44px rgba(139,92,246,0.29), 0 3px 14px rgba(139,92,246,0.16)",
-    shadowHover:
-      "0 22px 56px rgba(139,92,246,0.42), 0 5px 18px rgba(139,92,246,0.21)",
-    surface: "from-violet-50 to-white",
+    iconBg: "bg-violet-50",
+    glow: "bg-violet-400/10",
   },
   "/birthdays": {
-    fallbackStat: "ימי הולדת קרובים",
+    fallbackStat: "אירועים קרובים",
     icon: "calendar",
     iconTone: "text-pink-700",
-    glow: "bg-pink-400/20",
-    shadow:
-      "0 18px 44px rgba(236,72,153,0.29), 0 3px 14px rgba(236,72,153,0.16)",
-    shadowHover:
-      "0 22px 56px rgba(236,72,153,0.42), 0 5px 18px rgba(236,72,153,0.21)",
-    surface: "from-pink-50 to-white",
+    iconBg: "bg-pink-50",
+    glow: "bg-pink-400/10",
   },
   "/shopping": {
     fallbackStat: "רשימות פעילות",
     icon: "shopping",
     iconTone: "text-cyan-700",
-    glow: "bg-cyan-400/20",
-    shadow:
-      "0 18px 44px rgba(6,182,212,0.29), 0 3px 14px rgba(6,182,212,0.16)",
-    shadowHover:
-      "0 22px 56px rgba(6,182,212,0.42), 0 5px 18px rgba(6,182,212,0.21)",
-    surface: "from-cyan-50 to-white",
+    iconBg: "bg-cyan-50",
+    glow: "bg-cyan-400/10",
   },
   "/family": {
     fallbackStat: "בני משפחה",
     icon: "family",
     iconTone: "text-purple-700",
-    glow: "bg-purple-400/20",
-    shadow:
-      "0 18px 44px rgba(168,85,247,0.29), 0 3px 14px rgba(168,85,247,0.16)",
-    shadowHover:
-      "0 22px 56px rgba(168,85,247,0.42), 0 5px 18px rgba(168,85,247,0.21)",
-    surface: "from-purple-50 to-white",
+    iconBg: "bg-purple-50",
+    glow: "bg-purple-400/10",
   },
   "/permissions": {
     fallbackStat: "שיתוף והרשאות",
     icon: "lock",
     iconTone: "text-amber-700",
-    glow: "bg-amber-400/20",
-    shadow:
-      "0 18px 44px rgba(245,158,11,0.29), 0 3px 14px rgba(245,158,11,0.16)",
-    shadowHover:
-      "0 22px 56px rgba(245,158,11,0.42), 0 5px 18px rgba(245,158,11,0.21)",
-    surface: "from-amber-50 to-white",
+    iconBg: "bg-amber-50",
+    glow: "bg-amber-400/10",
+  },
+  "/security": {
+    fallbackStat: "חשבון מוגן",
+    icon: "lock",
+    iconTone: "text-amber-700",
+    iconBg: "bg-amber-50",
+    glow: "bg-amber-400/10",
   },
   "/settings": {
     fallbackStat: "גיבוי והעדפות",
     icon: "settings",
     iconTone: "text-slate-700",
-    glow: "bg-slate-400/20",
-    shadow:
-      "0 18px 44px rgba(100,116,139,0.26), 0 3px 14px rgba(100,116,139,0.14)",
-    shadowHover:
-      "0 22px 56px rgba(100,116,139,0.36), 0 5px 18px rgba(100,116,139,0.20)",
-    surface: "from-slate-100 to-white",
+    iconBg: "bg-slate-100",
+    glow: "bg-slate-400/10",
   },
 };
 
@@ -176,8 +133,9 @@ export default function ModuleCard({
   const visual = moduleVisuals[href];
   const liveStat = useModuleLiveStat(href, visual.fallbackStat);
   const cardStyle = {
-    "--module-shadow": visual.shadow,
-    "--module-shadow-hover": visual.shadowHover,
+    "--module-shadow": priority
+      ? "0 12px 28px rgba(33,43,63,0.055)"
+      : "0 8px 20px rgba(33,43,63,0.04)",
   } as CSSProperties;
 
   return (
@@ -185,25 +143,22 @@ export default function ModuleCard({
       href={href}
       style={cardStyle}
       className={[
-        `nestly-interactive group relative overflow-hidden rounded-[20px] border border-white/85 bg-gradient-to-br ${visual.surface} text-[#1d1d1f] shadow-[var(--module-shadow)]`,
-        priority ? "min-h-[84px] p-2.5" : "min-h-[70px] p-2.5",
+        "nestly-interactive group relative overflow-hidden rounded-[17px] bg-white/82 text-[#1d1d1f] shadow-[var(--module-shadow)] ring-1 ring-black/[0.028]",
+        priority ? "min-h-[70px] p-2.5" : "min-h-[62px] p-2.5",
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
       <span
-        className={`pointer-events-none absolute -right-7 -top-8 h-20 w-20 rounded-full blur-2xl transition-opacity duration-200 ${visual.glow} opacity-70 group-hover:opacity-100`}
-        aria-hidden="true"
-      />
-      <span
-        className={`pointer-events-none absolute bottom-0 right-0 h-1 w-16 rounded-tl-full ${visual.glow} opacity-80`}
+        className={`pointer-events-none absolute -right-7 -top-8 h-20 w-20 rounded-full blur-2xl transition-opacity duration-200 ${visual.glow} opacity-45 group-hover:opacity-80`}
         aria-hidden="true"
       />
 
       <div className="relative z-10 flex h-full items-start gap-2.5">
         <span
-          className={`grid shrink-0 place-items-center rounded-2xl border border-white/90 bg-white/95 shadow-[0_10px_22px_rgba(33,43,63,0.08)] ${visual.iconTone} ${
+          className={`grid shrink-0 place-items-center rounded-2xl ${visual.iconBg} ${visual.iconTone} ${
             priority ? "h-9 w-9" : "h-8 w-8"
           }`}
+          aria-hidden="true"
         >
           <AppIcon
             name={visual.icon}
@@ -213,21 +168,23 @@ export default function ModuleCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <span className="rounded-full border border-white/80 bg-white/70 px-2 py-0.5 text-[10px] font-bold text-slate-600 shadow-sm">
-              {status}
-            </span>
+            <span
+              className={`mt-1 h-2 w-2 shrink-0 rounded-full ${visual.iconBg}`}
+              aria-label={status}
+              title={status}
+            />
             <h3 className="truncate text-sm font-black leading-5 sm:text-[15px]">
               {title}
             </h3>
           </div>
 
           {priority && (
-            <p className="mt-1 line-clamp-1 text-xs font-semibold leading-4 text-slate-600">
+            <p className="mt-1 line-clamp-1 text-xs font-medium leading-4 text-slate-500">
               {getShortDescription(description)}
             </p>
           )}
 
-          <p className="mt-1 truncate text-xs font-black text-slate-900">
+          <p className="mt-1 truncate text-xs font-bold text-slate-800">
             {liveStat}
           </p>
         </div>

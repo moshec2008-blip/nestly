@@ -18,14 +18,14 @@ const accentClasses = [
 
 export default function FinanceSummaryCards({ cards }: FinanceSummaryCardsProps) {
   return (
-    <section className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="grid grid-cols-2 gap-1.5 xl:grid-cols-4">
       {cards.map((card, index) => (
         <div
           key={card.title}
           className={[
-            "rounded-[18px] border p-3 text-right shadow-[0_12px_28px_rgba(33,43,63,0.065)]",
+            "rounded-[16px] border p-2.5 text-right shadow-[0_8px_20px_rgba(33,43,63,0.045)]",
             index === 0
-              ? "finance-balance-card border-[#d8b470]/55 bg-gradient-to-br from-[#fff8eb] to-white text-[#111827] shadow-[0_14px_32px_rgba(154,107,23,0.12)]"
+              ? "finance-balance-card border-[#d8b470]/55 bg-gradient-to-br from-[#fff8eb] to-white text-[#111827] shadow-[0_10px_24px_rgba(154,107,23,0.1)]"
               : "border-[#eadfcd] bg-white/95 text-[#111827]",
           ].join(" ")}
         >
@@ -38,7 +38,7 @@ export default function FinanceSummaryCards({ cards }: FinanceSummaryCardsProps)
             />
             <p
               className={[
-                "text-[10px] font-black uppercase tracking-[0.14em]",
+                "text-[10px] font-black uppercase tracking-[0.08em]",
                 index === 0 ? "text-[#7a5212]" : "text-slate-600",
               ].join(" ")}
             >
@@ -47,15 +47,15 @@ export default function FinanceSummaryCards({ cards }: FinanceSummaryCardsProps)
           </div>
           <p
             className={[
-              "mt-2 font-black leading-6",
-              index === 0 ? "text-xl text-[#111827]" : `text-base ${card.tone}`,
+              "mt-1 font-black leading-5",
+              index === 0 ? "text-lg text-[#111827]" : `text-[15px] ${card.tone}`,
             ].join(" ")}
           >
             {card.value}
           </p>
           <p
             className={[
-              "mt-1 text-[11px] font-semibold leading-4",
+              "mt-0.5 line-clamp-1 text-[11px] font-semibold leading-4",
               index === 0 ? "text-slate-700" : "text-slate-600",
             ].join(" ")}
           >

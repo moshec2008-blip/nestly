@@ -14,6 +14,7 @@ const routeNavKeys: Record<AppRoute, NavKey> = {
   "/family": "family",
   "/birthdays": "birthdays",
   "/shopping": "shopping",
+  "/security": "permissions",
   "/permissions": "permissions",
   "/settings": "settings",
 };

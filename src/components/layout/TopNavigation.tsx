@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 import {
   useEffect,
   useMemo,
@@ -44,6 +45,7 @@ const routeMeta: AppRoute[] = [
   "/family",
   "/birthdays",
   "/shopping",
+  "/security",
   "/permissions",
   "/settings",
 ];
@@ -199,6 +201,7 @@ export default function TopNavigation({
   const pathname = usePathname();
   const { direction, language } = useLanguage();
   const dictionary = getDictionary(language);
+  const { data: session } = useSession();
   const [searchValue, setSearchValue] = useState("");
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
@@ -211,6 +214,9 @@ export default function TopNavigation({
     [searchValue]
   );
   const accountLabel = language === "en" ? "Account" : "חשבון";
+
+  const signedInAccountLabel =
+    session?.user?.name || session?.user?.email || accountLabel;
 
   useEffect(() => {
     const headerElement = headerRef.current;
@@ -306,15 +312,20 @@ export default function TopNavigation({
     >
       <div className="mx-auto w-full max-w-[1520px] px-3 sm:px-5">
         <div className="flex min-h-14 items-center justify-between gap-3 py-1.5 lg:hidden">
-          <button
-            type="button"
-            onClick={onToggleMobileMenu}
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#111827] bg-[#111827] text-white shadow-[0_12px_24px_rgba(17,24,39,0.16)]"
-            aria-label={dictionary.openMenu}
-            aria-expanded={isMobileMenuOpen}
-          >
-            <MenuGlyph isOpen={isMobileMenuOpen} />
-          </button>
+          {isMobileMenuOpen ? (
+            <span className="h-11 w-[82px] shrink-0" aria-hidden="true" />
+          ) : (
+            <button
+              type="button"
+              onClick={onToggleMobileMenu}
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl border border-[#111827] bg-[#111827] px-3 text-sm font-black text-white shadow-[0_12px_24px_rgba(17,24,39,0.16)]"
+              aria-label={dictionary.openMenu}
+              aria-expanded={isMobileMenuOpen}
+            >
+              <MenuGlyph isOpen={isMobileMenuOpen} />
+              <span className="hidden min-[360px]:inline">תפריט</span>
+            </button>
+          )}
 
           <div className="min-w-0 flex-1 text-center">
             <p className="truncate text-[11px] font-black text-slate-500">
@@ -510,13 +521,21 @@ export default function TopNavigation({
             </div>
 
             <Link
-              href="/login"
-              className="flex h-10 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#111827] px-3 text-xs font-black text-white shadow-sm transition hover:bg-[#1f2937]"
-              aria-label={accountLabel}
+              href="/security"
+              className="flex h-10 max-w-36 items-center justify-center truncate rounded-2xl border border-[#d9dde5] bg-[#111827] px-3 text-xs font-black text-white shadow-sm transition hover:bg-[#1f2937]"
+              aria-label={signedInAccountLabel}
               onClick={handleNavigate}
             >
-              {accountLabel}
+              {signedInAccountLabel}
             </Link>
+
+            <button
+              type="button"
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="flex h-10 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-xs font-black text-slate-700 shadow-sm transition hover:bg-white"
+            >
+              התנתקות
+            </button>
 
             <Link
               href="/settings"

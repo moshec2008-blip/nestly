@@ -158,9 +158,9 @@ export default function DashboardLiveOverview() {
   const primaryOverviewItems = overviewItems.slice(0, 4);
 
   return (
-    <section className="rounded-[20px] border border-white/80 bg-white/88 p-2.5 text-right shadow-[0_12px_30px_rgba(33,43,63,0.07)] backdrop-blur">
+    <section className="rounded-[20px] bg-white/64 p-2.5 text-right shadow-[0_8px_22px_rgba(33,43,63,0.035)] backdrop-blur">
       <div className="mb-2 flex items-center justify-between gap-3">
-        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-800">
+        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-black text-emerald-800">
           חי עכשיו
         </span>
         <div>
@@ -173,12 +173,15 @@ export default function DashboardLiveOverview() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-1.5 xl:grid-cols-4">
-        {primaryOverviewItems.map((item) => (
+      <div className="grid grid-cols-2 gap-1.5 xl:grid-cols-[1.35fr_1fr_1fr_1fr]">
+        {primaryOverviewItems.map((item, index) => (
           <Link
             key={item.title}
             href={item.href}
-            className="group min-h-[64px] rounded-[16px] border border-white/80 bg-[#fffdf8] p-2 transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(33,43,63,0.09)]"
+            className={[
+              "group rounded-[16px] bg-[#fffdf8] p-2 transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_10px_24px_rgba(33,43,63,0.07)]",
+              index === 0 ? "min-h-[72px]" : "min-h-[60px]",
+            ].join(" ")}
           >
             <div className="flex items-center justify-between gap-2">
               <span
@@ -190,7 +193,7 @@ export default function DashboardLiveOverview() {
                 {item.title}
               </p>
             </div>
-            <p className="mt-1 truncate text-sm font-black tracking-tight text-[#1d1d1f] sm:text-base">
+            <p className={index === 0 ? "mt-1 truncate text-base font-black tracking-tight text-[#1d1d1f] sm:text-lg" : "mt-1 truncate text-sm font-bold tracking-tight text-[#1d1d1f]"}>
               {item.value}
             </p>
             <p className="mt-0.5 hidden truncate text-[10px] font-semibold leading-4 text-slate-600 sm:block">

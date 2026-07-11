@@ -26,14 +26,14 @@ export default function MonthSelector({
   onMonthChange,
 }: MonthSelectorProps) {
   return (
-    <section className="mb-2.5 rounded-[18px] border border-[#e6e8ec] bg-white px-3 py-2 text-right text-[#1d1d1f] shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <label className="flex items-center justify-between gap-2 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-3 py-2 text-sm font-bold text-slate-700 sm:min-w-64">
+    <section className="mb-1 rounded-[16px] border border-[#e6e8ec] bg-white px-2.5 py-2 text-right text-[#1d1d1f] shadow-[0_6px_18px_rgba(15,23,42,0.035)]">
+      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
+        <label className="flex items-center justify-between gap-2 rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-2.5 py-1.5 text-xs font-bold text-slate-700 sm:min-w-56">
           <span>חודש פעיל</span>
           <select
             value={activeMonth}
             onChange={(event) => onMonthChange(event.target.value)}
-            className="min-h-11 rounded-xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-black text-[#111827] outline-none focus:border-[#007aff]/60"
+            className="min-h-9 rounded-xl border border-[#d9dde5] bg-white px-2.5 text-right text-xs font-black text-[#111827] outline-none focus:border-[#007aff]/60"
           >
             <option value="all">כל החודשים</option>
 

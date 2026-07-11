@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import AuthStorageScope from "@/components/auth/AuthStorageScope";
 import Sidebar from "@/components/Sidebar";
 import BirthdayWelcomePopup from "@/components/birthdays/BirthdayWelcomePopup";
 import MobileBottomNavigation from "@/components/layout/MobileBottomNavigation";
@@ -73,6 +74,7 @@ export default function AppShell({ children }: AppShellProps) {
       className="app-premium nestly-page-shell min-h-screen overflow-x-hidden text-[#1d1d1f]"
     >
       <FeedbackProvider>
+        <AuthStorageScope />
         <TopNavigation
           isSidebarCollapsed={isSidebarCollapsed}
           isMobileMenuOpen={isMobileMenuOpen}
@@ -93,9 +95,7 @@ export default function AppShell({ children }: AppShellProps) {
           {showGlobalAssists && <SmartFamilyCenter />}
         </div>
 
-        {!isMobileMenuOpen && (
-          <MobileBottomNavigation onOpenMenu={toggleMobileMenu} />
-        )}
+        {!isMobileMenuOpen && <MobileBottomNavigation />}
         {showGlobalAssists && <SmartNudgePopup />}
         {showGlobalAssists && <BirthdayWelcomePopup />}
       </FeedbackProvider>

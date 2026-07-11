@@ -308,7 +308,7 @@ export default function TransactionsTable({
   }
 
   return (
-    <section className="rounded-[20px] border border-[#e6e8ec] bg-white/95 p-2.5 text-right shadow-[0_10px_26px_rgba(15,23,42,0.045)]">
+    <section className="rounded-[18px] bg-white/94 p-2.5 text-right shadow-[0_8px_22px_rgba(15,23,42,0.04)] ring-1 ring-[#edf0f3]">
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2 border-b border-[#eef0f3] pb-2">
         <div className="flex flex-wrap gap-1.5 text-[11px] font-black">
           <span className="rounded-full border border-[#e6e8ec] bg-white px-2.5 py-1 text-slate-600">
@@ -345,8 +345,8 @@ export default function TransactionsTable({
         <div>
           <div className="divide-y divide-[#edf0f3]">
             {groupedTransactions.map((group) => (
-              <div key={group.id} className="py-1 first:pt-0 last:pb-0">
-                <p className="px-1 pb-1 pt-2 text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 first:pt-0">
+              <div key={group.id} className="py-0.5 first:pt-0 last:pb-0">
+                <p className="px-1 pb-0.5 pt-2 text-[10px] font-black uppercase tracking-[0.12em] text-slate-500 first:pt-0">
                   {group.label}
                 </p>
 
@@ -360,28 +360,28 @@ export default function TransactionsTable({
                         <button
                           type="button"
                           onClick={() => openDetails(transaction)}
-                          className="grid w-full grid-cols-[minmax(0,1fr)_minmax(7.75rem,max-content)] items-center gap-2 rounded-[14px] py-2.5 pl-11 pr-1.5 text-right transition hover:bg-[#fafafb] sm:grid-cols-[minmax(0,1fr)_minmax(9rem,max-content)]"
+                          className="grid w-full grid-cols-[minmax(0,1fr)_minmax(8.25rem,max-content)] items-center gap-1.5 rounded-[12px] py-2 pl-9 pr-1 text-right transition hover:bg-[#fafafb] sm:grid-cols-[minmax(0,1fr)_minmax(9.25rem,max-content)]"
                         >
-                          <div className="flex min-w-0 items-center justify-end gap-2.5">
+                          <div className="flex min-w-0 items-center justify-end gap-2">
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center justify-end gap-2">
                                 {transaction.status === "pending" && (
-                                  <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-black text-amber-700">
+                                   <span className="rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-black text-amber-700">
                                     {statusLabels[transaction.status]}
                                   </span>
                                 )}
-                                <h3 className="truncate text-sm font-black text-[#111827]">
+                                 <h3 className="truncate text-[13px] font-black text-[#111827]">
                                   {transaction.title}
                                 </h3>
                               </div>
-                              <p className="mt-0.5 truncate text-[11px] font-semibold text-slate-500">
+                              <p className="mt-0.5 truncate text-[10.5px] font-semibold text-slate-500">
                                 {transaction.category} · {formatDate(transaction.date)}
                                 {insight ? ` · ${insight}` : ""}
                               </p>
                             </div>
                             <span
                               className={[
-                                "grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-black",
+                                 "grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-black",
                                 transaction.type === "income"
                                   ? "bg-emerald-50 text-emerald-700"
                                   : "bg-slate-100 text-slate-700",
@@ -394,7 +394,7 @@ export default function TransactionsTable({
 
                           <span
                             dir="ltr"
-                            className={`min-w-[7.75rem] shrink-0 whitespace-nowrap text-left text-base font-black tabular-nums leading-5 sm:min-w-36 ${getAmountClass(
+                             className={`min-w-[8.25rem] shrink-0 whitespace-nowrap text-left text-[15px] font-black tabular-nums leading-5 sm:min-w-36 ${getAmountClass(
                               transaction.type
                             )}`}
                           >
@@ -410,7 +410,7 @@ export default function TransactionsTable({
                               currentId === transaction.id ? null : transaction.id
                             );
                           }}
-                          className="absolute left-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-lg font-black text-slate-400 transition hover:bg-[#fff8eb] hover:text-[#111827]"
+                          className="absolute left-0.5 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-base font-black text-slate-400 transition hover:bg-[#fff8eb] hover:text-[#111827]"
                           aria-label={`פעולות עבור ${transaction.title}`}
                         >
                           ...
@@ -456,7 +456,7 @@ export default function TransactionsTable({
             ))}
           </div>
 
-          <div className="mt-2 flex items-center justify-between gap-2 border-t border-[#eef0f3] pt-2">
+          <div className="mt-2 flex items-center justify-between gap-2 border-t border-[#eef0f3] pt-2 pb-[calc(var(--nestly-safe-bottom-gap)+0.25rem)] sm:pb-0">
             <span className="text-xs font-bold text-slate-500">
               יתרה ברשימה: {formatCurrency(summary.balance)}
             </span>

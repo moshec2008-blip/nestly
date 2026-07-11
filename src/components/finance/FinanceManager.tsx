@@ -420,14 +420,14 @@ export default function FinanceManager() {
   }
 
   return (
-    <section className="space-y-2.5">
-      <section className="nestly-card-strong rounded-[22px] p-3 text-right">
+    <section className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] lg:pb-0">
+      <section className="rounded-[20px] bg-white/82 p-2.5 text-right shadow-[0_10px_24px_rgba(33,43,63,0.05)] ring-1 ring-[#eadfcd]/70">
         <div className="flex flex-col gap-2 xl:flex-row xl:items-center">
           <div className="min-w-0 flex-1 space-y-2">
             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-xs font-bold text-[#007aff]">מרכז כספים</p>
-                <h2 className="mt-1 text-xl font-black text-[#111827]">
+                <h2 className="mt-0.5 text-lg font-black text-[#111827] sm:text-xl">
                   איפה אנחנו אוחזים החודש
                 </h2>
                 <p className="hidden">
@@ -439,7 +439,7 @@ export default function FinanceManager() {
             <FinanceSummaryCards cards={financeCards} />
           </div>
 
-          <div className="shrink-0 xl:w-[260px]">
+          <div className="shrink-0 xl:w-[230px]">
             <MonthSelector
               months={availableMonths}
               activeMonth={activeMonth}

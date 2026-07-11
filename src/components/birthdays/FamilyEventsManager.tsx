@@ -1,14 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { initialBirthdays } from "@/data/birthdays";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
 import type {
   BirthdayCalendarType,
-  FamilyEvent,
   BirthdayReminder,
+  FamilyEvent,
   FamilyEventType,
 } from "@/types/birthdays";
 import {
@@ -28,7 +28,7 @@ import {
 } from "@/utils/hebrewDate";
 
 type TimelineBucket = "today" | "week" | "month" | "later";
-type EventFilter = "all" | FamilyEventType;
+type EventFilter = "all" | "birthday" | "other" | FamilyEventType;
 type CalendarFilter = "all" | BirthdayCalendarType;
 
 type EventFormState = {
@@ -51,40 +51,40 @@ const eventTypes: Record<
     icon: string;
     tone: string;
     chip: string;
-    shadow: string;
+    soft: string;
   }
 > = {
   birthday: {
     label: "יום הולדת",
     plural: "ימי הולדת",
     icon: "🎂",
-    tone: "from-orange-50 to-amber-50 text-orange-950 ring-orange-100",
+    tone: "text-orange-950",
     chip: "bg-orange-100 text-orange-900",
-    shadow: "shadow-[0_14px_42px_rgba(249,115,22,0.14)]",
+    soft: "bg-orange-50 ring-orange-100",
   },
   anniversary: {
     label: "יום נישואין",
     plural: "ימי נישואין",
     icon: "💍",
-    tone: "from-sky-50 to-blue-50 text-blue-950 ring-blue-100",
+    tone: "text-blue-950",
     chip: "bg-blue-100 text-blue-900",
-    shadow: "shadow-[0_14px_42px_rgba(37,99,235,0.12)]",
+    soft: "bg-blue-50 ring-blue-100",
   },
   memorial: {
     label: "יארצייט",
     plural: "ימי זיכרון",
     icon: "🕯️",
-    tone: "from-slate-50 to-zinc-50 text-slate-950 ring-slate-200",
+    tone: "text-slate-950",
     chip: "bg-slate-200 text-slate-900",
-    shadow: "shadow-[0_14px_42px_rgba(71,85,105,0.12)]",
+    soft: "bg-slate-50 ring-slate-200",
   },
   custom: {
     label: "אירוע משפחתי",
     plural: "אירועים נוספים",
     icon: "⭐",
-    tone: "from-violet-50 to-purple-50 text-purple-950 ring-violet-100",
+    tone: "text-purple-950",
     chip: "bg-violet-100 text-violet-900",
-    shadow: "shadow-[0_14px_42px_rgba(124,58,237,0.12)]",
+    soft: "bg-violet-50 ring-violet-100",
   },
 };
 
@@ -123,6 +123,9 @@ const emptyForm: EventFormState = {
   notes: "",
 };
 
+const fieldClass =
+  "h-11 rounded-2xl border border-slate-100 bg-white px-3 text-right text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-500 focus:ring-2 focus:ring-purple-200";
+
 function getInitials(value: string) {
   return value
     .split(" ")
@@ -134,11 +137,11 @@ function getInitials(value: string) {
 
 function getAvatarTone(id: string) {
   const tones = [
-    "from-orange-200 to-amber-100 text-orange-950",
-    "from-blue-200 to-cyan-100 text-blue-950",
-    "from-slate-200 to-zinc-100 text-slate-950",
-    "from-violet-200 to-purple-100 text-violet-950",
-    "from-pink-200 to-rose-100 text-pink-950",
+    "from-orange-100 to-amber-50 text-orange-950 ring-orange-100",
+    "from-blue-100 to-cyan-50 text-blue-950 ring-blue-100",
+    "from-slate-100 to-zinc-50 text-slate-950 ring-slate-200",
+    "from-violet-100 to-purple-50 text-violet-950 ring-violet-100",
+    "from-pink-100 to-rose-50 text-pink-950 ring-pink-100",
   ];
   const index = id
     .split("")
@@ -158,18 +161,9 @@ function getDisplayTitle(event: FamilyEvent) {
 }
 
 function getDaysLabel(daysUntil: number) {
-  if (daysUntil === 0) {
-    return "היום";
-  }
-
-  if (daysUntil === 1) {
-    return "מחר";
-  }
-
-  if (daysUntil <= 7) {
-    return `בעוד ${daysUntil} ימים`;
-  }
-
+  if (daysUntil === 0) return "היום";
+  if (daysUntil === 1) return "מחר";
+  if (daysUntil <= 7) return `בעוד ${daysUntil} ימים`;
   return `עוד ${daysUntil} ימים`;
 }
 
@@ -188,9 +182,16 @@ function getReminderLabel(reminder: BirthdayReminder) {
   return reminderOptions.find((option) => option.value === reminder)?.label ?? "תזכורת";
 }
 
-function EventAvatar({ event, size = "md" }: { event: FamilyEvent; size?: "md" | "lg" }) {
+function EventAvatar({
+  event,
+  size = "md",
+}: {
+  event: FamilyEvent;
+  size?: "sm" | "md" | "lg";
+}) {
   const name = getDisplayName(event);
-  const sizeClass = size === "lg" ? "h-16 w-16 text-xl" : "h-11 w-11 text-sm";
+  const sizeClass =
+    size === "lg" ? "h-14 w-14 text-lg" : size === "sm" ? "h-9 w-9 text-xs" : "h-10 w-10 text-sm";
 
   if (event.imageUrl) {
     return (
@@ -199,7 +200,7 @@ function EventAvatar({ event, size = "md" }: { event: FamilyEvent; size?: "md" |
           src={event.imageUrl}
           alt={`תמונה של ${name}`}
           fill
-          sizes={size === "lg" ? "64px" : "44px"}
+          sizes={size === "lg" ? "56px" : "40px"}
           className="object-cover"
         />
       </span>
@@ -208,7 +209,7 @@ function EventAvatar({ event, size = "md" }: { event: FamilyEvent; size?: "md" |
 
   return (
     <span
-      className={`${sizeClass} grid shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${getAvatarTone(event.id)} font-black shadow-sm`}
+      className={`${sizeClass} grid shrink-0 place-items-center rounded-2xl bg-gradient-to-br ${getAvatarTone(event.id)} font-black shadow-sm ring-1`}
       aria-label={`אווטאר של ${name}`}
     >
       {getInitials(name)}
@@ -221,66 +222,199 @@ function UpcomingDashboard({ events }: { events: FamilyEvent[] }) {
   const nextEvent = upcoming[0];
 
   return (
-    <section className="nestly-hero rounded-[28px] p-3.5 text-right sm:p-4">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex min-w-0 items-center gap-3">
+    <section className="rounded-[22px] bg-gradient-to-br from-[#fff8eb] to-white p-3 text-right shadow-[0_12px_30px_rgba(154,107,23,0.08)] ring-1 ring-[#eadfcd]">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-black text-[#7a5212]">האירוע הקרוב</p>
           {nextEvent ? (
-            <EventAvatar event={nextEvent} size="lg" />
+            <>
+              <h1 className="mt-0.5 truncate text-lg font-black text-[#24151f]">
+                {eventTypes[nextEvent.eventType ?? "birthday"].icon} {getDisplayTitle(nextEvent)}
+              </h1>
+              <p className="mt-0.5 text-sm font-bold text-slate-700">
+                {getDaysLabel(getDaysUntilFamilyEvent(nextEvent))}
+                {nextEvent.eventType === "birthday"
+                  ? ` · גיל ${getBirthdayAge(nextEvent)}`
+                  : ""}
+              </p>
+            </>
           ) : (
-            <span className="grid h-16 w-16 place-items-center rounded-2xl bg-white text-3xl shadow-sm">
-              ⭐
-            </span>
+            <>
+              <h1 className="mt-0.5 text-lg font-black text-[#24151f]">
+                אירועי משפחה
+              </h1>
+              <p className="mt-0.5 text-sm font-bold text-slate-700">
+                הוסיפו את האירוע המשפחתי הראשון.
+              </p>
+            </>
           )}
-          <div className="min-w-0">
-            <p className="text-xs font-black text-purple-800">Family Events</p>
-            <h1 className="truncate text-2xl font-black text-[#24151f] sm:text-3xl">
-              אירועים משפחתיים קרובים
-            </h1>
-            <p className="mt-1 text-sm font-bold text-slate-700">
-              ימי הולדת, נישואין, יארצייטים ומסורות משפחתיות במקום אחד.
-            </p>
-          </div>
         </div>
 
-        <div className="grid gap-2 lg:min-w-[360px]">
-          {upcoming.length > 0 ? (
-            upcoming.map((event) => {
-              const type = event.eventType ?? "birthday";
-              return (
-                <div
-                  key={event.id}
-                  className="flex items-center justify-between gap-3 rounded-2xl bg-white/85 px-3 py-2 shadow-sm"
-                >
-                  <span className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-700">
-                    {getDaysLabel(getDaysUntilFamilyEvent(event))}
-                  </span>
-                  <p className="truncate text-sm font-black text-[#24151f]">
-                    {eventTypes[type].icon} {getDisplayTitle(event)}
-                  </p>
-                </div>
-              );
-            })
-          ) : (
-            <div className="rounded-2xl bg-white/85 px-3 py-4 text-sm font-black text-slate-700">
-              עדיין אין אירועים. הוסף אירוע משפחתי ראשון.
-            </div>
-          )}
-        </div>
+        {nextEvent ? (
+          <EventAvatar event={nextEvent} size="lg" />
+        ) : (
+          <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white text-2xl shadow-sm">
+            ⭐
+          </span>
+        )}
       </div>
+
+      {upcoming.length > 1 && (
+        <div className="mt-2 grid gap-1.5">
+          {upcoming.slice(1).map((event) => {
+            const type = event.eventType ?? "birthday";
+            return (
+              <div
+                key={event.id}
+                className="flex min-h-9 items-center justify-between gap-2 rounded-2xl bg-white/72 px-2.5 text-xs font-black text-slate-700 shadow-sm"
+              >
+                <span>{getDaysLabel(getDaysUntilFamilyEvent(event))}</span>
+                <span className="truncate">
+                  {eventTypes[type].icon} {getDisplayTitle(event)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }
 
-type EventCardProps = {
+type EventRowProps = {
   event: FamilyEvent;
   dateViewMode: BirthdayDateViewMode;
-  onUpdate: (id: string, patch: Partial<FamilyEvent>) => void;
+  onSelect: (event: FamilyEvent) => void;
 };
 
-function EventCard({ event, dateViewMode, onUpdate }: EventCardProps) {
+function EventRow({ event, dateViewMode, onSelect }: EventRowProps) {
   const type = event.eventType ?? "birthday";
   const visual = eventTypes[type];
   const daysUntil = getDaysUntilFamilyEvent(event);
+  const primaryDate =
+    dateViewMode === "hebrew"
+      ? getHebrewDisplayDate(event)
+      : formatGregorianDate(event.gregorianDate);
+  const giftHint =
+    type === "birthday"
+      ? event.giftPlan?.ideas
+        ? "🎁 יש רעיון למתנה"
+        : "🎁 מתנה לא הוגדרה"
+      : null;
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(event)}
+      className={`grid min-h-[76px] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-[16px] px-2 py-2 text-right transition hover:bg-[#fafafb] ${visual.tone}`}
+    >
+      <EventAvatar event={event} size="sm" />
+
+      <span className="min-w-0">
+        <span className="flex items-center justify-end gap-1.5">
+          <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-black ${visual.chip}`}>
+            {visual.icon} {visual.label}
+          </span>
+          <span className="truncate text-sm font-black text-[#24151f]">
+            {getDisplayName(event)}
+          </span>
+        </span>
+        <span className="mt-0.5 block truncate text-xs font-bold text-slate-600">
+          {getDaysLabel(daysUntil)}
+          {type === "birthday" ? ` · גיל ${getBirthdayAge(event)}` : ""}
+          {giftHint ? ` · ${giftHint}` : ""}
+        </span>
+        <span className="mt-0.5 block truncate text-[11px] font-semibold text-slate-500">
+          {primaryDate}
+        </span>
+      </span>
+
+      <span className="text-left text-xs font-black text-slate-500">›</span>
+    </button>
+  );
+}
+
+type TimelineSectionProps = {
+  title: string;
+  subtitle: string;
+  events: FamilyEvent[];
+  dateViewMode: BirthdayDateViewMode;
+  limit?: number;
+  showAll?: boolean;
+  onShowAll?: () => void;
+  onSelect: (event: FamilyEvent) => void;
+};
+
+function TimelineSection({
+  title,
+  subtitle,
+  events,
+  dateViewMode,
+  limit,
+  showAll = true,
+  onShowAll,
+  onSelect,
+}: TimelineSectionProps) {
+  if (events.length === 0) {
+    return null;
+  }
+
+  const visibleEvents = limit && !showAll ? events.slice(0, limit) : events;
+  const hiddenCount = events.length - visibleEvents.length;
+
+  return (
+    <section className="rounded-[20px] bg-white/88 p-2.5 text-right shadow-[0_8px_24px_rgba(36,21,31,0.04)] ring-1 ring-[#e6e8ec]">
+      <div className="mb-1.5 flex items-center justify-between gap-3">
+        <span className="rounded-full bg-[#fafafb] px-2 py-0.5 text-[11px] font-black text-slate-600">
+          {events.length}
+        </span>
+        <div>
+          <h2 className="text-sm font-black text-[#24151f]">{title}</h2>
+          <p className="text-[11px] font-semibold text-slate-600">{subtitle}</p>
+        </div>
+      </div>
+
+      <div className="divide-y divide-[#eef0f3]">
+        {visibleEvents.map((event) => (
+          <EventRow
+            key={event.id}
+            event={event}
+            dateViewMode={dateViewMode}
+            onSelect={onSelect}
+          />
+        ))}
+      </div>
+
+      {hiddenCount > 0 && onShowAll && (
+        <button
+          type="button"
+          onClick={onShowAll}
+          className="mt-2 min-h-10 w-full rounded-2xl border border-[#e6e8ec] bg-white px-3 text-xs font-black text-slate-700 hover:bg-[#fff8eb]"
+        >
+          הצג עוד {hiddenCount}
+        </button>
+      )}
+    </section>
+  );
+}
+
+type EventDetailsSheetProps = {
+  event: FamilyEvent;
+  dateViewMode: BirthdayDateViewMode;
+  onClose: () => void;
+  onUpdate: (id: string, patch: Partial<FamilyEvent>) => void;
+  onDelete: (id: string) => void;
+};
+
+function EventDetailsSheet({
+  event,
+  dateViewMode,
+  onClose,
+  onUpdate,
+  onDelete,
+}: EventDetailsSheetProps) {
+  const type = event.eventType ?? "birthday";
+  const visual = eventTypes[type];
   const giftPlan = event.giftPlan ?? {
     ideas: "",
     budget: "",
@@ -295,264 +429,239 @@ function EventCard({ event, dateViewMode, onUpdate }: EventCardProps) {
     food: false,
     decorations: false,
   };
-  const showBirthdayPlanning = type === "birthday";
 
   return (
-    <article
-      className={`rounded-[22px] bg-gradient-to-br ${visual.tone} ${visual.shadow} p-3 text-right ring-1 transition duration-200 hover:-translate-y-0.5`}
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/35 px-3 pb-3 backdrop-blur-[2px] sm:items-center sm:p-6"
+      role="presentation"
+      onMouseDown={(eventTarget) => {
+        if (eventTarget.target === eventTarget.currentTarget) {
+          onClose();
+        }
+      }}
     >
-      <div className="flex items-start gap-3">
-        <EventAvatar event={event} />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <span className={`rounded-full px-2.5 py-1 text-[11px] font-black ${visual.chip}`}>
-              {visual.icon} {visual.label}
-            </span>
+      <div className="max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-[26px] bg-white p-4 text-right shadow-[0_28px_90px_rgba(15,23,42,0.28)] ring-1 ring-[#eadfcd]">
+        <div className="flex items-start justify-between gap-3 border-b border-[#eef0f3] pb-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid h-10 w-10 place-items-center rounded-full border border-[#e6e8ec] bg-white text-lg font-black text-slate-600"
+            aria-label="סגור"
+          >
+            ×
+          </button>
+          <div className="flex min-w-0 items-start justify-end gap-2.5">
             <div className="min-w-0">
-              <h3 className="truncate text-base font-black">{getDisplayTitle(event)}</h3>
-              <p className="truncate text-xs font-bold text-slate-600">
+              <p className={`text-xs font-black ${visual.tone}`}>
+                {visual.icon} {visual.label} · {getDaysLabel(getDaysUntilFamilyEvent(event))}
+              </p>
+              <h3 className="mt-1 truncate text-lg font-black text-[#24151f]">
+                {getDisplayTitle(event)}
+              </h3>
+              <p className="truncate text-sm font-bold text-slate-600">
                 {getDisplayName(event)}
                 {event.relationship ? ` · ${event.relationship}` : ""}
               </p>
             </div>
+            <EventAvatar event={event} />
           </div>
+        </div>
 
-          <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-            <span className="rounded-2xl bg-white/80 px-3 py-2 font-black">
-              {getDaysLabel(daysUntil)}
-            </span>
-            <span className="rounded-2xl bg-white/70 px-3 py-2 font-black">
-              {type === "birthday" ? `גיל ${getBirthdayAge(event)}` : "חוזר שנתי"}
-            </span>
-          </div>
-
-          <div className="mt-2 rounded-2xl bg-white/75 px-3 py-2">
-            <p className="truncate text-sm font-black">
-              {dateViewMode === "hebrew"
-                ? getHebrewDisplayDate(event)
-                : formatGregorianDate(event.gregorianDate)}
+        <div className="grid gap-2 py-3 sm:grid-cols-2">
+          <div className="rounded-2xl bg-[#fafafb] p-3">
+            <p className="text-[11px] font-black text-slate-500">תאריך עברי</p>
+            <p className="mt-1 text-sm font-black text-[#24151f]">
+              {getHebrewDisplayDate(event)}
             </p>
-            <p className="truncate text-[11px] font-semibold text-slate-500">
-              {dateViewMode === "hebrew"
-                ? formatGregorianDate(event.gregorianDate)
-                : getHebrewDisplayDate(event)}
-              {" · "}
+          </div>
+          <div className="rounded-2xl bg-[#fafafb] p-3">
+            <p className="text-[11px] font-black text-slate-500">תאריך לועזי</p>
+            <p className="mt-1 text-sm font-black text-[#24151f]">
+              {formatGregorianDate(event.gregorianDate)}
+            </p>
+          </div>
+          <div className="rounded-2xl bg-[#fafafb] p-3">
+            <p className="text-[11px] font-black text-slate-500">גיל / שנה</p>
+            <p className="mt-1 text-sm font-black text-[#24151f]">
+              {type === "birthday" ? `גיל ${getBirthdayAge(event)}` : "אירוע שנתי"}
+            </p>
+          </div>
+          <div className="rounded-2xl bg-[#fafafb] p-3">
+            <p className="text-[11px] font-black text-slate-500">לוח</p>
+            <p className="mt-1 text-sm font-black text-[#24151f]">
               {getBirthdayCalendarBadge(event.calendarType)}
             </p>
           </div>
         </div>
-      </div>
 
-      <div className="mt-2 flex flex-wrap justify-end gap-1.5">
-        {event.reminders.map((reminder) => (
-          <span
-            key={reminder}
-            className="rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-bold text-slate-800"
-          >
-            {getReminderLabel(reminder)}
-          </span>
-        ))}
-        <button
-          type="button"
-          onClick={() =>
-            onUpdate(event.id, {
-              calendarType: event.calendarType === "hebrew" ? "gregorian" : "hebrew",
-            })
-          }
-          className="min-h-8 rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-300"
-        >
-          החלף ללוח {event.calendarType === "hebrew" ? "לועזי" : "עברי"}
-        </button>
-      </div>
-
-      {event.notes && (
-        <p className="mt-2 line-clamp-2 rounded-2xl bg-white/60 px-3 py-2 text-xs font-semibold text-slate-700">
-          {event.notes}
-        </p>
-      )}
-
-      {showBirthdayPlanning && (
-        <details className="mt-2 rounded-2xl bg-white/65 px-3 py-2">
-          <summary className="cursor-pointer list-none text-sm font-black">
-            מתנה ותכנון חגיגה
+        <details className="rounded-2xl bg-[#fafafb] p-3">
+          <summary className="cursor-pointer list-none text-sm font-black text-[#24151f]">
+            תזכורות ופרטים
           </summary>
-          <div className="mt-3 space-y-3">
-            <div className="grid gap-2 sm:grid-cols-2">
-              <label className="text-xs font-black text-slate-700">
-                רעיונות למתנה
-                <input
-                  value={giftPlan.ideas}
-                  onChange={(eventChange) =>
-                    onUpdate(event.id, {
-                      giftPlan: { ...giftPlan, ideas: eventChange.target.value },
-                    })
-                  }
-                  className="mt-1 h-11 w-full rounded-2xl border border-orange-100 bg-white px-3 text-right text-sm font-semibold text-slate-900 outline-none focus:ring-2 focus:ring-orange-200"
-                  placeholder="ספר, משחק, חוויה..."
-                />
-              </label>
-              <label className="text-xs font-black text-slate-700">
-                תקציב
-                <input
-                  value={giftPlan.budget}
-                  onChange={(eventChange) =>
-                    onUpdate(event.id, {
-                      giftPlan: { ...giftPlan, budget: eventChange.target.value },
-                    })
-                  }
-                  className="mt-1 h-11 w-full rounded-2xl border border-orange-100 bg-white px-3 text-right text-sm font-semibold text-slate-900 outline-none focus:ring-2 focus:ring-orange-200"
-                  placeholder="₪"
-                />
-              </label>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                ["purchased", "נקנה"],
-                ["wrapped", "נעטף"],
-                ["delivered", "נמסר"],
-              ].map(([key, label]) => (
-                <label
-                  key={key}
-                  className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-white px-2 text-xs font-black text-slate-800"
-                >
+          <div className="mt-3 flex flex-wrap justify-end gap-1.5">
+            {event.reminders.map((reminder) => (
+              <span
+                key={reminder}
+                className="rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-slate-700 ring-1 ring-slate-100"
+              >
+                {getReminderLabel(reminder)}
+              </span>
+            ))}
+          </div>
+          {event.notes && (
+            <p className="mt-2 rounded-2xl bg-white p-3 text-sm font-semibold text-slate-700">
+              {event.notes}
+            </p>
+          )}
+        </details>
+
+        {type === "birthday" && (
+          <details className="mt-2 rounded-2xl bg-orange-50/70 p-3 ring-1 ring-orange-100">
+            <summary className="cursor-pointer list-none text-sm font-black text-orange-950">
+              מתנה ותכנון חגיגה
+            </summary>
+            <div className="mt-3 space-y-3">
+              <div className="grid gap-2 sm:grid-cols-2">
+                <label className="text-xs font-black text-slate-700">
+                  רעיונות למתנה
                   <input
-                    type="checkbox"
-                    checked={Boolean(giftPlan[key as keyof typeof giftPlan])}
+                    value={giftPlan.ideas}
                     onChange={(eventChange) =>
                       onUpdate(event.id, {
-                        giftPlan: {
-                          ...giftPlan,
-                          [key]: eventChange.target.checked,
-                        },
+                        giftPlan: { ...giftPlan, ideas: eventChange.target.value },
                       })
                     }
+                    className="mt-1 h-11 w-full rounded-2xl border border-orange-100 bg-white px-3 text-right text-sm font-semibold text-slate-900 outline-none focus:ring-2 focus:ring-orange-200"
+                    placeholder="ספר, משחק, חוויה..."
                   />
-                  {label}
                 </label>
-              ))}
-            </div>
-            <details className="rounded-2xl bg-white px-3 py-2">
-              <summary className="cursor-pointer list-none text-xs font-black text-orange-900">
-                צ׳קליסט מסיבה
-              </summary>
-              <div className="mt-2 grid grid-cols-2 gap-2">
+                <label className="text-xs font-black text-slate-700">
+                  תקציב
+                  <input
+                    value={giftPlan.budget}
+                    onChange={(eventChange) =>
+                      onUpdate(event.id, {
+                        giftPlan: { ...giftPlan, budget: eventChange.target.value },
+                      })
+                    }
+                    className="mt-1 h-11 w-full rounded-2xl border border-orange-100 bg-white px-3 text-right text-sm font-semibold text-slate-900 outline-none focus:ring-2 focus:ring-orange-200"
+                    placeholder="₪"
+                  />
+                </label>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
                 {[
-                  ["cake", "עוגה"],
-                  ["balloons", "בלונים"],
-                  ["invitations", "הזמנות"],
-                  ["food", "אוכל"],
-                  ["decorations", "קישוטים"],
+                  ["purchased", "נקנה"],
+                  ["wrapped", "נעטף"],
+                  ["delivered", "נמסר"],
                 ].map(([key, label]) => (
                   <label
                     key={key}
-                    className="flex min-h-10 items-center justify-end gap-2 rounded-xl bg-orange-50 px-3 text-xs font-bold text-slate-800"
+                    className="flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-white px-2 text-xs font-black text-slate-800"
                   >
-                    {label}
                     <input
                       type="checkbox"
-                      checked={Boolean(partyPlan[key as keyof typeof partyPlan])}
+                      checked={Boolean(giftPlan[key as keyof typeof giftPlan])}
                       onChange={(eventChange) =>
                         onUpdate(event.id, {
-                          partyPlan: {
-                            ...partyPlan,
+                          giftPlan: {
+                            ...giftPlan,
                             [key]: eventChange.target.checked,
                           },
                         })
                       }
                     />
+                    {label}
                   </label>
                 ))}
               </div>
-            </details>
-          </div>
-        </details>
-      )}
-    </article>
-  );
-}
 
-type TimelineSectionProps = {
-  title: string;
-  subtitle: string;
-  events: FamilyEvent[];
-  dateViewMode: BirthdayDateViewMode;
-  onUpdate: (id: string, patch: Partial<FamilyEvent>) => void;
-};
+              <details className="rounded-2xl bg-white px-3 py-2">
+                <summary className="cursor-pointer list-none text-xs font-black text-orange-900">
+                  צ׳קליסט מסיבה
+                </summary>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {[
+                    ["cake", "עוגה"],
+                    ["balloons", "בלונים"],
+                    ["invitations", "הזמנות"],
+                    ["food", "אוכל"],
+                    ["decorations", "קישוטים"],
+                  ].map(([key, label]) => (
+                    <label
+                      key={key}
+                      className="flex min-h-10 items-center justify-end gap-2 rounded-xl bg-orange-50 px-3 text-xs font-bold text-slate-800"
+                    >
+                      {label}
+                      <input
+                        type="checkbox"
+                        checked={Boolean(partyPlan[key as keyof typeof partyPlan])}
+                        onChange={(eventChange) =>
+                          onUpdate(event.id, {
+                            partyPlan: {
+                              ...partyPlan,
+                              [key]: eventChange.target.checked,
+                            },
+                          })
+                        }
+                      />
+                    </label>
+                  ))}
+                </div>
+              </details>
+            </div>
+          </details>
+        )}
 
-function TimelineSection({
-  title,
-  subtitle,
-  events,
-  dateViewMode,
-  onUpdate,
-}: TimelineSectionProps) {
-  if (events.length === 0) {
-    return null;
-  }
-
-  return (
-    <section className="nestly-card rounded-[26px] p-3">
-      <div className="mb-2 flex items-center justify-between gap-3 text-right">
-        <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-slate-700 shadow-sm">
-          {events.length}
-        </span>
-        <div>
-          <h2 className="text-base font-black text-[#24151f]">{title}</h2>
-          <p className="text-xs font-semibold text-slate-600">{subtitle}</p>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              onUpdate(event.id, {
+                calendarType: event.calendarType === "hebrew" ? "gregorian" : "hebrew",
+              })
+            }
+            className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-white px-4 text-sm font-black text-slate-700"
+          >
+            החלף לוח
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete(event.id)}
+            className="min-h-11 rounded-2xl border border-rose-200 bg-rose-50 px-4 text-sm font-black text-rose-700"
+          >
+            מחיקה
+          </button>
         </div>
+
+        <p className="mt-2 text-center text-[11px] font-bold text-slate-500">
+          תצוגה נוכחית: {dateViewMode === "hebrew" ? "עברית" : "לועזית"}
+        </p>
       </div>
-      <div className="grid gap-2 lg:grid-cols-2">
-        {events.map((event) => (
-          <EventCard
-            key={event.id}
-            event={event}
-            dateViewMode={dateViewMode}
-            onUpdate={onUpdate}
-          />
-        ))}
-      </div>
-    </section>
+    </div>
   );
 }
 
 function SmartInsights({ events }: { events: FamilyEvent[] }) {
-  const thisMonthCount = events.filter((event) => getDaysUntilFamilyEvent(event) <= 31).length;
-  const memorialSoon = events.find(
-    (event) => event.eventType === "memorial" && getDaysUntilFamilyEvent(event) <= 14
-  );
+  const thisMonthCount = events.filter(
+    (event) => getDaysUntilFamilyEvent(event) <= 31
+  ).length;
   const missingGift = events.find(
     (event) =>
       event.eventType === "birthday" &&
       getDaysUntilFamilyEvent(event) <= 31 &&
       !event.giftPlan?.ideas
   );
-  const anniversarySoon = events.find(
-    (event) =>
-      event.eventType === "anniversary" &&
-      getDaysUntilFamilyEvent(event) <= 31
-  );
-
-  const insights = [
-    thisMonthCount > 0
+  const insight = missingGift
+    ? `עוד לא הוספת רעיון למתנה עבור ${getDisplayName(missingGift)}.`
+    : thisMonthCount > 0
       ? `${thisMonthCount} אירועים משפחתיים בחודש הקרוב.`
-      : "החודש רגוע, אין אירועים קרובים.",
-    anniversarySoon
-      ? `${getDisplayTitle(anniversarySoon)} מתקרב.`
-      : null,
-    memorialSoon ? `כדאי להתכונן ל${getDisplayTitle(memorialSoon)}.` : null,
-    missingGift ? `עוד לא הוספת רעיון למתנה עבור ${getDisplayName(missingGift)}.` : null,
-  ].filter(Boolean);
+      : "החודש רגוע, אין אירועים קרובים.";
 
   return (
-    <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-      {insights.map((insight) => (
-        <div
-          key={insight}
-          className="rounded-[20px] bg-white/75 px-3 py-2 text-right text-xs font-black text-[#24151f] shadow-[0_10px_30px_rgba(124,58,237,0.08)] ring-1 ring-white"
-        >
-          {insight}
-        </div>
-      ))}
+    <div className="rounded-[18px] bg-white/76 px-3 py-2 text-right text-xs font-black text-[#24151f] shadow-[0_8px_24px_rgba(124,58,237,0.06)] ring-1 ring-white">
+      {insight}
     </div>
   );
 }
@@ -567,6 +676,9 @@ export default function FamilyEventsManager() {
   const [monthFilter, setMonthFilter] = useState("all");
   const [calendarFilter, setCalendarFilter] = useState<CalendarFilter>("all");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showAllLater, setShowAllLater] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [dateViewMode, setDateViewMode] = useState<BirthdayDateViewMode>(() =>
     getBirthdayDateViewMode()
   );
@@ -597,7 +709,11 @@ export default function FamilyEventsManager() {
     const normalizedSearch = searchValue.trim().toLowerCase();
 
     return normalizedEvents
-      .filter((event) => eventFilter === "all" || event.eventType === eventFilter)
+      .filter((event) => {
+        if (eventFilter === "all") return true;
+        if (eventFilter === "other") return event.eventType !== "birthday";
+        return event.eventType === eventFilter;
+      })
       .filter(
         (event) =>
           monthFilter === "all" ||
@@ -608,9 +724,7 @@ export default function FamilyEventsManager() {
           calendarFilter === "all" || event.calendarType === calendarFilter
       )
       .filter((event) => {
-        if (!normalizedSearch) {
-          return true;
-        }
+        if (!normalizedSearch) return true;
 
         return (
           getDisplayTitle(event).toLowerCase().includes(normalizedSearch) ||
@@ -636,12 +750,24 @@ export default function FamilyEventsManager() {
     );
   }, [visibleEvents]);
 
+  const selectedEvent =
+    normalizedEvents.find((event) => event.id === selectedEventId) ?? null;
+
   function updateEvent(id: string, patch: Partial<FamilyEvent>) {
     setEvents((currentEvents) =>
       currentEvents.map((event) =>
         event.id === id ? normalizeFamilyEvent({ ...event, ...patch }) : event
       )
     );
+  }
+
+  function deleteEvent(id: string) {
+    const approved = window.confirm("למחוק את האירוע המשפחתי?");
+
+    if (!approved) return;
+
+    setEvents((currentEvents) => currentEvents.filter((event) => event.id !== id));
+    setSelectedEventId(null);
   }
 
   function updateFormEventType(eventType: FamilyEventType) {
@@ -666,7 +792,7 @@ export default function FamilyEventsManager() {
     setBirthdayDateViewMode(viewMode);
   }
 
-  function handleAddEvent(event: React.FormEvent<HTMLFormElement>) {
+  function handleAddEvent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!form.date || (!form.title.trim() && !form.person.trim())) {
@@ -698,38 +824,38 @@ export default function FamilyEventsManager() {
     setShowAddForm(false);
   }
 
-  const eventCounts = normalizedEvents.reduce<Record<FamilyEventType, number>>(
-    (counts, event) => {
-      counts[event.eventType ?? "birthday"] += 1;
-      return counts;
-    },
-    { birthday: 0, anniversary: 0, memorial: 0, custom: 0 }
-  );
-
   return (
-    <section className="space-y-3 text-[#24151f]">
+    <section className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] text-[#24151f] lg:pb-0">
       <UpcomingDashboard events={visibleEvents.length ? visibleEvents : normalizedEvents} />
 
-      <section className="nestly-card-strong rounded-[28px] p-3">
-        <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+      <section className="rounded-[20px] bg-white/78 p-2.5 shadow-[0_8px_24px_rgba(36,21,31,0.045)] ring-1 ring-[#eadfcd]/70">
+        <div className="flex items-center justify-between gap-2">
           <button
             type="button"
             onClick={() => setShowAddForm((currentValue) => !currentValue)}
-            className="min-h-11 rounded-2xl bg-[#24151f] px-4 py-2 text-sm font-black text-white shadow-[0_12px_28px_rgba(36,21,31,0.18)] focus:outline-none focus:ring-2 focus:ring-purple-300"
+            className="min-h-10 shrink-0 rounded-2xl bg-[#24151f] px-3 text-xs font-black text-white shadow-[0_10px_22px_rgba(36,21,31,0.14)] transition hover:bg-[#3a2532]"
           >
-            {showAddForm ? "סגור טופס" : "הוסף אירוע משפחתי"}
+            {showAddForm ? "סגור" : "+ הוסף אירוע"}
           </button>
 
-          <div className="grid grid-cols-4 gap-2 text-right lg:min-w-[460px]">
-            {(Object.keys(eventTypes) as FamilyEventType[]).map((type) => (
-              <div key={type} className="rounded-2xl bg-white/80 px-2.5 py-2 shadow-sm">
-                <p className="truncate text-[10px] font-black text-slate-500">
-                  {eventTypes[type].plural}
-                </p>
-                <p className="text-lg font-black">
-                  {eventTypes[type].icon} {eventCounts[type]}
-                </p>
-              </div>
+          <div className="flex min-w-0 flex-1 justify-end gap-1 overflow-x-auto rounded-2xl bg-[#fafafb] p-1">
+            {[
+              { id: "all", label: "הכל" },
+              { id: "birthday", label: "ימי הולדת" },
+              { id: "other", label: "אירועים נוספים" },
+            ].map((filter) => (
+              <button
+                key={filter.id}
+                type="button"
+                onClick={() => setEventFilter(filter.id as EventFilter)}
+                className={
+                  eventFilter === filter.id
+                    ? "min-h-9 whitespace-nowrap rounded-xl bg-white px-3 text-xs font-black text-[#24151f] shadow-sm ring-1 ring-[#eadfcd]"
+                    : "min-h-9 whitespace-nowrap rounded-xl px-3 text-xs font-black text-slate-600 hover:bg-white"
+                }
+              >
+                {filter.label}
+              </button>
             ))}
           </div>
         </div>
@@ -737,7 +863,7 @@ export default function FamilyEventsManager() {
         {showAddForm && (
           <form
             onSubmit={handleAddEvent}
-            className="mt-3 grid gap-2 rounded-[22px] bg-white/82 p-3 shadow-inner sm:grid-cols-2"
+            className="mt-2 grid gap-2 rounded-[20px] bg-white/82 p-2.5 shadow-inner sm:grid-cols-2"
           >
             <div className="grid grid-cols-2 gap-1.5 sm:col-span-2 lg:grid-cols-4">
               {(Object.keys(eventTypes) as FamilyEventType[]).map((type) => (
@@ -745,7 +871,7 @@ export default function FamilyEventsManager() {
                   key={type}
                   type="button"
                   onClick={() => updateFormEventType(type)}
-                  className={`min-h-11 rounded-2xl px-3 text-xs font-black ring-1 ${
+                  className={`min-h-10 rounded-2xl px-2 text-xs font-black ring-1 ${
                     form.eventType === type
                       ? `${eventTypes[type].chip} ring-transparent`
                       : "bg-white text-slate-700 ring-slate-100"
@@ -764,7 +890,7 @@ export default function FamilyEventsManager() {
                   title: event.target.value,
                 }))
               }
-              className="h-11 rounded-2xl border border-slate-100 bg-white px-3 text-right text-sm font-semibold outline-none focus:ring-2 focus:ring-purple-200"
+              className={fieldClass}
               placeholder="כותרת האירוע"
             />
             <input
@@ -775,7 +901,7 @@ export default function FamilyEventsManager() {
                   person: event.target.value,
                 }))
               }
-              className="h-11 rounded-2xl border border-slate-100 bg-white px-3 text-right text-sm font-semibold outline-none focus:ring-2 focus:ring-purple-200"
+              className={fieldClass}
               placeholder="אדם / זוג / משפחה"
             />
             <input
@@ -786,7 +912,7 @@ export default function FamilyEventsManager() {
                   relationship: event.target.value,
                 }))
               }
-              className="h-11 rounded-2xl border border-slate-100 bg-white px-3 text-right text-sm font-semibold outline-none focus:ring-2 focus:ring-purple-200"
+              className={fieldClass}
               placeholder="קרבה, לא חובה"
             />
             <input
@@ -798,7 +924,7 @@ export default function FamilyEventsManager() {
                   date: event.target.value,
                 }))
               }
-              className="h-11 rounded-2xl border border-slate-100 bg-white px-3 text-right text-sm font-semibold outline-none focus:ring-2 focus:ring-purple-200"
+              className={fieldClass}
               required
             />
             <input
@@ -809,11 +935,11 @@ export default function FamilyEventsManager() {
                   imageUrl: event.target.value,
                 }))
               }
-              className="h-11 rounded-2xl border border-slate-100 bg-white px-3 text-right text-sm font-semibold outline-none focus:ring-2 focus:ring-purple-200"
+              className={fieldClass}
               placeholder="קישור לתמונה, לא חובה"
             />
 
-            <div className="flex min-h-11 rounded-2xl bg-slate-100 p-1">
+            <div className="flex h-11 rounded-2xl bg-slate-100 p-1">
               {(["hebrew", "gregorian"] as BirthdayCalendarType[]).map((mode) => (
                 <button
                   key={mode}
@@ -859,12 +985,12 @@ export default function FamilyEventsManager() {
                   notes: event.target.value,
                 }))
               }
-              className="min-h-20 rounded-2xl border border-slate-100 bg-white px-3 py-2 text-right text-sm font-semibold outline-none focus:ring-2 focus:ring-purple-200 sm:col-span-2"
+              className="min-h-16 rounded-2xl border border-slate-100 bg-white px-3 py-2 text-right text-sm font-semibold outline-none focus:ring-2 focus:ring-purple-200 sm:col-span-2"
               placeholder="הערות"
             />
             <button
               type="submit"
-              className="min-h-11 rounded-2xl bg-purple-700 px-4 py-2 text-sm font-black text-white shadow-[0_12px_28px_rgba(124,58,237,0.2)] sm:col-span-2"
+              className="min-h-11 rounded-2xl bg-purple-700 px-4 text-sm font-black text-white shadow-[0_12px_28px_rgba(124,58,237,0.2)] sm:col-span-2"
             >
               שמור אירוע משפחתי
             </button>
@@ -874,80 +1000,72 @@ export default function FamilyEventsManager() {
 
       <SmartInsights events={normalizedEvents} />
 
-      <section className="nestly-card rounded-[28px] p-3">
-        <div className="flex flex-wrap justify-end gap-1.5">
-          {(["all", "birthday", "anniversary", "memorial", "custom"] as EventFilter[]).map(
-            (filter) => (
-              <button
-                key={filter}
-                type="button"
-                onClick={() => setEventFilter(filter)}
-                className={`min-h-10 rounded-full px-3 text-xs font-black ${
-                  eventFilter === filter
-                    ? "bg-[#24151f] text-white"
-                    : "bg-white text-slate-700 ring-1 ring-slate-100"
-                }`}
-              >
-                {filter === "all"
-                  ? "All"
-                  : `${eventTypes[filter].icon} ${eventTypes[filter].plural}`}
-              </button>
-            )
-          )}
-        </div>
-
-        <div className="mt-2 grid gap-2 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <section className="rounded-[20px] bg-white/72 p-2.5 shadow-[0_8px_24px_rgba(36,21,31,0.04)] ring-1 ring-[#e6e8ec]">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowAdvancedFilters((currentValue) => !currentValue)}
+            className="min-h-10 rounded-2xl bg-white px-3 text-xs font-black text-slate-700 shadow-sm ring-1 ring-slate-100 transition hover:bg-[#fff8eb]"
+            aria-expanded={showAdvancedFilters}
+          >
+            סינון
+          </button>
           <input
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
-            className="h-11 rounded-2xl border border-slate-100 bg-white px-3 text-right text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-500 focus:ring-2 focus:ring-purple-200"
-            placeholder="חיפוש לפי כותרת, אדם, קרבה או תאריך"
+            className="min-h-10 min-w-0 flex-1 rounded-2xl border border-slate-100 bg-white px-3 text-right text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-600 focus:ring-2 focus:ring-purple-200"
+            placeholder="חיפוש לפי שם, אירוע או תאריך"
           />
-          <select
-            value={monthFilter}
-            onChange={(event) => setMonthFilter(event.target.value)}
-            className="h-11 rounded-2xl border border-slate-100 bg-white px-3 text-right text-sm font-bold text-slate-900 outline-none focus:ring-2 focus:ring-purple-200"
-          >
-            {monthOptions.map((month, index) => (
-              <option key={month} value={index === 0 ? "all" : String(index - 1)}>
-                {month}
-              </option>
-            ))}
-          </select>
-          <select
-            value={calendarFilter}
-            onChange={(event) => setCalendarFilter(event.target.value as CalendarFilter)}
-            className="h-11 rounded-2xl border border-slate-100 bg-white px-3 text-right text-sm font-bold text-slate-900 outline-none focus:ring-2 focus:ring-purple-200"
-          >
-            <option value="all">כל הלוחות</option>
-            <option value="hebrew">לוח עברי</option>
-            <option value="gregorian">לוח לועזי</option>
-          </select>
-          <div className="flex h-11 rounded-2xl bg-slate-100 p-1">
-            {(["hebrew", "gregorian"] as BirthdayDateViewMode[]).map((mode) => (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => handleDateViewChange(mode)}
-                className={`flex-1 rounded-xl text-sm font-black ${
-                  dateViewMode === mode
-                    ? "bg-white text-purple-900 shadow-sm"
-                    : "text-slate-700"
-                }`}
-              >
-                {mode === "hebrew" ? "עברי" : "לועזי"}
-              </button>
-            ))}
-          </div>
         </div>
+
+        {showAdvancedFilters && (
+          <div className="mt-2 grid gap-2 rounded-2xl bg-[#fafafb] p-2 md:grid-cols-3">
+            <select
+              value={monthFilter}
+              onChange={(event) => setMonthFilter(event.target.value)}
+              className={fieldClass}
+            >
+              {monthOptions.map((month, index) => (
+                <option key={month} value={index === 0 ? "all" : String(index - 1)}>
+                  {month}
+                </option>
+              ))}
+            </select>
+            <select
+              value={calendarFilter}
+              onChange={(event) => setCalendarFilter(event.target.value as CalendarFilter)}
+              className={fieldClass}
+            >
+              <option value="all">כל הלוחות</option>
+              <option value="hebrew">לוח עברי</option>
+              <option value="gregorian">לוח לועזי</option>
+            </select>
+            <div className="flex h-11 rounded-2xl bg-slate-100 p-1">
+              {(["hebrew", "gregorian"] as BirthdayDateViewMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => handleDateViewChange(mode)}
+                  className={`flex-1 rounded-xl text-sm font-black ${
+                    dateViewMode === mode
+                      ? "bg-white text-purple-900 shadow-sm"
+                      : "text-slate-700"
+                  }`}
+                >
+                  {mode === "hebrew" ? "עברי" : "לועזי"}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       {visibleEvents.length === 0 ? (
-        <section className="nestly-card-strong rounded-[28px] p-6 text-center">
-          <div className="mx-auto grid h-16 w-16 place-items-center rounded-[24px] bg-white text-3xl shadow-sm">
+        <section className="nestly-card-strong rounded-[24px] p-5 text-center">
+          <div className="mx-auto grid h-14 w-14 place-items-center rounded-[22px] bg-white text-3xl shadow-sm">
             ⭐
           </div>
-          <h2 className="mt-3 text-xl font-black text-[#24151f]">
+          <h2 className="mt-3 text-lg font-black text-[#24151f]">
             אין אירועים משפחתיים להצגה
           </h2>
           <p className="mx-auto mt-1 max-w-md text-sm font-semibold text-slate-600">
@@ -962,36 +1080,49 @@ export default function FamilyEventsManager() {
           </button>
         </section>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <TimelineSection
             title="היום"
             subtitle="אירועים שמתרחשים עכשיו"
             events={timeline.today}
             dateViewMode={dateViewMode}
-            onUpdate={updateEvent}
+            onSelect={(event) => setSelectedEventId(event.id)}
           />
           <TimelineSection
             title="השבוע"
             subtitle="כדאי להתכונן בימים הקרובים"
             events={timeline.week}
             dateViewMode={dateViewMode}
-            onUpdate={updateEvent}
+            onSelect={(event) => setSelectedEventId(event.id)}
           />
           <TimelineSection
             title="החודש"
             subtitle="אירועים שמתקרבים"
             events={timeline.month}
             dateViewMode={dateViewMode}
-            onUpdate={updateEvent}
+            onSelect={(event) => setSelectedEventId(event.id)}
           />
           <TimelineSection
             title="בהמשך"
-            subtitle="כל שאר האירועים השנתיים"
+            subtitle="שאר האירועים השנתיים"
             events={timeline.later}
             dateViewMode={dateViewMode}
-            onUpdate={updateEvent}
+            limit={4}
+            showAll={showAllLater}
+            onShowAll={() => setShowAllLater(true)}
+            onSelect={(event) => setSelectedEventId(event.id)}
           />
         </div>
+      )}
+
+      {selectedEvent && (
+        <EventDetailsSheet
+          event={selectedEvent}
+          dateViewMode={dateViewMode}
+          onClose={() => setSelectedEventId(null)}
+          onUpdate={updateEvent}
+          onDelete={deleteEvent}
+        />
       )}
     </section>
   );

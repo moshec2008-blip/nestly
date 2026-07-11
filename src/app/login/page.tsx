@@ -1,19 +1,9 @@
 import AuthManager from "@/components/auth/AuthManager";
-import AppShell from "@/components/layout/AppShell";
-import PageHero from "@/components/layout/PageHero";
 
 export default function LoginPage() {
   return (
-    <AppShell>
-      <PageHero
-        eyebrow="כניסה מאובטחת"
-        title="חשבון והרשאות"
-        description="כניסה ל-Nestly עם Google OAuth או מייל וסיסמה לחשבון Nestly. הרשאות המשפחה מנוהלות על ידי מנהל המרחב."
-        showBackHome
-      />
-
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,#fff8eb_0%,#f7f3eb_42%,#eef3f8_100%)] text-[#111827]">
       <AuthManager />
-    </AppShell>
+    </main>
   );
 }
-

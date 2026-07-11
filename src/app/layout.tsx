@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Heebo } from "next/font/google";
+import AuthSessionProvider from "@/components/auth/AuthSessionProvider";
 import { brand } from "@/lib/branding";
 import "./globals.css";
 
@@ -43,7 +44,7 @@ export default function RootLayout({
         <a className="skip-link" href="#main-content">
           דלג לתוכן המרכזי
         </a>
-        {children}
+        <AuthSessionProvider>{children}</AuthSessionProvider>
       </body>
     </html>
   );

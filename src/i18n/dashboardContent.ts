@@ -100,6 +100,11 @@ const englishModuleCopy: Record<
       "Family sharing, roles, private areas and module permissions.",
     status: "Active",
   },
+  "/security": {
+    label: "Security",
+    description: "Google sign-in, account status and protected family data.",
+    status: "Active",
+  },
   "/settings": {
     label: "Settings",
     description: "Language, accessibility, data and system preferences.",

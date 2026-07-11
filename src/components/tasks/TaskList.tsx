@@ -29,14 +29,14 @@ export default function TaskList({
   const displayedTasks = showAllTasks ? tasks : tasks.slice(0, 5);
 
   return (
-    <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-2.5 text-right text-[#111827] shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
-      <div className="mb-2.5 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <p className="text-xs font-bold text-slate-500">
+    <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+0.75rem)] text-right text-[#111827] shadow-[0_8px_22px_rgba(15,23,42,0.045)] lg:pb-2.5">
+      <div className="mb-2 flex flex-col gap-1.5 md:flex-row md:items-center md:justify-between">
+        <p className="text-xs font-bold text-slate-600">
           {openTasks} פתוחות / {doneTasks} בוצעו
         </p>
 
         <div>
-          <p className="text-[11px] font-bold text-slate-500">
+          <p className="text-[11px] font-bold text-slate-600">
             משימות שחשובות עכשיו
           </p>
           <h2 className="text-sm font-black text-[#111827]">משימות הבית</h2>
@@ -56,7 +56,7 @@ export default function TaskList({
           </p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {displayedTasks.map((task) => (
             <TaskCard
               key={task.id}
@@ -73,7 +73,7 @@ export default function TaskList({
             <button
               type="button"
               onClick={onToggleShowAll}
-              className="min-h-11 w-full rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-white active:scale-[0.99]"
+              className="min-h-10 w-full rounded-2xl border border-[#e6e8ec] bg-[#fafafb] px-4 py-1.5 text-sm font-black text-slate-700 transition hover:bg-white active:scale-[0.99]"
             >
               {showAllTasks ? "הצג פחות" : `הצג עוד ${tasks.length - 5}`}
             </button>

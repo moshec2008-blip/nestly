@@ -18,6 +18,21 @@ Use `npm.cmd` on Windows PowerShell:
 npm.cmd run dev
 ```
 
+## Authentication
+
+Nestly uses NextAuth with Google OAuth. Create a local `.env.local` based on
+`.env.example`:
+
+```bash
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=http://localhost:3000
+```
+
+In production, set the same variables in Vercel and use the production domain
+for `NEXTAUTH_URL`. Never expose `GOOGLE_CLIENT_SECRET` in client-side code.
+
 Open:
 
 - http://localhost:3000

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import type { CSSProperties } from "react";
+import { useEffect, type CSSProperties } from "react";
 import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { getDictionary } from "@/i18n/dictionaries";
 import { useLanguage } from "@/i18n/useLanguage";
@@ -80,7 +80,7 @@ const sidebarLinks: SidebarLink[] = [
   },
   {
     label: "אבטחה",
-    href: "/permissions",
+    href: "/security",
     icon: "lock",
     description: "התראות ומידע רגיש",
   },
@@ -194,6 +194,15 @@ const navigationAccents: Record<
     shadow: "0 12px 30px rgba(6,182,212,0.24)",
     activeShadow: "0 16px 38px rgba(14,116,144,0.36)",
   },
+  "/security": {
+    dot: "bg-amber-400",
+    icon: "border-amber-200 bg-amber-100 text-amber-900",
+    active: "border-amber-200 bg-amber-50 text-[#111827] ring-1 ring-amber-200/80",
+    hover: "hover:bg-amber-50/90",
+    glow: "bg-amber-400/20",
+    shadow: "0 12px 30px rgba(245,158,11,0.24)",
+    activeShadow: "0 16px 38px rgba(217,119,6,0.36)",
+  },
   "/permissions": {
     dot: "bg-amber-400",
     icon: "border-amber-200 bg-amber-100 text-amber-900",
@@ -230,30 +239,42 @@ export default function Sidebar({
     window.location.assign("/");
   }
 
+  useEffect(() => {
+    if (!isMobileOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isMobileOpen]);
+
   return (
     <>
       {isMobileOpen && (
-        <button
-          type="button"
+        <div
           onClick={onNavigate}
-          className="fixed inset-0 z-20 bg-slate-950/34 backdrop-blur-sm lg:hidden"
-          aria-label={dictionary.closeMenu}
+          className="fixed inset-0 z-20 bg-slate-950/45 backdrop-blur-[2px] lg:hidden"
+          aria-hidden="true"
         />
       )}
 
       <aside
         className={[
-          "nestly-sidebar-panel premium-scrollbar fixed right-3 z-50 overflow-y-auto rounded-[22px] border border-white/80 bg-white/88 p-2 text-right shadow-[0_24px_70px_rgba(33,43,63,0.16)] backdrop-blur-xl transition-all duration-300 ease-out lg:sticky lg:right-auto lg:top-auto lg:z-10 lg:h-auto lg:shrink-0 lg:p-1.5 lg:shadow-[0_12px_30px_rgba(33,43,63,0.075)]",
+          "nestly-sidebar-panel premium-scrollbar fixed right-3 z-50 w-[clamp(300px,84vw,360px)] overflow-y-auto overscroll-contain rounded-[22px] border border-white/80 bg-white/92 p-1.5 text-right shadow-[0_24px_70px_rgba(33,43,63,0.18)] backdrop-blur-xl transition-all duration-300 ease-out lg:sticky lg:right-auto lg:top-auto lg:z-10 lg:h-auto lg:shrink-0 lg:p-1.5 lg:shadow-[0_12px_30px_rgba(33,43,63,0.075)]",
           isMobileOpen
-            ? "w-[min(22rem,calc(100vw-1.5rem))] translate-x-0"
-            : "w-[min(22rem,calc(100vw-1.5rem))] translate-x-[120%]",
-          isCollapsed ? "lg:w-12" : "lg:w-48",
+            ? "translate-x-0"
+            : "translate-x-[calc(100%+1rem)]",
+          isCollapsed ? "lg:w-11" : "lg:w-44",
           "lg:translate-x-0",
         ].join(" ")}
       >
         <div
           className={[
-          "mb-1.5 rounded-[18px] border border-[#ebe4d8] bg-gradient-to-br from-[#fffdf7] to-[#f6f8fb] p-2 shadow-sm transition-all duration-300 lg:p-1.5",
+          "mb-1 rounded-[16px] bg-white/78 p-1.5 shadow-[0_8px_20px_rgba(33,43,63,0.04)] transition-all duration-300 lg:bg-gradient-to-br lg:from-[#fffdf7] lg:to-[#f6f8fb] lg:p-1.5",
             isCollapsed
               ? "text-center"
               : direction === "rtl"
@@ -261,23 +282,35 @@ export default function Sidebar({
                 : "text-left",
           ].join(" ")}
         >
-          <div className="flex items-center justify-between gap-2 lg:hidden">
+          <div className="flex items-center justify-between gap-1.5 lg:hidden">
             <button
               type="button"
               onClick={onNavigate}
-              className="grid h-11 w-11 place-items-center rounded-2xl border border-[#d9dde5] bg-white text-xl font-black text-slate-800 shadow-sm"
-              aria-label={dictionary.closeMenu}
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-[#d9dde5] bg-white text-xl font-black text-slate-800 shadow-sm transition active:scale-95"
+              aria-label="סגור תפריט"
             >
-              x
+              ×
             </button>
 
-            <div className="min-w-0 text-right">
-              <h2 className="text-lg font-black text-[#111827]">
-                {brand.productName}
-              </h2>
-              <p className="truncate text-xs font-bold text-slate-600">
-                {brand.workspaceName}
+            <div className="flex min-w-0 items-center gap-2 text-right">
+              <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-2xl border border-[#e6d9c9] bg-[#fff8eb] p-1 shadow-sm">
+                <Image
+                  src="/nestly-logo.png"
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="h-full w-full object-contain"
+                  aria-hidden="true"
+                />
+              </span>
+              <div className="min-w-0">
+                <h2 className="truncate text-sm font-black text-[#111827]">
+                  {brand.workspaceName}
+                </h2>
+              <p className="truncate text-[11px] font-bold text-slate-600">
+                  אזורי המשפחה
               </p>
+              </div>
             </div>
           </div>
 
@@ -320,14 +353,14 @@ export default function Sidebar({
           )}
         </div>
 
-        <nav className="space-y-1" aria-label={dictionary.openMenu}>
+        <nav className="space-y-0.5" aria-label={dictionary.openMenu}>
           {primaryLinks.map((item) => {
             const isActive = pathname === item.href;
             const accent = navigationAccents[item.href];
             const linkStyle = {
               "--nav-shadow": isActive
                 ? "0 10px 24px rgba(15,23,42,0.08)"
-                : "0 6px 18px rgba(15,23,42,0.045)",
+                : "0 4px 12px rgba(15,23,42,0.025)",
             } as CSSProperties;
 
             return (
@@ -337,34 +370,34 @@ export default function Sidebar({
                 style={linkStyle}
                 title={!showExpandedContent ? item.label : undefined}
                 className={[
-                  "group relative flex min-h-[50px] items-center gap-2.5 overflow-hidden rounded-2xl border px-2.5 py-1.5 text-sm font-bold shadow-[var(--nav-shadow)] transition-all duration-200 lg:min-h-11 lg:gap-2 lg:px-2 lg:py-1.5",
+                  "group relative flex min-h-[46px] items-center gap-1.5 overflow-hidden rounded-2xl border px-1.5 py-1 text-sm font-bold shadow-[var(--nav-shadow)] transition-all duration-200 lg:min-h-11 lg:gap-1.5 lg:px-1.5 lg:py-1",
                   showExpandedContent ? "justify-start" : "justify-center",
                   isActive
                     ? accent.active
-                    : `border-transparent text-slate-800 hover:-translate-y-0.5 ${accent.hover} hover:text-[#111827]`,
+                    : "border-transparent bg-transparent text-slate-800 hover:-translate-y-0.5 hover:bg-white/82 hover:text-[#111827]",
                 ].join(" ")}
                 onClick={isMobileOpen ? onNavigate : undefined}
               >
                 <span
                   className={[
                     "absolute inset-y-2 right-1 w-1 rounded-full transition-opacity",
-                    isActive ? `${accent.dot} opacity-100` : `${accent.dot} opacity-45`,
+                    isActive ? `${accent.dot} opacity-100` : `${accent.dot} opacity-25`,
                     showExpandedContent ? "block" : "hidden",
                   ].join(" ")}
                   aria-hidden="true"
                 />
                 <span
                   className={`pointer-events-none absolute -top-5 h-12 w-12 rounded-full blur-xl transition-opacity ${accent.glow} ${
-                    isActive ? "opacity-95" : "opacity-55"
+                    isActive ? "opacity-80" : "opacity-0"
                   }`}
                   aria-hidden="true"
                 />
                 <span
                   className={[
-                    "relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-white/70 shadow-[0_6px_16px_rgba(15,23,42,0.06)] transition lg:h-8 lg:w-8 lg:rounded-xl",
+                    "relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-2xl border border-white/70 shadow-[0_6px_16px_rgba(15,23,42,0.045)] transition lg:h-8 lg:w-8 lg:rounded-xl",
                     isActive
                       ? `${accent.icon} ring-2 ring-white`
-                      : `${accent.icon}`,
+                      : "border-slate-100 bg-white text-slate-700 group-hover:text-[#111827]",
                   ].join(" ")}
                   aria-hidden="true"
                 >
@@ -372,12 +405,12 @@ export default function Sidebar({
                 </span>
                 {showExpandedContent && (
                   <span className="relative z-10 min-w-0 flex-1">
-                    <span className="block truncate text-[15px] font-black leading-5 lg:text-sm lg:font-black">
+                    <span className="block truncate text-sm font-black leading-5">
                       {item.label}
                     </span>
                     <span
                       className={[
-                        "mt-0.5 block truncate text-xs font-semibold leading-4 lg:text-[10.5px]",
+                        "mt-0.5 block truncate text-[11px] font-semibold leading-4 lg:text-[10px]",
                         isActive ? "text-slate-700" : "text-slate-600",
                       ].join(" ")}
                     >

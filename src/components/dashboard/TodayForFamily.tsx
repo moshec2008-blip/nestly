@@ -22,10 +22,10 @@ const toneStyles: Record<
 };
 
 const aiToneStyles: Record<AiFamilyInsight["tone"], string> = {
-  calm: "border-[#eadfcd] bg-[#fffdf8]",
-  good: "border-emerald-200 bg-emerald-50",
-  warning: "border-amber-200 bg-amber-50",
-  urgent: "border-rose-200 bg-rose-50",
+  calm: "border-[#dbe7f5] bg-gradient-to-br from-[#f8fbff] to-[#fffdf8]",
+  good: "border-[#dbe7f5] bg-gradient-to-br from-[#f2fbf8] to-[#fffdf8]",
+  warning: "border-[#dbe7f5] bg-gradient-to-br from-[#f8fbff] to-[#fff8eb]",
+  urgent: "border-[#dbe7f5] bg-gradient-to-br from-[#f8fbff] to-[#fff8eb]",
 };
 
 function Suggestion({ suggestion }: { suggestion: FamilySuggestion }) {
@@ -49,15 +49,15 @@ function AiSuggestion({ insight }: { insight: AiFamilyInsight }) {
     <Link
       href={insight.targetRoute}
       className={[
-        "flex min-h-12 items-center justify-between gap-3 rounded-2xl border px-3 py-2 text-right transition hover:-translate-y-0.5",
+        "flex min-h-12 items-center justify-between gap-3 rounded-2xl border px-3 py-2 text-right shadow-[0_10px_24px_rgba(59,130,246,0.075)] transition hover:-translate-y-0.5",
         aiToneStyles[insight.tone],
       ].join(" ")}
     >
-      <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-[#7a5212] shadow-sm">
+      <span className="shrink-0 rounded-full bg-[#111827] px-2.5 py-1 text-[11px] font-black text-white shadow-sm">
         {insight.actionLabel}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[11px] font-black text-[#9a6b17]">
+        <span className="block text-[11px] font-black text-blue-700">
           Nestly AI
         </span>
         <span className="line-clamp-2 text-xs font-bold leading-5 text-slate-700">
@@ -156,13 +156,21 @@ export default function TodayForFamily() {
   const [primaryItem, ...secondaryItems] = items;
 
   return (
-    <section className="rounded-[22px] bg-white/92 p-3 text-right shadow-[0_12px_30px_rgba(33,43,63,0.06)]">
+    <section className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#fff8eb] via-white to-[#f7f9fd] p-3 text-right shadow-[0_18px_44px_rgba(33,43,63,0.105)] ring-1 ring-[#eadfcd]/70">
+      <span
+        className="pointer-events-none absolute -left-10 -top-12 h-32 w-32 rounded-full bg-[#d8b470]/18 blur-3xl"
+        aria-hidden="true"
+      />
+      <span
+        className="pointer-events-none absolute -bottom-16 right-12 h-36 w-36 rounded-full bg-[#111827]/8 blur-3xl"
+        aria-hidden="true"
+      />
       <div className="mb-2 flex items-center justify-between gap-3">
-        <span className="rounded-full bg-[#fff8eb] px-2.5 py-1 text-[11px] font-black text-[#7a5212]">
+        <span className="relative rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-black text-[#7a5212] shadow-sm">
           רגוע וממוקד
         </span>
-        <div>
-          <h2 className="text-lg font-black text-[#111827]">
+        <div className="relative">
+          <h2 className="text-lg font-black text-[#111827] sm:text-xl">
             מה חשוב למשפחה היום
           </h2>
           <p className="text-xs font-semibold text-slate-500">
@@ -171,7 +179,7 @@ export default function TodayForFamily() {
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="relative space-y-2">
         {primaryItem && <PrimaryBriefingItem item={primaryItem} />}
 
         {secondaryItems.length > 0 && (

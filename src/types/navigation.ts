@@ -9,6 +9,7 @@ export type AppRoute =
   | "/family"
   | "/birthdays"
   | "/shopping"
+  | "/security"
   | "/permissions"
   | "/settings";
 

@@ -1,237 +1,102 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { demoAdminSession, authProviderNotes } from "@/data/auth";
-import { storageKeys } from "@/lib/storageKeys";
-import type { AuthSession } from "@/types/auth";
-import { useFeedback } from "@/components/ui/FeedbackProvider";
+import Image from "next/image";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+import { brand } from "@/lib/branding";
 
-function createEmailSession(email: string): AuthSession {
-  const userName = email.split("@")[0] || "משתמש";
-
-  return {
-    id: crypto.randomUUID(),
-    name: userName,
-    email,
-    provider: "email",
-    role: "member",
-    workspaceName: "משפחת כהן שור",
-    signedInAt: new Date().toISOString(),
-  };
-}
-
-function getStoredSession() {
-  if (typeof window === "undefined") {
+function getLoginErrorMessage(error: string | null) {
+  if (!error) {
     return null;
   }
 
-  const rawSession = window.localStorage.getItem(storageKeys.authSession);
-
-  if (!rawSession) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(rawSession) as AuthSession;
-  } catch {
-    window.localStorage.removeItem(storageKeys.authSession);
-    return null;
-  }
+  return "לא הצלחנו להשלים את ההתחברות. נסה שוב בעוד רגע.";
 }
 
 export default function AuthManager() {
-  const { toast } = useFeedback();
-  const [session, setSession] = useState<AuthSession | null>(() =>
-    getStoredSession()
-  );
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  function persistSession(nextSession: AuthSession) {
-    window.localStorage.setItem(
-      storageKeys.authSession,
-      JSON.stringify(nextSession)
-    );
-    setSession(nextSession);
-  }
-
-  function handleGoogleSignIn() {
-    persistSession({
-      ...demoAdminSession,
-      signedInAt: new Date().toISOString(),
-    });
-
-    toast({
-      title: "כניסה עם Google הופעלה",
-      description:
-        "בשלב הפקה נחבר כאן OAuth אמיתי של Google. האפליקציה לא מבקשת סיסמת Google.",
-      tone: "success",
-    });
-  }
-
-  function handleEmailSignIn(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const cleanEmail = email.trim().toLowerCase();
-
-    if (!cleanEmail || password.length < 8) {
-      toast({
-        title: "פרטי התחברות לא מלאים",
-        description: "יש להזין מייל וסיסמה באורך 8 תווים לפחות.",
-        tone: "warning",
-      });
-      return;
-    }
-
-    persistSession(createEmailSession(cleanEmail));
-    setPassword("");
-
-    toast({
-      title: "התחברת ל-Nestly",
-      description: "הסיסמה לא נשמרה בדפדפן. זהו מצב פיתוח עד חיבור Auth אמיתי.",
-      tone: "success",
-    });
-  }
-
-  function handleSignOut() {
-    window.localStorage.removeItem(storageKeys.authSession);
-    setSession(null);
-    toast({
-      title: "יצאת מהחשבון",
-      tone: "info",
-    });
-  }
+  const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
+  const errorMessage = getLoginErrorMessage(searchParams.get("error"));
+  const isLoading = status === "loading";
+  const isSignedIn = status === "authenticated";
 
   return (
-    <section className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <div className="rounded-[20px] border border-[#e6e8ec] bg-white p-4 text-right shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
-        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-          <div className="rounded-2xl bg-[#f4e7c8] px-3 py-2 text-xs font-black text-[#111827]">
-            אבטחה והרשאות
-          </div>
+    <section className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-md flex-col justify-center px-4 py-6 text-right">
+      <div className="rounded-[28px] bg-white/94 p-5 shadow-[0_24px_70px_rgba(17,24,39,0.12)] ring-1 ring-[#eadfcd]">
+        <div className="flex items-center justify-end gap-3">
           <div>
-            <p className="text-xs font-bold text-slate-500">
-              כניסה למשפחת כהן שור
-            </p>
-            <h2 className="mt-1 text-2xl font-black text-[#1d1d1f]">
-              התחברות מאובטחת ל-Nestly
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              כניסה עם Google מתבצעת דרך OAuth בלבד. Nestly לעולם לא אמורה
-              לבקש מהמשתמש את סיסמת Google שלו בתוך טופס פנימי.
-            </p>
+            <p className="text-xs font-black text-[#9a6b17]">כניסה מאובטחת</p>
+            <h1 className="mt-1 text-2xl font-black text-[#111827]">
+              {brand.productName}
+            </h1>
           </div>
+          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-[#fff8eb] p-2 shadow-sm ring-1 ring-[#eadfcd]">
+            <Image
+              src="/nestly-logo.png"
+              alt="Nestly"
+              width={48}
+              height={48}
+              className="h-full w-full object-contain"
+              priority
+            />
+          </span>
         </div>
 
-        {session ? (
-          <div className="rounded-[18px] border border-[#e6e8ec] bg-[#fafafb] p-4">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <p className="mt-4 text-sm font-semibold leading-6 text-slate-600">
+          המידע המשפחתי שלך פרטי: כספים, בריאות, מסמכים, משימות ואירועים
+          נפתחים רק אחרי התחברות עם חשבון Google.
+        </p>
+
+        {errorMessage && (
+          <div className="mt-4 rounded-2xl bg-rose-50 p-3 text-sm font-bold text-rose-700 ring-1 ring-rose-100">
+            {errorMessage}
+          </div>
+        )}
+
+        {isSignedIn ? (
+          <div className="mt-4 rounded-2xl bg-[#fafafb] p-3">
+            <p className="text-xs font-black text-slate-500">מחובר כרגע</p>
+            <p className="mt-1 text-base font-black text-[#111827]">
+              {session.user?.name || "משתמש Nestly"}
+            </p>
+            <p className="mt-0.5 text-sm font-semibold text-slate-600">
+              {session.user?.email}
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <a
+                href="/"
+                className="flex min-h-11 items-center justify-center rounded-2xl bg-[#111827] px-4 text-sm font-black text-white"
+              >
+                כניסה לאפליקציה
+              </a>
               <button
                 type="button"
-                onClick={handleSignOut}
-                className="w-fit rounded-2xl border border-[#e6e8ec] bg-white px-4 py-2 text-sm font-black text-slate-700 hover:bg-[#fafafb]"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-white px-4 text-sm font-black text-slate-700"
               >
-                יציאה
+                התנתקות
               </button>
-              <div>
-                <p className="text-xs font-bold text-slate-500">מחובר כרגע</p>
-                <h3 className="mt-1 text-xl font-black text-[#1d1d1f]">
-                  {session.name}
-                </h3>
-                <p className="mt-1 text-sm text-slate-500">{session.email}</p>
-              </div>
-            </div>
-
-            <div className="mt-4 grid gap-2 sm:grid-cols-3">
-              <div className="rounded-2xl bg-white p-3">
-                <p className="text-[11px] font-bold text-slate-500">ספק</p>
-                <p className="mt-1 font-black">
-                  {session.provider === "google" ? "Google" : "מייל וסיסמה"}
-                </p>
-              </div>
-              <div className="rounded-2xl bg-white p-3">
-                <p className="text-[11px] font-bold text-slate-500">תפקיד</p>
-                <p className="mt-1 font-black">
-                  {session.role === "admin" ? "מנהל" : "בן משפחה"}
-                </p>
-              </div>
-              <div className="rounded-2xl bg-white p-3">
-                <p className="text-[11px] font-bold text-slate-500">מרחב</p>
-                <p className="mt-1 font-black">{session.workspaceName}</p>
-              </div>
             </div>
           </div>
         ) : (
-          <div className="grid gap-3 lg:grid-cols-2">
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              className="rounded-[18px] border border-[#e6e8ec] bg-[#111827] p-4 text-right text-white shadow-[0_12px_28px_rgba(15,23,42,0.12)] transition hover:-translate-y-0.5"
-            >
-              <span className="block text-sm font-bold text-white/70">
-                מומלץ
-              </span>
-              <span className="mt-2 block text-xl font-black">
-                כניסה עם Google
-              </span>
-              <span className="mt-2 block text-sm leading-6 text-white/70">
-                OAuth מאובטח. אין הזנת סיסמת Google בתוך Nestly.
-              </span>
-            </button>
-
-            <form
-              onSubmit={handleEmailSignIn}
-              className="rounded-[18px] border border-[#e6e8ec] bg-[#fafafb] p-4 text-right"
-            >
-              <p className="text-sm font-black text-[#1d1d1f]">
-                כניסה עם מייל וסיסמה
-              </p>
-              <div className="mt-3 grid gap-2">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  className="rounded-2xl border border-[#e6e8ec] bg-white px-4 py-3 text-right outline-none focus:border-[#007aff]/50"
-                  placeholder="כתובת מייל"
-                  autoComplete="email"
-                />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  className="rounded-2xl border border-[#e6e8ec] bg-white px-4 py-3 text-right outline-none focus:border-[#007aff]/50"
-                  placeholder="סיסמה לחשבון Nestly"
-                  autoComplete="current-password"
-                />
-                <button
-                  type="submit"
-                  className="rounded-2xl bg-[#007aff] px-4 py-3 text-sm font-black text-white hover:bg-[#006ee6]"
-                >
-                  כניסה
-                </button>
-              </div>
-            </form>
-          </div>
+          <button
+            type="button"
+            onClick={() => signIn("google", { callbackUrl: "/" })}
+            disabled={isLoading}
+            className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#111827] px-5 text-sm font-black text-white shadow-[0_14px_30px_rgba(17,24,39,0.18)] transition hover:bg-[#1f2937] disabled:cursor-wait disabled:opacity-70"
+          >
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-white text-sm font-black text-[#111827]">
+              G
+            </span>
+            {isLoading ? "בודק התחברות..." : "התחברות עם Google"}
+          </button>
         )}
-      </div>
 
-      <aside className="rounded-[20px] border border-[#e6e8ec] bg-white p-4 text-right shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
-        <p className="text-xs font-bold text-slate-500">מודל אבטחה</p>
-        <h3 className="mt-1 text-lg font-black text-[#1d1d1f]">
-          מוכן לחיבור אמיתי
-        </h3>
-        <div className="mt-3 space-y-2">
-          {authProviderNotes.map((item) => (
-            <div key={item.title} className="rounded-2xl bg-[#fafafb] p-3">
-              <p className="text-sm font-black text-[#1d1d1f]">{item.title}</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                {item.description}
-              </p>
-            </div>
-          ))}
+        <div className="mt-4 rounded-2xl bg-[#fffdf8] p-3 text-xs font-semibold leading-5 text-slate-600 ring-1 ring-[#eadfcd]">
+          Nestly לא מבקש את סיסמת Google שלך בתוך האפליקציה. ההתחברות מתבצעת
+          דרך Google בלבד.
         </div>
-      </aside>
+      </div>
     </section>
   );
 }
-

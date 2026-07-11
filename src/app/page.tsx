@@ -1,14 +1,57 @@
 "use client";
 
+import Link from "next/link";
 import Header from "@/components/Header";
 import ModuleCard from "@/components/ModuleCard";
 import DashboardLiveOverview from "@/components/dashboard/DashboardLiveOverview";
 import TodayForFamily from "@/components/dashboard/TodayForFamily";
 import AppShell from "@/components/layout/AppShell";
+import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { getDashboardContent } from "@/i18n/dashboardContent";
 import { getDictionary } from "@/i18n/dictionaries";
 import { getRouteLabel } from "@/i18n/navigation";
 import { useLanguage } from "@/i18n/useLanguage";
+import type { AppRoute } from "@/types/navigation";
+
+type AreaShortcut = {
+  href: AppRoute;
+  icon: AppIconName;
+  title: string;
+  description: string;
+};
+
+const areaShortcuts: AreaShortcut[] = [
+  {
+    href: "/health",
+    icon: "health",
+    title: "בריאות",
+    description: "תרופות ובדיקות",
+  },
+  {
+    href: "/documents",
+    icon: "document",
+    title: "מסמכים",
+    description: "כל מה שחשוב",
+  },
+  {
+    href: "/vehicles",
+    icon: "car",
+    title: "רכבים",
+    description: "טסטים וביטוחים",
+  },
+  {
+    href: "/family",
+    icon: "family",
+    title: "משפחה",
+    description: "קשרים ותפקידים",
+  },
+  {
+    href: "/birthdays",
+    icon: "calendar",
+    title: "אירועים",
+    description: "ימי משפחה",
+  },
+];
 
 export default function HomePage() {
   const { direction, language } = useLanguage();
@@ -33,14 +76,50 @@ export default function HomePage() {
 
   return (
     <AppShell>
-      <div className="space-y-3">
+      <div className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] lg:pb-0">
         <Header />
         <TodayForFamily />
 
-        <section className="rounded-[22px] bg-white/82 p-3 text-[#1d1d1f] shadow-[0_10px_28px_rgba(33,43,63,0.045)]">
+        <section className="rounded-[18px] bg-white/74 p-2 text-[#1d1d1f] shadow-[0_8px_20px_rgba(33,43,63,0.035)]">
           <div
             className={[
-              "mb-2 flex items-end justify-between gap-3",
+              "mb-1.5 flex items-center justify-between gap-2",
+              direction === "rtl" ? "text-right" : "text-left",
+            ].join(" ")}
+          >
+            <p className="text-[12px] font-black text-[#111827]">כל האזורים</p>
+            <p className="truncate text-[11px] font-semibold text-slate-600">
+              קיצור נוח למה שלא מופיע בתחתית
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-1.5 min-[430px]:grid-cols-5">
+            {areaShortcuts.map((shortcut) => (
+              <Link
+                key={shortcut.href}
+                href={shortcut.href}
+                className="flex min-h-11 items-center gap-2 rounded-2xl bg-[#fffdf8]/70 px-2 py-1.5 text-right text-[#111827] ring-1 ring-[#eadfcd]/55 transition hover:bg-[#fff8eb] active:scale-[0.99]"
+              >
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-2xl bg-[#fff8eb] text-[#8a5b16]">
+                  <AppIcon name={shortcut.icon} className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[12px] font-black">
+                    {shortcut.title}
+                  </span>
+                  <span className="block truncate text-[10px] font-semibold text-slate-600">
+                    {shortcut.description}
+                  </span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-[20px] bg-white/82 p-2.5 text-[#1d1d1f] shadow-[0_10px_24px_rgba(33,43,63,0.04)]">
+          <div
+            className={[
+              "mb-1.5 flex items-end justify-between gap-3",
               direction === "rtl" ? "text-right" : "text-left",
             ].join(" ")}
           >
