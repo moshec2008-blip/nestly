@@ -102,7 +102,7 @@ const englishModuleCopy: Record<
   },
   "/security": {
     label: "Security",
-    description: "Google sign-in, account status and protected family data.",
+    description: "Demo access status and future security settings.",
     status: "Active",
   },
   "/settings": {

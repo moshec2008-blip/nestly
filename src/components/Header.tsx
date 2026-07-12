@@ -16,11 +16,11 @@ export default function Header() {
   return (
     <header
       className={[
-        "rounded-[20px] bg-gradient-to-br from-[#fff8eb] to-white p-2.5 text-[#1d1d1f] shadow-[0_10px_24px_rgba(33,43,63,0.055)]",
+        "rounded-[22px] border border-[#eadfcd]/80 bg-gradient-to-br from-[#fff8eb] to-white p-4 text-[#1d1d1f] shadow-[0_12px_30px_rgba(33,43,63,0.055)]",
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-black text-[#9a6b17]">
             {brand.workspaceName}
@@ -37,12 +37,12 @@ export default function Header() {
           <p className="mb-1 text-[10px] font-black text-slate-500">
             פעולות מהירות
           </p>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {quickActions.map((action) => (
               <Link
                 key={action.href}
                 href={action.href}
-                className="min-h-9 rounded-2xl border border-[#eadfcd] bg-white px-3 py-1.5 text-xs font-black text-[#111827] shadow-sm transition hover:bg-[#fff8eb]"
+                className="min-h-11 rounded-2xl border border-[#eadfcd] bg-white px-3 py-2 text-xs font-black text-[#111827] shadow-sm transition hover:bg-[#fff8eb] focus:outline-none focus:ring-2 focus:ring-[#eadfcd]"
               >
                 {action.label}
               </Link>

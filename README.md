@@ -20,25 +20,13 @@ Use `npm.cmd` on Windows PowerShell:
 npm.cmd run dev
 ```
 
-## Authentication
+## Demo access
 
-Nestly uses NextAuth with Google OAuth. Create a local `.env.local` based on
-`.env.example`:
+Authentication is currently disabled so the demo opens directly for product
+review. The app uses a local demo Family Space in the browser.
 
-```bash
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-NEXTAUTH_SECRET=
-NEXTAUTH_URL=http://localhost:3000
-```
-
-In production, set the same variables in Vercel and use the production domain
-for `NEXTAUTH_URL`, for example `https://your-domain.com`.
-
-This project currently uses `next-auth` v4, so the required secret variable is
-`NEXTAUTH_SECRET`. `AUTH_SECRET` / `AUTH_URL` are Auth.js v5 names and are not
-the primary variables for this version. Never expose `GOOGLE_CLIENT_SECRET` in
-client-side code.
+Before storing real sensitive family information, restore authentication and a
+server-backed data layer.
 
 Open:
 

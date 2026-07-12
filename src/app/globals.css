@@ -197,6 +197,20 @@ body::before {
   box-shadow: 0 14px 30px rgba(17, 24, 39, 0.18);
 }
 
+.family-events-dark-action {
+  background: #24151f !important;
+  color: #ffffff !important;
+}
+
+.family-events-dark-action:hover {
+  background: #3a2532 !important;
+}
+
+.family-events-dark-action,
+.family-events-dark-action * {
+  color: #ffffff !important;
+}
+
 .nestly-secondary-button {
   min-height: 44px;
   border-radius: 16px;
@@ -537,6 +551,7 @@ button:disabled,
 .app-light button[class*="bg-purple-"],
 .app-light button[class*="bg-red-"],
 .app-light button[class*="bg-emerald-"],
+.app-light button[class*="bg-[#24151f]"],
 .app-light button[class*="bg-slate-950"],
 .app-light button[class*="from-blue-500"],
 .app-light button[class*="from-blue-600"],
@@ -545,6 +560,11 @@ button:disabled,
 .app-light span[class*="from-blue-600"],
 .app-light span[class*="bg-blue-"],
 .app-light span[class*="bg-red-"] {
+  color: white !important;
+}
+
+.app-light button[class*="bg-[#24151f]"] *,
+.app-light button[class*="bg-[#111827]"] * {
   color: white !important;
 }
 

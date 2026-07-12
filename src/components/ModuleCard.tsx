@@ -21,6 +21,9 @@ type ModuleVisual = {
   iconTone: string;
   iconBg: string;
   glow: string;
+  accent: string;
+  border: string;
+  surface: string;
 };
 
 const moduleVisuals: Record<AppRoute, ModuleVisual> = {
@@ -30,6 +33,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-indigo-700",
     iconBg: "bg-indigo-50",
     glow: "bg-indigo-400/10",
+    accent: "#4f46e5",
+    border: "#c7d2fe",
+    surface: "#eef2ff",
   },
   "/dashboard": {
     fallbackStat: "סקירה חכמה",
@@ -37,6 +43,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-sky-700",
     iconBg: "bg-sky-50",
     glow: "bg-sky-400/10",
+    accent: "#0284c7",
+    border: "#bae6fd",
+    surface: "#f0f9ff",
   },
   "/finance": {
     fallbackStat: "תזרים ותקציב",
@@ -44,6 +53,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-emerald-700",
     iconBg: "bg-emerald-50",
     glow: "bg-emerald-400/10",
+    accent: "#059669",
+    border: "#bbf7d0",
+    surface: "#ecfdf5",
   },
   "/tasks": {
     fallbackStat: "משימות פתוחות",
@@ -51,6 +63,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-orange-700",
     iconBg: "bg-orange-50",
     glow: "bg-orange-400/10",
+    accent: "#ea580c",
+    border: "#fed7aa",
+    surface: "#fff7ed",
   },
   "/health": {
     fallbackStat: "תורים ומעקב",
@@ -58,6 +73,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-rose-700",
     iconBg: "bg-rose-50",
     glow: "bg-rose-400/10",
+    accent: "#e11d48",
+    border: "#fecdd3",
+    surface: "#fff1f2",
   },
   "/vehicles": {
     fallbackStat: "טיפולים ורישוי",
@@ -65,6 +83,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-blue-700",
     iconBg: "bg-blue-50",
     glow: "bg-blue-400/10",
+    accent: "#2563eb",
+    border: "#bfdbfe",
+    surface: "#eff6ff",
   },
   "/documents": {
     fallbackStat: "קבצים ומסמכים",
@@ -72,6 +93,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-violet-700",
     iconBg: "bg-violet-50",
     glow: "bg-violet-400/10",
+    accent: "#7c3aed",
+    border: "#ddd6fe",
+    surface: "#f5f3ff",
   },
   "/birthdays": {
     fallbackStat: "אירועים קרובים",
@@ -79,6 +103,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-pink-700",
     iconBg: "bg-pink-50",
     glow: "bg-pink-400/10",
+    accent: "#db2777",
+    border: "#fbcfe8",
+    surface: "#fdf2f8",
   },
   "/shopping": {
     fallbackStat: "רשימות פעילות",
@@ -86,6 +113,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-cyan-700",
     iconBg: "bg-cyan-50",
     glow: "bg-cyan-400/10",
+    accent: "#0891b2",
+    border: "#a5f3fc",
+    surface: "#ecfeff",
   },
   "/family": {
     fallbackStat: "בני משפחה",
@@ -93,6 +123,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-purple-700",
     iconBg: "bg-purple-50",
     glow: "bg-purple-400/10",
+    accent: "#9333ea",
+    border: "#e9d5ff",
+    surface: "#faf5ff",
   },
   "/permissions": {
     fallbackStat: "שיתוף והרשאות",
@@ -100,6 +133,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-amber-700",
     iconBg: "bg-amber-50",
     glow: "bg-amber-400/10",
+    accent: "#d97706",
+    border: "#fde68a",
+    surface: "#fffbeb",
   },
   "/security": {
     fallbackStat: "חשבון מוגן",
@@ -107,6 +143,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-amber-700",
     iconBg: "bg-amber-50",
     glow: "bg-amber-400/10",
+    accent: "#d97706",
+    border: "#fde68a",
+    surface: "#fffbeb",
   },
   "/settings": {
     fallbackStat: "גיבוי והעדפות",
@@ -114,6 +153,9 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     iconTone: "text-slate-700",
     iconBg: "bg-slate-100",
     glow: "bg-slate-400/10",
+    accent: "#475569",
+    border: "#cbd5e1",
+    surface: "#f8fafc",
   },
 };
 
@@ -136,6 +178,9 @@ export default function ModuleCard({
     "--module-shadow": priority
       ? "0 12px 28px rgba(33,43,63,0.055)"
       : "0 8px 20px rgba(33,43,63,0.04)",
+    "--module-accent": visual.accent,
+    borderColor: visual.border,
+    background: `linear-gradient(135deg, rgba(255,255,255,0.94), ${visual.surface})`,
   } as CSSProperties;
 
   return (
@@ -143,11 +188,20 @@ export default function ModuleCard({
       href={href}
       style={cardStyle}
       className={[
-        "nestly-interactive group relative overflow-hidden rounded-[17px] bg-white/82 text-[#1d1d1f] shadow-[var(--module-shadow)] ring-1 ring-black/[0.028]",
+        "nestly-interactive group relative overflow-hidden rounded-[17px] border text-[#1d1d1f] shadow-[var(--module-shadow)] ring-1 ring-black/[0.026]",
         priority ? "min-h-[70px] p-2.5" : "min-h-[62px] p-2.5",
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
+      <span
+        className={[
+          "pointer-events-none absolute inset-y-2 w-1 rounded-full",
+          direction === "rtl" ? "right-0" : "left-0",
+        ].join(" ")}
+        style={{ backgroundColor: visual.accent }}
+        aria-hidden="true"
+      />
+
       <span
         className={`pointer-events-none absolute -right-7 -top-8 h-20 w-20 rounded-full blur-2xl transition-opacity duration-200 ${visual.glow} opacity-45 group-hover:opacity-80`}
         aria-hidden="true"
@@ -155,7 +209,7 @@ export default function ModuleCard({
 
       <div className="relative z-10 flex h-full items-start gap-2.5">
         <span
-          className={`grid shrink-0 place-items-center rounded-2xl ${visual.iconBg} ${visual.iconTone} ${
+          className={`grid shrink-0 place-items-center rounded-2xl ${visual.iconBg} ${visual.iconTone} shadow-sm ring-1 ring-white/70 ${
             priority ? "h-9 w-9" : "h-8 w-8"
           }`}
           aria-hidden="true"

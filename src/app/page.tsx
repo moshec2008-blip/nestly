@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import Header from "@/components/Header";
 import ModuleCard from "@/components/ModuleCard";
 import DashboardLiveOverview from "@/components/dashboard/DashboardLiveOverview";
@@ -18,6 +19,15 @@ type AreaShortcut = {
   icon: AppIconName;
   title: string;
   description: string;
+  accent: string;
+  bg: string;
+  border: string;
+};
+
+type SectionHeaderProps = {
+  title: string;
+  description?: string;
+  action?: ReactNode;
 };
 
 const areaShortcuts: AreaShortcut[] = [
@@ -26,32 +36,65 @@ const areaShortcuts: AreaShortcut[] = [
     icon: "health",
     title: "בריאות",
     description: "תרופות ובדיקות",
+    accent: "#e11d48",
+    bg: "#fff1f2",
+    border: "#fecdd3",
   },
   {
     href: "/documents",
     icon: "document",
     title: "מסמכים",
     description: "כל מה שחשוב",
+    accent: "#7c3aed",
+    bg: "#f5f3ff",
+    border: "#ddd6fe",
   },
   {
     href: "/vehicles",
     icon: "car",
     title: "רכבים",
     description: "טסטים וביטוחים",
+    accent: "#2563eb",
+    bg: "#eff6ff",
+    border: "#bfdbfe",
   },
   {
     href: "/family",
     icon: "family",
     title: "משפחה",
     description: "קשרים ותפקידים",
+    accent: "#9333ea",
+    bg: "#faf5ff",
+    border: "#e9d5ff",
   },
   {
     href: "/birthdays",
     icon: "calendar",
     title: "אירועים",
     description: "ימי משפחה",
+    accent: "#db2777",
+    bg: "#fdf2f8",
+    border: "#fbcfe8",
   },
 ];
+
+function SectionHeader({ title, description, action }: SectionHeaderProps) {
+  return (
+    <div className="mb-3 flex items-start justify-between gap-3 text-right">
+      {action ? <div className="shrink-0">{action}</div> : <span />}
+      <div className="min-w-0">
+        <h2 className="text-base font-black text-[#111827] sm:text-lg">
+          {title}
+        </h2>
+        {description && (
+          <p className="mt-0.5 line-clamp-2 text-xs font-semibold leading-5 text-slate-600 sm:text-sm">
+            {description}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function HomePage() {
   const { direction, language } = useLanguage();
@@ -76,31 +119,36 @@ export default function HomePage() {
 
   return (
     <AppShell>
-      <div className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] lg:pb-0">
+      <div className="space-y-4 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.25rem)] lg:space-y-5 lg:pb-0">
         <Header />
         <TodayForFamily />
 
-        <section className="rounded-[18px] bg-white/74 p-2 text-[#1d1d1f] shadow-[0_8px_20px_rgba(33,43,63,0.035)]">
-          <div
-            className={[
-              "mb-1.5 flex items-center justify-between gap-2",
-              direction === "rtl" ? "text-right" : "text-left",
-            ].join(" ")}
-          >
-            <p className="text-[12px] font-black text-[#111827]">כל האזורים</p>
-            <p className="truncate text-[11px] font-semibold text-slate-600">
-              קיצור נוח למה שלא מופיע בתחתית
-            </p>
-          </div>
+        <section className="rounded-[22px] border border-[#eadfcd]/80 bg-white/82 p-4 text-[#1d1d1f] shadow-[0_12px_30px_rgba(33,43,63,0.055)]">
+          <SectionHeader
+            title="כל האזורים"
+            description="קיצורים לאזורים שלא תמיד מופיעים בניווט התחתון"
+          />
 
-          <div className="grid grid-cols-2 gap-1.5 min-[430px]:grid-cols-5">
+          <div className="grid grid-cols-2 gap-2 min-[430px]:grid-cols-5">
             {areaShortcuts.map((shortcut) => (
               <Link
                 key={shortcut.href}
                 href={shortcut.href}
-                className="flex min-h-11 items-center gap-2 rounded-2xl bg-[#fffdf8]/70 px-2 py-1.5 text-right text-[#111827] ring-1 ring-[#eadfcd]/55 transition hover:bg-[#fff8eb] active:scale-[0.99]"
+                className="relative flex min-h-12 items-center gap-2 overflow-hidden rounded-2xl border bg-white px-2.5 py-2 text-right text-[#111827] shadow-[0_6px_16px_rgba(33,43,63,0.035)] transition hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99]"
+                style={{
+                  background: `linear-gradient(135deg, #ffffff, ${shortcut.bg})`,
+                  borderColor: shortcut.border,
+                }}
               >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-2xl bg-[#fff8eb] text-[#8a5b16]">
+                <span
+                  className="absolute inset-y-2 right-0 w-1 rounded-full"
+                  style={{ backgroundColor: shortcut.accent }}
+                  aria-hidden="true"
+                />
+                <span
+                  className="grid h-8 w-8 shrink-0 place-items-center rounded-2xl bg-white shadow-sm ring-1 ring-white/80"
+                  style={{ color: shortcut.accent }}
+                >
                   <AppIcon name={shortcut.icon} className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
@@ -116,23 +164,16 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="rounded-[20px] bg-white/82 p-2.5 text-[#1d1d1f] shadow-[0_10px_24px_rgba(33,43,63,0.04)]">
-          <div
-            className={[
-              "mb-1.5 flex items-end justify-between gap-3",
-              direction === "rtl" ? "text-right" : "text-left",
-            ].join(" ")}
-          >
-            <span className="rounded-full bg-[#fff8eb] px-2.5 py-1 text-[11px] font-black text-[#7a5212]">
-              לפי צורך
-            </span>
-            <div>
-              <p className="text-xs font-bold text-slate-600">ניווט מהיר</p>
-              <h2 className="text-lg font-black text-[#111827] sm:text-xl">
-                אזורי הבית
-              </h2>
-            </div>
-          </div>
+        <section className="rounded-[22px] border border-[#eadfcd]/80 bg-white/86 p-4 text-[#1d1d1f] shadow-[0_12px_30px_rgba(33,43,63,0.055)]">
+          <SectionHeader
+            title="אזורי הבית"
+            description="כל מה שצריך לניהול המשפחה במקום אחד"
+            action={
+              <span className="rounded-full bg-[#fff8eb] px-2.5 py-1 text-[11px] font-black text-[#7a5212]">
+                ניווט מהיר
+              </span>
+            }
+          />
 
           <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2 xl:grid-cols-4">
             {primaryModules.map((module) => (
@@ -148,10 +189,10 @@ export default function HomePage() {
           </div>
         </section>
 
-        <details className="rounded-[20px] bg-white/70 p-3 text-[#1d1d1f] shadow-[0_8px_22px_rgba(33,43,63,0.04)]">
+        <details className="rounded-[22px] border border-[#eadfcd]/75 bg-white/78 p-4 text-[#1d1d1f] shadow-[0_10px_26px_rgba(33,43,63,0.045)]">
           <summary
             className={[
-              "flex cursor-pointer list-none items-center justify-between gap-4",
+              "flex min-h-11 cursor-pointer list-none items-center justify-between gap-4",
               direction === "rtl" ? "text-right" : "text-left",
             ].join(" ")}
           >
@@ -160,7 +201,7 @@ export default function HomePage() {
             </span>
             <div>
               <p className="text-xs font-bold text-slate-600">עוד בבית</p>
-              <h2 className="mt-1 text-sm font-black text-[#111827] sm:text-base">
+              <h2 className="mt-0.5 text-sm font-black text-[#111827] sm:text-base">
                 לפתיחה רק כשצריך
               </h2>
             </div>

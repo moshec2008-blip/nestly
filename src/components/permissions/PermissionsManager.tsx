@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import {
   initialPermissionUsers,
@@ -27,6 +28,7 @@ const permissionLabels: Record<PermissionKey, string> = {
 
 export default function PermissionsManager() {
   const { toast } = useFeedback();
+  const { requireAuth } = useAuthPrompt();
   const [users, setUsers] =
     usePersistentArrayState<FamilyPermissionUser>(
       storageKeys.permissions,
@@ -36,14 +38,15 @@ export default function PermissionsManager() {
   const [inviteName, setInviteName] = useState("");
 
   const selectedUser = useMemo(
-    () => users.find((user) => user.id === selectedUserId) ?? users[0],
+    () => users.find((user) => user.id === selectedUserId) ?? users[0] ?? null,
     [selectedUserId, users]
   );
+  const selectedPermissions = selectedUser?.permissions ?? [];
 
-  const privateModules = selectedUser.permissions.filter(
+  const privateModules = selectedPermissions.filter(
     (permission) => permission.isPrivate
   );
-  const sharedModules = selectedUser.permissions.filter(
+  const sharedModules = selectedPermissions.filter(
     (permission) => !permission.isPrivate
   );
 
@@ -52,6 +55,10 @@ export default function PermissionsManager() {
     moduleLabel: string,
     permissionKey: PermissionKey
   ) {
+    if (!userId) {
+      return;
+    }
+
     setUsers((currentUsers) =>
       currentUsers.map((user) =>
         user.id === userId
@@ -72,6 +79,14 @@ export default function PermissionsManager() {
   }
 
   function invitePlaceholder() {
+    if (
+      !requireAuth({
+        reason: "הזמנת בני משפחה ושיתוף הרשאות דורשים מרחב משפחתי מאובטח.",
+      })
+    ) {
+      return;
+    }
+
     const cleanName = inviteName.trim();
 
     if (!cleanName) {
@@ -131,7 +146,7 @@ export default function PermissionsManager() {
                 type="button"
                 onClick={() => setSelectedUserId(user.id)}
                 className={
-                  selectedUser.id === user.id
+                  selectedUser?.id === user.id
                     ? "w-full rounded-2xl bg-[#111827] p-4 text-right text-white shadow-[0_14px_34px_rgba(17,24,39,0.16)]"
                     : "w-full rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] p-4 text-right text-slate-800 transition hover:-translate-y-0.5 hover:bg-white"
                 }
@@ -167,68 +182,79 @@ export default function PermissionsManager() {
             <div className="mb-3 rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] p-4">
               <p className="text-xs font-bold text-slate-500">משתמש נבחר</p>
               <h3 className="mt-1 text-xl font-black text-slate-950">
-                {selectedUser.name}
+                {selectedUser?.name ?? "אין משתמש נבחר"}
               </h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                {selectedUser.note}
+                {selectedUser?.note ?? "המרחב המשפחתי החדש מתחיל נקי."}
               </p>
             </div>
 
-            <div className="overflow-x-auto rounded-2xl border border-[#ebe4d8] bg-white">
-              <table className="w-full min-w-[760px] text-right text-sm">
-                <thead className="bg-[#fffdf8]">
-                  <tr className="border-b border-[#ebe4d8] text-slate-600">
-                    <th className="px-3 py-3">מודול</th>
-                    <th className="px-3 py-3">אזור</th>
-                    {Object.values(permissionLabels).map((label) => (
-                      <th key={label} className="px-3 py-3">
-                        {label}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {selectedUser.permissions.map((permission) => (
-                    <tr
-                      key={permission.label}
-                      className="border-b border-[#ebe4d8] text-slate-700 last:border-b-0"
-                    >
-                      <td className="px-3 py-3 font-black text-slate-950">
-                        {permission.label}
-                      </td>
-                      <td className="px-3 py-3">
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
-                          {permission.isPrivate ? "פרטי" : "משותף"}
-                        </span>
-                      </td>
-                      {(Object.keys(permissionLabels) as PermissionKey[]).map(
-                        (permissionKey) => (
-                          <td key={permissionKey} className="px-3 py-3">
-                            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full bg-[#fffdf8] px-3 py-2">
-                              <input
-                                type="checkbox"
-                                checked={permission[permissionKey]}
-                                onChange={() =>
-                                  togglePermission(
-                                    selectedUser.id,
-                                    permission.label,
-                                    permissionKey
-                                  )
-                                }
-                                className="h-4 w-4 accent-[#111827]"
-                              />
-                              <span className="text-xs font-bold text-slate-600">
-                                {permission[permissionKey] ? "כן" : "לא"}
-                              </span>
-                            </label>
-                          </td>
-                        )
-                      )}
+            {selectedUser && selectedPermissions.length > 0 ? (
+              <div className="overflow-x-auto rounded-2xl border border-[#ebe4d8] bg-white">
+                <table className="w-full min-w-[760px] text-right text-sm">
+                  <thead className="bg-[#fffdf8]">
+                    <tr className="border-b border-[#ebe4d8] text-slate-600">
+                      <th className="px-3 py-3">מודול</th>
+                      <th className="px-3 py-3">אזור</th>
+                      {Object.values(permissionLabels).map((label) => (
+                        <th key={label} className="px-3 py-3">
+                          {label}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {selectedPermissions.map((permission) => (
+                      <tr
+                        key={permission.label}
+                        className="border-b border-[#ebe4d8] text-slate-700 last:border-b-0"
+                      >
+                        <td className="px-3 py-3 font-black text-slate-950">
+                          {permission.label}
+                        </td>
+                        <td className="px-3 py-3">
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
+                            {permission.isPrivate ? "פרטי" : "משותף"}
+                          </span>
+                        </td>
+                        {(Object.keys(permissionLabels) as PermissionKey[]).map(
+                          (permissionKey) => (
+                            <td key={permissionKey} className="px-3 py-3">
+                              <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full bg-[#fffdf8] px-3 py-2">
+                                <input
+                                  type="checkbox"
+                                  checked={permission[permissionKey]}
+                                  onChange={() =>
+                                    togglePermission(
+                                      selectedUser.id,
+                                      permission.label,
+                                      permissionKey
+                                    )
+                                  }
+                                  className="h-4 w-4 accent-[#111827]"
+                                />
+                                <span className="text-xs font-bold text-slate-600">
+                                  {permission[permissionKey] ? "כן" : "לא"}
+                                </span>
+                              </label>
+                            </td>
+                          )
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-[#ebe4d8] bg-white p-5 text-center">
+                <p className="text-base font-black text-slate-950">
+                  עדיין אין בני משפחה לניהול הרשאות
+                </p>
+                <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-slate-600">
+                  כשיצורף בן משפחה למרחב, ההרשאות שלו יופיעו כאן בצורה ברורה.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>

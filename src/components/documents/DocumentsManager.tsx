@@ -7,6 +7,7 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from "react";
+import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
 import DateInput from "@/components/ui/DateInput";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
@@ -225,6 +226,7 @@ function openAttachment(file: Attachment) {
 
 export default function DocumentsManager() {
   const { confirm, toast } = useFeedback();
+  const { requireAuth } = useAuthPrompt();
   const scanInputRef = useRef<HTMLInputElement | null>(null);
   const [documents, setDocuments] = usePersistentArrayState<DocumentItem>(
     storageKeys.documents,
@@ -351,11 +353,31 @@ export default function DocumentsManager() {
     event: ChangeEvent<HTMLInputElement>,
     source: Attachment["source"] = "upload"
   ) {
+    if (
+      !requireAuth({
+        reason:
+          source === "scan"
+            ? "סריקת מסמכים דורשת מרחב מאובטח כדי לשמור קבצים רגישים."
+            : "העלאת מסמכים דורשת מרחב מאובטח כדי לשמור קבצים רגישים.",
+      })
+    ) {
+      event.target.value = "";
+      return;
+    }
+
     addFiles(Array.from(event.target.files ?? []), source);
     event.target.value = "";
   }
 
   function handleSmartFiling() {
+    if (
+      !requireAuth({
+        reason: "תיוק חכם וניתוח מסמכים דורשים מרחב מאובטח.",
+      })
+    ) {
+      return;
+    }
+
     const suggestion = suggestDocumentClassification({
       title: form.title,
       description: form.description,

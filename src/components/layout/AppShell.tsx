@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import AuthPromptProvider from "@/components/auth/AuthPromptProvider";
 import AuthStorageScope from "@/components/auth/AuthStorageScope";
 import Sidebar from "@/components/Sidebar";
 import BirthdayWelcomePopup from "@/components/birthdays/BirthdayWelcomePopup";
@@ -74,30 +75,32 @@ export default function AppShell({ children }: AppShellProps) {
       className="app-premium nestly-page-shell min-h-screen overflow-x-hidden text-[#1d1d1f]"
     >
       <FeedbackProvider>
-        <AuthStorageScope />
-        <TopNavigation
-          isSidebarCollapsed={isSidebarCollapsed}
-          isMobileMenuOpen={isMobileMenuOpen}
-          onToggleSidebar={toggleSidebar}
-          onToggleMobileMenu={toggleMobileMenu}
-          onCloseMobileMenu={closeMobileMenu}
-        />
-
-        <div className="nestly-app-content mx-auto flex w-full max-w-[1480px] gap-3 px-3 sm:px-4">
-          <Sidebar
-            isCollapsed={isSidebarCollapsed}
-            isMobileOpen={isMobileMenuOpen}
-            onNavigate={closeMobileMenu}
+        <AuthPromptProvider>
+          <AuthStorageScope />
+          <TopNavigation
+            isSidebarCollapsed={isSidebarCollapsed}
+            isMobileMenuOpen={isMobileMenuOpen}
+            onToggleSidebar={toggleSidebar}
+            onToggleMobileMenu={toggleMobileMenu}
+            onCloseMobileMenu={closeMobileMenu}
           />
 
-          <div className="min-w-0 flex-1 animate-soft-in">{children}</div>
+          <div className="nestly-app-content mx-auto flex w-full max-w-[1480px] gap-3 px-3 sm:px-4">
+            <Sidebar
+              isCollapsed={isSidebarCollapsed}
+              isMobileOpen={isMobileMenuOpen}
+              onNavigate={closeMobileMenu}
+            />
 
-          {showGlobalAssists && <SmartFamilyCenter />}
-        </div>
+            <div className="min-w-0 flex-1 animate-soft-in">{children}</div>
 
-        {!isMobileMenuOpen && <MobileBottomNavigation />}
-        {showGlobalAssists && <SmartNudgePopup />}
-        {showGlobalAssists && <BirthdayWelcomePopup />}
+            {showGlobalAssists && <SmartFamilyCenter />}
+          </div>
+
+          {!isMobileMenuOpen && <MobileBottomNavigation />}
+          {showGlobalAssists && <SmartNudgePopup />}
+          {showGlobalAssists && <BirthdayWelcomePopup />}
+        </AuthPromptProvider>
       </FeedbackProvider>
     </main>
   );

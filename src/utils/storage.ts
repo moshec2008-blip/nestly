@@ -2,6 +2,8 @@ export type StorageValidator<T> = (value: unknown) => value is T;
 
 const activeStorageUserScopeKey = "nestly-active-user-scope";
 const storageScopeEventName = "nestly-storage-scope-change";
+export const guestStorageScope = "guest-device";
+export const demoStorageScope = "demo-family-space";
 
 const userScopedStorageKeys = new Set([
   "beit-cohen-shor-app-settings",
@@ -21,7 +23,17 @@ function normalizeStorageScope(value: string) {
   return value.trim().toLowerCase().replace(/[^a-z0-9._-]/g, "_");
 }
 
-function getActiveStorageUserScope() {
+export function getScopedStorageKeyForScope(scopeValue: string, key: string) {
+  if (!userScopedStorageKeys.has(key)) {
+    return key;
+  }
+
+  const scope = normalizeStorageScope(scopeValue);
+
+  return scope ? `nestly:${scope}:${key}` : null;
+}
+
+export function getActiveStorageUserScope() {
   if (typeof window === "undefined") {
     return null;
   }
@@ -73,7 +85,7 @@ export function getScopedStorageKey(key: string) {
     return null;
   }
 
-  return `nestly:space:${scope}:${key}`;
+  return getScopedStorageKeyForScope(scope, key);
 }
 
 export function isUserScopedStorageKey(key: string) {
@@ -152,7 +164,10 @@ export function readStorageArray<T>(
   itemValidator?: StorageValidator<T>
 ): T[] {
   if (isUserScopedStorageKey(key) && !hasStoredValue(key)) {
-    return [];
+    const activeScope = getActiveStorageUserScope();
+    return activeScope === demoStorageScope || activeScope === guestStorageScope
+      ? fallback
+      : [];
   }
 
   const value = readStorage<unknown>(key, fallback);

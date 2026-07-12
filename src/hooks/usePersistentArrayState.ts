@@ -7,6 +7,9 @@ import {
   type SetStateAction,
 } from "react";
 import {
+  demoStorageScope,
+  getActiveStorageUserScope,
+  guestStorageScope,
   getStorageScopeEventName,
   hasStoredValue,
   isUserScopedStorageKey,
@@ -26,12 +29,21 @@ export function usePersistentArrayState<T>(
   itemValidator?: StorageValidator<T>
 ): PersistentArrayState<T> {
   const [items, setItems] = useState<T[]>(() => {
-    if (
-      typeof window !== "undefined" &&
-      isUserScopedStorageKey(storageKey) &&
-      !hasStoredValue(storageKey)
-    ) {
-      return [];
+    if (isUserScopedStorageKey(storageKey)) {
+      if (typeof window === "undefined") {
+        return [];
+      }
+
+      if (!hasStoredValue(storageKey)) {
+        const activeScope = getActiveStorageUserScope();
+        return activeScope === demoStorageScope || activeScope === guestStorageScope
+          ? initialValue
+          : [];
+      }
+
+      return hasStoredValue(storageKey)
+        ? readStorageArray(storageKey, [], itemValidator)
+        : [];
     }
 
     return initialValue;

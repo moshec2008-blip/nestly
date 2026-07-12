@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import {
   useEffect,
   useMemo,
@@ -201,7 +201,7 @@ export default function TopNavigation({
   const pathname = usePathname();
   const { direction, language } = useLanguage();
   const dictionary = getDictionary(language);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [searchValue, setSearchValue] = useState("");
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
@@ -213,10 +213,12 @@ export default function TopNavigation({
     () => (searchValue.trim() ? getGlobalSearchResults(searchValue) : []),
     [searchValue]
   );
-  const accountLabel = language === "en" ? "Account" : "חשבון";
-
-  const signedInAccountLabel =
-    session?.user?.name || session?.user?.email || accountLabel;
+  const accountLabel =
+    status === "authenticated"
+      ? session?.user?.name || session?.user?.email || (language === "en" ? "Connected" : "מחובר")
+      : language === "en"
+        ? "Basic mode"
+        : "מצב בסיסי";
 
   useEffect(() => {
     const headerElement = headerRef.current;
@@ -523,19 +525,11 @@ export default function TopNavigation({
             <Link
               href="/security"
               className="flex h-10 max-w-36 items-center justify-center truncate rounded-2xl border border-[#d9dde5] bg-[#111827] px-3 text-xs font-black text-white shadow-sm transition hover:bg-[#1f2937]"
-              aria-label={signedInAccountLabel}
+              aria-label={accountLabel}
               onClick={handleNavigate}
             >
-              {signedInAccountLabel}
+              {accountLabel}
             </Link>
-
-            <button
-              type="button"
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              className="flex h-10 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 text-xs font-black text-slate-700 shadow-sm transition hover:bg-white"
-            >
-              התנתקות
-            </button>
 
             <Link
               href="/settings"
