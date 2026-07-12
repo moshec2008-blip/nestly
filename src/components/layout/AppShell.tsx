@@ -9,6 +9,7 @@ import BirthdayWelcomePopup from "@/components/birthdays/BirthdayWelcomePopup";
 import MobileBottomNavigation from "@/components/layout/MobileBottomNavigation";
 import SmartFamilyCenter from "@/components/layout/SmartFamilyCenter";
 import SmartNudgePopup from "@/components/layout/SmartNudgePopup";
+import StorageErrorWatcher from "@/components/layout/StorageErrorWatcher";
 import TopNavigation from "@/components/layout/TopNavigation";
 import { FeedbackProvider } from "@/components/ui/FeedbackProvider";
 import { useLanguage } from "@/i18n/useLanguage";
@@ -77,6 +78,7 @@ export default function AppShell({ children }: AppShellProps) {
       <FeedbackProvider>
         <AuthPromptProvider>
           <AuthStorageScope />
+          <StorageErrorWatcher />
           <TopNavigation
             isSidebarCollapsed={isSidebarCollapsed}
             isMobileMenuOpen={isMobileMenuOpen}

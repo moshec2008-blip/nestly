@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import type { FinanceTransaction } from "@/data/finance";
+import { normalizeDateString } from "@/utils/isoDate";
 
 type ImportTransactionsButtonProps = {
   onImport: (transactions: FinanceTransaction[]) => void;
@@ -107,20 +108,18 @@ function normalizeAmount(value: string) {
 }
 
 function rowToTransaction(row: CsvRow): FinanceTransaction | null {
-  const date = getValue(row, ["תאריך", "date", "Date"]);
+  const date = normalizeDateString(getValue(row, ["תאריך", "date", "Date"]));
   const title = getValue(row, ["שם פעולה", "פעולה", "title", "Title"]);
   const category = getValue(row, ["קטגוריה", "category", "Category"]);
   const type = getValue(row, ["סוג", "type", "Type"]);
   const status = getValue(row, ["סטטוס", "status", "Status"]);
-  const reminderDate = getValue(row, [
-    "תאריך תזכורת",
-    "reminderDate",
-    "Reminder Date",
-  ]);
+  const reminderDate = normalizeDateString(
+    getValue(row, ["תאריך תזכורת", "reminderDate", "Reminder Date"])
+  );
   const amountValue = getValue(row, ["סכום", "amount", "Amount"]);
   const amount = normalizeAmount(amountValue);
 
-  if (!date || !title || !category || amount <= 0) {
+  if (!date || !title || !category || !Number.isFinite(amount) || amount <= 0) {
     return null;
   }
 
@@ -172,6 +171,16 @@ export default function ImportTransactionsButton({
         });
         event.target.value = "";
         return;
+      }
+
+      const skippedCount = rows.length - importedTransactions.length;
+
+      if (skippedCount > 0) {
+        toast({
+          title: `${skippedCount} שורות דולגו`,
+          description: "שורות עם תאריך או סכום לא תקינים לא יובאו.",
+          tone: "warning",
+        });
       }
 
       onImport(importedTransactions);

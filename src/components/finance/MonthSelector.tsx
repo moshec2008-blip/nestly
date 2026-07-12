@@ -14,6 +14,10 @@ function formatMonthLabel(month: string) {
   const [year, monthNumber] = month.split("-").map(Number);
   const date = new Date(year, monthNumber - 1, 1);
 
+  if (Number.isNaN(date.getTime())) {
+    return month;
+  }
+
   return new Intl.DateTimeFormat("he-IL", {
     month: "long",
     year: "numeric",

@@ -2,6 +2,8 @@ export type StorageValidator<T> = (value: unknown) => value is T;
 
 const activeStorageUserScopeKey = "nestly-active-user-scope";
 const storageScopeEventName = "nestly-storage-scope-change";
+const storageWriteErrorEventName = "nestly-storage-write-error";
+const corruptBackupKeySuffix = ":corrupt-backup";
 export const guestStorageScope = "guest-device";
 export const demoStorageScope = "demo-family-space";
 
@@ -105,6 +107,19 @@ function parseStorageValue(value: string): unknown {
   return JSON.parse(value);
 }
 
+export function getStorageWriteErrorEventName() {
+  return storageWriteErrorEventName;
+}
+
+// שומר עותק של ערך פגום לפני שהוא נדרס, כדי שנתונים לא יאבדו לצמיתות.
+function backupCorruptValue(scopedKey: string, rawValue: string) {
+  try {
+    window.localStorage.setItem(scopedKey + corruptBackupKeySuffix, rawValue);
+  } catch {
+    // אין מקום לגיבוי — עדיף להמשיך מאשר לקרוס.
+  }
+}
+
 export function readStorage<T>(
   key: string,
   fallback: T,
@@ -130,11 +145,13 @@ export function readStorage<T>(
     const parsedValue = parseStorageValue(value);
 
     if (validator && !validator(parsedValue)) {
+      backupCorruptValue(scopedKey, value);
       return fallback;
     }
 
     return parsedValue as T;
   } catch {
+    backupCorruptValue(scopedKey, value);
     return fallback;
   }
 }
@@ -154,6 +171,9 @@ export function writeStorage<T>(key: string, value: T): boolean {
     window.localStorage.setItem(scopedKey, JSON.stringify(value));
     return true;
   } catch {
+    window.dispatchEvent(
+      new CustomEvent(storageWriteErrorEventName, { detail: { key } })
+    );
     return false;
   }
 }
@@ -170,7 +190,11 @@ export function readStorageArray<T>(
       : [];
   }
 
-  const value = readStorage<unknown>(key, fallback);
+  const value = readStorage<unknown[]>(
+    key,
+    fallback,
+    (candidate): candidate is unknown[] => Array.isArray(candidate)
+  );
 
   if (!Array.isArray(value)) {
     return fallback;
@@ -180,7 +204,6 @@ export function readStorageArray<T>(
     return value as T[];
   }
 
-  const validItems = value.filter(itemValidator);
-
-  return validItems.length === value.length ? validItems : fallback;
+  // פריט פגום לא מוחק את כל הרשימה — שומרים את מה שתקין.
+  return value.filter(itemValidator);
 }

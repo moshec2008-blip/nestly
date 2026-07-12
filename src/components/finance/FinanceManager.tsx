@@ -30,10 +30,12 @@ import {
   getMonthlyCashflowReport,
   getSmartFinanceInsights,
   initialFinanceTransactions,
+  isFinanceTransaction,
   type FinanceTransaction,
 } from "@/data/finance";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
+import { isValidMonthKey } from "@/utils/isoDate";
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("he-IL", {
@@ -64,7 +66,7 @@ function getAvailableMonths(transactions: FinanceTransaction[]) {
     new Set(
       transactions
         .map((item) => item.date.slice(0, 7))
-        .filter((month) => month.length === 7)
+        .filter(isValidMonthKey)
     )
   ).sort((a, b) => b.localeCompare(a));
 }
@@ -76,7 +78,8 @@ export default function FinanceManager() {
   const [transactions, setTransactions] =
     usePersistentArrayState<FinanceTransaction>(
       storageKeys.finance,
-      initialFinanceTransactions
+      initialFinanceTransactions,
+      isFinanceTransaction
     );
 
   const [editingTransactionId, setEditingTransactionId] = useState<

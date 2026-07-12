@@ -9,6 +9,31 @@ export type FinanceTransaction = {
   reminderDate?: string;
 };
 
+export function isFinanceTransaction(
+  value: unknown
+): value is FinanceTransaction {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const transaction = value as Partial<FinanceTransaction>;
+
+  return (
+    typeof transaction.id === "string" &&
+    transaction.id.length > 0 &&
+    typeof transaction.title === "string" &&
+    typeof transaction.category === "string" &&
+    typeof transaction.amount === "number" &&
+    Number.isFinite(transaction.amount) &&
+    transaction.amount > 0 &&
+    (transaction.type === "income" || transaction.type === "expense") &&
+    typeof transaction.date === "string" &&
+    (transaction.status === "done" || transaction.status === "pending") &&
+    (transaction.reminderDate === undefined ||
+      typeof transaction.reminderDate === "string")
+  );
+}
+
 export type CategoryReportItem = {
   category: string;
   total: number;
@@ -527,6 +552,11 @@ function getLatestMonth(transactions: FinanceTransaction[]) {
 function formatMonthLabel(month: string) {
   const [year, monthNumber] = month.split("-").map(Number);
   const date = new Date(year, monthNumber - 1, 1);
+
+  // חודש לא תקין (למשל מנתונים ישנים) לא יפיל את המסך — מציגים כמו שהוא.
+  if (Number.isNaN(date.getTime())) {
+    return month;
+  }
 
   return new Intl.DateTimeFormat("he-IL", {
     month: "short",

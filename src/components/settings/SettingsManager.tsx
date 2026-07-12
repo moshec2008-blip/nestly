@@ -1,11 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { defaultLanguage, isAppLanguage, type AppLanguage } from "@/i18n/config";
 import { useLanguage } from "@/i18n/useLanguage";
 import { brand } from "@/lib/branding";
+import {
+  countBackupDataEntries,
+  createBackup,
+  getBackupFileName,
+  parseBackup,
+  restoreBackup,
+} from "@/lib/dataBackup";
 import { storageKeys } from "@/lib/storageKeys";
 import { readStorage, writeStorage } from "@/utils/storage";
 
@@ -48,6 +55,7 @@ export default function SettingsManager() {
   const { language } = useLanguage();
   const [settings, setSettings] = useState<AppSettings>(defaultSettings);
   const [hasLoadedStorage, setHasLoadedStorage] = useState(false);
+  const restoreInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -104,6 +112,90 @@ export default function SettingsManager() {
       title: "הגדרות התצוגה אופסו",
       tone: "success",
     });
+  }
+
+  function exportBackup() {
+    const backup = createBackup();
+
+    if (countBackupDataEntries(backup) === 0) {
+      toast({
+        title: "אין נתונים לגיבוי",
+        description: "עדיין לא נשמר מידע במכשיר הזה.",
+        tone: "info",
+      });
+      return;
+    }
+
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = getBackupFileName();
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "קובץ הגיבוי ירד למכשיר",
+      description: "מומלץ לשמור אותו במקום בטוח — למשל בדוא\"ל או בענן.",
+      tone: "success",
+    });
+  }
+
+  async function handleRestoreFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    const backup = parseBackup(await file.text());
+
+    if (!backup || countBackupDataEntries(backup) === 0) {
+      toast({
+        title: "הקובץ אינו גיבוי תקין של Nestly",
+        description: "יש לבחור קובץ שיוצא מכפתור \"ייצוא גיבוי\".",
+        tone: "danger",
+      });
+      return;
+    }
+
+    const exportedAtLabel = backup.exportedAt
+      ? new Date(backup.exportedAt).toLocaleDateString("he-IL")
+      : "";
+    const approved = await confirm({
+      title: "שחזור מגיבוי",
+      description: `הגיבוי${exportedAtLabel ? ` מ-${exportedAtLabel}` : ""} כולל ${countBackupDataEntries(backup)} רשומות. נתונים קיימים באותם אזורים יוחלפו בתוכן הגיבוי. להמשיך?`,
+      confirmLabel: "שחזר נתונים",
+      cancelLabel: "ביטול",
+      tone: "danger",
+    });
+
+    if (!approved) {
+      return;
+    }
+
+    const restoredCount = restoreBackup(backup);
+
+    if (restoredCount === null) {
+      toast({
+        title: "השחזור נכשל",
+        description: "אין מספיק מקום באחסון הדפדפן. פנו מקום ונסו שוב.",
+        tone: "danger",
+      });
+      return;
+    }
+
+    toast({
+      title: "השחזור הושלם",
+      description: "האפליקציה תיטען מחדש עם הנתונים המשוחזרים.",
+      tone: "success",
+    });
+    window.setTimeout(() => window.location.reload(), 1200);
   }
 
   const preferenceCards = [
@@ -185,6 +277,43 @@ export default function SettingsManager() {
                 </span>
               </label>
             ))}
+          </div>
+        </section>
+
+        <section className="rounded-[24px] border border-white/80 bg-white/90 p-4 text-right shadow-[0_16px_40px_rgba(33,43,63,0.08)]">
+          <p className="mb-1 text-xs font-bold text-[#9a6b17]">גיבוי ושחזור</p>
+          <h2 className="text-lg font-black text-slate-950">
+            הנתונים שלכם — בידיים שלכם
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+            כל המידע נשמר בדפדפן במכשיר הזה בלבד. ניקוי היסטוריה או החלפת
+            מכשיר ימחקו אותו — לכן מומלץ לייצא גיבוי מדי פעם. את קובץ הגיבוי
+            אפשר לשחזר כאן בכל מכשיר.
+          </p>
+
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={exportBackup}
+              className="min-h-12 rounded-2xl bg-[#111827] px-5 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
+            >
+              ייצוא גיבוי (JSON)
+            </button>
+            <button
+              type="button"
+              onClick={() => restoreInputRef.current?.click()}
+              className="min-h-12 rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] px-5 text-sm font-black text-slate-700 transition hover:-translate-y-0.5 hover:bg-white"
+            >
+              שחזור מקובץ גיבוי
+            </button>
+            <input
+              ref={restoreInputRef}
+              type="file"
+              accept="application/json,.json"
+              onChange={handleRestoreFile}
+              className="hidden"
+              aria-hidden="true"
+            />
           </div>
         </section>
       </div>

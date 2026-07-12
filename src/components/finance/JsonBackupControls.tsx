@@ -3,6 +3,7 @@
 import { useRef, type ChangeEvent } from "react";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import type { FinanceTransaction } from "@/data/finance";
+import { normalizeDateString } from "@/utils/isoDate";
 
 type JsonBackupControlsProps = {
   transactions: FinanceTransaction[];
@@ -36,12 +37,15 @@ function normalizeTransaction(value: unknown): FinanceTransaction | null {
   const title = typeof value.title === "string" ? value.title.trim() : "";
   const category =
     typeof value.category === "string" ? value.category.trim() : "";
-  const date = typeof value.date === "string" ? value.date.trim() : "";
+  const date =
+    typeof value.date === "string" ? normalizeDateString(value.date) : null;
   const reminderDate =
-    typeof value.reminderDate === "string" ? value.reminderDate.trim() : "";
+    typeof value.reminderDate === "string"
+      ? normalizeDateString(value.reminderDate) ?? ""
+      : "";
   const amount = Number(value.amount);
 
-  if (!title || !category || !date || amount <= 0) {
+  if (!title || !category || !date || !Number.isFinite(amount) || amount <= 0) {
     return null;
   }
 
@@ -139,9 +143,19 @@ export default function JsonBackupControls({
         const parsedJson = JSON.parse(content);
         const rawTransactions = getTransactionsFromBackup(parsedJson);
 
+        const seenIds = new Set<string>();
         const restoredTransactions = rawTransactions
           .map(normalizeTransaction)
-          .filter((item): item is FinanceTransaction => Boolean(item));
+          .filter((item): item is FinanceTransaction => Boolean(item))
+          .map((item) => {
+            // מזהה כפול שובר עריכה ומחיקה — מקצים חדש במקום.
+            if (seenIds.has(item.id)) {
+              return { ...item, id: crypto.randomUUID() };
+            }
+
+            seenIds.add(item.id);
+            return item;
+          });
 
         if (restoredTransactions.length === 0) {
           toast({
