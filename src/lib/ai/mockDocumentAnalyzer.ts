@@ -128,7 +128,7 @@ function inferExtractedData(input: DocumentAnalysisInput): ExtractedDocumentData
   };
 }
 
-function getSuggestedActions(
+export function getSuggestedActions(
   extracted: ExtractedDocumentData
 ): SuggestedDocumentAction[] {
   const actions: SuggestedDocumentAction[] = [

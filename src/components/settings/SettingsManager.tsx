@@ -13,6 +13,12 @@ import {
   parseBackup,
   restoreBackup,
 } from "@/lib/dataBackup";
+import {
+  fetchAiServiceStatus,
+  getStoredAiAccessCode,
+  setStoredAiAccessCode,
+  type AiServiceStatus,
+} from "@/services/documentAiClient";
 import { storageKeys } from "@/lib/storageKeys";
 import { readStorage, writeStorage } from "@/utils/storage";
 
@@ -56,6 +62,32 @@ export default function SettingsManager() {
   const [settings, setSettings] = useState<AppSettings>(defaultSettings);
   const [hasLoadedStorage, setHasLoadedStorage] = useState(false);
   const restoreInputRef = useRef<HTMLInputElement | null>(null);
+  const [aiStatus, setAiStatus] = useState<AiServiceStatus | null>(null);
+  const [aiAccessCode, setAiAccessCode] = useState("");
+
+  useEffect(() => {
+    setAiAccessCode(getStoredAiAccessCode());
+
+    let isActive = true;
+    fetchAiServiceStatus().then((status) => {
+      if (isActive) {
+        setAiStatus(status);
+      }
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  function saveAiAccessCode() {
+    setStoredAiAccessCode(aiAccessCode);
+    toast({
+      title: aiAccessCode.trim() ? "קוד הגישה נשמר" : "קוד הגישה נמחק",
+      description: "הקוד נשמר במכשיר זה בלבד.",
+      tone: "success",
+    });
+  }
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -315,6 +347,65 @@ export default function SettingsManager() {
               aria-hidden="true"
             />
           </div>
+        </section>
+
+        <section className="rounded-[24px] border border-white/80 bg-white/90 p-4 text-right shadow-[0_16px_40px_rgba(33,43,63,0.08)]">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span
+              className={[
+                "rounded-full px-3 py-1 text-xs font-black",
+                aiStatus?.mode === "live"
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-slate-100 text-slate-600",
+              ].join(" ")}
+            >
+              {aiStatus === null
+                ? "בודק חיבור…"
+                : aiStatus.mode === "live"
+                  ? "AI פעיל"
+                  : "מצב בסיסי (ללא AI)"}
+            </span>
+            <div>
+              <p className="mb-1 text-xs font-bold text-[#007aff]">Nestly AI</p>
+              <h2 className="text-lg font-black text-slate-950">ניתוח מסמכים חכם</h2>
+            </div>
+          </div>
+
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+            כשה-AI פעיל, סריקת מסמך מזהה אוטומטית ספק, סכום ותאריך תשלום —
+            ואתם רק מאשרים. מסמכים נשלחים לניתוח לשירות חיצוני מאובטח, ושום
+            דבר לא נשמר בלי אישור שלכם. ללא חיבור AI הכול ממשיך לעבוד במצב
+            בסיסי וחינמי.
+          </p>
+
+          {aiStatus?.mode === "live" && aiStatus.requiresAccessCode && (
+            <div className="mt-3 rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] p-3">
+              <p className="text-sm font-bold text-slate-700">
+                קוד גישה משפחתי
+              </p>
+              <p className="mt-1 text-xs leading-5 text-slate-600">
+                הקוד מגן על השימוש ב-AI. מזינים אותו פעם אחת בכל מכשיר של
+                המשפחה.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <input
+                  type="password"
+                  value={aiAccessCode}
+                  onChange={(event) => setAiAccessCode(event.target.value)}
+                  autoComplete="off"
+                  className="min-h-11 min-w-0 flex-1 rounded-2xl border border-[#e6e8ec] bg-white px-4 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400"
+                  placeholder="הזינו את הקוד המשפחתי"
+                />
+                <button
+                  type="button"
+                  onClick={saveAiAccessCode}
+                  className="min-h-11 rounded-2xl bg-[#111827] px-5 text-sm font-black text-white transition hover:bg-[#1f2937]"
+                >
+                  שמירה
+                </button>
+              </div>
+            </div>
+          )}
         </section>
       </div>
 

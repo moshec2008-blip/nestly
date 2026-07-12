@@ -25,7 +25,7 @@ export const documentAnalysisStatus = {
   provider: configuredProviderId,
   mode: "mock",
   description:
-    "Document analysis is prepared with a replaceable provider interface. Current mode is local mock only; no paid AI calls are made.",
+    "Client-side analysis is a free local mock. Real AI analysis runs server-side via /api/ai/document-classification when ANTHROPIC_API_KEY is configured.",
   futureProviders: ["openai", "gemini", "anthropic"] satisfies AiProviderId[],
 } as const;
 

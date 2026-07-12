@@ -7,6 +7,8 @@ export type DocumentAnalysisFile = {
   type: string;
   size?: number;
   textPreview?: string;
+  // תוכן הקובץ ב-base64 (ללא קידומת data:) — נשלח לניתוח ראייה בשרת בלבד.
+  data?: string;
 };
 
 export type DocumentAnalysisInput = {

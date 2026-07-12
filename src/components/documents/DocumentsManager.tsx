@@ -15,7 +15,9 @@ import { storageKeys } from "@/lib/storageKeys";
 import {
   documentAiStatus,
   suggestDocumentClassification,
+  type DocumentAiSuggestion,
 } from "@/services/documentAi";
+import { analyzeDocumentSmart } from "@/services/documentAiClient";
 
 type DocumentStatus = "open" | "done";
 
@@ -245,6 +247,7 @@ export default function DocumentsManager() {
   const [aiSuggestion, setAiSuggestion] = useState<ReturnType<
     typeof suggestDocumentClassification
   > | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const visibleDocuments = useMemo(() => {
     const normalizedSearch = searchValue.trim().toLowerCase();
@@ -295,6 +298,66 @@ export default function DocumentsManager() {
     setEditingDocumentId(null);
   }
 
+  function applySuggestionToForm(suggestion: DocumentAiSuggestion) {
+    setAiSuggestion(suggestion);
+    setForm((currentForm) => ({
+      ...currentForm,
+      title: currentForm.title.trim() ? currentForm.title : suggestion.title,
+      category:
+        currentForm.category === "מסמכים"
+          ? suggestion.category
+          : currentForm.category,
+      description: currentForm.description.trim()
+        ? currentForm.description
+        : suggestion.summary,
+      tagsText: currentForm.tagsText.trim()
+        ? currentForm.tagsText
+        : suggestion.tags.join(", "),
+    }));
+  }
+
+  async function runSmartAnalysis(files: File[]) {
+    if (isAnalyzing) {
+      return;
+    }
+
+    setIsAnalyzing(true);
+
+    try {
+      const suggestion = await analyzeDocumentSmart({
+        title: form.title,
+        description: form.description,
+        files,
+      });
+
+      applySuggestionToForm(suggestion);
+      toast({
+        title:
+          suggestion.analysis.mode === "live"
+            ? "ניתוח AI הושלם"
+            : "ניתוח בסיסי הושלם",
+        description: `${suggestion.analysis.extracted.documentType} · קטגוריה: ${suggestion.category}`,
+        tone: suggestion.analysis.mode === "live" ? "success" : "info",
+      });
+    } catch (error) {
+      if (error instanceof Error && error.message === "invalid-access-code") {
+        toast({
+          title: "קוד הגישה ל-AI שגוי",
+          description: "אפשר לעדכן את הקוד המשפחתי בעמוד ההגדרות.",
+          tone: "danger",
+        });
+      } else {
+        toast({
+          title: "הניתוח נכשל",
+          description: "נסו שוב בעוד רגע.",
+          tone: "warning",
+        });
+      }
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }
+
   function addFiles(files: File[], source: Attachment["source"] = "upload") {
     const acceptedFiles = files.filter((file) => file.size <= maxLocalFileSize);
     const rejectedCount = files.length - acceptedFiles.length;
@@ -336,16 +399,21 @@ export default function DocumentsManager() {
 
     if (source === "scan" && acceptedFiles.length > 0) {
       toast({
-        title: "סריקה נותחה",
-        description: `התמונה צורפה והוצעה קטגוריה: ${suggestion.category}`,
+        title: "הסריקה צורפה",
+        description: "מריצים ניתוח חכם…",
         tone: "success",
       });
     } else if (acceptedFiles.length > 0) {
       toast({
-        title: "הקובץ נותח",
-        description: `הוצעה קטגוריה: ${suggestion.category}`,
+        title: "הקובץ צורף",
+        description: "מריצים ניתוח חכם…",
         tone: "info",
       });
+    }
+
+    // ניתוח מלא (AI אמיתי כשמוגדר) רץ ברקע ומעדכן את ההצעה כשהוא מסתיים.
+    if (acceptedFiles.length > 0) {
+      void runSmartAnalysis(nextFiles);
     }
   }
 
@@ -369,7 +437,7 @@ export default function DocumentsManager() {
     event.target.value = "";
   }
 
-  function handleSmartFiling() {
+  async function handleSmartFiling() {
     if (
       !requireAuth({
         reason: "תיוק חכם וניתוח מסמכים דורשים מרחב מאובטח.",
@@ -378,29 +446,7 @@ export default function DocumentsManager() {
       return;
     }
 
-    const suggestion = suggestDocumentClassification({
-      title: form.title,
-      description: form.description,
-      files: form.files.map((file) => ({
-        name: file.name,
-        type: file.type || "לא ידוע",
-      })),
-    });
-
-    setAiSuggestion(suggestion);
-    setForm((currentForm) => ({
-      ...currentForm,
-      title: currentForm.title.trim() ? currentForm.title : suggestion.title,
-      category: suggestion.category,
-      description: currentForm.description.trim()
-        ? currentForm.description
-        : suggestion.summary,
-    }));
-    toast({
-      title: "התיוק החכם הוכן",
-      description: `קטגוריה מוצעת: ${suggestion.category}`,
-      tone: "info",
-    });
+    await runSmartAnalysis(form.files);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -724,9 +770,10 @@ export default function DocumentsManager() {
               <button
                 type="button"
                 onClick={handleSmartFiling}
-                className="rounded-2xl bg-[#f4e7c8] px-4 py-2 text-sm font-black text-slate-950 hover:bg-[#fff3d6]"
+                disabled={isAnalyzing}
+                className="rounded-2xl bg-[#f4e7c8] px-4 py-2 text-sm font-black text-slate-950 hover:bg-[#fff3d6] disabled:cursor-wait disabled:opacity-60"
               >
-                תיוק חכם
+                {isAnalyzing ? "מנתח…" : "תיוק חכם"}
               </button>
               <button
                 type="button"
