@@ -168,7 +168,9 @@ export default function MobileBottomNavigation() {
   }, []);
 
   useEffect(() => {
-    setIsMoreOpen(false);
+    const timeoutId = window.setTimeout(() => setIsMoreOpen(false), 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [pathname]);
 
   useEffect(() => {

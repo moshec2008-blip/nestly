@@ -66,9 +66,11 @@ export default function SettingsManager() {
   const [aiAccessCode, setAiAccessCode] = useState("");
 
   useEffect(() => {
-    setAiAccessCode(getStoredAiAccessCode());
-
     let isActive = true;
+    const timeoutId = window.setTimeout(() => {
+      setAiAccessCode(getStoredAiAccessCode());
+    }, 0);
+
     fetchAiServiceStatus().then((status) => {
       if (isActive) {
         setAiStatus(status);
@@ -77,6 +79,7 @@ export default function SettingsManager() {
 
     return () => {
       isActive = false;
+      window.clearTimeout(timeoutId);
     };
   }, []);
 

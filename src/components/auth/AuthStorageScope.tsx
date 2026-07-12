@@ -86,10 +86,16 @@ export default function AuthStorageScope() {
         return Boolean(guestKey && window.localStorage.getItem(guestKey));
       });
 
-      if (hasGuestData) {
-        setMigrationState({ targetScope });
+      if (!hasGuestData) {
+        return;
       }
-      return;
+
+      const timeoutId = window.setTimeout(
+        () => setMigrationState({ targetScope }),
+        0
+      );
+
+      return () => window.clearTimeout(timeoutId);
     }
 
     if (status === "unauthenticated" && !isDemoModeActive()) {

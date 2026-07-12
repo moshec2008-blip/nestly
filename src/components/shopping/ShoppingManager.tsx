@@ -92,10 +92,6 @@ export default function ShoppingManager() {
   const isEditing = Boolean(editingItemId);
   const remainingItems = items.filter((item) => !item.purchased);
   const purchasedItems = items.filter((item) => item.purchased);
-  const totalEstimate = remainingItems.reduce(
-    (sum, item) => sum + item.estimatedPrice,
-    0
-  );
 
   const departments = useMemo(() => {
     return Array.from(
