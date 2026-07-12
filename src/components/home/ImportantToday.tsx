@@ -105,7 +105,7 @@ export function NestlyAiInsightCard({ insight }: { insight: HomeInsight }) {
       <div className="flex items-center justify-between gap-3">
         <Link
           href={insight.href}
-          className="min-h-10 shrink-0 rounded-2xl bg-violet-700 px-4 py-2 text-xs font-black text-white transition hover:bg-violet-800"
+          className="nestly-primary-action grid min-h-10 shrink-0 place-items-center rounded-2xl px-4 py-2 text-xs font-black transition hover:opacity-90"
         >
           פתח עכשיו
         </Link>
@@ -150,9 +150,9 @@ export default function ImportantToday() {
               <li key={row.id}>
                 <Link
                   href={row.href}
-                  className="flex min-h-14 items-center justify-between gap-3 py-2.5 transition hover:bg-[#fffdf8]"
+                  className="group flex min-h-14 items-center justify-between gap-3 rounded-xl py-2.5 transition hover:bg-[#fffdf8]"
                 >
-                  <span className="flex shrink-0 items-center gap-1 text-xs font-black text-[#007aff]">
+                  <span className="flex min-h-9 shrink-0 items-center gap-1 rounded-full border border-[#dbe3ef] bg-white px-3.5 text-xs font-black text-[#007aff] shadow-sm transition group-hover:border-[#007aff]/40">
                     פתח
                     <span aria-hidden="true">‹</span>
                   </span>
