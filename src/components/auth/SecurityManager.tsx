@@ -2,11 +2,29 @@
 
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
-import { brand } from "@/lib/branding";
+import { useEffect, useState } from "react";
+import {
+  getActiveFamilySpace,
+  getFamilySpaceEventName,
+  type FamilySpace,
+} from "@/lib/familySpace";
 
 export default function SecurityManager() {
   const { data: session, status } = useSession();
   const user = session?.user;
+  const [familySpace, setFamilySpace] = useState<FamilySpace | null>(null);
+
+  useEffect(() => {
+    function syncFamilySpace() {
+      setFamilySpace(getActiveFamilySpace());
+    }
+
+    syncFamilySpace();
+    window.addEventListener(getFamilySpaceEventName(), syncFamilySpace);
+
+    return () =>
+      window.removeEventListener(getFamilySpaceEventName(), syncFamilySpace);
+  }, []);
 
   return (
     <section className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -77,7 +95,7 @@ export default function SecurityManager() {
           <div className="rounded-2xl bg-[#fffdf8] p-3 ring-1 ring-[#eadfcd]">
             <p className="text-[11px] font-black text-slate-500">מרחב</p>
             <p className="mt-1 text-sm font-black text-[#111827]">
-              {brand.workspaceName}
+              {familySpace?.name || "המרחב המשפחתי שלי"}
             </p>
           </div>
         </div>

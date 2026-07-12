@@ -1,6 +1,8 @@
 # Nestly
 
-Nestly is a Hebrew-first family management platform for the `משפחת כהן שור` workspace.
+Nestly is a Hebrew-first family management platform built around a private
+Family Space. The sample workspace `משפחת כהן שור` is demo data only and should
+not be used as the real authenticated user's family space.
 
 ## Tech Stack
 
@@ -31,7 +33,12 @@ NEXTAUTH_URL=http://localhost:3000
 ```
 
 In production, set the same variables in Vercel and use the production domain
-for `NEXTAUTH_URL`. Never expose `GOOGLE_CLIENT_SECRET` in client-side code.
+for `NEXTAUTH_URL`, for example `https://your-domain.com`.
+
+This project currently uses `next-auth` v4, so the required secret variable is
+`NEXTAUTH_SECRET`. `AUTH_SECRET` / `AUTH_URL` are Auth.js v5 names and are not
+the primary variables for this version. Never expose `GOOGLE_CLIENT_SECRET` in
+client-side code.
 
 Open:
 

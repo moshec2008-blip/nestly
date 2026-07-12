@@ -4,6 +4,7 @@ const activeStorageUserScopeKey = "nestly-active-user-scope";
 const storageScopeEventName = "nestly-storage-scope-change";
 
 const userScopedStorageKeys = new Set([
+  "beit-cohen-shor-app-settings",
   "beit-cohen-shor-family-tasks",
   "beit-cohen-shor-finance-transactions",
   "beit-cohen-shor-health-records",
@@ -72,7 +73,20 @@ export function getScopedStorageKey(key: string) {
     return null;
   }
 
-  return `nestly:user:${scope}:${key}`;
+  return `nestly:space:${scope}:${key}`;
+}
+
+export function isUserScopedStorageKey(key: string) {
+  return userScopedStorageKeys.has(key);
+}
+
+export function hasStoredValue(key: string) {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const scopedKey = getScopedStorageKey(key);
+  return Boolean(scopedKey && window.localStorage.getItem(scopedKey));
 }
 
 function parseStorageValue(value: string): unknown {
@@ -137,6 +151,10 @@ export function readStorageArray<T>(
   fallback: T[],
   itemValidator?: StorageValidator<T>
 ): T[] {
+  if (isUserScopedStorageKey(key) && !hasStoredValue(key)) {
+    return [];
+  }
+
   const value = readStorage<unknown>(key, fallback);
 
   if (!Array.isArray(value)) {

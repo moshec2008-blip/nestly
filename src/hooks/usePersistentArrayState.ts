@@ -8,6 +8,8 @@ import {
 } from "react";
 import {
   getStorageScopeEventName,
+  hasStoredValue,
+  isUserScopedStorageKey,
   readStorageArray,
   writeStorage,
   type StorageValidator,
@@ -23,7 +25,17 @@ export function usePersistentArrayState<T>(
   initialValue: T[],
   itemValidator?: StorageValidator<T>
 ): PersistentArrayState<T> {
-  const [items, setItems] = useState<T[]>(initialValue);
+  const [items, setItems] = useState<T[]>(() => {
+    if (
+      typeof window !== "undefined" &&
+      isUserScopedStorageKey(storageKey) &&
+      !hasStoredValue(storageKey)
+    ) {
+      return [];
+    }
+
+    return initialValue;
+  });
   const [hasLoadedStorage, setHasLoadedStorage] = useState(false);
 
   useEffect(() => {

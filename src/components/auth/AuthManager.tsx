@@ -4,6 +4,11 @@ import Image from "next/image";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { brand } from "@/lib/branding";
+import type { AuthSetupStatus } from "@/lib/auth";
+
+type AuthManagerProps = {
+  authSetup: AuthSetupStatus;
+};
 
 function getLoginErrorMessage(error: string | null) {
   if (!error) {
@@ -13,10 +18,12 @@ function getLoginErrorMessage(error: string | null) {
   return "לא הצלחנו להשלים את ההתחברות. נסה שוב בעוד רגע.";
 }
 
-export default function AuthManager() {
+export default function AuthManager({ authSetup }: AuthManagerProps) {
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
-  const errorMessage = getLoginErrorMessage(searchParams.get("error"));
+  const errorMessage = authSetup.isReady
+    ? getLoginErrorMessage(searchParams.get("error"))
+    : "התחברות Google עדיין לא הוגדרה. חסרים משתני סביבה בשרת.";
   const isLoading = status === "loading";
   const isSignedIn = status === "authenticated";
 
@@ -50,6 +57,11 @@ export default function AuthManager() {
         {errorMessage && (
           <div className="mt-4 rounded-2xl bg-rose-50 p-3 text-sm font-bold text-rose-700 ring-1 ring-rose-100">
             {errorMessage}
+            {!authSetup.isReady && (
+              <span className="mt-2 block text-xs leading-5 text-rose-800">
+                חסר: {authSetup.missing.join(", ")}
+              </span>
+            )}
           </div>
         )}
 
@@ -81,8 +93,12 @@ export default function AuthManager() {
         ) : (
           <button
             type="button"
-            onClick={() => signIn("google", { callbackUrl: "/" })}
-            disabled={isLoading}
+            onClick={() => {
+              if (authSetup.isReady) {
+                signIn("google", { callbackUrl: "/" });
+              }
+            }}
+            disabled={isLoading || !authSetup.isReady}
             className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#111827] px-5 text-sm font-black text-white shadow-[0_14px_30px_rgba(17,24,39,0.18)] transition hover:bg-[#1f2937] disabled:cursor-wait disabled:opacity-70"
           >
             <span className="grid h-6 w-6 place-items-center rounded-full bg-white text-sm font-black text-[#111827]">
