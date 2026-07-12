@@ -572,9 +572,17 @@ export default function DocumentsManager() {
     const cleanDocumentType = form.documentType.trim();
 
     if (!cleanTitle || !cleanOwner || !cleanCategory || !form.date) {
+      toast({
+        title: "חסרים פרטים לשמירה",
+        description: "מלאו שם מסמך, אחראי, קטגוריה ותאריך.",
+        tone: "warning",
+      });
       return;
     }
 
+    setIsSubmitting(true);
+
+    try {
     const newAttachments = await Promise.all(
       form.files.map((file) => fileToAttachment(file))
     );
@@ -642,6 +650,9 @@ export default function DocumentsManager() {
       description: documentItem.title,
       tone: "success",
     });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function toggleStatus(id: string) {
@@ -684,6 +695,13 @@ export default function DocumentsManager() {
     setDocuments((currentDocuments) =>
       currentDocuments.filter((item) => item.id !== id)
     );
+
+    // מפנים גם את הקבצים מ-IndexedDB.
+    const attachmentIds = (documentItem?.attachments ?? [])
+      .map((file) => file.id)
+      .filter((fileId): fileId is string => Boolean(fileId));
+    void deleteAttachmentData(attachmentIds);
+
     if (editingDocumentId === id) {
       resetForm();
       setIsFormOpen(false);
@@ -691,6 +709,43 @@ export default function DocumentsManager() {
     toast({
       title: "המסמך נמחק",
       description: title,
+      tone: "info",
+    });
+  }
+
+  async function removeAttachment(documentId: string, attachment: Attachment) {
+    const approved = await confirm({
+      title: "הסרת קובץ מצורף",
+      description: `להסיר את "${attachment.name}" מהמסמך? הקובץ יימחק מהמכשיר.`,
+      confirmLabel: "הסר קובץ",
+      cancelLabel: "ביטול",
+      tone: "danger",
+    });
+
+    if (!approved) {
+      return;
+    }
+
+    setDocuments((currentDocuments) =>
+      currentDocuments.map((item) =>
+        item.id === documentId
+          ? {
+              ...item,
+              attachments: item.attachments.filter(
+                (file) => file !== attachment
+              ),
+            }
+          : item
+      )
+    );
+
+    if (attachment.id) {
+      void deleteAttachmentData([attachment.id]);
+    }
+
+    toast({
+      title: "הקובץ הוסר",
+      description: attachment.name,
       tone: "info",
     });
   }
@@ -813,9 +868,14 @@ export default function DocumentsManager() {
 
           <button
             type="submit"
-            className="rounded-2xl bg-[#f4e7c8] px-5 py-3 text-sm font-black text-slate-950 hover:bg-[#fff3d6]"
+            disabled={isSubmitting}
+            className="rounded-2xl bg-[#f4e7c8] px-5 py-3 text-sm font-black text-slate-950 hover:bg-[#fff3d6] disabled:cursor-wait disabled:opacity-60"
           >
-            {editingDocumentId ? "שמור שינויים" : "שמור מסמך"}
+            {isSubmitting
+              ? "שומר…"
+              : editingDocumentId
+                ? "שמור שינויים"
+                : "שמור מסמך"}
           </button>
 
           {editingDocumentId && (
@@ -1133,9 +1193,9 @@ export default function DocumentsManager() {
 
                     {item.attachments.length > 0 && (
                       <div className="mt-2.5 space-y-1.5">
-                        {item.attachments.map((file) => (
+                        {item.attachments.map((file, fileIndex) => (
                           <div
-                            key={`${item.id}-${file.name}`}
+                            key={file.id ?? `${item.id}-${file.name}-${fileIndex}`}
                             className="flex flex-col gap-2 rounded-xl bg-[#fffdf8] px-3 py-2 text-sm text-slate-700 md:flex-row md:items-center md:justify-between"
                           >
                             <div>
@@ -1148,8 +1208,8 @@ export default function DocumentsManager() {
                             <div className="flex flex-wrap gap-2">
                               <button
                                 type="button"
-                                onClick={() => {
-                                  if (!openAttachment(file)) {
+                                onClick={async () => {
+                                  if (!(await openAttachment(file))) {
                                     toast({
                                       title: "אין תצוגה זמינה",
                                       description:
@@ -1164,8 +1224,8 @@ export default function DocumentsManager() {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => {
-                                  if (!downloadAttachment(file)) {
+                                onClick={async () => {
+                                  if (!(await downloadAttachment(file))) {
                                     toast({
                                       title: "אין קובץ להורדה",
                                       description:
@@ -1177,6 +1237,13 @@ export default function DocumentsManager() {
                                 className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800"
                               >
                                 הורדה
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeAttachment(item.id, file)}
+                                className="rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-100"
+                              >
+                                הסרה
                               </button>
                             </div>
                           </div>
