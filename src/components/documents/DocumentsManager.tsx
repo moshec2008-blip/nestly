@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -8,6 +9,11 @@ import {
   type FormEvent,
 } from "react";
 import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
+import {
+  deleteAttachmentData,
+  getAttachmentData,
+  saveAttachmentData,
+} from "@/lib/attachmentStore";
 import DateInput from "@/components/ui/DateInput";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
@@ -22,6 +28,8 @@ import { analyzeDocumentSmart } from "@/services/documentAiClient";
 type DocumentStatus = "open" | "done";
 
 type Attachment = {
+  // מזהה הקובץ ב-IndexedDB; רשומות ישנות (לפני ההגירה) נושאות dataUrl במקום.
+  id?: string;
   name: string;
   size: number;
   type: string;
@@ -59,7 +67,8 @@ type DocumentForm = {
   files: File[];
 };
 
-const maxLocalFileSize = 4 * 1024 * 1024;
+// הקבצים נשמרים ב-IndexedDB, כך שאפשר להרשות קבצים גדולים יותר מבעבר.
+const maxLocalFileSize = 10 * 1024 * 1024;
 
 const initialDocuments: DocumentItem[] = [
   {
@@ -193,37 +202,74 @@ async function fileToAttachment(
   file: File,
   source: Attachment["source"] = "upload"
 ): Promise<Attachment> {
-  return {
+  const id = crypto.randomUUID();
+  const dataUrl = await readFileAsDataUrl(file);
+  const metadata: Attachment = {
+    id,
     name: file.name,
     size: file.size,
     type: file.type || "לא ידוע",
-    dataUrl: await readFileAsDataUrl(file),
     source,
   };
+
+  try {
+    await saveAttachmentData(id, dataUrl);
+    return metadata;
+  } catch {
+    // IndexedDB לא זמין — נופלים לשמירה בתוך הרשומה כמו פעם.
+    return { ...metadata, dataUrl };
+  }
 }
 
-function downloadAttachment(file: Attachment) {
-  if (!file.dataUrl) {
+async function resolveAttachmentDataUrl(file: Attachment) {
+  if (file.dataUrl) {
+    return file.dataUrl;
+  }
+
+  if (file.id) {
+    return getAttachmentData(file.id);
+  }
+
+  return null;
+}
+
+// דפדפנים חוסמים פתיחת data: ישירות — ממירים ל-blob URL זמני.
+async function dataUrlToObjectUrl(dataUrl: string) {
+  const blob = await (await fetch(dataUrl)).blob();
+  return URL.createObjectURL(blob);
+}
+
+async function downloadAttachment(file: Attachment) {
+  const dataUrl = await resolveAttachmentDataUrl(file);
+
+  if (!dataUrl) {
     return false;
   }
 
+  const objectUrl = await dataUrlToObjectUrl(dataUrl);
   const link = document.createElement("a");
-  link.href = file.dataUrl;
+  link.href = objectUrl;
   link.download = file.name;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 30_000);
 
   return true;
 }
 
-function openAttachment(file: Attachment) {
-  if (!file.dataUrl) {
+async function openAttachment(file: Attachment) {
+  const dataUrl = await resolveAttachmentDataUrl(file);
+
+  if (!dataUrl) {
     return false;
   }
 
-  window.open(file.dataUrl, "_blank", "noopener,noreferrer");
-  return true;
+  const objectUrl = await dataUrlToObjectUrl(dataUrl);
+  const openedWindow = window.open(objectUrl, "_blank", "noopener,noreferrer");
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+
+  return Boolean(openedWindow);
 }
 
 export default function DocumentsManager() {
@@ -248,6 +294,68 @@ export default function DocumentsManager() {
     typeof suggestDocumentClassification
   > | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const hasMigratedAttachmentsRef = useRef(false);
+
+  // הגירה חד-פעמית: קבצים ששמורים בתוך localStorage עוברים ל-IndexedDB,
+  // ומשחררים את מכסת האחסון של הדפדפן.
+  useEffect(() => {
+    const needsMigration = documents.some((item) =>
+      item.attachments.some((file) => file.dataUrl)
+    );
+
+    if (!needsMigration || hasMigratedAttachmentsRef.current) {
+      return;
+    }
+
+    hasMigratedAttachmentsRef.current = true;
+
+    let isActive = true;
+
+    (async () => {
+      const migratedIds = new Map<string, Attachment[]>();
+
+      for (const item of documents) {
+        if (!item.attachments.some((file) => file.dataUrl)) {
+          continue;
+        }
+
+        const migratedAttachments: Attachment[] = [];
+
+        for (const file of item.attachments) {
+          if (!file.dataUrl) {
+            migratedAttachments.push(file);
+            continue;
+          }
+
+          const id = file.id ?? crypto.randomUUID();
+
+          try {
+            await saveAttachmentData(id, file.dataUrl);
+            migratedAttachments.push({ ...file, id, dataUrl: undefined });
+          } catch {
+            migratedAttachments.push(file);
+          }
+        }
+
+        migratedIds.set(item.id, migratedAttachments);
+      }
+
+      if (isActive && migratedIds.size > 0) {
+        setDocuments((currentDocuments) =>
+          currentDocuments.map((item) =>
+            migratedIds.has(item.id)
+              ? { ...item, attachments: migratedIds.get(item.id) as Attachment[] }
+              : item
+          )
+        );
+      }
+    })();
+
+    return () => {
+      isActive = false;
+    };
+  }, [documents, setDocuments]);
 
   const visibleDocuments = useMemo(() => {
     const normalizedSearch = searchValue.trim().toLowerCase();
@@ -451,6 +559,11 @@ export default function DocumentsManager() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    // מניעת שמירה כפולה בזמן שהקבצים נקראים ונשמרים.
+    if (isSubmitting) {
+      return;
+    }
 
     const cleanTitle = form.title.trim();
     const cleanDescription = form.description.trim();
