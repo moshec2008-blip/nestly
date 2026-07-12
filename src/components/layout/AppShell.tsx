@@ -6,6 +6,7 @@ import AuthPromptProvider from "@/components/auth/AuthPromptProvider";
 import AuthStorageScope from "@/components/auth/AuthStorageScope";
 import Sidebar from "@/components/Sidebar";
 import BirthdayWelcomePopup from "@/components/birthdays/BirthdayWelcomePopup";
+import DemoModeBanner from "@/components/layout/DemoModeBanner";
 import MobileBottomNavigation from "@/components/layout/MobileBottomNavigation";
 import SmartFamilyCenter from "@/components/layout/SmartFamilyCenter";
 import SmartNudgePopup from "@/components/layout/SmartNudgePopup";
@@ -99,6 +100,7 @@ export default function AppShell({ children }: AppShellProps) {
             {showGlobalAssists && <SmartFamilyCenter />}
           </div>
 
+          <DemoModeBanner />
           {!isMobileMenuOpen && <MobileBottomNavigation />}
           {showGlobalAssists && <SmartNudgePopup />}
           {showGlobalAssists && <BirthdayWelcomePopup />}

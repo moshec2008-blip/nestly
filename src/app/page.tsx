@@ -7,6 +7,7 @@ import ModuleCard from "@/components/ModuleCard";
 import DashboardLiveOverview from "@/components/dashboard/DashboardLiveOverview";
 import TodayForFamily from "@/components/dashboard/TodayForFamily";
 import AppShell from "@/components/layout/AppShell";
+import DemoEntryCard from "@/components/layout/DemoEntryCard";
 import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { getDashboardContent } from "@/i18n/dashboardContent";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -223,6 +224,8 @@ export default function HomePage() {
         </details>
 
         <DashboardLiveOverview />
+
+        <DemoEntryCard />
       </div>
     </AppShell>
   );

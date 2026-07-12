@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { isDemoModeActive } from "@/lib/demoMode";
 import {
   ensureDefaultFamilySpace,
 } from "@/lib/familySpace";
@@ -91,7 +92,7 @@ export default function AuthStorageScope() {
       return;
     }
 
-    if (status === "unauthenticated") {
+    if (status === "unauthenticated" && !isDemoModeActive()) {
       setActiveStorageUserScope(guestStorageScope);
     }
   }, [accountKey, session?.user?.name, status]);
