@@ -5,45 +5,10 @@ import DemoEntryCard from "@/components/layout/DemoEntryCard";
 import HomeSummaryCard from "@/components/home/HomeSummaryCard";
 import ImportantToday from "@/components/home/ImportantToday";
 import {
-  AreaShortcutCard,
   HomeAreaCard,
   HomeSectionHeader,
-  type AreaShortcut,
   type HomeArea,
 } from "@/components/home/HomeAreas";
-
-const areaShortcuts: AreaShortcut[] = [
-  {
-    href: "/birthdays",
-    icon: "calendar",
-    title: "אירועים",
-    accentClass: "bg-pink-50 text-pink-600 ring-pink-100",
-  },
-  {
-    href: "/family",
-    icon: "family",
-    title: "משפחה",
-    accentClass: "bg-violet-50 text-violet-600 ring-violet-100",
-  },
-  {
-    href: "/vehicles",
-    icon: "car",
-    title: "רכב",
-    accentClass: "bg-blue-50 text-blue-600 ring-blue-100",
-  },
-  {
-    href: "/documents",
-    icon: "document",
-    title: "מסמכים",
-    accentClass: "bg-purple-50 text-purple-600 ring-purple-100",
-  },
-  {
-    href: "/health",
-    icon: "health",
-    title: "בריאות",
-    accentClass: "bg-rose-50 text-rose-600 ring-rose-100",
-  },
-];
 
 const homeAreas: HomeArea[] = [
   {
@@ -119,18 +84,6 @@ export default function HomePage() {
         <HomeSummaryCard />
 
         <ImportantToday />
-
-        <section className="rounded-[22px] border border-[#eadfcd]/80 bg-white/82 p-4 text-[#1d1d1f] shadow-[0_10px_26px_rgba(33,43,63,0.05)]">
-          <HomeSectionHeader
-            title="כל האזורים"
-            subtitle="קיצורים לאזורים שלא תמיד מופיעים בניווט התחתון"
-          />
-          <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 min-[430px]:grid min-[430px]:grid-cols-5 min-[430px]:overflow-visible">
-            {areaShortcuts.map((shortcut) => (
-              <AreaShortcutCard key={shortcut.href} shortcut={shortcut} />
-            ))}
-          </div>
-        </section>
 
         <section className="rounded-[22px] border border-[#eadfcd]/80 bg-white/86 p-4 text-[#1d1d1f] shadow-[0_10px_26px_rgba(33,43,63,0.05)]">
           <HomeSectionHeader
