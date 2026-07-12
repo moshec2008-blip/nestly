@@ -71,7 +71,7 @@ export const defaultModulePermissions: ModulePermission[] = [
 export const initialPermissionUsers: FamilyPermissionUser[] = [
   {
     id: "permission-1",
-    name: "מוישי",
+    name: "דוד",
     role: "admin",
     note: "מנהל מלא של המערכת.",
     permissions: defaultModulePermissions.map((permission) => ({
@@ -84,14 +84,14 @@ export const initialPermissionUsers: FamilyPermissionUser[] = [
   },
   {
     id: "permission-2",
-    name: "אושרית",
+    name: "מיכל",
     role: "spouse",
     note: "שותפה מלאה לניהול הבית.",
     permissions: defaultModulePermissions,
   },
   {
     id: "permission-3",
-    name: "יאיר יהודה",
+    name: "נועה",
     role: "child",
     note: "גישה למשימות, קניות וימי הולדת בלבד.",
     permissions: defaultModulePermissions.map((permission) => ({

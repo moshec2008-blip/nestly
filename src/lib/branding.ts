@@ -3,6 +3,6 @@ export const brand = {
   taglineHe: "כל המשפחה. במקום אחד.",
   taglineEn: "Your family. One place.",
   workspaceName: "המרחב המשפחתי שלי",
-  demoWorkspaceName: "משפחת כהן שור",
+  demoWorkspaceName: "משפחת ישראלי",
   logoMark: "⌂",
 } as const;

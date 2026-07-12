@@ -1,8 +1,8 @@
 # Nestly
 
 Nestly is a Hebrew-first family management platform built around a private
-Family Space. The sample workspace `משפחת כהן שור` is demo data only and should
-not be used as the real authenticated user's family space.
+Family Space. The sample workspace `משפחת ישראלי` is fully fictional demo data
+and should not be used as the real authenticated user's family space.
 
 ## Tech Stack
 

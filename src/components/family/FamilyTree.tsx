@@ -6,7 +6,21 @@ import DateInput from "@/components/ui/DateInput";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
 
-type FamilySide = "כהן" | "שור" | "בית";
+type FamilySide = "צד אבא" | "צד אמא" | "בית";
+
+// רשומות ישנות נשמרו עם שמות הצדדים הקודמים — ממפים אותן לתוויות החדשות.
+const legacySideMap: Record<string, FamilySide> = {
+  "כהן": "צד אבא",
+  "שור": "צד אמא",
+};
+
+function normalizeSide(side: string): FamilySide {
+  if (side === "צד אבא" || side === "צד אמא" || side === "בית") {
+    return side;
+  }
+
+  return legacySideMap[side] ?? "בית";
+}
 type FamilyGeneration = "grandparents" | "parents" | "children";
 type FamilyTab = "members" | "connections" | "contacts" | "permissions" | "documents";
 
@@ -35,81 +49,93 @@ const emptyForm: FamilyTreeForm = {
   note: "",
 };
 
+// נתוני דוגמה בדויים לחלוטין — "משפחת ישראלי".
 const initialFamilyTreePeople: FamilyTreePerson[] = [
   {
-    id: "grandparent-kohen",
-    name: "סבא וסבתא כהן",
-    role: "שורשי משפחת כהן",
-    side: "כהן",
+    id: "grandpa-avraham",
+    name: "סבא אברהם",
+    role: "סבא",
+    side: "צד אבא",
     generation: "grandparents",
     parentIds: [],
-    birthDate: "",
+    birthDate: "1952-07-08",
     memorialDate: "",
     note: "מקום להוספת אזכרות, תמונות ומסמכים",
   },
   {
-    id: "grandparent-shor",
-    name: "סבא וסבתא שור",
-    role: "שורשי משפחת שור",
-    side: "שור",
+    id: "grandma-rachel",
+    name: "סבתא רחל",
+    role: "סבתא",
+    side: "צד אבא",
     generation: "grandparents",
     parentIds: [],
-    birthDate: "",
+    birthDate: "1955-02-20",
     memorialDate: "",
     note: "מקום להוספת אזכרות, תמונות ומסמכים",
   },
   {
-    id: "moshe",
-    name: "משה",
+    id: "david",
+    name: "דוד",
     role: "הורה",
-    side: "כהן",
+    side: "צד אבא",
     generation: "parents",
-    parentIds: ["grandparent-kohen"],
-    birthDate: "1978-11-04",
+    parentIds: ["grandpa-avraham", "grandma-rachel"],
+    birthDate: "1980-05-06",
     memorialDate: "",
     note: "",
   },
   {
-    id: "oshrit",
-    name: "אושרית",
+    id: "michal",
+    name: "מיכל",
     role: "הורה",
-    side: "שור",
+    side: "צד אמא",
     generation: "parents",
-    parentIds: ["grandparent-shor"],
-    birthDate: "2001-06-14",
+    parentIds: [],
+    birthDate: "1982-12-15",
     memorialDate: "",
     note: "",
   },
   {
-    id: "yair",
-    name: "יאיר יהודה",
-    role: "ילד",
-    side: "בית",
-    generation: "children",
-    parentIds: ["moshe", "oshrit"],
-    birthDate: "2017-07-04",
-    memorialDate: "",
-    note: "",
-  },
-  {
-    id: "hodaya",
-    name: "הודיה",
+    id: "noa",
+    name: "נועה",
     role: "ילדה",
     side: "בית",
     generation: "children",
-    parentIds: ["moshe", "oshrit"],
-    birthDate: "2019-10-13",
+    parentIds: ["david", "michal"],
+    birthDate: "2010-04-18",
     memorialDate: "",
     note: "",
   },
   {
-    id: "daniel",
-    name: "דניאל",
+    id: "eitan",
+    name: "איתן",
     role: "ילד",
     side: "בית",
     generation: "children",
-    parentIds: ["moshe", "oshrit"],
-    birthDate: "2000-05-24",
+    parentIds: ["david", "michal"],
+    birthDate: "2013-08-09",
+    memorialDate: "",
+    note: "",
+  },
+  {
+    id: "tamar",
+    name: "תמר",
+    role: "ילדה",
+    side: "בית",
+    generation: "children",
+    parentIds: ["david", "michal"],
+    birthDate: "2016-01-25",
+    memorialDate: "",
+    note: "",
+  },
+  {
+    id: "yuval",
+    name: "יובל",
+    role: "ילד",
+    side: "בית",
+    generation: "children",
+    parentIds: ["david", "michal"],
+    birthDate: "2019-06-11",
     memorialDate: "",
     note: "",
   },
@@ -163,11 +189,11 @@ function createPersonId() {
 }
 
 function getSideClass(side: FamilySide) {
-  if (side === "כהן") {
+  if (side === "צד אבא") {
     return "bg-blue-50 text-blue-700";
   }
 
-  if (side === "שור") {
+  if (side === "צד אמא") {
     return "bg-purple-50 text-purple-700";
   }
 
@@ -215,10 +241,18 @@ function formatDate(date: string) {
 }
 
 export default function FamilyTree() {
-  const [people, setPeople] = usePersistentArrayState<FamilyTreePerson>(
+  const [storedPeople, setPeople] = usePersistentArrayState<FamilyTreePerson>(
     storageKeys.familyTree,
     initialFamilyTreePeople,
     isFamilyTreePerson
+  );
+  const people = useMemo(
+    () =>
+      storedPeople.map((person) => ({
+        ...person,
+        side: normalizeSide(person.side),
+      })),
+    [storedPeople]
   );
   const [activeTab, setActiveTab] = useState<FamilyTab>("members");
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -628,8 +662,8 @@ export default function FamilyTree() {
                 className={fieldClass}
               >
                 <option value="בית">בית</option>
-                <option value="כהן">כהן</option>
-                <option value="שור">שור</option>
+                <option value="צד אבא">צד אבא</option>
+                <option value="צד אמא">צד אמא</option>
               </select>
             </label>
           </div>
@@ -766,8 +800,8 @@ export default function FamilyTree() {
                 >
                   <option value="all">כל הצדדים</option>
                   <option value="בית">בית</option>
-                  <option value="כהן">כהן</option>
-                  <option value="שור">שור</option>
+                  <option value="צד אבא">צד אבא</option>
+                  <option value="צד אמא">צד אמא</option>
                 </select>
               </label>
             </div>

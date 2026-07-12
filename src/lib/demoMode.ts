@@ -1,4 +1,3 @@
-import { demoFamilyEvents, demoFamilyTreePeople } from "@/data/demoFamilyData";
 import { storageKeys } from "@/lib/storageKeys";
 import {
   demoStorageScope,
@@ -32,14 +31,6 @@ function clearDemoScopedData() {
   }
 }
 
-function writeDemoSeed(key: string, value: unknown) {
-  const demoKey = getScopedStorageKeyForScope(demoStorageScope, key);
-
-  if (demoKey && demoKey !== key) {
-    window.localStorage.setItem(demoKey, JSON.stringify(value));
-  }
-}
-
 export function enterDemoMode() {
   if (typeof window === "undefined" || isDemoModeActive()) {
     return;
@@ -51,11 +42,9 @@ export function enterDemoMode() {
     window.localStorage.setItem(previousScopeStorageKey, currentScope);
   }
 
-  // הדמו מתחיל תמיד נקי: מוחקים שאריות מכניסה קודמת וכותבים את
-  // המשפחה הבדויה. שאר המודולים מקבלים את נתוני הדוגמה הכלליים דרך fallback.
+  // הדמו מתחיל תמיד נקי: מוחקים שאריות מכניסה קודמת, וכל המודולים
+  // נטענים עם נתוני הדוגמה הבדויים של משפחת ישראלי (ה-fallback המובנה).
   clearDemoScopedData();
-  writeDemoSeed(storageKeys.birthdays, demoFamilyEvents);
-  writeDemoSeed(storageKeys.familyTree, demoFamilyTreePeople);
 
   setActiveStorageUserScope(demoStorageScope);
 }
