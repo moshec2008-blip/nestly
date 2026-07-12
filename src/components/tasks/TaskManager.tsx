@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   getTaskStats,
   initialFamilyTasks,
@@ -17,6 +17,7 @@ import type {
 } from "@/components/tasks/taskTypes";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
+import { consumeTaskDraft } from "@/lib/actionDrafts";
 import { storageKeys } from "@/lib/storageKeys";
 
 function getTodayDate() {
@@ -82,6 +83,31 @@ export default function TaskManager() {
   const [taskForm, setTaskForm] = useState<TaskFormValues>(getInitialTaskForm);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+
+  // טיוטת משימה ממסמך סרוק — פותחת טופס ממולא מראש לאישור המשתמש.
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      const draft = consumeTaskDraft();
+
+      if (draft) {
+        setTaskForm({
+          ...getInitialTaskForm(),
+          title: draft.title,
+          description: draft.description ?? "",
+          dueDate: draft.dueDate || getTodayDate(),
+        });
+        setIsFormOpen(true);
+        toast({
+          title: "טיוטת משימה מהמסמך מוכנה",
+          description: "בדקו את הפרטים ושמרו כדי ליצור את המשימה.",
+          tone: "info",
+        });
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [searchValue, setSearchValue] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatusFilter>("all");
   const [priorityFilter, setPriorityFilter] =

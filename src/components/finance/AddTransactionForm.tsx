@@ -2,10 +2,13 @@
 
 import { useState, type FormEvent } from "react";
 import type { FinanceTransaction } from "@/data/finance";
+import type { FinanceDraft } from "@/lib/actionDrafts";
 import DateInput from "@/components/ui/DateInput";
 
 type AddTransactionFormProps = {
   editingTransaction: FinanceTransaction | null;
+  // טיוטה ממסמך סרוק — ממלאת את הטופס מראש, המשתמש מאשר בשמירה.
+  draftValues?: FinanceDraft | null;
   onSave: (transaction: FinanceTransaction) => void;
   onCancelEdit: () => void;
   showCancelButton?: boolean;
@@ -18,7 +21,24 @@ function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function getInitialFormValues(transaction: FinanceTransaction | null) {
+function getInitialFormValues(
+  transaction: FinanceTransaction | null,
+  draft?: FinanceDraft | null
+) {
+  if (!transaction && draft) {
+    return {
+      title: draft.title,
+      category: draft.category,
+      amount: draft.amount ? String(draft.amount) : "",
+      date: draft.date || getTodayDate(),
+      type: "expense" as FinanceTransaction["type"],
+      status: (draft.reminderDate
+        ? "pending"
+        : "done") as FinanceTransaction["status"],
+      reminderDate: draft.reminderDate ?? "",
+    };
+  }
+
   if (!transaction) {
     return {
       title: "",
@@ -44,12 +64,13 @@ function getInitialFormValues(transaction: FinanceTransaction | null) {
 
 export default function AddTransactionForm({
   editingTransaction,
+  draftValues = null,
   onSave,
   onCancelEdit,
   showCancelButton = false,
 }: AddTransactionFormProps) {
   const [formValues, setFormValues] = useState(() =>
-    getInitialFormValues(editingTransaction)
+    getInitialFormValues(editingTransaction, draftValues)
   );
 
   const isEditing = Boolean(editingTransaction);
@@ -62,7 +83,13 @@ export default function AddTransactionForm({
     const cleanCategory = formValues.category.trim();
     const numericAmount = Number(formValues.amount);
 
-    if (!cleanTitle || !cleanCategory || numericAmount <= 0 || !formValues.date) {
+    if (
+      !cleanTitle ||
+      !cleanCategory ||
+      !Number.isFinite(numericAmount) ||
+      numericAmount <= 0 ||
+      !formValues.date
+    ) {
       return;
     }
 
@@ -152,7 +179,8 @@ export default function AddTransactionForm({
               }
               required
               type="number"
-              min="1"
+              min="0.01"
+              step="0.01"
               inputMode="decimal"
               placeholder="0"
               className={`mt-1 ${inputClassName}`}

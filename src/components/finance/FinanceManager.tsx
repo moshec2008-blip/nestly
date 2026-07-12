@@ -34,6 +34,10 @@ import {
   type FinanceTransaction,
 } from "@/data/finance";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
+import {
+  consumeFinanceDraft,
+  type FinanceDraft,
+} from "@/lib/actionDrafts";
 import { storageKeys } from "@/lib/storageKeys";
 import { isValidMonthKey } from "@/utils/isoDate";
 
@@ -95,6 +99,32 @@ export default function FinanceManager() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [activeReminderId, setActiveReminderId] = useState<string | null>(null);
+  const [draftValues, setDraftValues] = useState<FinanceDraft | null>(null);
+
+  // טיוטה ממסמך סרוק: פותחת טופס הוצאה ממולא מראש לאישור המשתמש.
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      const draft = consumeFinanceDraft();
+
+      if (draft) {
+        setDraftValues(draft);
+        setActiveTab("transactions");
+        setIsTransactionFormOpen(true);
+        toast({
+          title: "טיוטת הוצאה מהמסמך מוכנה",
+          description: "בדקו את הפרטים ואשרו כדי לשמור.",
+          tone: "info",
+        });
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function clearDraftValues() {
+    setDraftValues(null);
+  }
 
   const availableMonths = useMemo(
     () => getAvailableMonths(transactions),
@@ -461,10 +491,20 @@ export default function FinanceManager() {
       {activeTab === "transactions" && isTransactionFormOpen && (
         <section className="lg:hidden">
           <AddTransactionForm
-            key={editingTransaction?.id ?? "new-transaction-mobile-inline"}
+            key={
+              editingTransaction?.id ??
+              (draftValues ? "draft-mobile" : "new-transaction-mobile-inline")
+            }
             editingTransaction={editingTransaction}
-            onSave={handleSaveTransaction}
-            onCancelEdit={handleCancelEdit}
+            draftValues={draftValues}
+            onSave={(transaction) => {
+              clearDraftValues();
+              handleSaveTransaction(transaction);
+            }}
+            onCancelEdit={() => {
+              clearDraftValues();
+              handleCancelEdit();
+            }}
             showCancelButton
           />
         </section>
@@ -500,10 +540,20 @@ export default function FinanceManager() {
             {isTransactionFormOpen ? (
               <div className="mt-3">
                 <AddTransactionForm
-                  key={editingTransaction?.id ?? "new-transaction"}
+                  key={
+                    editingTransaction?.id ??
+                    (draftValues ? "draft-desktop" : "new-transaction")
+                  }
                   editingTransaction={editingTransaction}
-                  onSave={handleSaveTransaction}
-                  onCancelEdit={handleCancelEdit}
+                  draftValues={draftValues}
+                  onSave={(transaction) => {
+                    clearDraftValues();
+                    handleSaveTransaction(transaction);
+                  }}
+                  onCancelEdit={() => {
+                    clearDraftValues();
+                    handleCancelEdit();
+                  }}
                 />
               </div>
             ) : (

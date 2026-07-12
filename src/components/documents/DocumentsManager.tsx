@@ -8,7 +8,9 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
+import { setFinanceDraft, setTaskDraft } from "@/lib/actionDrafts";
 import {
   deleteAttachmentData,
   getAttachmentData,
@@ -273,6 +275,7 @@ async function openAttachment(file: Attachment) {
 }
 
 export default function DocumentsManager() {
+  const router = useRouter();
   const { confirm, toast } = useFeedback();
   const { requireAuth } = useAuthPrompt();
   const scanInputRef = useRef<HTMLInputElement | null>(null);
@@ -543,6 +546,43 @@ export default function DocumentsManager() {
 
     addFiles(Array.from(event.target.files ?? []), source);
     event.target.value = "";
+  }
+
+  // פעולה מוצעת מהניתוח: פותחת טופס ממולא מראש במודול היעד — לאישור המשתמש.
+  function handleSuggestedAction(actionType: string) {
+    const extracted = aiSuggestion?.analysis.extracted;
+
+    if (!extracted) {
+      return;
+    }
+
+    if (actionType === "add-finance-expense") {
+      setFinanceDraft({
+        title: extracted.providerName
+          ? `${extracted.documentType} — ${extracted.providerName}`
+          : extracted.documentType,
+        category: extracted.suggestedCategory,
+        amount: extracted.amount,
+        date: extracted.dueDate || extracted.issueDate,
+        reminderDate: extracted.dueDate,
+      });
+      router.push("/finance");
+      return;
+    }
+
+    if (
+      actionType === "create-payment-task" ||
+      actionType === "create-reminder"
+    ) {
+      setTaskDraft({
+        title: extracted.amount
+          ? `לשלם: ${extracted.documentType} (${extracted.amount.toLocaleString("he-IL")} ₪)`
+          : `לטפל: ${extracted.documentType}`,
+        description: extracted.summary,
+        dueDate: extracted.dueDate,
+      });
+      router.push("/tasks");
+    }
   }
 
   async function handleSmartFiling() {
@@ -1025,12 +1065,26 @@ export default function DocumentsManager() {
                 </div>
                 <div className="mt-3 flex flex-wrap justify-end gap-2">
                   {aiSuggestion.analysis.suggestedActions.map((action) => (
-                    <span
-                      key={action.id}
-                      className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-700"
-                    >
-                      {action.label}
-                    </span>
+                    action.type === "add-finance-expense" ||
+                    action.type === "create-payment-task" ||
+                    action.type === "create-reminder" ? (
+                      <button
+                        key={action.id}
+                        type="button"
+                        onClick={() => handleSuggestedAction(action.type)}
+                        title={action.description}
+                        className="rounded-full bg-[#111827] px-3 py-1 text-xs font-black text-white transition hover:bg-[#1f2937]"
+                      >
+                        {action.label} ←
+                      </button>
+                    ) : (
+                      <span
+                        key={action.id}
+                        className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-700"
+                      >
+                        {action.label}
+                      </span>
+                    )
                   ))}
                 </div>
                 <p className="mt-2 text-xs font-bold">
