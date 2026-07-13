@@ -1407,3 +1407,17 @@ button:disabled,
 .app-premium .family-events-dark-action {
   background: #24151f !important;
 }
+
+/* קוביות התאריך העברי: טקסט כהה על רקע לבן, בלי קשר לכללי התבנית
+   הגלובליים (ספציפיות גבוהה + סוף הקובץ = תמיד מנצח). */
+.app-premium select.nestly-hebrew-date-select {
+  background: #ffffff !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  opacity: 1 !important;
+}
+
+.app-premium select.nestly-hebrew-date-select option {
+  background: #ffffff !important;
+  color: #111827 !important;
+}

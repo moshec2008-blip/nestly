@@ -137,7 +137,7 @@ export default function HebrewDateInput({
   }
 
   const selectClass =
-    "min-h-11 rounded-2xl border border-[#cfc4b5] bg-white px-2 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/60";
+    "nestly-hebrew-date-select min-h-11 rounded-2xl border border-[#cfc4b5] bg-white px-2 text-right text-sm font-semibold text-[#111827] outline-none focus:border-[#007aff]/60";
 
   return (
     <div className={className}>
