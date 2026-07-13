@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { HDate, gematriya } from "hebcal";
 
 // בורר תאריך עברי אמיתי: יום, חודש ושנה עבריים — נשמר כתאריך לועזי (ISO)
@@ -56,13 +56,25 @@ function formatHebrewYear(year: number) {
 }
 
 function parseValue(value: string) {
-  const parsed = new Date(value);
+  // חשוב: לא new Date("YYYY-MM-DD") — זה מפורש כ-UTC וגולש יום אחורה
+  // בשעון ישראל, מה שגרם לקוביות להציג יום עברי שגוי אחרי בחירה.
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value ?? "");
 
-  if (!value || Number.isNaN(parsed.getTime())) {
+  if (!match) {
     return new HDate(new Date());
   }
 
-  return new HDate(parsed);
+  const localDate = new Date(
+    Number(match[1]),
+    Number(match[2]) - 1,
+    Number(match[3])
+  );
+
+  if (Number.isNaN(localDate.getTime())) {
+    return new HDate(new Date());
+  }
+
+  return new HDate(localDate);
 }
 
 export default function HebrewDateInput({
@@ -70,11 +82,31 @@ export default function HebrewDateInput({
   onChange,
   className = "",
 }: HebrewDateInputProps) {
-  const hebrewDate = useMemo(() => parseValue(value), [value]);
+  // הבחירה חיה ב-state מקומי — מה שהמשתמש בחר תמיד מוצג בקוביות,
+  // וההמרה ללועזי נשלחת החוצה בלי לחשב את הקוביות מחדש ממנה.
+  const [selection, setSelection] = useState(() => {
+    const initial = parseValue(value);
+    return {
+      day: initial.getDate(),
+      month: initial.getMonth(),
+      year: initial.getFullYear(),
+    };
+  });
+
+  // אם אין עדיין תאריך בטופס — משדרים את ברירת המחדל (היום) כבר בהתחלה,
+  // כדי שהטופס לא יישאר עם תאריך ריק כשלא נוגעים בקוביות.
+  useEffect(() => {
+    if (!value) {
+      const initial = new HDate(selection.day, selection.month, selection.year);
+      onChange(toIsoDate(initial.greg()));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const currentHebrewYear = new HDate(new Date()).getFullYear();
-  const selectedYear = hebrewDate.getFullYear();
-  const selectedMonth = hebrewDate.getMonth();
-  const selectedDay = hebrewDate.getDate();
+  const selectedYear = selection.year;
+  const selectedMonth = selection.month;
+  const selectedDay = selection.day;
   const isLeap = isHebrewLeapYear(selectedYear);
 
   const yearOptions = useMemo(() => {
@@ -96,6 +128,11 @@ export default function HebrewDateInput({
       candidate = new HDate(29, safeMonth, year);
     }
 
+    setSelection({
+      day: candidate.getDate(),
+      month: candidate.getMonth(),
+      year: candidate.getFullYear(),
+    });
     onChange(toIsoDate(candidate.greg()));
   }
 
