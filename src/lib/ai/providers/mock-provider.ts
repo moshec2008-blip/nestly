@@ -1,13 +1,10 @@
 import type { AIProvider } from "@/lib/ai/providers/ai-provider.interface";
 import type {
   AnalyzeBillInput,
-  AnalyzeBillResult,
   AnalyzeDocumentInput,
   AnalyzeDocumentResult,
   AnalyzeMedicalDocumentInput,
-  AnalyzeMedicalDocumentResult,
   AnalyzeReceiptInput,
-  AnalyzeReceiptResult,
   BaseAnalyzeResult,
   AnalysisType,
   MoneyAmount,

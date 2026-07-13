@@ -6,6 +6,7 @@ import AIProcessingState from "@/components/ai/AIProcessingState";
 import AIReviewDialog from "@/components/ai/AIReviewDialog";
 import { formatMoneyForReview } from "@/lib/ai/normalization/amount";
 import type { AnalyzeReceiptResult } from "@/lib/ai/types";
+import { getStoredAiAccessCode } from "@/services/documentAiClient";
 
 type ReceiptScanPreviewProps = {
   userMode?: "demo" | "basic" | "authenticated";
@@ -51,9 +52,13 @@ export default function ReceiptScanPreview({
     setErrorMessage("");
 
     try {
+      const accessCode = getStoredAiAccessCode();
       const response = await fetch("/api/ai/analyze-receipt", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-type": "application/json",
+          ...(accessCode ? { "x-nestly-access-code": accessCode } : {}),
+        },
         body: JSON.stringify({
           userMode,
           files: [

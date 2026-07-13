@@ -1,5 +1,6 @@
 import {
   assertAIAccess,
+  assertAIRequestSecurity,
   createAnalyzeInput,
   jsonError,
   jsonSuccess,
@@ -11,6 +12,7 @@ export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
+    assertAIRequestSecurity(request);
     const raw = await readAnalyzeRequest(request);
     assertAIAccess(raw, "bill");
     const baseInput = createAnalyzeInput(raw);
