@@ -20,6 +20,7 @@ import ImportTransactionsButton from "@/components/finance/ImportTransactionsBut
 import JsonBackupControls from "@/components/finance/JsonBackupControls";
 import MonthSelector from "@/components/finance/MonthSelector";
 import MonthlyCashflow from "@/components/finance/MonthlyCashflow";
+import ReceiptScanPreview from "@/components/ai/ReceiptScanPreview";
 import SmartFinanceSummary from "@/components/finance/SmartFinanceSummary";
 import TransactionsTable from "@/components/finance/TransactionsTable";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
@@ -341,6 +342,24 @@ export default function FinanceManager() {
     });
   }
 
+  function handleConfirmReceiptExpense(expense: {
+    title: string;
+    category: string;
+    amount: number;
+    date: string;
+    notes?: string;
+  }) {
+    handleSaveTransaction({
+      id: crypto.randomUUID(),
+      title: expense.title,
+      category: expense.category,
+      amount: expense.amount,
+      type: "expense",
+      date: expense.date,
+      status: "done",
+    });
+  }
+
   function handleImportTransactions(importedTransactions: FinanceTransaction[]) {
     setTransactions((currentTransactions) => [
       ...importedTransactions,
@@ -573,6 +592,11 @@ export default function FinanceManager() {
           </section>
 
           <div className="space-y-2.5">
+            <ReceiptScanPreview
+              userMode="demo"
+              onConfirmExpense={handleConfirmReceiptExpense}
+            />
+
             <FinanceFilters
               searchValue={searchValue}
               typeFilter={typeFilter}

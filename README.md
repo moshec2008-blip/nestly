@@ -28,6 +28,24 @@ review. The app uses a local demo Family Space in the browser.
 Before storing real sensitive family information, restore authentication and a
 server-backed data layer.
 
+## Nestly AI foundation
+
+The AI layer is provider-agnostic and server-side first. The current safe
+default is mock mode, so no paid provider is called unless environment variables
+are configured later.
+
+Required AI variables:
+
+```bash
+AI_ENABLED=false
+AI_PROVIDER=mock
+GEMINI_API_KEY=
+```
+
+Architecture notes live in:
+
+- `docs/AI_ARCHITECTURE.md`
+
 Open:
 
 - http://localhost:3000
