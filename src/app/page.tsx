@@ -2,7 +2,8 @@
 
 import AppShell from "@/components/layout/AppShell";
 import DemoEntryCard from "@/components/layout/DemoEntryCard";
-import HomeSummaryCard from "@/components/home/HomeSummaryCard";
+import HomeHero from "@/components/home/HomeHero";
+import HomeQuickActions from "@/components/home/HomeQuickActions";
 import ImportantToday from "@/components/home/ImportantToday";
 import {
   HomeAreaCard,
@@ -18,6 +19,7 @@ const homeAreas: HomeArea[] = [
     subtitle: "משימות הבית",
     statFallback: "0 פתוחות",
     accentClass: "bg-amber-50 text-amber-600 ring-amber-100",
+    tintClass: "bg-gradient-to-br from-amber-50/70 via-white to-white",
   },
   {
     href: "/finance",
@@ -26,6 +28,7 @@ const homeAreas: HomeArea[] = [
     subtitle: "ניהול הכנסות והוצאות",
     statFallback: "0 ₪ יתרה",
     accentClass: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+    tintClass: "bg-gradient-to-br from-emerald-50/70 via-white to-white",
   },
   {
     href: "/shopping",
@@ -34,6 +37,7 @@ const homeAreas: HomeArea[] = [
     subtitle: "רשימת הקניות",
     statFallback: "0 לקנייה",
     accentClass: "bg-sky-50 text-sky-600 ring-sky-100",
+    tintClass: "bg-gradient-to-br from-sky-50/70 via-white to-white",
   },
   {
     href: "/family",
@@ -42,6 +46,7 @@ const homeAreas: HomeArea[] = [
     subtitle: "מידע משפחתי",
     statFallback: "0 רשומות",
     accentClass: "bg-violet-50 text-violet-600 ring-violet-100",
+    tintClass: "bg-gradient-to-br from-violet-50/70 via-white to-white",
   },
   {
     href: "/documents",
@@ -50,6 +55,7 @@ const homeAreas: HomeArea[] = [
     subtitle: "מסמכים חשובים",
     statFallback: "0 מסמכים",
     accentClass: "bg-purple-50 text-purple-600 ring-purple-100",
+    tintClass: "bg-gradient-to-br from-purple-50/70 via-white to-white",
   },
   {
     href: "/vehicles",
@@ -58,6 +64,7 @@ const homeAreas: HomeArea[] = [
     subtitle: "טיפולים ותזכורות",
     statFallback: "0 תזכורות",
     accentClass: "bg-blue-50 text-blue-600 ring-blue-100",
+    tintClass: "bg-gradient-to-br from-blue-50/70 via-white to-white",
   },
   {
     href: "/birthdays",
@@ -66,6 +73,7 @@ const homeAreas: HomeArea[] = [
     subtitle: "אירועים קרובים",
     statFallback: "אין אירועים קרובים",
     accentClass: "bg-pink-50 text-pink-600 ring-pink-100",
+    tintClass: "bg-gradient-to-br from-pink-50/70 via-white to-white",
   },
   {
     href: "/health",
@@ -74,28 +82,26 @@ const homeAreas: HomeArea[] = [
     subtitle: "תורים ומעקב",
     statFallback: "0 פתוחים",
     accentClass: "bg-rose-50 text-rose-600 ring-rose-100",
+    tintClass: "bg-gradient-to-br from-rose-50/70 via-white to-white",
   },
 ];
 
 export default function HomePage() {
   return (
     <AppShell>
-      <div className="space-y-4 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.25rem)] lg:space-y-5 lg:pb-0">
-        <HomeSummaryCard />
+      <div className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.25rem)] lg:space-y-4 lg:pb-0">
+        <HomeHero />
+
+        <HomeQuickActions />
 
         <ImportantToday />
 
-        <section className="rounded-[22px] border border-[#eadfcd]/80 bg-white/86 p-4 text-[#1d1d1f] shadow-[0_10px_26px_rgba(33,43,63,0.05)]">
+        <section>
           <HomeSectionHeader
             title="אזורי הבית"
             subtitle="כל מה שצריך לניהול המשפחה במקום אחד"
-            action={
-              <span className="rounded-full bg-[#fff8eb] px-2.5 py-1 text-[11px] font-black text-[#7a5212]">
-                ניווט מהיר
-              </span>
-            }
           />
-          <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-1.5 xl:grid-cols-4">
             {homeAreas.map((area) => (
               <HomeAreaCard key={area.href} area={area} />
             ))}

@@ -62,6 +62,7 @@ export type HomeArea = {
   subtitle: string;
   statFallback: string;
   accentClass: string;
+  tintClass?: string;
 };
 
 export function HomeAreaCard({ area }: { area: HomeArea }) {
@@ -70,7 +71,7 @@ export function HomeAreaCard({ area }: { area: HomeArea }) {
   return (
     <Link
       href={area.href}
-      className="relative flex min-h-[104px] flex-col justify-between overflow-hidden rounded-[20px] border border-[#e8dfd1] bg-white p-3 text-right shadow-[0_6px_16px_rgba(33,43,63,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.08)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd]"
+      className={`relative flex min-h-[96px] flex-col justify-between overflow-hidden rounded-[20px] border border-[#e8dfd1] p-3 text-right shadow-[0_6px_16px_rgba(33,43,63,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.08)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] ${area.tintClass ?? "bg-white"}`}
     >
       <span
         className={`absolute inset-y-3 right-0 w-1 rounded-l-full ${area.accentClass}`}
