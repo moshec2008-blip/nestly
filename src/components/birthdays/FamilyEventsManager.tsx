@@ -1028,18 +1028,6 @@ export default function FamilyEventsManager() {
                 }
               />
             )}
-            <input
-              value={form.imageUrl}
-              onChange={(event) =>
-                setForm((currentValue) => ({
-                  ...currentValue,
-                  imageUrl: event.target.value,
-                }))
-              }
-              className={fieldClass}
-              placeholder="קישור לתמונה, לא חובה"
-            />
-
             <div className="flex h-11 rounded-2xl bg-slate-100 p-1">
               {(["hebrew", "gregorian"] as BirthdayCalendarType[]).map((mode) => (
                 <button
