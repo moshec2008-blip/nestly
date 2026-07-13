@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import AppIcon from "@/components/ui/AppIcon";
-import { initialFinanceTransactions } from "@/data/finance";
+import { getFinanceStats, initialFinanceTransactions } from "@/data/finance";
 import { getTaskStats, initialFamilyTasks } from "@/data/tasks";
 import { storageKeys } from "@/lib/storageKeys";
 import { readStorageArray } from "@/utils/storage";
 
 type SummaryData = {
   balance: number;
+  monthBalance: number;
   overdueAmount: number;
   openTasks: number;
 };
@@ -37,7 +38,9 @@ function readSummaryData(): SummaryData {
   const tasks = readStorageArray(storageKeys.tasks, initialFamilyTasks);
 
   return {
-    balance: monthBalance,
+    // אותה יתרה בדיוק כמו במסך הכספים — כדי שהמספרים תמיד יסתדרו.
+    balance: getFinanceStats(transactions).balance,
+    monthBalance,
     overdueAmount,
     openTasks: getTaskStats(tasks).openTasks,
   };
@@ -59,11 +62,17 @@ export default function HomeSummaryCard() {
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 text-left" dir="ltr">
           <p className="text-[11px] font-bold text-slate-500" dir="rtl">
-            מאזן החודש
+            יתרה
           </p>
           <p className="text-xl font-black tabular-nums text-emerald-800">
             ₪{(summary?.balance ?? 0).toLocaleString("he-IL")}
           </p>
+          {summary !== null && summary.monthBalance !== 0 && (
+            <p className="text-[11px] font-bold text-slate-600" dir="rtl">
+              החודש: {summary.monthBalance > 0 ? "+" : "−"}₪
+              {Math.abs(summary.monthBalance).toLocaleString("he-IL")}
+            </p>
+          )}
           {summary !== null && summary.overdueAmount > 0 && (
             <p className="text-[11px] font-bold text-amber-700" dir="rtl">
               באיחור · ₪{summary.overdueAmount.toLocaleString("he-IL")}

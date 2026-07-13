@@ -255,11 +255,17 @@ export const initialFinanceTransactions: FinanceTransaction[] = [
 ];
 
 export function getFinanceStats(transactions: FinanceTransaction[]) {
-  const income = transactions
+  // הכנסות/הוצאות/יתרה נספרות רק מפעולות שבוצעו — תשלום עתידי שעדיין
+  // לא קרה לא אמור להזיז את היתרה המוצגת.
+  const completedTransactions = transactions.filter(
+    (item) => item.status === "done"
+  );
+
+  const income = completedTransactions
     .filter((item) => item.type === "income")
     .reduce((sum, item) => sum + item.amount, 0);
 
-  const expenses = transactions
+  const expenses = completedTransactions
     .filter((item) => item.type === "expense")
     .reduce((sum, item) => sum + item.amount, 0);
 
