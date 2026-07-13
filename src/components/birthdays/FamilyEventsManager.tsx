@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import GregorianDateInput from "@/components/ui/GregorianDateInput";
 import HebrewDateInput from "@/components/ui/HebrewDateInput";
 import { initialBirthdays } from "@/data/birthdays";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
@@ -1020,17 +1021,11 @@ export default function FamilyEventsManager() {
                 }
               />
             ) : (
-              <input
-                type="date"
+              <GregorianDateInput
                 value={form.date}
-                onChange={(event) =>
-                  setForm((currentValue) => ({
-                    ...currentValue,
-                    date: event.target.value,
-                  }))
+                onChange={(date) =>
+                  setForm((currentValue) => ({ ...currentValue, date }))
                 }
-                className={fieldClass}
-                required
               />
             )}
             <input
