@@ -1396,3 +1396,14 @@ button:disabled,
 .app-premium .nestly-primary-action * {
   color: inherit !important;
 }
+
+/* כפתורים כהים באירועי משפחה: חייב לנצח את הכלל הגלובלי של font-black
+   (ספציפיות שווה + מאוחר יותר בקובץ = הטקסט נשאר לבן על הרקע הכהה). */
+.app-premium .family-events-dark-action,
+.app-premium .family-events-dark-action * {
+  color: #ffffff !important;
+}
+
+.app-premium .family-events-dark-action {
+  background: #24151f !important;
+}
