@@ -11,7 +11,10 @@ import {
   getBirthdayDateViewMode,
   type BirthdayDateViewMode,
 } from "@/utils/hebrewDate";
-import { getDaysUntilBirthday } from "@/utils/birthdayCalendar";
+import {
+  getDaysUntilBirthday,
+  normalizeFamilyEvent,
+} from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
 
 const dismissedStoragePrefix = "nestly-birthday-popup-dismissed";
@@ -102,7 +105,12 @@ function getUpcomingBirthdays(): BirthdayDisplayGroup[] {
     initialBirthdays
   );
 
-  return groupUpcomingBirthdays(birthdays);
+  // הפופאפ חוגג ימי הולדת בלבד — יארצייט או יום נישואין לא שייכים לכאן.
+  const birthdayEvents = birthdays.filter(
+    (event) => normalizeFamilyEvent(event).eventType === "birthday"
+  );
+
+  return groupUpcomingBirthdays(birthdayEvents);
 }
 
 function getTimingText(daysUntil: number) {

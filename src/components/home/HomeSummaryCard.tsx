@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AppIcon from "@/components/ui/AppIcon";
-import { getFinanceStats, initialFinanceTransactions } from "@/data/finance";
+import { initialFinanceTransactions } from "@/data/finance";
 import { getTaskStats, initialFamilyTasks } from "@/data/tasks";
 import { storageKeys } from "@/lib/storageKeys";
 import { readStorageArray } from "@/utils/storage";
@@ -19,13 +19,25 @@ function readSummaryData(): SummaryData {
     initialFinanceTransactions
   );
   const today = new Date().toISOString().slice(0, 10);
+  const currentMonth = today.slice(0, 7);
+
+  // מאזן החודש הנוכחי בלבד, ורק פעולות שבוצעו — לא תחזיות עתידיות.
+  const monthBalance = transactions
+    .filter(
+      (item) => item.status === "done" && item.date.startsWith(currentMonth)
+    )
+    .reduce(
+      (sum, item) => sum + (item.type === "income" ? item.amount : -item.amount),
+      0
+    );
+
   const overdueAmount = transactions
     .filter((item) => item.status === "pending" && item.date < today)
     .reduce((sum, item) => sum + item.amount, 0);
   const tasks = readStorageArray(storageKeys.tasks, initialFamilyTasks);
 
   return {
-    balance: getFinanceStats(transactions).balance,
+    balance: monthBalance,
     overdueAmount,
     openTasks: getTaskStats(tasks).openTasks,
   };
@@ -47,7 +59,7 @@ export default function HomeSummaryCard() {
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 text-left" dir="ltr">
           <p className="text-[11px] font-bold text-slate-500" dir="rtl">
-            תקציב החודש
+            מאזן החודש
           </p>
           <p className="text-xl font-black tabular-nums text-emerald-800">
             ₪{(summary?.balance ?? 0).toLocaleString("he-IL")}

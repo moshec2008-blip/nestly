@@ -189,7 +189,17 @@ export function getNextBirthdayOccurrenceDate(
         hebrewDetails.wasLeapYear,
         year
       );
-      const candidate = new HDate(hebrewDetails.day, month, year);
+      let candidate = new HDate(hebrewDetails.day, month, year);
+
+      // ל' בחודש בשנה שבה החודש קצר (חשוון/כסלו) מתגלגל אוטומטית לחודש
+      // הבא — לפי המנהג המקובל מציינים במקרה כזה את כ"ט באותו חודש.
+      if (
+        candidate.getMonth() !== month ||
+        candidate.getDate() !== hebrewDetails.day
+      ) {
+        candidate = new HDate(29, month, year);
+      }
+
       return startOfDay(candidate.greg());
     })
     .filter((candidateDate) => candidateDate >= today)
@@ -203,8 +213,10 @@ export function getDaysUntilBirthday(
   referenceDate: Date = new Date()
 ) {
   const nextOccurrence = getNextBirthdayOccurrenceDate(event, referenceDate);
+
+  // תאריך חסר/לא תקין לא נחשב "היום" — מחזירים אינסוף כדי שיסונן ויֵרד לסוף.
   if (!nextOccurrence) {
-    return 0;
+    return Number.POSITIVE_INFINITY;
   }
 
   const today = startOfDay(referenceDate);
@@ -222,6 +234,16 @@ export function getBirthdayAge(
 
   if (!nextOccurrence || !sourceDate) {
     return 0;
+  }
+
+  // בלוח העברי הגיל נקבע לפי הפרש שנים עבריות — הפרש לועזי טועה
+  // לילידי החודשים תשרי–טבת (שנה עברית חדשה לפני ה-1 בינואר).
+  if (event.calendarType === "hebrew") {
+    return Math.max(
+      new HDate(nextOccurrence).getFullYear() -
+        new HDate(sourceDate).getFullYear(),
+      0
+    );
   }
 
   return Math.max(nextOccurrence.getFullYear() - sourceDate.getFullYear(), 0);

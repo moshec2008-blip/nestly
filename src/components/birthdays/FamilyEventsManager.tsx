@@ -702,19 +702,30 @@ export default function FamilyEventsManager() {
   const [form, setForm] = useState<EventFormState>(emptyForm);
 
   useEffect(() => {
+    // חשוב: בדיקת undefined ולא ערך שקרי — recurringAnnually=false הוא ערך
+    // לגיטימי שנשמר, ובדיקה שקרית גרמה ללולאת עדכונים אינסופית.
     const needsMigration = events.some(
       (event) =>
-        !event.eventType ||
+        event.eventType === undefined ||
         !event.title ||
-        !event.recurringAnnually ||
+        event.recurringAnnually === undefined ||
         !event.reminders?.length ||
         !event.giftPlan ||
         !event.partyPlan
     );
 
-    if (needsMigration) {
-      setEvents((currentEvents) => currentEvents.map(normalizeFamilyEvent));
+    if (!needsMigration) {
+      return;
     }
+
+    setEvents((currentEvents) => {
+      const normalized = currentEvents.map(normalizeFamilyEvent);
+
+      // מעדכנים רק אם באמת השתנה משהו, כדי לא ליצור כתיבות מיותרות.
+      return JSON.stringify(normalized) === JSON.stringify(currentEvents)
+        ? currentEvents
+        : normalized;
+    });
   }, [events, setEvents]);
 
   const normalizedEvents = useMemo(

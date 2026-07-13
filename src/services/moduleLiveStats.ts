@@ -60,10 +60,12 @@ export function getModuleLiveStat(href: AppRoute, fallback: string) {
     const events = readStorageArray(storageKeys.birthdays, initialBirthdays).map(
       normalizeFamilyEvent
     );
-    const nextEvent = [...events].sort(
-      (first, second) =>
-        getDaysUntilFamilyEvent(first) - getDaysUntilFamilyEvent(second)
-    )[0];
+    const nextEvent = [...events]
+      .filter((event) => Number.isFinite(getDaysUntilFamilyEvent(event)))
+      .sort(
+        (first, second) =>
+          getDaysUntilFamilyEvent(first) - getDaysUntilFamilyEvent(second)
+      )[0];
 
     return nextEvent
       ? `${nextEvent.person || nextEvent.name} בעוד ${getDaysUntilFamilyEvent(

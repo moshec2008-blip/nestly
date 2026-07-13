@@ -3,11 +3,16 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
+import { initialBirthdays } from "@/data/birthdays";
 import { getFinanceStats, initialFinanceTransactions } from "@/data/finance";
 import { initialShoppingItems } from "@/data/shopping";
 import { getTaskStats, initialFamilyTasks } from "@/data/tasks";
 import { storageKeys } from "@/lib/storageKeys";
 import type { AppRoute } from "@/types/navigation";
+import {
+  getDaysUntilFamilyEvent,
+  normalizeFamilyEvent,
+} from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
 
 type ImportantRow = {
@@ -63,11 +68,84 @@ function readImportantData(): ImportantData {
     });
   }
 
+  // אירוע משפחתי בשבוע הקרוב
+  const upcomingEvent = readStorageArray(storageKeys.birthdays, initialBirthdays)
+    .map(normalizeFamilyEvent)
+    .map((event) => ({ event, days: getDaysUntilFamilyEvent(event) }))
+    .filter(({ days }) => Number.isFinite(days) && days <= 7)
+    .sort((first, second) => first.days - second.days)[0];
+
+  if (upcomingEvent) {
+    const timing =
+      upcomingEvent.days === 0
+        ? "היום!"
+        : upcomingEvent.days === 1
+          ? "מחר"
+          : `בעוד ${upcomingEvent.days} ימים`;
+    rows.push({
+      id: "event",
+      icon: "calendar",
+      iconClass: "bg-pink-50 text-pink-600 ring-pink-100",
+      title: upcomingEvent.event.title || upcomingEvent.event.name,
+      subtitle: timing,
+      href: "/birthdays",
+    });
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  // תזכורות מסמכים שהגיע זמנן
+  const documentRecords = readStorageArray<{
+    title?: string;
+    reminderDate?: string;
+    status?: string;
+  }>(storageKeys.documents, []);
+  const dueDocument = documentRecords
+    .filter(
+      (record) =>
+        record.status !== "done" &&
+        Boolean(record.reminderDate) &&
+        String(record.reminderDate) <= today
+    )
+    .sort((first, second) =>
+      String(first.reminderDate).localeCompare(String(second.reminderDate))
+    )[0];
+
+  if (dueDocument) {
+    rows.push({
+      id: "document",
+      icon: "document",
+      iconClass: "bg-purple-50 text-purple-600 ring-purple-100",
+      title: dueDocument.title || "מסמך ממתין לטיפול",
+      subtitle: "תזכורת מסמך הגיעה",
+      href: "/documents",
+    });
+  }
+
+  // תזכורות רכב פתוחות
+  const openVehicleRecords = readStorageArray<{
+    title?: string;
+    status?: string;
+  }>(storageKeys.vehicles, []).filter((record) => record.status === "open");
+
+  if (openVehicleRecords.length > 0) {
+    rows.push({
+      id: "vehicles",
+      icon: "car",
+      iconClass: "bg-blue-50 text-blue-600 ring-blue-100",
+      title: openVehicleRecords[0].title || "תזכורת רכב פתוחה",
+      subtitle:
+        openVehicleRecords.length > 1
+          ? `ועוד ${openVehicleRecords.length - 1} תזכורות רכב`
+          : "תזכורת רכב פתוחה",
+      href: "/vehicles",
+    });
+  }
+
   const transactions = readStorageArray(
     storageKeys.finance,
     initialFinanceTransactions
   );
-  const today = new Date().toISOString().slice(0, 10);
   const overdue = transactions
     .filter((item) => item.status === "pending" && item.date < today)
     .sort((first, second) => first.date.localeCompare(second.date))[0];
@@ -96,7 +174,8 @@ function readImportantData(): ImportantData {
     };
   }
 
-  return { rows, insight };
+  // שומרים על רוגע: מציגים עד חמש שורות, לפי סדר חשיבות.
+  return { rows: rows.slice(0, 5), insight };
 }
 
 export function NestlyAiInsightCard({ insight }: { insight: HomeInsight }) {
