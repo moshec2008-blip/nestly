@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import HebrewDateInput from "@/components/ui/HebrewDateInput";
 import { initialBirthdays } from "@/data/birthdays";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
@@ -1011,18 +1012,27 @@ export default function FamilyEventsManager() {
               className={fieldClass}
               placeholder="קרבה, לא חובה"
             />
-            <input
-              type="date"
-              value={form.date}
-              onChange={(event) =>
-                setForm((currentValue) => ({
-                  ...currentValue,
-                  date: event.target.value,
-                }))
-              }
-              className={fieldClass}
-              required
-            />
+            {form.calendarType === "hebrew" ? (
+              <HebrewDateInput
+                value={form.date}
+                onChange={(date) =>
+                  setForm((currentValue) => ({ ...currentValue, date }))
+                }
+              />
+            ) : (
+              <input
+                type="date"
+                value={form.date}
+                onChange={(event) =>
+                  setForm((currentValue) => ({
+                    ...currentValue,
+                    date: event.target.value,
+                  }))
+                }
+                className={fieldClass}
+                required
+              />
+            )}
             <input
               value={form.imageUrl}
               onChange={(event) =>
