@@ -9,4 +9,6 @@ declare module "hebcal" {
     isLeapYear(): boolean;
     greg(): Date;
   }
+
+  export function gematriya(value: number): string;
 }

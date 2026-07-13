@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { HDate } from "hebcal";
+import { HDate, gematriya } from "hebcal";
 
 // בורר תאריך עברי אמיתי: יום, חודש ושנה עבריים — נשמר כתאריך לועזי (ISO)
 // כדי שכל שאר המערכת תמשיך לעבוד כרגיל.
@@ -47,8 +47,12 @@ function toIsoDate(date: Date) {
 }
 
 function formatHebrewYear(year: number) {
-  // תצוגה פשוטה וברורה: ה'תשפ"ו לצד המספר.
-  return String(year);
+  // שנה עברית בגימטריה — התשפ"ו ולא 5786.
+  try {
+    return gematriya(year);
+  } catch {
+    return String(year);
+  }
 }
 
 function parseValue(value: string) {
