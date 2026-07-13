@@ -1,6 +1,13 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import ReceiptScanPreview from "@/components/ai/ReceiptScanPreview";
+import { useFeedback } from "@/components/ui/FeedbackProvider";
+import {
+  initialFinanceTransactions,
+  isFinanceTransaction,
+  type FinanceTransaction,
+} from "@/data/finance";
 import { initialShoppingItems, shoppingLists } from "@/data/shopping";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
@@ -92,6 +99,40 @@ export default function ShoppingManager() {
   const isEditing = Boolean(editingItemId);
   const remainingItems = items.filter((item) => !item.purchased);
   const purchasedItems = items.filter((item) => item.purchased);
+  const { toast } = useFeedback();
+  const [, setFinanceTransactions] =
+    usePersistentArrayState<FinanceTransaction>(
+      storageKeys.finance,
+      initialFinanceTransactions,
+      isFinanceTransaction
+    );
+
+  // קבלה שאושרה בדיאלוג הסריקה נשמרת כהוצאה בכספים — בלחיצה אחת.
+  function handleConfirmReceiptExpense(expense: {
+    title: string;
+    category: string;
+    amount: number;
+    date: string;
+    notes?: string;
+  }) {
+    setFinanceTransactions((currentTransactions) => [
+      {
+        id: crypto.randomUUID(),
+        title: expense.title,
+        category: expense.category,
+        amount: expense.amount,
+        type: "expense",
+        date: expense.date,
+        status: "done",
+      },
+      ...currentTransactions,
+    ]);
+    toast({
+      title: "ההוצאה נשמרה בכספים",
+      description: `${expense.title} · ₪${expense.amount.toLocaleString("he-IL")}`,
+      tone: "success",
+    });
+  }
 
   const departments = useMemo(() => {
     return Array.from(
@@ -301,6 +342,10 @@ export default function ShoppingManager() {
 
   return (
     <section className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] text-right lg:pb-0">
+      <ReceiptScanPreview
+        userMode="demo"
+        onConfirmExpense={handleConfirmReceiptExpense}
+      />
       <section className="rounded-[22px] border border-[#eadfcd] bg-[#fffdf8] p-2.5 shadow-[0_10px_24px_rgba(33,43,63,0.05)]">
         <div className="flex items-center justify-between gap-3">
           <div className="flex shrink-0 items-center gap-2 rounded-2xl bg-white px-3 py-2 shadow-sm">
