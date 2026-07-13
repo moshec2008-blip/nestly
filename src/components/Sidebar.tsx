@@ -286,10 +286,10 @@ export default function Sidebar({
             <button
               type="button"
               onClick={onNavigate}
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-[#d9dde5] bg-white text-xl font-black text-slate-800 shadow-sm transition active:scale-95"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-[#d9dde5] bg-white text-slate-800 shadow-sm transition active:scale-95"
               aria-label="סגור תפריט"
             >
-              ×
+              <AppIcon name="close" className="h-5 w-5" />
             </button>
 
             <div className="flex min-w-0 items-center gap-2 text-right">

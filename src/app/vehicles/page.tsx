@@ -1,8 +1,6 @@
 import AppShell from "@/components/layout/AppShell";
 import PageHero from "@/components/layout/PageHero";
-import ModuleManager from "@/components/shared/ModuleManager";
-import { initialVehicleRecords } from "@/data/modules";
-import { storageKeys } from "@/lib/storageKeys";
+import VehiclesManager from "@/components/vehicles/VehiclesManager";
 
 export default function VehiclesPage() {
   return (
@@ -14,13 +12,7 @@ export default function VehiclesPage() {
         showBackHome
       />
 
-      <ModuleManager
-        storageKey={storageKeys.vehicles}
-        initialRecords={initialVehicleRecords}
-        formTitle="הוספת פריט רכב"
-        listTitle="מעקב רכבים"
-        defaultCategory="רכב"
-      />
+      <VehiclesManager />
     </AppShell>
   );
 }

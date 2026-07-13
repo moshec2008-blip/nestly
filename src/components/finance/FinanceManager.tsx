@@ -2,26 +2,21 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AddTransactionForm from "@/components/finance/AddTransactionForm";
+import BalanceTile from "@/components/finance/BalanceTile";
 import FinanceBackup from "@/components/finance/FinanceBackup";
 import BudgetOverview from "@/components/finance/BudgetOverview";
-import CategoryReport from "@/components/finance/CategoryReport";
-import ExportTransactionsButton from "@/components/finance/ExportTransactionsButton";
-import FinanceChart from "@/components/finance/FinanceChart";
 import FinanceFilters, {
   type TransactionStatusFilter,
   type TransactionTypeFilter,
 } from "@/components/finance/FinanceFilters";
-import FinanceOverview from "@/components/finance/FinanceOverview";
 import FinanceReminderDialog from "@/components/finance/FinanceReminderDialog";
 import FinanceReports from "@/components/finance/FinanceReports";
 import FinanceSummaryCards from "@/components/finance/FinanceSummaryCards";
 import FinanceTabs, { type FinanceTab } from "@/components/finance/FinanceTabs";
-import ImportTransactionsButton from "@/components/finance/ImportTransactionsButton";
-import JsonBackupControls from "@/components/finance/JsonBackupControls";
-import MonthSelector from "@/components/finance/MonthSelector";
-import MonthlyCashflow from "@/components/finance/MonthlyCashflow";
+import MonthSelector, {
+  formatMonthLabel,
+} from "@/components/finance/MonthSelector";
 import ReceiptScanPreview from "@/components/ai/ReceiptScanPreview";
-import SmartFinanceSummary from "@/components/finance/SmartFinanceSummary";
 import TransactionsTable from "@/components/finance/TransactionsTable";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import {
@@ -40,15 +35,13 @@ import {
   type FinanceDraft,
 } from "@/lib/actionDrafts";
 import { storageKeys } from "@/lib/storageKeys";
+import { formatIlsCurrency } from "@/utils/formatters";
 import { isValidMonthKey } from "@/utils/isoDate";
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("he-IL", {
-    style: "currency",
-    currency: "ILS",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
+import {
+  getStorageScopeEventName,
+  readStorage,
+  writeStorage,
+} from "@/utils/storage";
 
 function getTodayKey() {
   return new Intl.DateTimeFormat("en-CA", {
@@ -64,6 +57,127 @@ function formatDateLabel(date: string) {
     month: "2-digit",
     year: "numeric",
   }).format(new Date(date));
+}
+
+type FinanceBalanceSnapshot = {
+  amount: number;
+  updatedAt: string;
+};
+
+type BalanceKind = "bank" | "savings" | "loans" | "mortgage";
+
+const balanceKinds: BalanceKind[] = ["bank", "savings", "loans", "mortgage"];
+
+const balanceMeta: Record<
+  BalanceKind,
+  {
+    label: string;
+    emptyHint: string;
+    valueToneClass: string;
+    placeholder: string;
+    savedToastTitle: string;
+  }
+> = {
+  bank: {
+    label: "יתרת בנק",
+    emptyHint: "המשתמש יעדכן ידנית",
+    valueToneClass: "text-[#111827]",
+    placeholder: "לדוגמה 12,500",
+    savedToastTitle: "יתרת הבנק עודכנה",
+  },
+  savings: {
+    label: "יתרת חסכונות",
+    emptyHint: "נפרד מהשוטף",
+    valueToneClass: "text-emerald-700",
+    placeholder: "לדוגמה 80,000",
+    savedToastTitle: "יתרת החסכונות עודכנה",
+  },
+  loans: {
+    label: "יתרת הלוואות",
+    emptyHint: "חוב נפרד מהשוטף",
+    valueToneClass: "text-rose-700",
+    placeholder: "לדוגמה 35,000",
+    savedToastTitle: "יתרת ההלוואות עודכנה",
+  },
+  mortgage: {
+    label: "יתרת משכנתאות",
+    emptyHint: "יתרת קרן משוערת",
+    valueToneClass: "text-rose-700",
+    placeholder: "לדוגמה 920,000",
+    savedToastTitle: "יתרת המשכנתאות עודכנה",
+  },
+};
+
+const emptyBalanceSnapshot: FinanceBalanceSnapshot = {
+  amount: 0,
+  updatedAt: "",
+};
+
+function getBalanceStorageKey(kind: BalanceKind) {
+  if (kind === "bank") {
+    return storageKeys.financeBankBalance;
+  }
+
+  if (kind === "savings") {
+    return storageKeys.financeSavingsBalance;
+  }
+
+  if (kind === "loans") {
+    return storageKeys.financeLoansBalance;
+  }
+
+  return storageKeys.financeMortgageBalance;
+}
+
+function isFinanceBalanceSnapshot(
+  value: unknown
+): value is FinanceBalanceSnapshot {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as FinanceBalanceSnapshot;
+  return (
+    typeof candidate.amount === "number" &&
+    Number.isFinite(candidate.amount) &&
+    typeof candidate.updatedAt === "string"
+  );
+}
+
+function readAllBalances() {
+  return Object.fromEntries(
+    balanceKinds.map((kind) => [
+      kind,
+      readStorage(
+        getBalanceStorageKey(kind),
+        emptyBalanceSnapshot,
+        isFinanceBalanceSnapshot
+      ),
+    ])
+  ) as Record<BalanceKind, FinanceBalanceSnapshot>;
+}
+
+function balancesToInputs(balances: Record<BalanceKind, FinanceBalanceSnapshot>) {
+  return Object.fromEntries(
+    balanceKinds.map((kind) => [
+      kind,
+      balances[kind].updatedAt ? String(balances[kind].amount) : "",
+    ])
+  ) as Record<BalanceKind, string>;
+}
+
+function parseCurrencyInput(value: string) {
+  const normalizedValue = value
+    .replace(/[^\d,.-]/g, "")
+    .replace(/,/g, "")
+    .trim();
+
+  if (!normalizedValue) {
+    return null;
+  }
+
+  const amount = Number(normalizedValue);
+  return Number.isFinite(amount) ? amount : null;
 }
 
 function getAvailableMonths(transactions: FinanceTransaction[]) {
@@ -101,6 +215,32 @@ export default function FinanceManager() {
   const [dateTo, setDateTo] = useState("");
   const [activeReminderId, setActiveReminderId] = useState<string | null>(null);
   const [draftValues, setDraftValues] = useState<FinanceDraft | null>(null);
+  const [balances, setBalances] = useState<
+    Record<BalanceKind, FinanceBalanceSnapshot>
+  >(readAllBalances);
+  const [balanceInputs, setBalanceInputs] = useState<Record<BalanceKind, string>>(
+    () => balancesToInputs(readAllBalances())
+  );
+  const [activeBalanceEditor, setActiveBalanceEditor] =
+    useState<BalanceKind | null>(null);
+
+  useEffect(() => {
+    function syncBalancesFromStorage() {
+      const nextBalances = readAllBalances();
+      setBalances(nextBalances);
+      setBalanceInputs(balancesToInputs(nextBalances));
+    }
+
+    syncBalancesFromStorage();
+    window.addEventListener(getStorageScopeEventName(), syncBalancesFromStorage);
+
+    return () => {
+      window.removeEventListener(
+        getStorageScopeEventName(),
+        syncBalancesFromStorage
+      );
+    };
+  }, []);
 
   // טיוטה ממסמך סרוק: פותחת טופס הוצאה ממולא מראש לאישור המשתמש.
   useEffect(() => {
@@ -226,22 +366,35 @@ export default function FinanceManager() {
     return transactions.find((item) => item.id === activeReminderId) ?? null;
   }, [activeReminderId, transactions]);
 
+  const hasBankBalance = Boolean(balances.bank.updatedAt);
+  const hasAnyManualBalance = balanceKinds.some(
+    (kind) => balances[kind].updatedAt
+  );
+  const bankBalanceGap = hasBankBalance
+    ? balances.bank.amount - stats.balance
+    : 0;
+  const totalFinancialPosition =
+    (hasBankBalance ? balances.bank.amount : stats.balance) +
+    (balances.savings.updatedAt ? balances.savings.amount : 0) -
+    (balances.loans.updatedAt ? balances.loans.amount : 0) -
+    (balances.mortgage.updatedAt ? balances.mortgage.amount : 0);
+
   const financeCards = [
     {
-      title: "יתרה",
-      value: formatCurrency(stats.balance),
+      title: "יתרה מחושבת",
+      value: formatIlsCurrency(stats.balance),
       tone: "text-[#111827]",
-      subtitle: "הכנסות פחות הוצאות",
+      subtitle: "לפי הפעולות שהוזנו",
     },
     {
       title: "הכנסות",
-      value: formatCurrency(stats.income),
+      value: formatIlsCurrency(stats.income),
       tone: "text-emerald-700",
       subtitle: "בתקופה הנבחרת",
     },
     {
       title: "הוצאות",
-      value: formatCurrency(stats.expenses),
+      value: formatIlsCurrency(stats.expenses),
       tone: "text-rose-700",
       subtitle: "בתקופה הנבחרת",
     },
@@ -471,27 +624,68 @@ export default function FinanceManager() {
     setDateTo("");
   }
 
+  function handleSaveBalance(kind: BalanceKind) {
+    const amount = parseCurrencyInput(balanceInputs[kind]);
+
+    if (amount === null) {
+      toast({
+        title: "הסכום לא נשמר",
+        description: "אפשר להזין מספר רגיל, למשל 12500 או 12,500.",
+        tone: "warning",
+      });
+      return;
+    }
+
+    const nextSnapshot = {
+      amount,
+      updatedAt: new Date().toISOString(),
+    };
+    const didSave = writeStorage(getBalanceStorageKey(kind), nextSnapshot);
+
+    if (!didSave) {
+      toast({
+        title: "לא הצלחנו לשמור",
+        description: "נסה שוב בעוד רגע.",
+        tone: "danger",
+      });
+      return;
+    }
+
+    setBalances((currentBalances) => ({
+      ...currentBalances,
+      [kind]: nextSnapshot,
+    }));
+    setBalanceInputs((currentInputs) => ({
+      ...currentInputs,
+      [kind]: String(amount),
+    }));
+    setActiveBalanceEditor(null);
+    toast({
+      title: balanceMeta[kind].savedToastTitle,
+      description: "התמונה הפיננסית נשמרה במרחב הנוכחי.",
+      tone: "success",
+    });
+  }
+
   return (
     <section className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] lg:pb-0">
-      <section className="rounded-[20px] bg-white/82 p-2.5 text-right shadow-[0_10px_24px_rgba(33,43,63,0.05)] ring-1 ring-[#eadfcd]/70">
-        <div className="flex flex-col gap-2 xl:flex-row xl:items-center">
-          <div className="min-w-0 flex-1 space-y-2">
-            <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-xs font-bold text-[#007aff]">מרכז כספים</p>
-                <h2 className="mt-0.5 text-lg font-black text-[#111827] sm:text-xl">
-                  איפה אנחנו אוחזים החודש
-                </h2>
-                <p className="hidden">
-                  תצוגה קצרה, פעולה מהירה, ואז פירוט רק כשצריך.
-                </p>
-              </div>
-            </div>
-
-            <FinanceSummaryCards cards={financeCards} />
+      <section className="nestly-card rounded-[20px] p-3 text-right text-[#1d1d1f]">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold text-[#7a5212]">
+              מרכז כספים · {formatMonthLabel(activeMonth)}
+            </p>
+            <p className="mt-1 text-[28px] font-black leading-9 text-[#111827] sm:text-[32px]">
+              {formatIlsCurrency(totalFinancialPosition)}
+            </p>
+            <p className="mt-0.5 text-xs font-semibold text-slate-600">
+              {hasAnyManualBalance
+                ? "סה\"כ מצב פיננסי: בנק וחסכונות בניכוי הלוואות ומשכנתאות"
+                : "יתרה מחושבת לפי הפעולות שהוזנו"}
+            </p>
           </div>
 
-          <div className="shrink-0 xl:w-[230px]">
+          <div className="shrink-0 sm:w-56">
             <MonthSelector
               months={availableMonths}
               activeMonth={activeMonth}
@@ -499,12 +693,84 @@ export default function FinanceManager() {
             />
           </div>
         </div>
+
+        <div className="mt-2.5">
+          <FinanceSummaryCards cards={financeCards} />
+        </div>
+
+        <details className="group mt-2 rounded-2xl border border-[#e3d8c9]/80 bg-[#fffdf8]">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 py-2">
+            <span className="text-xs font-semibold text-slate-600">
+              {hasAnyManualBalance
+                ? `סה"כ כולל חסכונות והלוואות: ${formatIlsCurrency(totalFinancialPosition)}`
+                : "עדכון ידני של יתרות אמיתיות"}
+            </span>
+            <span className="flex items-center gap-2 text-sm font-bold text-[#111827]">
+              בנק, חסכונות והתחייבויות
+              <span
+                className="text-xs text-slate-500 transition-transform group-open:rotate-180"
+                aria-hidden="true"
+              >
+                ▾
+              </span>
+            </span>
+          </summary>
+
+          <div className="border-t border-[#e3d8c9]/60 p-2.5">
+            <p className="mb-2 text-[12px] font-semibold leading-5 text-slate-600">
+              מעדכנים מדי פעם לפי היתרה האמיתית: בנק וחסכונות מצד אחד, הלוואות ומשכנתאות מצד שני.
+            </p>
+            <div className="grid gap-2 md:grid-cols-2">
+              {balanceKinds.map((kind) => (
+                <BalanceTile
+                  key={kind}
+                  label={balanceMeta[kind].label}
+                  amount={balances[kind].amount}
+                  hasValue={Boolean(balances[kind].updatedAt)}
+                  updatedAtLabel={
+                    balances[kind].updatedAt
+                      ? `עודכן: ${formatDateLabel(balances[kind].updatedAt)}`
+                      : ""
+                  }
+                  emptyHint={balanceMeta[kind].emptyHint}
+                  valueToneClass={balanceMeta[kind].valueToneClass}
+                  note={
+                    kind === "bank" && hasBankBalance && Math.abs(bankBalanceGap) >= 1
+                      ? `פער מול היתרה המחושבת: ${formatIlsCurrency(bankBalanceGap)}`
+                      : undefined
+                  }
+                  isEditing={activeBalanceEditor === kind}
+                  inputValue={balanceInputs[kind]}
+                  inputPlaceholder={balanceMeta[kind].placeholder}
+                  onToggleEdit={() =>
+                    setActiveBalanceEditor(
+                      activeBalanceEditor === kind ? null : kind
+                    )
+                  }
+                  onInputChange={(value) =>
+                    setBalanceInputs((currentInputs) => ({
+                      ...currentInputs,
+                      [kind]: value,
+                    }))
+                  }
+                  onSave={() => handleSaveBalance(kind)}
+                />
+              ))}
+            </div>
+          </div>
+        </details>
       </section>
 
       <FinanceTabs
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onAddTransaction={handleStartAddTransaction}
+        scanSlot={
+          <ReceiptScanPreview
+            userMode="demo"
+            onConfirmExpense={handleConfirmReceiptExpense}
+          />
+        }
       />
 
       {activeTab === "transactions" && isTransactionFormOpen && (
@@ -537,26 +803,15 @@ export default function FinanceManager() {
               : "grid gap-2.5"
           }
         >
-          <section
-            className={
-              isTransactionFormOpen
-                ? "hidden rounded-[20px] border border-white/80 bg-white/90 p-3 text-right shadow-[0_14px_34px_rgba(33,43,63,0.07)] lg:block"
-                : "hidden"
-            }
-          >
-            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between xl:flex-col xl:items-stretch">
+          {isTransactionFormOpen && (
+            <section className="hidden rounded-[20px] border border-white/80 bg-white/90 p-3 text-right shadow-[0_14px_34px_rgba(33,43,63,0.07)] lg:block">
               <div>
                 <p className="text-xs font-bold text-slate-600">פעולה חדשה</p>
-                <h2 className="mt-1 text-base font-black text-[#111827]">
+                <h2 className="mt-1 text-base font-bold text-[#111827]">
                   {editingTransaction ? "עריכת פעולה קיימת" : "הוספה וניהול"}
                 </h2>
-                <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-                  לא צריך לנחש: פתח טופס ברור, הוסף הכנסה או הוצאה, ושמור.
-                </p>
               </div>
-            </div>
 
-            {isTransactionFormOpen ? (
               <div className="mt-3">
                 <AddTransactionForm
                   key={
@@ -575,28 +830,10 @@ export default function FinanceManager() {
                   }}
                 />
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={handleStartAddTransaction}
-                className="mt-3 block w-full rounded-[18px] border border-dashed border-[#cbd5e1] bg-[#fffdf8] p-4 text-right transition hover:border-[#111827] hover:bg-white hover:shadow-[0_12px_28px_rgba(33,43,63,0.08)]"
-              >
-                <span className="block text-sm font-black text-[#111827]">
-                  לחץ כאן לפתיחת טופס פעולה
-                </span>
-                <span className="mt-1 block text-sm font-semibold text-slate-600">
-                  הטופס ייפתח כאן, בלי לחפש שורה נסתרת ובלי לנחש מה לעשות.
-                </span>
-              </button>
-            )}
-          </section>
+            </section>
+          )}
 
           <div className="space-y-2.5">
-            <ReceiptScanPreview
-              userMode="demo"
-              onConfirmExpense={handleConfirmReceiptExpense}
-            />
-
             <FinanceFilters
               searchValue={searchValue}
               typeFilter={typeFilter}
@@ -625,55 +862,10 @@ export default function FinanceManager() {
 
       {activeTab === "reports" && (
         <FinanceReports
+          insights={smartInsights}
           categoryReportItems={categoryReportItems}
           monthlyCashflowItems={monthlyCashflowItems}
         />
-      )}
-
-      {false && activeTab === "reports" && (
-        <div className="space-y-2.5">
-          <CategoryReport items={categoryReportItems} />
-          <details className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right text-[#111827] shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
-            <summary className="cursor-pointer list-none text-sm font-black">
-              תזרים חודשי מלא
-            </summary>
-            <div className="mt-3">
-              <MonthlyCashflow items={monthlyCashflowItems} />
-            </div>
-          </details>
-        </div>
-      )}
-
-      {activeTab === "overview" && (
-        <FinanceOverview
-          insights={smartInsights}
-          monthlyCashflowItems={monthlyCashflowItems}
-        />
-      )}
-
-      {false && activeTab === "overview" && (
-        <div className="grid gap-2.5 xl:grid-cols-[minmax(0,420px)_1fr]">
-          <SmartFinanceSummary insights={smartInsights} />
-          <details className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right text-[#111827] shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
-              <span className="rounded-full bg-[#fff8eb] px-3 py-1 text-xs font-black text-[#9a6b17]">
-                פתיחה לפי צורך
-              </span>
-              <span className="text-sm font-black">גרפים ותזרים</span>
-            </summary>
-            <div className="mt-2.5 space-y-2.5">
-              <FinanceChart items={monthlyCashflowItems} />
-              <details className="rounded-[18px] border border-[#ebe4d8] bg-[#fffdf8] p-3">
-                <summary className="cursor-pointer list-none text-sm font-black text-slate-900">
-                  תזרים חודשי מפורט
-                </summary>
-                <div className="mt-2.5">
-                  <MonthlyCashflow items={monthlyCashflowItems} />
-                </div>
-              </details>
-            </div>
-          </details>
-        </div>
       )}
 
       {activeTab === "backup" && (
@@ -685,98 +877,11 @@ export default function FinanceManager() {
         />
       )}
 
-      {false && activeTab === "backup" && (
-        <section className="rounded-[20px] border border-white/80 bg-white/90 p-3 text-right text-[#111827] shadow-[0_14px_34px_rgba(33,43,63,0.07)]">
-          <div className="mb-3">
-            <p className="mb-2 text-sm font-bold text-slate-600">
-              ניהול נתונים
-            </p>
-            <h2 className="text-xl font-black">גיבוי, שחזור וייבוא</h2>
-            <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
-              פעולות מתקדמות לניהול המידע: ייבוא, ייצוא, גיבוי ושחזור.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap justify-end gap-3">
-            <ImportTransactionsButton onImport={handleImportTransactions} />
-
-            <ExportTransactionsButton transactions={exportTransactions} />
-
-            <JsonBackupControls
-              transactions={exportTransactions}
-              onRestore={handleRestoreTransactions}
-            />
-
-            <button
-              type="button"
-              onClick={handleClearAllTransactions}
-              className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-bold text-rose-800 hover:bg-rose-100"
-            >
-              מחיקת כל הנתונים
-            </button>
-          </div>
-        </section>
-      )}
-
       <FinanceReminderDialog
         transaction={activeReminderTransaction}
         onDismiss={dismissActiveReminderForToday}
         onComplete={completeActiveReminder}
       />
-
-      {activeReminderTransaction && false && (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 px-4 backdrop-blur-[2px]"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              dismissActiveReminderForToday();
-            }
-          }}
-        >
-          <section
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="finance-reminder-title"
-            className="w-full max-w-md rounded-[28px] border border-[#e6d9c9] bg-white p-5 text-right text-[#111827] shadow-[0_28px_90px_rgba(15,23,42,0.28)]"
-          >
-            <p className="text-xs font-black text-[#9a6b17]">תזכורת כספית</p>
-            <h2 id="finance-reminder-title" className="mt-1 text-2xl font-black">
-              הגיע הזמן לטפל בפעולה
-            </h2>
-
-            <div className="mt-4 rounded-[20px] border border-[#e6e8ec] bg-[#fafafb] p-4">
-              <p className="text-lg font-black">{activeReminderTransaction!.title}</p>
-              <p className="mt-1 text-sm font-semibold text-slate-600">
-                {activeReminderTransaction!.category} ·{" "}
-                {formatCurrency(activeReminderTransaction!.amount)}
-              </p>
-              {activeReminderTransaction!.reminderDate && (
-                <p className="mt-2 text-xs font-bold text-slate-500">
-                  תאריך תזכורת: {formatDateLabel(activeReminderTransaction!.reminderDate ?? "")}
-                </p>
-              )}
-            </div>
-
-            <div className="mt-5 grid gap-2 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={dismissActiveReminderForToday}
-                className="min-h-11 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-white"
-              >
-                הזכר לי מחר
-              </button>
-              <button
-                type="button"
-                onClick={completeActiveReminder}
-                className="min-h-11 rounded-2xl bg-[#111827] px-4 py-2 text-sm font-black text-white transition hover:bg-[#1f2937]"
-              >
-                סמן כבוצע
-              </button>
-            </div>
-          </section>
-        </div>
-      )}
     </section>
   );
 }

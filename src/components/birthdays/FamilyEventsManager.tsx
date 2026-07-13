@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import GregorianDateInput from "@/components/ui/GregorianDateInput";
 import HebrewDateInput from "@/components/ui/HebrewDateInput";
+import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { initialBirthdays } from "@/data/birthdays";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
@@ -126,7 +127,7 @@ const emptyForm: EventFormState = {
 };
 
 const fieldClass =
-  "h-11 rounded-2xl border border-slate-100 bg-white px-3 text-right text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-500 focus:ring-2 focus:ring-purple-200";
+  "h-11 rounded-2xl border border-slate-100 bg-white px-3 text-right text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-500 focus:ring-2 focus:ring-blue-100";
 
 function getInitials(value: string) {
   return value
@@ -238,7 +239,7 @@ function UpcomingDashboard({
           <p className="text-xs font-black text-[#7a5212]">האירוע הקרוב</p>
           {nextEvent ? (
             <>
-              <h1 className="mt-0.5 truncate text-base font-black text-[#24151f] sm:text-lg">
+              <h1 className="mt-0.5 truncate text-base font-black text-[#111827] sm:text-lg">
                 {eventTypes[nextEvent.eventType ?? "birthday"].icon} {getDisplayTitle(nextEvent)}
               </h1>
               <p className="mt-0.5 text-xs font-bold text-slate-700 sm:text-sm">
@@ -250,7 +251,7 @@ function UpcomingDashboard({
             </>
           ) : (
             <>
-              <h1 className="mt-0.5 text-base font-black text-[#24151f] sm:text-lg">
+              <h1 className="mt-0.5 text-base font-black text-[#111827] sm:text-lg">
                 אירועי משפחה
               </h1>
               <p className="mt-0.5 text-xs font-bold text-slate-700 sm:text-sm">
@@ -264,7 +265,7 @@ function UpcomingDashboard({
           <button
             type="button"
             onClick={onToggleAddForm}
-            className="family-events-dark-action min-h-11 whitespace-nowrap rounded-2xl px-3 text-xs font-black shadow-[0_10px_22px_rgba(36,21,31,0.14)] transition focus:outline-none focus:ring-2 focus:ring-[#eadfcd]"
+            className="bg-[#111827] text-white hover:bg-[#1f2937] min-h-11 whitespace-nowrap rounded-2xl px-3 text-xs font-black shadow-[0_10px_22px_rgba(33,43,63,0.14)] transition focus:outline-none focus:ring-2 focus:ring-blue-100"
           >
             {isAddFormOpen ? "סגור" : "+ הוסף אירוע"}
           </button>
@@ -334,7 +335,7 @@ function EventRow({ event, dateViewMode, onSelect }: EventRowProps) {
           <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-black ${visual.chip}`}>
             {visual.icon} {visual.label}
           </span>
-          <span className="truncate text-sm font-black text-[#24151f]">
+          <span className="truncate text-sm font-black text-[#111827]">
             {getDisplayName(event)}
           </span>
         </span>
@@ -382,13 +383,13 @@ function TimelineSection({
   const hiddenCount = events.length - visibleEvents.length;
 
   return (
-    <section className="rounded-[18px] bg-white/88 p-2 text-right shadow-[0_8px_22px_rgba(36,21,31,0.035)] ring-1 ring-[#e6e8ec]">
+    <section className="rounded-[18px] bg-white/88 p-2 text-right shadow-[0_8px_22px_rgba(33,43,63,0.035)] ring-1 ring-[#e6e8ec]">
       <div className="mb-1 flex items-center justify-between gap-3">
         <span className="rounded-full bg-[#fafafb] px-2 py-0.5 text-[11px] font-black text-slate-600">
           {events.length}
         </span>
         <div>
-          <h2 className="text-sm font-black text-[#24151f]">{title}</h2>
+          <h2 className="text-sm font-black text-[#111827]">{title}</h2>
           <p className="text-[11px] font-semibold text-slate-600">{subtitle}</p>
         </div>
       </div>
@@ -408,7 +409,7 @@ function TimelineSection({
         <button
           type="button"
           onClick={onShowAll}
-          className="mt-2 min-h-11 w-full rounded-2xl border border-[#e6e8ec] bg-white px-3 text-xs font-black text-slate-800 transition hover:bg-[#fff8eb] focus:outline-none focus:ring-2 focus:ring-purple-200"
+          className="mt-2 min-h-11 w-full rounded-2xl border border-[#e6e8ec] bg-white px-3 text-xs font-black text-slate-800 transition hover:bg-[#fff8eb] focus:outline-none focus:ring-2 focus:ring-blue-100"
         >
           הצג עוד {hiddenCount}
         </button>
@@ -449,6 +450,17 @@ function EventDetailsSheet({
     decorations: false,
   };
 
+  useEffect(() => {
+    function handleKeyDown(keyEvent: KeyboardEvent) {
+      if (keyEvent.key === "Escape") {
+        onClose();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/35 px-3 pb-3 backdrop-blur-[2px] sm:items-center sm:p-6"
@@ -459,12 +471,17 @@ function EventDetailsSheet({
         }
       }}
     >
-      <div className="max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-[26px] bg-white p-4 text-right shadow-[0_28px_90px_rgba(15,23,42,0.28)] ring-1 ring-[#eadfcd]">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="family-event-details-title"
+        className="max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-[26px] bg-white p-4 text-right shadow-[0_28px_90px_rgba(15,23,42,0.28)] ring-1 ring-[#eadfcd]"
+      >
         <div className="flex items-start justify-between gap-3 border-b border-[#eef0f3] pb-3">
           <button
             type="button"
             onClick={onClose}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#e6e8ec] bg-white text-lg font-black text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-purple-200"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#e6e8ec] bg-white text-lg font-black text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-100"
             aria-label="סגור"
           >
             ×
@@ -474,7 +491,10 @@ function EventDetailsSheet({
               <p className={`text-xs font-black ${visual.tone}`}>
                 {visual.icon} {visual.label} · {getDaysLabel(getDaysUntilFamilyEvent(event))}
               </p>
-              <h3 className="mt-1 truncate text-lg font-black text-[#24151f]">
+              <h3
+                id="family-event-details-title"
+                className="mt-1 truncate text-lg font-black text-[#111827]"
+              >
                 {getDisplayTitle(event)}
               </h3>
               <p className="truncate text-sm font-bold text-slate-600">
@@ -489,32 +509,32 @@ function EventDetailsSheet({
         <div className="grid gap-2 py-3 sm:grid-cols-2">
           <div className="rounded-2xl bg-[#fafafb] p-3">
             <p className="text-[11px] font-black text-slate-500">תאריך עברי</p>
-            <p className="mt-1 text-sm font-black text-[#24151f]">
+            <p className="mt-1 text-sm font-black text-[#111827]">
               {getHebrewDisplayDate(event)}
             </p>
           </div>
           <div className="rounded-2xl bg-[#fafafb] p-3">
             <p className="text-[11px] font-black text-slate-500">תאריך לועזי</p>
-            <p className="mt-1 text-sm font-black text-[#24151f]">
+            <p className="mt-1 text-sm font-black text-[#111827]">
               {formatGregorianDate(event.gregorianDate)}
             </p>
           </div>
           <div className="rounded-2xl bg-[#fafafb] p-3">
             <p className="text-[11px] font-black text-slate-500">גיל / שנה</p>
-            <p className="mt-1 text-sm font-black text-[#24151f]">
+            <p className="mt-1 text-sm font-black text-[#111827]">
               {type === "birthday" ? `גיל ${getBirthdayAge(event)}` : "אירוע שנתי"}
             </p>
           </div>
           <div className="rounded-2xl bg-[#fafafb] p-3">
             <p className="text-[11px] font-black text-slate-500">לוח</p>
-            <p className="mt-1 text-sm font-black text-[#24151f]">
+            <p className="mt-1 text-sm font-black text-[#111827]">
               {getBirthdayCalendarBadge(event.calendarType)}
             </p>
           </div>
         </div>
 
         <details className="rounded-2xl bg-[#fafafb] p-3">
-          <summary className="cursor-pointer list-none text-sm font-black text-[#24151f]">
+          <summary className="cursor-pointer list-none text-sm font-black text-[#111827]">
             תזכורות ופרטים
           </summary>
           <div className="mt-3 flex flex-wrap justify-end gap-1.5">
@@ -641,7 +661,7 @@ function EventDetailsSheet({
                 calendarType: event.calendarType === "hebrew" ? "gregorian" : "hebrew",
               })
             }
-            className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-white px-4 text-sm font-black text-slate-800 transition hover:bg-[#fff8eb] focus:outline-none focus:ring-2 focus:ring-purple-200"
+            className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-white px-4 text-sm font-black text-slate-800 transition hover:bg-[#fff8eb] focus:outline-none focus:ring-2 focus:ring-blue-100"
           >
             החלף לוח
           </button>
@@ -679,13 +699,14 @@ function SmartInsights({ events }: { events: FamilyEvent[] }) {
       : "החודש רגוע, אין אירועים קרובים.";
 
   return (
-    <div className="rounded-[18px] bg-white/76 px-3 py-2 text-right text-xs font-black text-[#24151f] shadow-[0_8px_24px_rgba(124,58,237,0.06)] ring-1 ring-white">
+    <div className="rounded-[18px] bg-white/76 px-3 py-2 text-right text-xs font-black text-[#111827] shadow-[0_8px_24px_rgba(33,43,63,0.06)] ring-1 ring-white">
       {insight}
     </div>
   );
 }
 
 export default function FamilyEventsManager() {
+  const { confirm } = useFeedback();
   const [events, setEvents] = usePersistentArrayState<FamilyEvent>(
     storageKeys.birthdays,
     initialBirthdays
@@ -791,8 +812,15 @@ export default function FamilyEventsManager() {
     );
   }
 
-  function deleteEvent(id: string) {
-    const approved = window.confirm("למחוק את האירוע המשפחתי?");
+  async function deleteEvent(id: string) {
+    const eventToDelete = normalizedEvents.find((event) => event.id === id);
+    const approved = await confirm({
+      title: "מחיקת אירוע משפחתי",
+      description: `למחוק את "${eventToDelete ? getDisplayTitle(eventToDelete) : "האירוע הזה"}"? אי אפשר לשחזר אחרי המחיקה.`,
+      confirmLabel: "מחק אירוע",
+      cancelLabel: "ביטול",
+      tone: "danger",
+    });
 
     if (!approved) return;
 
@@ -855,14 +883,14 @@ export default function FamilyEventsManager() {
   }
 
   return (
-    <section className="space-y-2 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] text-[#24151f] lg:pb-0">
+    <section className="space-y-2 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] text-[#111827] lg:pb-0">
       <UpcomingDashboard
         events={visibleEvents.length ? visibleEvents : normalizedEvents}
         isAddFormOpen={showAddForm}
         onToggleAddForm={() => setShowAddForm((currentValue) => !currentValue)}
       />
 
-      <section className="rounded-[18px] bg-white/78 p-2 shadow-[0_8px_22px_rgba(36,21,31,0.04)] ring-1 ring-[#eadfcd]/70">
+      <section className="rounded-[18px] bg-white/78 p-2 shadow-[0_8px_22px_rgba(33,43,63,0.04)] ring-1 ring-[#eadfcd]/70">
         <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
           <div className="flex shrink-0 justify-end gap-1 rounded-2xl bg-[#f7f4ef] p-1">
             {[
@@ -876,8 +904,8 @@ export default function FamilyEventsManager() {
                 onClick={() => setEventFilter(filter.id as EventFilter)}
                 className={
                   eventFilter === filter.id
-                    ? "family-events-dark-action min-h-11 whitespace-nowrap rounded-xl px-3 text-xs font-black shadow-sm focus:outline-none focus:ring-2 focus:ring-[#eadfcd]"
-                    : "min-h-11 whitespace-nowrap rounded-xl px-3 text-xs font-black text-slate-700 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-purple-200"
+                    ? "bg-[#111827] text-white hover:bg-[#1f2937] min-h-11 whitespace-nowrap rounded-xl px-3 text-xs font-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-100"
+                    : "min-h-11 whitespace-nowrap rounded-xl px-3 text-xs font-black text-slate-700 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
                 }
               >
                 {filter.label}
@@ -902,7 +930,7 @@ export default function FamilyEventsManager() {
             <input
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
-              className="min-h-10 w-full rounded-2xl border border-slate-100 bg-white py-2 pl-3 pr-9 text-right text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-600 focus:ring-2 focus:ring-purple-200"
+              className="min-h-10 w-full rounded-2xl border border-slate-100 bg-white py-2 pl-3 pr-9 text-right text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-600 focus:ring-2 focus:ring-blue-100"
               placeholder="חיפוש אירוע"
             />
           </label>
@@ -910,7 +938,7 @@ export default function FamilyEventsManager() {
           <button
             type="button"
             onClick={() => setShowAdvancedFilters((currentValue) => !currentValue)}
-            className="min-h-11 shrink-0 whitespace-nowrap rounded-2xl bg-white px-3 text-xs font-black text-slate-800 shadow-sm ring-1 ring-slate-100 transition hover:bg-[#fff8eb] focus:outline-none focus:ring-2 focus:ring-purple-200"
+            className="min-h-11 shrink-0 whitespace-nowrap rounded-2xl bg-white px-3 text-xs font-black text-slate-800 shadow-sm ring-1 ring-slate-100 transition hover:bg-[#fff8eb] focus:outline-none focus:ring-2 focus:ring-blue-100"
             aria-expanded={showAdvancedFilters}
           >
             סינון
@@ -947,7 +975,7 @@ export default function FamilyEventsManager() {
                   onClick={() => handleDateViewChange(mode)}
                   className={`flex-1 rounded-xl text-sm font-black ${
                     dateViewMode === mode
-                      ? "bg-white text-purple-900 shadow-sm"
+                      ? "bg-white text-[#111827] shadow-sm"
                       : "text-slate-700"
                   }`}
                 >
@@ -969,7 +997,7 @@ export default function FamilyEventsManager() {
                   key={type}
                   type="button"
                   onClick={() => updateFormEventType(type)}
-                  className={`min-h-11 rounded-2xl px-2 text-xs font-black ring-1 transition focus:outline-none focus:ring-2 focus:ring-purple-200 ${
+                  className={`min-h-11 rounded-2xl px-2 text-xs font-black ring-1 transition focus:outline-none focus:ring-2 focus:ring-blue-100 ${
                     form.eventType === type
                       ? `${eventTypes[type].chip} ring-transparent`
                       : "bg-white text-slate-700 ring-slate-100"
@@ -1039,9 +1067,9 @@ export default function FamilyEventsManager() {
                       calendarType: mode,
                     }))
                   }
-                  className={`flex-1 rounded-xl text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-purple-200 ${
+                  className={`flex-1 rounded-xl text-sm font-black transition focus:outline-none focus:ring-2 focus:ring-blue-100 ${
                     form.calendarType === mode
-                      ? "bg-white text-purple-900 shadow-sm"
+                      ? "bg-white text-[#111827] shadow-sm"
                       : "text-slate-700"
                   }`}
                 >
@@ -1074,12 +1102,12 @@ export default function FamilyEventsManager() {
                   notes: event.target.value,
                 }))
               }
-              className="min-h-16 rounded-2xl border border-slate-100 bg-white px-3 py-2 text-right text-sm font-semibold outline-none focus:ring-2 focus:ring-purple-200 sm:col-span-2"
+              className="min-h-16 rounded-2xl border border-slate-100 bg-white px-3 py-2 text-right text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-100 sm:col-span-2"
               placeholder="הערות"
             />
             <button
               type="submit"
-              className="family-events-dark-action min-h-11 rounded-2xl px-4 text-sm font-black shadow-[0_12px_28px_rgba(36,21,31,0.18)] transition focus:outline-none focus:ring-2 focus:ring-purple-200 sm:col-span-2"
+              className="bg-[#111827] text-white hover:bg-[#1f2937] min-h-11 rounded-2xl px-4 text-sm font-black shadow-[0_12px_28px_rgba(33,43,63,0.18)] transition focus:outline-none focus:ring-2 focus:ring-blue-100 sm:col-span-2"
             >
               שמור אירוע משפחתי
             </button>
@@ -1094,7 +1122,7 @@ export default function FamilyEventsManager() {
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-[18px] bg-white text-2xl shadow-sm">
             ⭐
           </div>
-          <h2 className="mt-2 text-base font-black text-[#24151f]">
+          <h2 className="mt-2 text-base font-black text-[#111827]">
             אין אירועים משפחתיים להצגה
           </h2>
           <p className="mx-auto mt-1 max-w-md text-xs font-semibold text-slate-600 sm:text-sm">
@@ -1103,7 +1131,7 @@ export default function FamilyEventsManager() {
           <button
             type="button"
             onClick={() => setShowAddForm(true)}
-            className="family-events-dark-action mt-3 min-h-11 whitespace-nowrap rounded-2xl px-5 text-sm font-black shadow-[0_10px_22px_rgba(36,21,31,0.14)] transition focus:outline-none focus:ring-2 focus:ring-purple-200"
+            className="bg-[#111827] text-white hover:bg-[#1f2937] mt-3 min-h-11 whitespace-nowrap rounded-2xl px-5 text-sm font-black shadow-[0_10px_22px_rgba(33,43,63,0.14)] transition focus:outline-none focus:ring-2 focus:ring-blue-100"
           >
             הוסף אירוע משפחתי ראשון
           </button>

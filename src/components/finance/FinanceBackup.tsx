@@ -33,7 +33,7 @@ export default function FinanceBackup({
         <button
           type="button"
           onClick={onClearAll}
-          className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-bold text-rose-800 hover:bg-rose-100"
+          className="min-h-11 rounded-2xl border border-rose-200 bg-rose-50 px-4 text-sm font-bold text-rose-700 transition hover:bg-rose-100"
         >
           מחיקת כל הנתונים
         </button>

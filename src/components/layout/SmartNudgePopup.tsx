@@ -9,6 +9,10 @@ import {
   type FinanceTransaction,
 } from "@/data/finance";
 import { initialFamilyTasks, type FamilyTask } from "@/data/tasks";
+import {
+  acquireInterruption,
+  releaseInterruption,
+} from "@/lib/interruptions";
 import { storageKeys } from "@/lib/storageKeys";
 import type { BirthdayPerson } from "@/types/birthdays";
 import { getDaysUntilBirthday } from "@/utils/birthdayCalendar";
@@ -25,7 +29,7 @@ type SmartNudge = {
 };
 
 const nudgeDelayMs = 4500;
-const nudgeAutoCloseMs = 9000;
+const nudgeInterruptionId = "smart-nudge";
 
 function getTodayKey() {
   return new Date().toISOString().slice(0, 10);
@@ -149,24 +153,27 @@ export default function SmartNudgePopup() {
     }
 
     const openTimeoutId = window.setTimeout(() => {
+      // פופאפ אחר (למשל יום הולדת) כבר מוצג? מדלגים הפעם ולא "שורפים"
+      // את ההמלצה — היא תוצג בכניסה הבאה.
+      if (!acquireInterruption(nudgeInterruptionId)) {
+        return;
+      }
+
       setIsVisible(true);
       window.localStorage.setItem(storageKeys.smartNudge, nudge.id);
     }, nudgeDelayMs);
 
-    return () => window.clearTimeout(openTimeoutId);
+    return () => {
+      window.clearTimeout(openTimeoutId);
+      releaseInterruption(nudgeInterruptionId);
+    };
   }, [nudge]);
 
-  useEffect(() => {
-    if (!isVisible) {
-      return;
-    }
-
-    const closeTimeoutId = window.setTimeout(() => {
-      setIsVisible(false);
-    }, nudgeAutoCloseMs);
-
-    return () => window.clearTimeout(closeTimeoutId);
-  }, [isVisible]);
+  function dismissNudge() {
+    setIsDismissed(true);
+    setIsVisible(false);
+    releaseInterruption(nudgeInterruptionId);
+  }
 
   if (!nudge || !isVisible || isDismissed) {
     return null;
@@ -177,14 +184,11 @@ export default function SmartNudgePopup() {
       <div className="flex items-start justify-between gap-3">
         <button
           type="button"
-          onClick={() => {
-            setIsDismissed(true);
-            setIsVisible(false);
-          }}
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] text-sm font-black text-slate-600 transition hover:bg-white"
+          onClick={dismissNudge}
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] text-slate-600 transition hover:bg-white"
           aria-label="סגור המלצה"
         >
-          x
+          <AppIcon name="close" className="h-4 w-4" />
         </button>
 
         <div className="flex min-w-0 flex-1 items-start justify-end gap-3">
@@ -205,20 +209,14 @@ export default function SmartNudgePopup() {
       <div className="mt-3 flex items-center justify-between gap-2">
         <button
           type="button"
-          onClick={() => {
-            setIsDismissed(true);
-            setIsVisible(false);
-          }}
+          onClick={dismissNudge}
           className="min-h-10 rounded-2xl px-3 text-xs font-black text-slate-500 transition hover:bg-[#fff8eb]"
         >
           לא עכשיו
         </button>
         <Link
           href={nudge.href}
-          onClick={() => {
-            setIsDismissed(true);
-            setIsVisible(false);
-          }}
+          onClick={dismissNudge}
           className="min-h-10 rounded-2xl bg-[#111827] px-4 py-2.5 text-xs font-black text-white shadow-[0_12px_28px_rgba(17,24,39,0.16)] transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
         >
           {nudge.actionLabel}

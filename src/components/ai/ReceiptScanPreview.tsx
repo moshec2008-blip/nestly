@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, type ChangeEvent } from "react";
-import AIErrorState from "@/components/ai/AIErrorState";
-import AIProcessingState from "@/components/ai/AIProcessingState";
 import AIReviewDialog from "@/components/ai/AIReviewDialog";
+import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { formatMoneyForReview } from "@/lib/ai/normalization/amount";
 import type { AnalyzeReceiptResult } from "@/lib/ai/types";
 import { getStoredAiAccessCode } from "@/services/documentAiClient";
 
 type ReceiptScanPreviewProps = {
   userMode?: "demo" | "basic" | "authenticated";
+  triggerClassName?: string;
   onConfirmExpense: (expense: {
     title: string;
     category: string;
@@ -18,6 +18,9 @@ type ReceiptScanPreviewProps = {
     notes?: string;
   }) => void;
 };
+
+const defaultTriggerClassName =
+  "inline-flex min-h-10 cursor-pointer items-center justify-center whitespace-nowrap rounded-[13px] border border-[#e3d8c9] bg-[#fff8eb] px-3 text-xs font-bold text-[#7a5212] transition hover:bg-[#fff2d9]";
 
 function fileToBase64(file: File) {
   return new Promise<string>((resolve, reject) => {
@@ -33,12 +36,13 @@ function fileToBase64(file: File) {
 
 export default function ReceiptScanPreview({
   userMode = "demo",
+  triggerClassName = defaultTriggerClassName,
   onConfirmExpense,
 }: ReceiptScanPreviewProps) {
+  const { toast } = useFeedback();
   const [result, setResult] = useState<AnalyzeReceiptResult | null>(null);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleFileSelection(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -49,7 +53,6 @@ export default function ReceiptScanPreview({
     }
 
     setIsProcessing(true);
-    setErrorMessage("");
 
     try {
       const accessCode = getStoredAiAccessCode();
@@ -87,50 +90,36 @@ export default function ReceiptScanPreview({
       setResult(payload.analysis);
       setIsReviewOpen(true);
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "לא הצלחנו לקרוא את הקבלה. נסו שוב בתאורה טובה יותר."
-      );
+      toast({
+        title: "הסריקה לא הצליחה",
+        description:
+          error instanceof Error
+            ? error.message
+            : "לא הצלחנו לקרוא את הקבלה. נסו שוב בתאורה טובה יותר.",
+        tone: "danger",
+      });
     } finally {
       setIsProcessing(false);
     }
   }
 
   return (
-    <section className="rounded-[22px] bg-[#f7fbff] p-3 text-right ring-1 ring-blue-100">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <label className="min-h-11 cursor-pointer rounded-2xl bg-[#111827] px-4 py-3 text-sm font-black text-white">
-          סריקת קבלה
-          <input
-            type="file"
-            accept="image/*,.pdf"
-            onChange={handleFileSelection}
-            className="hidden"
-          />
-        </label>
-        <div>
-          <p className="text-xs font-black text-blue-700">Nestly AI</p>
-          <h3 className="text-base font-black text-[#111827]">
-            קבלה להוצאה משפחתית
-          </h3>
-          <p className="text-xs font-semibold text-slate-600">
-            ניתוח, בדיקה, ואז שמירה לפי אישור שלכם.
-          </p>
-        </div>
-      </div>
-
-      {isProcessing && (
-        <div className="mt-3">
-          <AIProcessingState activeStep={2} />
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="mt-3">
-          <AIErrorState message={errorMessage} />
-        </div>
-      )}
+    <>
+      <label
+        className={[
+          triggerClassName,
+          isProcessing ? "pointer-events-none opacity-60" : "",
+        ].join(" ")}
+      >
+        {isProcessing ? "קורא את הקבלה..." : "סריקת קבלה"}
+        <input
+          type="file"
+          accept="image/*,.pdf"
+          onChange={handleFileSelection}
+          disabled={isProcessing}
+          className="hidden"
+        />
+      </label>
 
       <AIReviewDialog
         open={isReviewOpen}
@@ -183,6 +172,6 @@ export default function ReceiptScanPreview({
           setIsReviewOpen(false);
         }}
       />
-    </section>
+    </>
   );
 }

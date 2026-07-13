@@ -41,10 +41,10 @@ type FeedbackContextValue = {
 const FeedbackContext = createContext<FeedbackContextValue | null>(null);
 
 const toastToneClasses: Record<ToastTone, string> = {
-  success: "border-emerald-300/25 bg-emerald-400/12 text-emerald-100",
-  info: "border-sky-300/25 bg-sky-400/12 text-sky-100",
-  warning: "border-[#d8b470]/35 bg-[#d8b470]/12 text-[#f4e7c8]",
-  danger: "border-red-300/25 bg-red-400/12 text-red-100",
+  success: "border-emerald-200 bg-emerald-50/95 text-emerald-800",
+  info: "border-sky-200 bg-sky-50/95 text-sky-800",
+  warning: "border-amber-200 bg-[#fff8eb]/95 text-[#7a5212]",
+  danger: "border-rose-200 bg-rose-50/95 text-rose-800",
 };
 
 export function FeedbackProvider({ children }: { children: ReactNode }) {
@@ -149,7 +149,7 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
           <div
             key={toastMessage.id}
             className={[
-              "pointer-events-auto rounded-[24px] border p-4 text-sm shadow-[0_24px_72px_rgba(0,0,0,0.38)] backdrop-blur-2xl animate-soft-in",
+              "pointer-events-auto rounded-[20px] border p-4 text-sm shadow-[0_18px_44px_rgba(33,43,63,0.16)] backdrop-blur-2xl animate-soft-in",
               toastToneClasses[toastMessage.tone],
               direction === "rtl" ? "text-right" : "text-left",
             ].join(" ")}
@@ -191,27 +191,25 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
             aria-modal="true"
             aria-labelledby="confirm-dialog-title"
             className={[
-              "w-full max-w-md rounded-[32px] border border-[rgba(216,180,112,0.18)] bg-[#080c18]/95 p-6 text-[#fff9ea] shadow-[0_36px_110px_rgba(0,0,0,0.58)] backdrop-blur-2xl",
+              "w-full max-w-md rounded-[24px] border border-[#e3d8c9] bg-white p-5 text-[#1d1d1f] shadow-[0_28px_90px_rgba(15,23,42,0.28)]",
               direction === "rtl" ? "text-right" : "text-left",
             ].join(" ")}
           >
-            <p className="mb-2 text-xs font-bold text-[#d8b470]">
-              Nestly
-            </p>
-            <h2 id="confirm-dialog-title" className="text-2xl font-black">
+            <p className="mb-2 text-xs font-bold text-[#7a5212]">Nestly</p>
+            <h2 id="confirm-dialog-title" className="text-xl font-black text-[#111827]">
               {pendingConfirm.title}
             </h2>
             {pendingConfirm.description && (
-              <p className="mt-3 text-sm leading-7 text-[#a9a295]">
+              <p className="mt-2 text-sm leading-6 text-slate-600">
                 {pendingConfirm.description}
               </p>
             )}
 
-            <div className="mt-6 flex flex-wrap justify-end gap-3">
+            <div className="mt-5 flex flex-wrap justify-end gap-2">
               <button
                 type="button"
                 onClick={() => resolveConfirm(false)}
-                className="rounded-2xl border border-white/10 bg-white/[0.06] px-5 py-3 text-sm font-black text-[#d7cfbf] transition hover:bg-white/[0.1]"
+                className="min-h-11 rounded-2xl border border-[#e3d8c9] bg-white px-5 text-sm font-bold text-slate-700 transition hover:bg-[#fffdf8]"
               >
                 {pendingConfirm.cancelLabel}
               </button>
@@ -219,10 +217,10 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={() => resolveConfirm(true)}
                 className={[
-                  "rounded-2xl px-5 py-3 text-sm font-black transition",
+                  "min-h-11 rounded-2xl px-5 text-sm font-bold text-white transition",
                   pendingConfirm.tone === "danger"
-                    ? "bg-red-500 text-white hover:bg-red-400"
-                    : "bg-[#f4e7c8] text-[#080b16] hover:bg-[#fff3d6]",
+                    ? "bg-rose-600 hover:bg-rose-500"
+                    : "bg-[#111827] hover:bg-[#1f2937]",
                 ].join(" ")}
               >
                 {pendingConfirm.confirmLabel}

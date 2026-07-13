@@ -229,10 +229,10 @@ export default function MobileBottomNavigation() {
               <button
                 type="button"
                 onClick={closeMoreMenu}
-                className="grid min-h-11 min-w-11 place-items-center rounded-2xl border border-[#eadfcd] bg-white text-xl font-black text-slate-700 transition active:scale-95"
+                className="grid min-h-11 min-w-11 place-items-center rounded-2xl border border-[#eadfcd] bg-white text-slate-700 transition active:scale-95"
                 aria-label="סגירת תפריט האזורים"
               >
-                ×
+                <AppIcon name="close" className="h-5 w-5" />
               </button>
             </div>
 

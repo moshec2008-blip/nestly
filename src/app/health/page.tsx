@@ -1,8 +1,6 @@
 import AppShell from "@/components/layout/AppShell";
+import HealthManager from "@/components/health/HealthManager";
 import PageHero from "@/components/layout/PageHero";
-import ModuleManager from "@/components/shared/ModuleManager";
-import { initialHealthRecords } from "@/data/modules";
-import { storageKeys } from "@/lib/storageKeys";
 
 export default function HealthPage() {
   return (
@@ -14,18 +12,7 @@ export default function HealthPage() {
         showBackHome
       />
 
-      <ModuleManager
-        storageKey={storageKeys.health}
-        initialRecords={initialHealthRecords}
-        formTitle="קביעת תור או תזכורת רפואית"
-        listTitle="מעקב בריאות"
-        defaultCategory="בריאות"
-        addButtonLabel="קביעת תור"
-        editTitle="עריכת תור"
-        itemLabel="תור"
-        itemPluralLabel="תורים"
-        titlePlaceholder="שם התור או הבדיקה"
-      />
+      <HealthManager />
     </AppShell>
   );
 }

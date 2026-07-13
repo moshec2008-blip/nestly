@@ -11,6 +11,7 @@ import {
   useState,
   type MouseEvent,
 } from "react";
+import AppIcon from "@/components/ui/AppIcon";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { getDictionary, type CommonDictionary } from "@/i18n/dictionaries";
 import { getRouteLabel } from "@/i18n/navigation";
@@ -161,7 +162,7 @@ function SearchBox({
 
 function MenuGlyph({ isOpen }: { isOpen: boolean }) {
   if (isOpen) {
-    return <span className="text-xl leading-none">x</span>;
+    return <AppIcon name="close" className="h-5 w-5" />;
   }
 
   return (
@@ -170,24 +171,6 @@ function MenuGlyph({ isOpen }: { isOpen: boolean }) {
       <span className="block h-0.5 w-5 rounded-full bg-current" />
       <span className="block h-0.5 w-5 rounded-full bg-current" />
     </span>
-  );
-}
-
-function BellIcon() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      viewBox="0 0 24 24"
-    >
-      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
   );
 }
 
@@ -271,10 +254,6 @@ export default function TopNavigation({
       return;
     }
 
-    const closeTimeoutId = window.setTimeout(() => {
-      setIsNotificationsOpen(false);
-    }, 5000);
-
     function handlePointerDown(event: PointerEvent) {
       const target = event.target;
 
@@ -287,11 +266,18 @@ export default function TopNavigation({
       }
     }
 
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsNotificationsOpen(false);
+      }
+    }
+
     document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.clearTimeout(closeTimeoutId);
       document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isNotificationsOpen]);
 
@@ -325,7 +311,9 @@ export default function TopNavigation({
               aria-expanded={isMobileMenuOpen}
             >
               <MenuGlyph isOpen={isMobileMenuOpen} />
-              <span className="hidden min-[360px]:inline">תפריט</span>
+              <span className="hidden min-[360px]:inline">
+                {dictionary.openMenu}
+              </span>
             </button>
           )}
 
@@ -376,7 +364,10 @@ export default function TopNavigation({
                 : dictionary.collapseSidebar
             }
           >
-            {isSidebarCollapsed ? ">" : "<"}
+            <AppIcon
+              name={isSidebarCollapsed ? "chevron-right" : "chevron-left"}
+              className="h-4 w-4"
+            />
           </button>
 
           <div
@@ -469,7 +460,7 @@ export default function TopNavigation({
                 aria-label={dictionary.notifications}
               >
                 <span className="grid h-full w-full place-items-center">
-                  <BellIcon />
+                  <AppIcon name="bell" className="h-5 w-5" />
                 </span>
                 {notifications.length > 0 && (
                   <span className="absolute -left-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-[#b86f68] px-1 text-[10px] font-black text-white">
@@ -533,11 +524,11 @@ export default function TopNavigation({
 
             <Link
               href="/settings"
-              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#fafafb] text-base font-black text-slate-800 shadow-sm transition hover:bg-white"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#fafafb] text-slate-800 shadow-sm transition hover:bg-white"
               aria-label={dictionary.nav.settings}
               onClick={handleNavigate}
             >
-              *
+              <AppIcon name="settings" className="h-5 w-5" />
             </Link>
           </div>
         </div>

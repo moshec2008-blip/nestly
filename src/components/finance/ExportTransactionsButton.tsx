@@ -81,7 +81,7 @@ export default function ExportTransactionsButton({
       type="button"
       onClick={handleExport}
       disabled={transactions.length === 0}
-      className="rounded-2xl border border-emerald-300/20 bg-emerald-400/12 px-5 py-3 text-sm font-bold text-emerald-100 transition hover:bg-emerald-400/18 disabled:cursor-not-allowed disabled:bg-slate-500"
+      className="min-h-11 rounded-2xl border border-[#e3d8c9] bg-white px-4 text-sm font-bold text-[#1d1d1f] transition hover:bg-[#fffdf8] disabled:cursor-not-allowed disabled:opacity-60"
     >
       ייצוא CSV
     </button>

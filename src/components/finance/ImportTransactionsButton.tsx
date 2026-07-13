@@ -195,7 +195,7 @@ export default function ImportTransactionsButton({
       <button
         type="button"
         onClick={handleButtonClick}
-        className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-500"
+        className="min-h-11 rounded-2xl border border-[#e3d8c9] bg-white px-4 text-sm font-bold text-[#1d1d1f] transition hover:bg-[#fffdf8]"
       >
         ייבוא CSV
       </button>

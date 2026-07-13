@@ -197,20 +197,6 @@ body::before {
   box-shadow: 0 14px 30px rgba(17, 24, 39, 0.18);
 }
 
-.family-events-dark-action {
-  background: #24151f !important;
-  color: #ffffff !important;
-}
-
-.family-events-dark-action:hover {
-  background: #3a2532 !important;
-}
-
-.family-events-dark-action,
-.family-events-dark-action * {
-  color: #ffffff !important;
-}
-
 .nestly-secondary-button {
   min-height: 44px;
   border-radius: 16px;
@@ -1397,15 +1383,12 @@ button:disabled,
   color: inherit !important;
 }
 
-/* כפתורים כהים באירועי משפחה: חייב לנצח את הכלל הגלובלי של font-black
-   (ספציפיות שווה + מאוחר יותר בקובץ = הטקסט נשאר לבן על הרקע הכהה). */
-.app-premium .family-events-dark-action,
-.app-premium .family-events-dark-action * {
-  color: #ffffff !important;
-}
-
-.app-premium .family-events-dark-action {
-  background: #24151f !important;
+/* תיקון קונטרסט קריטי: הבלוק הכהה הישן למעלה ממפה text-[#111827] לקרם
+   (#fff9ea), ובלוקי התבנית הבהירה שאחריו מחזירים לכהה את כל הצבעים חוץ
+   ממנו. בלי הכלל הזה, כל טקסט עם text-[#111827] בלי font-black מוצג
+   קרם-על-לבן (ספציפיות שווה + סוף הקובץ = הכלל הזה מנצח). */
+.app-premium [class*="text-[#111827]"] {
+  color: #111827 !important;
 }
 
 /* קוביות התאריך העברי: טקסט כהה על רקע לבן, בלי קשר לכללי התבנית

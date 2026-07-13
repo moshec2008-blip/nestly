@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import AppIcon from "@/components/ui/AppIcon";
 import { initialBirthdays } from "@/data/birthdays";
+import {
+  acquireInterruption,
+  releaseInterruption,
+} from "@/lib/interruptions";
 import { storageKeys } from "@/lib/storageKeys";
 import type { BirthdayPerson } from "@/types/birthdays";
 import {
@@ -18,6 +23,7 @@ import {
 import { readStorageArray } from "@/utils/storage";
 
 const dismissedStoragePrefix = "nestly-birthday-popup-dismissed";
+const birthdayInterruptionId = "birthday-popup";
 
 function getTodayKey() {
   return new Intl.DateTimeFormat("en-CA", {
@@ -144,14 +150,38 @@ export default function BirthdayWelcomePopup() {
     }
 
     const timeoutId = window.setTimeout(() => {
+      if (!acquireInterruption(birthdayInterruptionId)) {
+        return;
+      }
+
       setIsVisible(true);
     }, 900);
 
-    return () => window.clearTimeout(timeoutId);
+    return () => {
+      window.clearTimeout(timeoutId);
+      releaseInterruption(birthdayInterruptionId);
+    };
   }, [highlightedBirthday]);
+
+  useEffect(() => {
+    if (!isVisible) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        closeForNow();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible]);
 
   function closeForNow() {
     setIsVisible(false);
+    releaseInterruption(birthdayInterruptionId);
   }
 
   function closeForToday() {
@@ -160,6 +190,7 @@ export default function BirthdayWelcomePopup() {
       "true"
     );
     setIsVisible(false);
+    releaseInterruption(birthdayInterruptionId);
   }
 
   if (!highlightedBirthday || !isVisible) {
@@ -186,14 +217,14 @@ export default function BirthdayWelcomePopup() {
           <button
             type="button"
             onClick={closeForNow}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-[#e6e8ec] bg-[#fafafb] text-sm font-black text-slate-700 transition hover:bg-white"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#e6e8ec] bg-[#fafafb] text-slate-700 transition hover:bg-white"
             aria-label="סגור"
           >
-            x
+            <AppIcon name="close" className="h-5 w-5" />
           </button>
 
           <div>
-            <p className="text-xs font-bold text-[#007aff]">
+            <p className="text-xs font-bold text-[#7a5212]">
               תזכורת משפחתית
             </p>
             <h2

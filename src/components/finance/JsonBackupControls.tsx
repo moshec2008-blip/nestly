@@ -199,7 +199,7 @@ export default function JsonBackupControls({
         type="button"
         onClick={handleExportJson}
         disabled={transactions.length === 0}
-        className="rounded-2xl bg-purple-600 px-5 py-3 text-sm font-bold text-white hover:bg-purple-500 disabled:cursor-not-allowed disabled:bg-slate-500"
+        className="min-h-11 rounded-2xl border border-[#e3d8c9] bg-white px-4 text-sm font-bold text-[#1d1d1f] transition hover:bg-[#fffdf8] disabled:cursor-not-allowed disabled:opacity-60"
       >
         גיבוי JSON
       </button>
@@ -207,7 +207,7 @@ export default function JsonBackupControls({
       <button
         type="button"
         onClick={handleImportClick}
-        className="rounded-2xl bg-purple-950 px-5 py-3 text-sm font-bold text-white hover:bg-purple-900"
+        className="min-h-11 rounded-2xl border border-[#e3d8c9] bg-white px-4 text-sm font-bold text-[#1d1d1f] transition hover:bg-[#fffdf8]"
       >
         שחזור JSON
       </button>

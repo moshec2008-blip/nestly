@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import AppIcon from "@/components/ui/AppIcon";
 import DateInput from "@/components/ui/DateInput";
+import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
 
@@ -241,6 +242,7 @@ function formatDate(date: string) {
 }
 
 export default function FamilyTree() {
+  const { confirm } = useFeedback();
   const [storedPeople, setPeople] = usePersistentArrayState<FamilyTreePerson>(
     storageKeys.familyTree,
     initialFamilyTreePeople,
@@ -261,6 +263,22 @@ export default function FamilyTree() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [menuPersonId, setMenuPersonId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!selectedPersonId && !menuPersonId) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setSelectedPersonId(null);
+        setMenuPersonId(null);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [selectedPersonId, menuPersonId]);
   const [searchValue, setSearchValue] = useState("");
   const [sideFilter, setSideFilter] = useState<"all" | FamilySide>("all");
   const [expandedGenerations, setExpandedGenerations] = useState<
@@ -409,8 +427,15 @@ export default function FamilyTree() {
     setIsFormOpen(false);
   }
 
-  function deletePerson(id: string) {
-    const approved = window.confirm("למחוק את בן המשפחה?");
+  async function deletePerson(id: string) {
+    const personToDelete = people.find((person) => person.id === id);
+    const approved = await confirm({
+      title: "מחיקת בן משפחה",
+      description: `למחוק את "${personToDelete?.name ?? "בן המשפחה"}"? אי אפשר לשחזר אחרי המחיקה.`,
+      confirmLabel: "מחק",
+      cancelLabel: "ביטול",
+      tone: "danger",
+    });
 
     if (!approved) {
       return;
@@ -940,12 +965,17 @@ export default function FamilyTree() {
             }
           }}
         >
-          <div className="w-full max-w-md rounded-[24px] bg-white p-4 text-right shadow-[0_28px_90px_rgba(15,23,42,0.28)] ring-1 ring-[#eadfcd]">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="family-person-details-title"
+            className="w-full max-w-md rounded-[24px] bg-white p-4 text-right shadow-[0_28px_90px_rgba(15,23,42,0.28)] ring-1 ring-[#eadfcd]"
+          >
             <div className="flex items-start justify-between gap-3 border-b border-[#eef0f3] pb-3">
               <button
                 type="button"
                 onClick={() => setSelectedPersonId(null)}
-                className="grid h-10 w-10 place-items-center rounded-full border border-[#e6e8ec] bg-white text-lg font-black text-slate-600"
+                className="grid h-11 w-11 place-items-center rounded-full border border-[#e6e8ec] bg-white text-lg font-black text-slate-600"
                 aria-label="סגור"
               >
                 ×
@@ -954,7 +984,10 @@ export default function FamilyTree() {
                 <p className="text-xs font-black text-slate-500">
                   {selectedPerson.role} · {selectedPerson.side}
                 </p>
-                <h3 className="mt-1 truncate text-lg font-black text-[#111827]">
+                <h3
+                  id="family-person-details-title"
+                  className="mt-1 truncate text-lg font-black text-[#111827]"
+                >
                   {selectedPerson.name}
                 </h3>
               </div>

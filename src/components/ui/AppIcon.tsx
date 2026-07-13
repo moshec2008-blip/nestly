@@ -5,6 +5,9 @@ export type AppIconName =
   | "calendar"
   | "car"
   | "check"
+  | "chevron-left"
+  | "chevron-right"
+  | "close"
   | "dashboard"
   | "document"
   | "family"
@@ -40,6 +43,9 @@ function getIconPath(name: AppIconName) {
       "M4 13h16v4H4v-4Z",
     ],
     check: ["M20 6 9 17l-5-5"],
+    "chevron-left": ["m15 18-6-6 6-6"],
+    "chevron-right": ["m9 18 6-6-6-6"],
+    close: ["M18 6 6 18", "m6 6 12 12"],
     dashboard: [
       "M4 13h7V4H4v9Z",
       "M13 20h7V4h-7v16Z",

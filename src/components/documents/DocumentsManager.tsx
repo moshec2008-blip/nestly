@@ -791,7 +791,7 @@ export default function DocumentsManager() {
   }
 
   return (
-    <section className="space-y-2.5">
+    <section className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] lg:pb-0">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <div className="nestly-card rounded-[16px] p-2.5 text-right">
           <p className="truncate text-[11px] font-bold text-slate-600">מסמכים</p>
@@ -909,7 +909,7 @@ export default function DocumentsManager() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-2xl bg-[#f4e7c8] px-5 py-3 text-sm font-black text-slate-950 hover:bg-[#fff3d6] disabled:cursor-wait disabled:opacity-60"
+            className="rounded-2xl bg-[#007aff] px-5 py-3 text-sm font-black text-white shadow-[0_10px_24px_rgba(0,122,255,0.18)] hover:bg-[#0065d1] disabled:cursor-wait disabled:opacity-60"
           >
             {isSubmitting
               ? "שומר…"
@@ -984,7 +984,7 @@ export default function DocumentsManager() {
                 type="button"
                 onClick={handleSmartFiling}
                 disabled={isAnalyzing}
-                className="rounded-2xl bg-[#f4e7c8] px-4 py-2 text-sm font-black text-slate-950 hover:bg-[#fff3d6] disabled:cursor-wait disabled:opacity-60"
+                className="rounded-2xl border border-[#d8b470]/55 bg-[#fff8eb] px-4 py-2 text-sm font-black text-[#7a5212] hover:bg-[#fff3d6] disabled:cursor-wait disabled:opacity-60"
               >
                 {isAnalyzing ? "מנתח…" : "תיוק חכם"}
               </button>
@@ -1152,7 +1152,7 @@ export default function DocumentsManager() {
             <button
               type="button"
               onClick={() => setIsFormOpen(true)}
-              className="mt-4 min-h-11 rounded-2xl bg-[#f4e7c8] px-4 text-sm font-black text-slate-950"
+              className="mt-4 min-h-11 rounded-2xl bg-[#007aff] px-4 text-sm font-black text-white shadow-[0_10px_24px_rgba(0,122,255,0.16)]"
             >
               העלה או סרוק מסמך
             </button>
