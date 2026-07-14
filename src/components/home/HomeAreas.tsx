@@ -71,7 +71,7 @@ export function HomeAreaCard({ area }: { area: HomeArea }) {
   return (
     <Link
       href={area.href}
-      className={`relative flex min-h-[86px] flex-col justify-between overflow-hidden rounded-[18px] border border-white/70 p-3 text-right shadow-[0_8px_18px_rgba(33,43,63,0.045)] ring-1 ring-[#eadfcd]/45 transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(33,43,63,0.08)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] ${area.tintClass ?? "bg-white"}`}
+      className={`relative flex min-h-[96px] flex-col justify-between overflow-hidden rounded-[20px] border border-white/70 p-3.5 text-right shadow-[0_8px_18px_rgba(33,43,63,0.045)] ring-1 ring-[#eadfcd]/45 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(33,43,63,0.08)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${area.tintClass ?? "bg-white"}`}
     >
       <span
         className={`absolute inset-y-3 right-0 w-0.5 rounded-l-full ${area.accentClass}`}
@@ -79,9 +79,9 @@ export function HomeAreaCard({ area }: { area: HomeArea }) {
       />
       <div className="flex items-start justify-between gap-2">
         <span
-          className={`grid h-8 w-8 shrink-0 place-items-center rounded-2xl ring-1 ${area.accentClass}`}
+          className={`grid h-9 w-9 shrink-0 place-items-center rounded-2xl ring-1 ${area.accentClass}`}
         >
-          <AppIcon name={area.icon} className="h-4 w-4" />
+          <AppIcon name={area.icon} className="h-4.5 w-4.5" />
         </span>
         <div className="min-w-0">
           <h3 className="truncate text-[13px] font-black text-[#111827]">

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import ReceiptScanPreview from "@/components/ai/ReceiptScanPreview";
 import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import type { AppRoute } from "@/types/navigation";
 
@@ -32,13 +35,6 @@ const quickActions: QuickAction[] = [
     accentClass: "bg-emerald-50 text-emerald-700 ring-emerald-100",
     tileClass: "bg-gradient-to-br from-[#dcf7df] to-[#a8d8b5]",
   },
-  {
-    href: "/birthdays",
-    icon: "calendar",
-    label: "אירועים ולו״ז",
-    accentClass: "bg-pink-50 text-pink-700 ring-pink-100",
-    tileClass: "bg-gradient-to-br from-[#ffe0d6] to-[#ff9f8f]",
-  },
 ];
 
 export default function HomeQuickActions() {
@@ -48,18 +44,22 @@ export default function HomeQuickActions() {
         <Link
           key={action.href}
           href={action.href}
-          className={`flex min-h-[52px] items-center justify-between gap-2.5 rounded-[17px] border border-white/70 px-3 py-2 text-right shadow-[0_7px_16px_rgba(33,43,63,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.1)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] ${action.tileClass}`}
+          className={`flex min-h-[56px] flex-col items-center justify-center gap-1.5 rounded-[17px] border border-white/70 px-2.5 py-2 text-center shadow-[0_7px_16px_rgba(33,43,63,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.1)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] ${action.tileClass}`}
         >
           <span
             className={`grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white/52 ring-1 ${action.accentClass}`}
           >
             <AppIcon name={action.icon} className="h-3.5 w-3.5" />
           </span>
-          <span className="min-w-0 flex-1 text-[13px] font-black leading-5 text-[#0f172a]">
+          <span className="min-w-0 text-[12px] font-black leading-4 text-[#0f172a]">
             {action.label}
           </span>
         </Link>
       ))}
+      <ReceiptScanPreview
+        userMode="demo"
+        triggerClassName="flex min-h-[56px] cursor-pointer flex-col items-center justify-center gap-1.5 rounded-[17px] border border-white/70 bg-gradient-to-br from-[#eff6ff] to-[#dbeafe] px-2.5 py-2 text-center shadow-[0_7px_16px_rgba(33,43,63,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.1)] focus-within:ring-2 focus-within:ring-[#eadfcd]"
+      />
     </nav>
   );
 }

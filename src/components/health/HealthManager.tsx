@@ -472,12 +472,15 @@ export default function HealthManager() {
         </div>
 
         {visibleRecords.length === 0 ? (
-          <div className="mt-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-center">
-            <p className="text-sm font-black text-slate-800">
-              אין תזכורות בריאות להצגה
+          <div className="mt-3 rounded-[22px] border border-dashed border-slate-300 bg-slate-50/80 p-6 text-center">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-lg shadow-sm">
+              ❤️
+            </div>
+            <p className="mt-3 text-sm font-black text-slate-900">
+              אין תזכורות בריאות פתוחות
             </p>
-            <p className="mt-1 text-sm font-semibold text-slate-600">
-              אפשר להוסיף תור, בדיקה, תרופה או מעקב משפחתי.
+            <p className="mx-auto mt-1 max-w-sm text-sm font-semibold leading-6 text-slate-600">
+              כשתוסיפו תור, בדיקה, תרופה או מעקב משפחתי, הם יופיעו כאן בצורה מסודרת.
             </p>
           </div>
         ) : (

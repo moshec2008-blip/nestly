@@ -11,6 +11,10 @@ import {
 import { initialShoppingItems, shoppingLists } from "@/data/shopping";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
+import {
+  markFirstUsefulAction,
+  trackTelemetryEvent,
+} from "@/services/telemetry";
 import type { ShoppingItem } from "@/types/shopping";
 
 type ShoppingForm = Omit<ShoppingItem, "id" | "purchased">;
@@ -115,7 +119,7 @@ export default function ShoppingManager() {
   const isEditing = Boolean(editingItemId);
   const remainingItems = items.filter((item) => !item.purchased);
   const purchasedItems = items.filter((item) => item.purchased);
-  const { toast } = useFeedback();
+  const { confirm, toast } = useFeedback();
   const [, setFinanceTransactions] =
     usePersistentArrayState<FinanceTransaction>(
       storageKeys.finance,
@@ -125,24 +129,47 @@ export default function ShoppingManager() {
 
   // קבלה שאושרה בדיאלוג הסריקה נשמרת כהוצאה בכספים — בלחיצה אחת.
   function handleConfirmReceiptExpense(expense: {
+    id?: string;
     title: string;
     category: string;
     amount: number;
     date: string;
     notes?: string;
+    source?: "receipt_scan";
+    receiptReference?: string;
+    documentReference?: string;
+    originalTotal?: number;
+    reimbursementAmount?: number;
+    aiConfidence?: number;
   }) {
     setFinanceTransactions((currentTransactions) => [
       {
-        id: crypto.randomUUID(),
+        id: expense.id ?? crypto.randomUUID(),
         title: expense.title,
         category: expense.category,
         amount: expense.amount,
         type: "expense",
         date: expense.date,
         status: "done",
+        notes: expense.notes,
+        source: expense.source,
+        receiptReference: expense.receiptReference,
+        documentReference: expense.documentReference,
+        originalTotal: expense.originalTotal,
+        reimbursementAmount: expense.reimbursementAmount,
+        aiConfidence: expense.aiConfidence,
       },
       ...currentTransactions,
     ]);
+    markFirstUsefulAction("receipt_confirmed", "shopping");
+    trackTelemetryEvent({
+      name: "expense_created",
+      module: "finance",
+      properties: {
+        source: "receipt_scan",
+        hasDocumentReference: Boolean(expense.documentReference),
+      },
+    });
     toast({
       title: "ההוצאה נשמרה בכספים",
       description: `${expense.title} · ₪${expense.amount.toLocaleString("he-IL")}`,
@@ -228,6 +255,16 @@ export default function ShoppingManager() {
       },
       ...currentItems,
     ]);
+    markFirstUsefulAction("shopping_item_created", "shopping");
+    trackTelemetryEvent({
+      name: "shopping_item_created",
+      module: "shopping",
+      properties: {
+        source: "quick_add",
+        listActive: activeList !== "all",
+        departmentActive: activeDepartment !== "all",
+      },
+    });
     setPurchaseFilter("remaining");
     setQuickTitle("");
   }
@@ -287,6 +324,11 @@ export default function ShoppingManager() {
         )
       );
       resetForm();
+      toast({
+        title: "המוצר עודכן",
+        description: cleanTitle,
+        tone: "success",
+      });
       return;
     }
 
@@ -302,17 +344,59 @@ export default function ShoppingManager() {
       },
       ...currentItems,
     ]);
+    markFirstUsefulAction("shopping_item_created", "shopping");
+    trackTelemetryEvent({
+      name: "shopping_item_created",
+      module: "shopping",
+      properties: {
+        source: "full_form",
+        hasBuyer: Boolean(cleanBuyer),
+        hasEstimatedPrice: form.estimatedPrice > 0,
+      },
+    });
     setPurchaseFilter("remaining");
     setQuickTitle("");
     resetForm();
+    toast({
+      title: "נוסף לרשימה",
+      description: `${cleanTitle} מחכה לקנייה הבאה.`,
+      tone: "success",
+    });
   }
 
   function togglePurchased(id: string) {
+    const item = items.find((currentItem) => currentItem.id === id);
+    const isPurchasing = item ? !item.purchased : false;
+
     setItems((currentItems) =>
       currentItems.map((item) =>
         item.id === id ? { ...item, purchased: !item.purchased } : item
       )
     );
+
+    if (item && isPurchasing) {
+      const remainingAfterPurchase = items.filter(
+        (currentItem) => !currentItem.purchased && currentItem.id !== id
+      ).length;
+
+      markFirstUsefulAction("shopping_item_purchased", "shopping");
+      trackTelemetryEvent({
+        name: "shopping_item_purchased",
+        module: "shopping",
+        properties: {
+          hasBuyer: Boolean(item.buyer),
+          hasEstimatedPrice: item.estimatedPrice > 0,
+        },
+      });
+
+      if (remainingAfterPurchase === 0) {
+        toast({
+          title: "הרשימה הושלמה",
+          description: "כל הפריטים סומנו כנרכשו. אפשר לסיים את הקנייה בשקט.",
+          tone: "success",
+        });
+      }
+    }
   }
 
   function updateQuantity(id: string, direction: "increase" | "decrease") {
@@ -340,12 +424,57 @@ export default function ShoppingManager() {
     setActiveItemId(null);
   }
 
-  function deleteItem(id: string) {
+  async function deleteItem(id: string) {
+    const item = items.find((currentItem) => currentItem.id === id);
+    const itemTitle = item?.title ?? "המוצר הזה";
+    const approved = await confirm({
+      title: "מחיקת מוצר",
+      description: `למחוק את "${itemTitle}" מהרשימה?`,
+      confirmLabel: "מחק מוצר",
+      cancelLabel: "ביטול",
+      tone: "danger",
+    });
+
+    if (!approved) {
+      return;
+    }
+
     setItems((currentItems) => currentItems.filter((item) => item.id !== id));
     setActiveItemId(null);
+    toast({
+      title: "המוצר נמחק",
+      description: itemTitle,
+      tone: "info",
+    });
   }
 
-  function clearPurchasedFromCurrentView() {
+  async function clearPurchasedFromCurrentView() {
+    const purchasedInView = items.filter(
+      (item) =>
+        item.purchased && (activeList === "all" || item.listName === activeList)
+    );
+
+    if (purchasedInView.length === 0) {
+      toast({
+        title: "אין פריטים לניקוי",
+        description: "כל מה שמופיע כרגע עדיין מחכה לקנייה.",
+        tone: "info",
+      });
+      return;
+    }
+
+    const approved = await confirm({
+      title: "ניקוי פריטים שנרכשו",
+      description: `להסיר ${purchasedInView.length} פריטים שנרכשו מהרשימה?`,
+      confirmLabel: "נקה מהרשימה",
+      cancelLabel: "ביטול",
+      tone: "danger",
+    });
+
+    if (!approved) {
+      return;
+    }
+
     setItems((currentItems) =>
       currentItems.filter((item) => {
         if (!item.purchased) return true;
@@ -354,6 +483,11 @@ export default function ShoppingManager() {
       })
     );
     setActiveItemId(null);
+    toast({
+      title: "הרשימה נוקתה",
+      description: `${purchasedInView.length} פריטים שנרכשו הוסרו.`,
+      tone: "success",
+    });
   }
 
   return (
@@ -966,7 +1100,7 @@ export default function ShoppingManager() {
               {purchasedItems.length > 0 && (
                 <button
                   type="button"
-                  onClick={clearPurchasedFromCurrentView}
+                  onClick={() => void clearPurchasedFromCurrentView()}
                   className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-white px-4 text-sm font-black text-slate-700 hover:bg-[#fff8eb]"
                 >
                   נקה נרכשו
@@ -974,7 +1108,7 @@ export default function ShoppingManager() {
               )}
               <button
                 type="button"
-                onClick={() => deleteItem(activeItem.id)}
+                onClick={() => void deleteItem(activeItem.id)}
                 className="min-h-11 rounded-2xl border border-rose-200 bg-rose-50 px-4 text-sm font-black text-rose-700 hover:bg-rose-100"
               >
                 מחיקה

@@ -1,8 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
-import { useFeedback } from "@/components/ui/FeedbackProvider";
 import {
   initialPermissionUsers,
   roleLabels,
@@ -27,8 +25,6 @@ const permissionLabels: Record<PermissionKey, string> = {
 };
 
 export default function PermissionsManager() {
-  const { toast } = useFeedback();
-  const { requireAuth } = useAuthPrompt();
   const [users, setUsers] =
     usePersistentArrayState<FamilyPermissionUser>(
       storageKeys.permissions,
@@ -42,6 +38,8 @@ export default function PermissionsManager() {
     [selectedUserId, users]
   );
   const selectedPermissions = selectedUser?.permissions ?? [];
+  const invitationDisabledReason =
+    "הזמנות אמיתיות דורשות חיבור ענן, אימייל והרשאות שרת. האפשרות תיפתח אחרי חיבור התשתית המאובטחת.";
 
   const privateModules = selectedPermissions.filter(
     (permission) => permission.isPrivate
@@ -76,29 +74,6 @@ export default function PermissionsManager() {
           : user
       )
     );
-  }
-
-  function invitePlaceholder() {
-    if (
-      !requireAuth({
-        reason: "הזמנת בני משפחה ושיתוף הרשאות דורשים מרחב משפחתי מאובטח.",
-      })
-    ) {
-      return;
-    }
-
-    const cleanName = inviteName.trim();
-
-    if (!cleanName) {
-      return;
-    }
-
-    toast({
-      title: "הזמנה מוכנה",
-      description: `הזמנה עבור ${cleanName} מוכנה לשלב הבא. בהמשך נחבר שליחה אמיתית.`,
-      tone: "info",
-    });
-    setInviteName("");
   }
 
   return (
@@ -159,21 +134,36 @@ export default function PermissionsManager() {
             ))}
 
             <div className="rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] p-3">
-              <p className="mb-2 text-sm font-black text-slate-950">
-                הזמנת בן משפחה
-              </p>
+              <div className="mb-2 flex items-start justify-between gap-2">
+                <span className="rounded-full bg-slate-200 px-2.5 py-1 text-[11px] font-black text-slate-600">
+                  בקרוב
+                </span>
+                <div className="text-right">
+                  <p className="text-sm font-black text-slate-950">
+                    הזמנת בן משפחה
+                  </p>
+                  <p className="mt-1 text-xs font-bold leading-5 text-slate-500">
+                    {invitationDisabledReason}
+                  </p>
+                </div>
+              </div>
               <input
                 value={inviteName}
                 onChange={(event) => setInviteName(event.target.value)}
-                className="mb-3 w-full rounded-xl border border-[#ebe4d8] bg-white px-4 py-3 text-right text-slate-950 outline-none placeholder:text-slate-400"
+                disabled
+                aria-describedby="family-invite-disabled-reason"
+                className="mb-3 w-full cursor-not-allowed rounded-xl border border-[#ebe4d8] bg-white/70 px-4 py-3 text-right text-slate-500 outline-none placeholder:text-slate-400"
                 placeholder="שם להזמנה"
               />
+              <p id="family-invite-disabled-reason" className="sr-only">
+                {invitationDisabledReason}
+              </p>
               <button
                 type="button"
-                onClick={invitePlaceholder}
-                className="w-full rounded-xl bg-[#111827] px-4 py-3 text-sm font-black text-white transition hover:bg-[#1f2937]"
+                disabled
+                className="w-full cursor-not-allowed rounded-xl border border-dashed border-[#d8cdbc] bg-white/70 px-4 py-3 text-sm font-black text-slate-400"
               >
-                הכנת הזמנה
+                דורש חיבור ענן
               </button>
             </div>
           </aside>

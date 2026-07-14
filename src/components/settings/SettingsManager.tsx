@@ -3,8 +3,14 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
-import { defaultLanguage, isAppLanguage, type AppLanguage } from "@/i18n/config";
 import { useLanguage } from "@/i18n/useLanguage";
+import {
+  applyAppPreferences,
+  defaultAppSettings,
+  notifyAppPreferencesChanged,
+  readAppSettings,
+  type AppSettings,
+} from "@/lib/appPreferences";
 import { brand } from "@/lib/branding";
 import {
   countBackupDataEntries,
@@ -20,46 +26,12 @@ import {
   type AiServiceStatus,
 } from "@/services/documentAiClient";
 import { storageKeys } from "@/lib/storageKeys";
-import { readStorage, writeStorage } from "@/utils/storage";
-
-type AppSettings = {
-  language: AppLanguage;
-  highContrast: boolean;
-  compactMode: boolean;
-  reducedMotion: boolean;
-};
-
-const defaultSettings: AppSettings = {
-  language: defaultLanguage,
-  highContrast: false,
-  compactMode: false,
-  reducedMotion: false,
-};
-
-function isBoolean(value: unknown): value is boolean {
-  return typeof value === "boolean";
-}
-
-function isSettings(value: unknown): value is AppSettings {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const settings = value as Partial<AppSettings>;
-
-  return (
-    typeof settings.language === "string" &&
-    isAppLanguage(settings.language) &&
-    isBoolean(settings.highContrast) &&
-    isBoolean(settings.compactMode) &&
-    isBoolean(settings.reducedMotion)
-  );
-}
+import { writeStorage } from "@/utils/storage";
 
 export default function SettingsManager() {
   const { confirm, toast } = useFeedback();
   const { language } = useLanguage();
-  const [settings, setSettings] = useState<AppSettings>(defaultSettings);
+  const [settings, setSettings] = useState<AppSettings>(defaultAppSettings);
   const [hasLoadedStorage, setHasLoadedStorage] = useState(false);
   const restoreInputRef = useRef<HTMLInputElement | null>(null);
   const [aiStatus, setAiStatus] = useState<AiServiceStatus | null>(null);
@@ -94,17 +66,10 @@ export default function SettingsManager() {
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      const storedSettings = readStorage(
-        storageKeys.appSettings,
-        defaultSettings,
-        isSettings
-      );
+      const storedSettings = readAppSettings(language);
 
-      setSettings({
-        ...defaultSettings,
-        ...storedSettings,
-        language,
-      });
+      setSettings(storedSettings);
+      applyAppPreferences(storedSettings);
       setHasLoadedStorage(true);
     }, 0);
 
@@ -117,6 +82,7 @@ export default function SettingsManager() {
     }
 
     writeStorage(storageKeys.appSettings, { ...settings, language });
+    notifyAppPreferencesChanged({ ...settings, language });
   }, [settings, language, hasLoadedStorage]);
 
   function updateSetting<Key extends keyof AppSettings>(
@@ -142,7 +108,10 @@ export default function SettingsManager() {
       return;
     }
 
-    setSettings({ ...defaultSettings, language });
+    const nextSettings = { ...defaultAppSettings, language };
+    setSettings(nextSettings);
+    applyAppPreferences(nextSettings);
+    notifyAppPreferencesChanged(nextSettings);
     toast({
       title: "הגדרות התצוגה אופסו",
       tone: "success",
@@ -241,16 +210,18 @@ export default function SettingsManager() {
       checked: settings.highContrast,
     },
     {
-      key: "compactMode" as const,
-      title: "תצוגה קומפקטית",
-      description: "מציגה יותר מידע במסך אחד, מתאים לעבודה יומיומית מהירה.",
-      checked: settings.compactMode,
-    },
-    {
       key: "reducedMotion" as const,
       title: "הפחתת תנועה",
       description: "מצמצמת אנימציות ומעברים למי שרגיש לתנועה במסך.",
       checked: settings.reducedMotion,
+    },
+  ];
+
+  const comingSoonPreferences = [
+    {
+      title: "מצב כהה",
+      description:
+        "ערכת צבע כהה מלאה עדיין לא מוכנה. עד אז Nestly נשארת במצב בהיר ונגיש.",
     },
   ];
 
@@ -286,7 +257,7 @@ export default function SettingsManager() {
             </span>
           </div>
 
-          <div className="mt-3 grid gap-2 md:grid-cols-3">
+          <div className="mt-3 grid gap-2 md:grid-cols-2">
             {preferenceCards.map((item) => (
               <label
                 key={item.key}
@@ -311,6 +282,68 @@ export default function SettingsManager() {
                   </span>
                 </span>
               </label>
+            ))}
+          </div>
+
+          <div className="mt-3 grid gap-2 md:grid-cols-2">
+            <div className="rounded-2xl border border-[#ebe4d8] bg-white p-3">
+              <p className="text-sm font-black text-slate-950">צפיפות ממשק</p>
+              <p className="mt-1 text-xs leading-5 text-slate-600">
+                מצב קומפקטי מקטין ריווח וכרטיסים, בלי להקטין אזורי לחיצה חשובים.
+              </p>
+              <div className="mt-3 grid grid-cols-2 rounded-2xl bg-[#f5f0e8] p-1 text-xs font-black">
+                <button
+                  type="button"
+                  onClick={() => updateSetting("compactMode", false)}
+                  className={[
+                    "min-h-10 rounded-xl transition",
+                    !settings.compactMode
+                      ? "bg-white text-slate-950 shadow-sm"
+                      : "text-slate-600 hover:bg-white/60",
+                  ].join(" ")}
+                >
+                  נוחה
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateSetting("compactMode", true)}
+                  className={[
+                    "min-h-10 rounded-xl transition",
+                    settings.compactMode
+                      ? "bg-white text-slate-950 shadow-sm"
+                      : "text-slate-600 hover:bg-white/60",
+                  ].join(" ")}
+                >
+                  קומפקטית
+                </button>
+              </div>
+            </div>
+
+            {comingSoonPreferences.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-2xl border border-dashed border-[#d8cdbc] bg-[#f8f6f1] p-3 opacity-90"
+                aria-disabled="true"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-black text-slate-600">
+                    בקרוב
+                  </span>
+                  <div className="text-right">
+                    <p className="text-sm font-black text-slate-700">{item.title}</p>
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  disabled
+                  className="mt-3 min-h-10 w-full cursor-not-allowed rounded-2xl border border-[#d8cdbc] bg-white/70 px-4 text-xs font-black text-slate-400"
+                >
+                  לא פעיל כרגע
+                </button>
+              </div>
             ))}
           </div>
         </section>

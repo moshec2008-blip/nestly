@@ -17,6 +17,7 @@ const userScopedStorageKeys = new Set([
   "beit-cohen-shor-finance-mortgage-balance",
   "beit-cohen-shor-health-records",
   "beit-cohen-shor-documents",
+  "beit-cohen-shor-receipt-documents",
   "beit-cohen-shor-vehicle-records",
   "beit-cohen-shor-family-records",
   "nestly-family-tree",

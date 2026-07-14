@@ -25,26 +25,24 @@ export default function DemoEntryCard() {
   }
 
   return (
-    <section className="rounded-[20px] border border-[#eadfcd]/70 bg-gradient-to-l from-[#fff8eb] to-white/90 p-3.5 text-right shadow-[0_8px_22px_rgba(33,43,63,0.045)]">
-      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+    <section className="rounded-[18px] border border-[#eadfcd]/65 bg-gradient-to-l from-[#fff8eb] to-white/90 p-3 text-right shadow-[0_6px_18px_rgba(33,43,63,0.04)]">
+      <div className="flex items-center justify-between gap-3">
         <button
           type="button"
           onClick={() => {
             enterDemoMode();
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
-          className="order-2 min-h-11 shrink-0 rounded-2xl bg-[#111827] px-5 text-sm font-black text-white shadow-[0_12px_24px_rgba(17,24,39,0.16)] transition hover:-translate-y-0.5 hover:bg-[#1f2937] sm:order-1"
+          className="min-h-10 shrink-0 rounded-2xl bg-[#111827] px-4 text-xs font-black text-white shadow-[0_10px_20px_rgba(17,24,39,0.14)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#1f2937] active:scale-[0.99]"
         >
-          🎬 צפו בדמו
+          צפו בדמו
         </button>
-        <div className="order-1 min-w-0 sm:order-2">
-          <p className="text-xs font-black text-[#9a6b17]">חדשים כאן?</p>
-          <h2 className="mt-0.5 text-sm font-black text-[#111827] sm:text-base">
-            סיור בנסטלי עם משפחה לדוגמה
+        <div className="min-w-0">
+          <h2 className="truncate text-sm font-black text-[#111827]">
+            רוצים לראות הכול עובד?
           </h2>
-          <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">
-            כל המודולים מלאים בנתונים בדויים של משפחת ישראלי — אפשר לשחק
-            בחופשיות. הנתונים האמיתיים שלכם נשמרים בצד וחוזרים ביציאה מהדמו.
+          <p className="mt-0.5 truncate text-xs font-semibold text-slate-500">
+            סיור קצר עם משפחה לדוגמה
           </p>
         </div>
       </div>

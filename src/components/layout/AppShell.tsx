@@ -12,6 +12,8 @@ import SmartFamilyCenter from "@/components/layout/SmartFamilyCenter";
 import SmartNudgePopup from "@/components/layout/SmartNudgePopup";
 import StorageErrorWatcher from "@/components/layout/StorageErrorWatcher";
 import TopNavigation from "@/components/layout/TopNavigation";
+import AppPreferencesApplier from "@/components/settings/AppPreferencesApplier";
+import TelemetryProvider from "@/components/telemetry/TelemetryProvider";
 import { FeedbackProvider } from "@/components/ui/FeedbackProvider";
 import { useLanguage } from "@/i18n/useLanguage";
 
@@ -77,34 +79,37 @@ export default function AppShell({ children }: AppShellProps) {
       className="app-premium nestly-page-shell min-h-screen overflow-x-hidden text-[#1d1d1f]"
     >
       <FeedbackProvider>
-        <AuthPromptProvider>
-          <AuthStorageScope />
-          <StorageErrorWatcher />
-          <TopNavigation
-            isSidebarCollapsed={isSidebarCollapsed}
-            isMobileMenuOpen={isMobileMenuOpen}
-            onToggleSidebar={toggleSidebar}
-            onToggleMobileMenu={toggleMobileMenu}
-            onCloseMobileMenu={closeMobileMenu}
-          />
-
-          <div className="nestly-app-content mx-auto flex w-full max-w-[1480px] gap-3 px-3 sm:px-4">
-            <Sidebar
-              isCollapsed={isSidebarCollapsed}
-              isMobileOpen={isMobileMenuOpen}
-              onNavigate={closeMobileMenu}
+        <TelemetryProvider>
+          <AuthPromptProvider>
+            <AuthStorageScope />
+            <AppPreferencesApplier />
+            <StorageErrorWatcher />
+            <TopNavigation
+              isSidebarCollapsed={isSidebarCollapsed}
+              isMobileMenuOpen={isMobileMenuOpen}
+              onToggleSidebar={toggleSidebar}
+              onToggleMobileMenu={toggleMobileMenu}
+              onCloseMobileMenu={closeMobileMenu}
             />
 
-            <div className="min-w-0 flex-1 animate-soft-in">{children}</div>
+            <div className="nestly-app-content mx-auto flex w-full max-w-[1480px] gap-3 px-3 sm:px-4">
+              <Sidebar
+                isCollapsed={isSidebarCollapsed}
+                isMobileOpen={isMobileMenuOpen}
+                onNavigate={closeMobileMenu}
+              />
 
-            {showGlobalAssists && <SmartFamilyCenter />}
-          </div>
+              <div className="min-w-0 flex-1 animate-soft-in">{children}</div>
 
-          <DemoModeBanner />
-          {!isMobileMenuOpen && <MobileBottomNavigation />}
-          {showGlobalAssists && <SmartNudgePopup />}
-          {showGlobalAssists && <BirthdayWelcomePopup />}
-        </AuthPromptProvider>
+              {showGlobalAssists && <SmartFamilyCenter />}
+            </div>
+
+            <DemoModeBanner />
+            {!isMobileMenuOpen && <MobileBottomNavigation />}
+            {showGlobalAssists && <SmartNudgePopup />}
+            {showGlobalAssists && <BirthdayWelcomePopup />}
+          </AuthPromptProvider>
+        </TelemetryProvider>
       </FeedbackProvider>
     </main>
   );

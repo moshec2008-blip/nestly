@@ -22,6 +22,7 @@ import type { FamilyPermissionUser } from "@/types/permissions";
 import type { ShoppingItem } from "@/types/shopping";
 import type { AppRoute } from "@/types/navigation";
 import { storageKeys } from "@/lib/storageKeys";
+import { toSmartDocumentView } from "@/services/smartDocuments";
 import { readStorageArray } from "@/utils/storage";
 
 export type GlobalSearchResult = {
@@ -203,17 +204,30 @@ export function getGlobalSearchResults(query: string): GlobalSearchResult[] {
       )
       .map((record) => moduleRecordToResult(record, "בריאות", "/health")),
     ...documentRecords
-      .filter((record) =>
+      .map((record) => toSmartDocumentView(record))
+      .filter((view) =>
         matchesQuery(query, [
-          record.title,
-          record.description,
-          record.owner,
-          record.category,
-          record.date,
-          ...(record.attachments ?? []).map((file) => file.name),
+          view.item.title,
+          view.item.description,
+          view.item.owner,
+          view.item.category,
+          view.item.date,
+          view.typeLabel,
+          view.summary,
+          view.statusLabel,
+          ...(view.item.tags ?? []),
+          ...(view.item.attachments ?? []).map((file) => file.name),
+          ...view.extractedMetadata.map(
+            (entry) => `${entry.label} ${entry.value}`
+          ),
+          ...view.linkedModules.map(
+            (link) => `${link.label} ${link.description}`
+          ),
         ])
       )
-      .map((record) => moduleRecordToResult(record, "מסמכים", "/documents")),
+      .map((view) =>
+        moduleRecordToResult(view.item, "מסמכים", "/documents")
+      ),
     ...vehicleRecords
       .filter((record) =>
         matchesQuery(query, [

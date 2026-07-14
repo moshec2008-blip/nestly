@@ -19,6 +19,8 @@ type ImportantRow = {
   id: string;
   icon: AppIconName;
   iconClass: string;
+  statusLabel: string;
+  statusClass: string;
   title: string;
   subtitle: string;
   href: AppRoute;
@@ -46,6 +48,8 @@ function readImportantData(): ImportantData {
       id: "tasks",
       icon: "check",
       iconClass: "bg-amber-50 text-amber-600 ring-amber-100",
+      statusLabel: "היום",
+      statusClass: "bg-emerald-50 text-emerald-700 ring-emerald-100",
       title: `${openTasks} משימות חשובות פתוחות`,
       subtitle: tasks.find((task) => task.status === "open")?.title ?? "",
       href: "/tasks",
@@ -62,6 +66,8 @@ function readImportantData(): ImportantData {
       id: "shopping",
       icon: "shopping",
       iconClass: "bg-sky-50 text-sky-600 ring-sky-100",
+      statusLabel: "בקרוב",
+      statusClass: "bg-orange-50 text-orange-700 ring-orange-100",
       title: `${shoppingItems.length} פריטים לקנייה`,
       subtitle: "הקנייה הבאה מתחילה כאן",
       href: "/shopping",
@@ -86,6 +92,11 @@ function readImportantData(): ImportantData {
       id: "event",
       icon: "calendar",
       iconClass: "bg-pink-50 text-pink-600 ring-pink-100",
+      statusLabel: upcomingEvent.days === 0 ? "היום" : "קרוב",
+      statusClass:
+        upcomingEvent.days === 0
+          ? "bg-emerald-50 text-emerald-700 ring-emerald-100"
+          : "bg-blue-50 text-blue-700 ring-blue-100",
       title: upcomingEvent.event.title || upcomingEvent.event.name,
       subtitle: timing,
       href: "/birthdays",
@@ -116,6 +127,8 @@ function readImportantData(): ImportantData {
       id: "document",
       icon: "document",
       iconClass: "bg-purple-50 text-purple-600 ring-purple-100",
+      statusLabel: "היום",
+      statusClass: "bg-emerald-50 text-emerald-700 ring-emerald-100",
       title: dueDocument.title || "מסמך ממתין לטיפול",
       subtitle: "תזכורת מסמך הגיעה",
       href: "/documents",
@@ -133,6 +146,8 @@ function readImportantData(): ImportantData {
       id: "vehicles",
       icon: "car",
       iconClass: "bg-blue-50 text-blue-600 ring-blue-100",
+      statusLabel: "בהמשך",
+      statusClass: "bg-blue-50 text-blue-700 ring-blue-100",
       title: openVehicleRecords[0].title || "תזכורת רכב פתוחה",
       subtitle:
         openVehicleRecords.length > 1
@@ -155,6 +170,8 @@ function readImportantData(): ImportantData {
       id: "overdue",
       icon: "finance",
       iconClass: "bg-rose-50 text-rose-600 ring-rose-100",
+      statusLabel: "באיחור",
+      statusClass: "bg-rose-50 text-rose-700 ring-rose-100",
       title: overdue.title,
       subtitle: `באיחור · ₪${overdue.amount.toLocaleString("he-IL")}`,
       href: "/finance",
@@ -174,20 +191,22 @@ function readImportantData(): ImportantData {
     };
   }
 
-  // שומרים על רוגע: מציגים עד חמש שורות, לפי סדר חשיבות.
-  return { rows: rows.slice(0, 5), insight };
+  // שומרים על רוגע: מציגים עד ארבע שורות, לפי סדר חשיבות.
+  return { rows: rows.slice(0, 4), insight };
 }
 
 export function NestlyAiInsightCard({ insight }: { insight: HomeInsight }) {
   return (
-    <section className="rounded-[22px] border border-white/80 bg-gradient-to-l from-violet-100/70 via-sky-50/88 to-emerald-50/82 p-3 text-right shadow-[0_14px_30px_rgba(76,29,149,0.1)]">
+    <section className="rounded-[22px] border border-white/80 bg-gradient-to-l from-violet-100/70 via-sky-50/88 to-emerald-50/82 p-3 text-right shadow-[0_12px_28px_rgba(76,29,149,0.09)]">
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
         <span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/76 text-violet-700 shadow-sm ring-1 ring-violet-100">
           <AppIcon name="spark" className="h-4.5 w-4.5" />
         </span>
 
-        <div className="min-w-0 text-center">
-          <h2 className="text-sm font-black text-[#111827]">Nestly AI</h2>
+        <div className="min-w-0 text-right">
+          <h2 className="text-sm font-black text-[#111827]">
+            המלצה חכמה
+          </h2>
           <p className="mt-0.5 truncate text-xs font-semibold leading-5 text-slate-500">
             {insight.text}
           </p>
@@ -215,9 +234,14 @@ export default function ImportantToday() {
   return (
     <>
       <section className="rounded-[26px] border border-white/80 bg-white/96 p-5 text-right shadow-[0_18px_44px_rgba(33,43,63,0.085)] ring-1 ring-[#eadfcd]/65">
-        <h2 className="text-xl font-black leading-7 text-[#111827]">
-          פעולות אחרונות
-        </h2>
+        <div>
+          <p className="text-[11px] font-black text-slate-400">
+            מה דורש תשומת לב
+          </p>
+          <h2 className="mt-0.5 text-xl font-black leading-7 text-[#111827]">
+            חשוב היום
+          </h2>
+        </div>
 
         {data?.insight && (
           <div className="mt-3">
@@ -237,10 +261,12 @@ export default function ImportantToday() {
               <li key={row.id}>
                 <Link
                   href={row.href}
-                  className="group grid min-h-[72px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl px-1 py-3 transition hover:bg-[#fffdf8]"
+                  className="group grid min-h-[72px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl px-1 py-3 transition duration-200 hover:bg-[#fffdf8] active:scale-[0.99]"
                 >
-                  <span className="text-sm font-black text-slate-400 transition group-hover:text-[#111827]">
-                    ‹
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-[10px] font-black ring-1 ${row.statusClass}`}
+                  >
+                    {row.statusLabel}
                   </span>
                   <span className="min-w-0 text-right">
                     <span className="block truncate text-base font-black text-[#0f172a]">

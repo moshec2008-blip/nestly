@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
+import LoginClient from "@/components/auth/LoginClient";
+import { getAuthSetupStatus } from "@/lib/auth";
 
-// התחברות עם Google מנוטרלת בינתיים — אין מסך התחברות, עוברים ישר לאפליקציה.
 export default function LoginPage() {
-  redirect("/");
+  return <LoginClient setup={getAuthSetupStatus()} />;
 }

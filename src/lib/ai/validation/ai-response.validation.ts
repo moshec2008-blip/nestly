@@ -88,8 +88,13 @@ export function validateAnalyzeResult(result: AnyAnalyzeResult) {
   if (
     typeof result.requestId !== "string" ||
     typeof result.confidence !== "number" ||
+    typeof result.confidenceLevel !== "string" ||
     result.requiresUserReview !== true ||
-    !Array.isArray(result.suggestedActions)
+    !Array.isArray(result.suggestedActions) ||
+    !Array.isArray(result.warnings) ||
+    !Array.isArray(result.missingFields) ||
+    !result.sourceMetadata ||
+    !Array.isArray(result.sourceMetadata.fileNames)
   ) {
     return createAIError(
       "malformed_ai_response",
@@ -98,10 +103,40 @@ export function validateAnalyzeResult(result: AnyAnalyzeResult) {
     );
   }
 
+  if (
+    result.confidenceLevel !== "high" &&
+    result.confidenceLevel !== "medium" &&
+    result.confidenceLevel !== "low"
+  ) {
+    return createAIError(
+      "malformed_ai_response",
+      "רמת הביטחון שהתקבלה אינה תקינה.",
+      502
+    );
+  }
+
   if (result.confidence < 0 || result.confidence > 1) {
     return createAIError(
       "malformed_ai_response",
       "רמת הביטחון שהתקבלה אינה תקינה.",
+      502
+    );
+  }
+
+  const unsafeSuggestedAction = result.suggestedActions.find(
+    (action) =>
+      !action ||
+      typeof action !== "object" ||
+      action.requiresConfirmation !== true ||
+      typeof action.id !== "string" ||
+      typeof action.label !== "string" ||
+      typeof action.description !== "string"
+  );
+
+  if (unsafeSuggestedAction) {
+    return createAIError(
+      "malformed_ai_response",
+      "תוצאת הניתוח כללה פעולה לא בטוחה. לא נשמרו שינויים.",
       502
     );
   }

@@ -11,6 +11,10 @@ type ReviewField = {
   label: string;
   value: string;
   confidence?: number;
+  type?: string;
+  inputMode?: "text" | "numeric" | "decimal" | "tel" | "search" | "email" | "url";
+  helperText?: string;
+  errorText?: string;
 };
 
 type AIReviewDialogProps = {
@@ -18,6 +22,11 @@ type AIReviewDialogProps = {
   title: string;
   result: AnyAnalyzeResult | null;
   fields: ReviewField[];
+  quickActions?: Array<{
+    label: string;
+    description?: string;
+    onApply: (values: Record<string, string>) => Record<string, string>;
+  }>;
   onClose: () => void;
   onConfirm: (fields: Record<string, string>) => void;
 };
@@ -27,6 +36,7 @@ export default function AIReviewDialog({
   title,
   result,
   fields,
+  quickActions = [],
   onClose,
   onConfirm,
 }: AIReviewDialogProps) {
@@ -38,14 +48,46 @@ export default function AIReviewDialog({
       >,
     [fields]
   );
+
+  if (!open || !result) {
+    return null;
+  }
+
+  return (
+    <AIReviewDialogPanel
+      key={`${result.requestId}:${JSON.stringify(initialValues)}`}
+      title={title}
+      result={result}
+      fields={fields}
+      quickActions={quickActions}
+      initialValues={initialValues}
+      onClose={onClose}
+      onConfirm={onConfirm}
+    />
+  );
+}
+
+function AIReviewDialogPanel({
+  title,
+  result,
+  fields,
+  quickActions,
+  initialValues,
+  onClose,
+  onConfirm,
+}: {
+  title: string;
+  result: AnyAnalyzeResult;
+  fields: ReviewField[];
+  quickActions: NonNullable<AIReviewDialogProps["quickActions"]>;
+  initialValues: Record<string, string>;
+  onClose: () => void;
+  onConfirm: (fields: Record<string, string>) => void;
+}) {
   const [values, setValues] = useState(initialValues);
   const panelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!open) {
-      return;
-    }
-
     panelRef.current?.focus();
 
     function handleKeyDown(event: KeyboardEvent) {
@@ -56,11 +98,7 @@ export default function AIReviewDialog({
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
-
-  if (!open || !result) {
-    return null;
-  }
+  }, [onClose]);
 
   return (
     <div
@@ -116,6 +154,30 @@ export default function AIReviewDialog({
           </div>
         )}
 
+        {quickActions.length > 0 && (
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            {quickActions.map((action) => (
+              <button
+                key={action.label}
+                type="button"
+                onClick={() =>
+                  setValues((currentValues) => action.onApply(currentValues))
+                }
+                className="rounded-2xl border border-[#e3d8c9] bg-white p-3 text-right transition hover:bg-[#fffdf8] focus:outline-none focus:ring-2 focus:ring-[#eadfcd]"
+              >
+                <span className="block text-sm font-black text-[#111827]">
+                  {action.label}
+                </span>
+                {action.description && (
+                  <span className="mt-1 block text-xs font-semibold text-slate-500">
+                    {action.description}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {fields.map((field) => (
             <AIFieldReview
@@ -123,6 +185,10 @@ export default function AIReviewDialog({
               label={field.label}
               value={values[field.key] ?? ""}
               confidence={field.confidence}
+              type={field.type}
+              inputMode={field.inputMode}
+              helperText={field.helperText}
+              errorText={field.errorText}
               onChange={(nextValue) =>
                 setValues((currentValues) => ({
                   ...currentValues,

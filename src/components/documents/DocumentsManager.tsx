@@ -26,6 +26,21 @@ import {
   type DocumentAiSuggestion,
 } from "@/services/documentAi";
 import { analyzeDocumentSmart } from "@/services/documentAiClient";
+import {
+  getExpiringSmartDocuments,
+  getSmartDocumentStats,
+  matchesSmartDocumentFilter,
+  matchesSmartDocumentSearch,
+  smartDocumentFilters,
+  toSmartDocumentView,
+  type SmartDocumentFilter,
+} from "@/services/smartDocuments";
+import {
+  markFirstUsefulAction,
+  trackPerformanceMetric,
+  trackTelemetryError,
+  trackTelemetryEvent,
+} from "@/services/telemetry";
 
 type DocumentStatus = "open" | "done";
 
@@ -54,6 +69,8 @@ type DocumentItem = {
   tags?: string[];
   aiSummary?: string;
   aiConfidence?: number;
+  linkedFinanceTransactionId?: string;
+  localTemporaryReference?: string;
 };
 
 type DocumentForm = {
@@ -292,6 +309,7 @@ export default function DocumentsManager() {
   const [statusFilter, setStatusFilter] = useState<"all" | DocumentStatus>(
     "all"
   );
+  const [smartFilter, setSmartFilter] = useState<SmartDocumentFilter>("all");
   const [showAllDocuments, setShowAllDocuments] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<ReturnType<
     typeof suggestDocumentClassification
@@ -360,35 +378,31 @@ export default function DocumentsManager() {
     };
   }, [documents, setDocuments]);
 
-  const visibleDocuments = useMemo(() => {
-    const normalizedSearch = searchValue.trim().toLowerCase();
+  const smartDocumentViews = useMemo(
+    () => documents.map((item) => toSmartDocumentView(item)),
+    [documents]
+  );
 
-    return [...documents]
-      .filter((item) => statusFilter === "all" || item.status === statusFilter)
-      .filter((item) => {
-        if (!normalizedSearch) {
-          return true;
-        }
-
-        return (
-          item.title.toLowerCase().includes(normalizedSearch) ||
-          item.description.toLowerCase().includes(normalizedSearch) ||
-          item.owner.toLowerCase().includes(normalizedSearch) ||
-          item.category.toLowerCase().includes(normalizedSearch) ||
-          item.date.includes(normalizedSearch) ||
-          item.attachments.some((file) =>
-            file.name.toLowerCase().includes(normalizedSearch)
-          )
-        );
-      })
+  const visibleDocumentViews = useMemo(() => {
+    return smartDocumentViews
+      .filter(
+        (view) =>
+          statusFilter === "all" || view.item.status === statusFilter
+      )
+      .filter((view) => matchesSmartDocumentFilter(view, smartFilter))
+      .filter((view) => matchesSmartDocumentSearch(view, searchValue))
       .sort((a, b) => {
-        if (a.status !== b.status) {
-          return a.status === "open" ? -1 : 1;
+        if (a.needsReview !== b.needsReview) {
+          return a.needsReview ? -1 : 1;
         }
 
-        return a.date.localeCompare(b.date);
+        if (a.isExpiringSoon !== b.isExpiringSoon) {
+          return a.isExpiringSoon ? -1 : 1;
+        }
+
+        return a.item.date.localeCompare(b.item.date);
       });
-  }, [documents, searchValue, statusFilter]);
+  }, [searchValue, smartDocumentViews, smartFilter, statusFilter]);
 
   const openCount = documents.filter((item) => item.status === "open").length;
   const doneCount = documents.filter((item) => item.status === "done").length;
@@ -399,9 +413,11 @@ export default function DocumentsManager() {
   const reminderCount = documents.filter(
     (item) => item.reminderDate && getReminderStatus(item)
   ).length;
+  const smartStats = getSmartDocumentStats(smartDocumentViews);
+  const expiringDocumentViews = getExpiringSmartDocuments(smartDocumentViews);
   const displayedDocuments = showAllDocuments
-    ? visibleDocuments
-    : visibleDocuments.slice(0, 5);
+    ? visibleDocumentViews
+    : visibleDocumentViews.slice(0, 5);
 
   function resetForm() {
     setForm(getInitialForm());
@@ -433,6 +449,7 @@ export default function DocumentsManager() {
     }
 
     setIsAnalyzing(true);
+    const startedAt = performance.now();
 
     try {
       const suggestion = await analyzeDocumentSmart({
@@ -442,6 +459,24 @@ export default function DocumentsManager() {
       });
 
       applySuggestionToForm(suggestion);
+      trackPerformanceMetric(
+        "document_ai_duration",
+        performance.now() - startedAt,
+        "documents"
+      );
+      trackTelemetryEvent({
+        name: "document_ai_completed",
+        module: "documents",
+        properties: {
+          mode: suggestion.analysis.mode,
+          confidenceBucket:
+            suggestion.confidence >= 0.8
+              ? "high"
+              : suggestion.confidence >= 0.55
+                ? "medium"
+                : "low",
+        },
+      });
       toast({
         title:
           suggestion.analysis.mode === "live"
@@ -452,12 +487,18 @@ export default function DocumentsManager() {
       });
     } catch (error) {
       if (error instanceof Error && error.message === "invalid-access-code") {
+        trackTelemetryError("document-ai-access-code", error, "documents");
         toast({
           title: "קוד הגישה ל-AI שגוי",
           description: "אפשר לעדכן את הקוד המשפחתי בעמוד ההגדרות.",
           tone: "danger",
         });
       } else {
+        trackTelemetryError("document-ai", error, "documents");
+        trackTelemetryEvent({
+          name: "document_ai_failed",
+          module: "documents",
+        });
         toast({
           title: "הניתוח נכשל",
           description: "נסו שוב בעוד רגע.",
@@ -509,12 +550,22 @@ export default function DocumentsManager() {
     }));
 
     if (source === "scan" && acceptedFiles.length > 0) {
+      trackTelemetryEvent({
+        name: "document_uploaded",
+        module: "documents",
+        properties: { source: "scan", fileCount: acceptedFiles.length },
+      });
       toast({
         title: "הסריקה צורפה",
         description: "מריצים ניתוח חכם…",
         tone: "success",
       });
     } else if (acceptedFiles.length > 0) {
+      trackTelemetryEvent({
+        name: "document_uploaded",
+        module: "documents",
+        properties: { source: "upload", fileCount: acceptedFiles.length },
+      });
       toast({
         title: "הקובץ צורף",
         description: "מריצים ניתוח חכם…",
@@ -665,6 +716,16 @@ export default function DocumentsManager() {
             : item
         )
       );
+      markFirstUsefulAction("document_reviewed", "documents");
+      trackTelemetryEvent({
+        name: "document_reviewed",
+        module: "documents",
+        properties: {
+          mode: suggestion.analysis.mode,
+          hasAttachments: newAttachments.length > 0,
+          hasReminder: Boolean(documentPayload.reminderDate),
+        },
+      });
       resetForm();
       setIsFormOpen(false);
       toast({
@@ -683,6 +744,16 @@ export default function DocumentsManager() {
     };
 
     setDocuments((currentDocuments) => [documentItem, ...currentDocuments]);
+    markFirstUsefulAction("document_reviewed", "documents");
+    trackTelemetryEvent({
+      name: "document_reviewed",
+      module: "documents",
+      properties: {
+        mode: suggestion.analysis.mode,
+        hasAttachments: newAttachments.length > 0,
+        hasReminder: Boolean(documentPayload.reminderDate),
+      },
+    });
     resetForm();
     setIsFormOpen(false);
     toast({
@@ -792,17 +863,81 @@ export default function DocumentsManager() {
 
   return (
     <section className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] lg:pb-0">
+      <div className="rounded-[22px] border border-white/80 bg-white/90 p-4 text-right shadow-[0_14px_34px_rgba(33,43,63,0.06)] ring-1 ring-[#eadfcd]/60">
+        <p className="text-xs font-black text-[#7a5212]">
+          מרכז מסמכים חכם
+        </p>
+        <h1 className="mt-1 text-2xl font-black text-[#111827]">
+          כל מסמך חשוב במקום אחד
+        </h1>
+        <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-slate-600">
+          מסמכים מקבלים תוקף, תזכורות, קישורים לכספים/בריאות/רכבים וסיכום חכם
+          לבדיקה לפני שמירה.
+        </p>
+      </div>
+
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <div className="nestly-card rounded-[16px] p-2.5 text-right">
+        <div className="nestly-card rounded-[16px] p-3 text-right">
           <p className="truncate text-[11px] font-bold text-slate-600">מסמכים</p>
-          <p className="mt-0.5 text-lg font-black">{documents.length}</p>
+          <p className="mt-0.5 text-lg font-black">{smartStats.total}</p>
         </div>
-        <div className="nestly-card rounded-[16px] p-2.5 text-right">
-          <p className="truncate text-[11px] font-bold text-slate-600">קבצים</p>
-          <p className="mt-0.5 text-lg font-black">{attachmentsCount}</p>
+        <div className="nestly-card rounded-[16px] p-3 text-right">
+          <p className="truncate text-[11px] font-bold text-slate-600">
+            דורשים בדיקה
+          </p>
+          <p className="mt-0.5 text-lg font-black">{smartStats.needsReview}</p>
         </div>
+        <div className="nestly-card rounded-[16px] p-3 text-right">
+          <p className="truncate text-[11px] font-bold text-slate-600">
+            תוקף קרוב
+          </p>
+          <p className="mt-0.5 text-lg font-black">{smartStats.expiringSoon}</p>
+        </div>
+        <div className="nestly-card rounded-[16px] p-3 text-right">
+          <p className="truncate text-[11px] font-bold text-slate-600">
+            מקושרים
+          </p>
+          <p className="mt-0.5 text-lg font-black">{smartStats.linked}</p>
+        </div>
+      </div>
+
+      <div className="hidden">
+        {attachmentsCount}
+        {openCount}
+        {doneCount}
+        {reminderCount}
+      </div>
+
+      {expiringDocumentViews.length > 0 && (
+        <section className="rounded-[20px] border border-orange-100 bg-orange-50/70 p-3 text-right">
+          <p className="text-xs font-black text-orange-700">
+            מסמכים שתוקפם מתקרב
+          </p>
+          <div className="mt-2 grid gap-2 md:grid-cols-3">
+            {expiringDocumentViews.map((view) => (
+              <article
+                key={view.item.id}
+                className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-orange-100"
+              >
+                <p className="truncate text-sm font-black text-[#111827]">
+                  {view.item.title}
+                </p>
+                <p className="mt-1 text-xs font-semibold text-orange-700">
+                  {view.daysUntilExpiry === 0
+                    ? "פג היום"
+                    : `בעוד ${view.daysUntilExpiry} ימים`}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <div className="hidden">
         <div className="nestly-card rounded-[16px] p-2.5 text-right">
-          <p className="truncate text-[11px] font-bold text-slate-600">פתוחים / בוצעו</p>
+          <p className="truncate text-[11px] font-bold text-slate-600">
+            פתוחים / בוצעו
+          </p>
           <p className="mt-0.5 text-lg font-black">
             {openCount}/{doneCount}
           </p>
@@ -1103,6 +1238,7 @@ export default function DocumentsManager() {
             onClick={() => {
               setSearchValue("");
               setStatusFilter("all");
+              setSmartFilter("all");
             }}
             className="w-fit rounded-xl border border-[#e6e8ec] bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-[#fff8eb]"
           >
@@ -1111,10 +1247,32 @@ export default function DocumentsManager() {
 
           <div>
             <p className="mb-0.5 text-xs font-bold text-slate-600">
-              {visibleDocuments.length} מסמכים מוצגים
+              {visibleDocumentViews.length} מסמכים מוצגים
             </p>
-            <h2 className="text-base font-black">רשימת מסמכים</h2>
+            <h2 className="text-base font-black">מסמכים חכמים</h2>
           </div>
+        </div>
+
+        <div className="mb-2.5 flex gap-2 overflow-x-auto pb-1">
+          {smartDocumentFilters.map((filter) => {
+            const isActive = smartFilter === filter.id;
+
+            return (
+              <button
+                key={filter.id}
+                type="button"
+                onClick={() => setSmartFilter(filter.id)}
+                className={[
+                  "min-h-10 shrink-0 rounded-full px-3 text-xs font-black transition",
+                  isActive
+                    ? "bg-[#111827] text-white"
+                    : "border border-[#e6e8ec] bg-white text-slate-700 hover:bg-[#fff8eb]",
+                ].join(" ")}
+              >
+                {filter.label}
+              </button>
+            );
+          })}
         </div>
 
         <div className="mb-2.5 grid gap-2.5 md:grid-cols-2">
@@ -1122,7 +1280,7 @@ export default function DocumentsManager() {
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
             className="rounded-2xl border border-[#e6e8ec] bg-[#fffdf8] px-4 py-3 text-right text-[#111827] outline-none placeholder:text-slate-500"
-            placeholder="חיפוש לפי שם, קטגוריה, אחראי או קובץ"
+            placeholder="חיפוש לפי שם, קטגוריה, אדם, רכב, תגית או מטא־דאטה"
           />
 
           <select
@@ -1138,7 +1296,7 @@ export default function DocumentsManager() {
           </select>
         </div>
 
-        {visibleDocuments.length === 0 ? (
+        {visibleDocumentViews.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#d8b470] bg-[#fff8eb] p-6 text-center">
             <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-2xl">
               📄
@@ -1160,27 +1318,32 @@ export default function DocumentsManager() {
         ) : (
           <div className="space-y-2">
             {displayedDocuments.map((item) => (
+              (() => {
+                const view = item;
+                const documentItem = view.item as DocumentItem;
+
+                return (
               <article
-                key={item.id}
-                className="rounded-2xl border border-[#eadfcd] bg-white p-2.5 text-right"
+                key={documentItem.id}
+                className="rounded-2xl border border-[#eadfcd] bg-white p-3 text-right"
               >
                 <div className="flex flex-col gap-2.5 md:flex-row md:items-start md:justify-between">
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={() => toggleStatus(item.id)}
+                      onClick={() => toggleStatus(documentItem.id)}
                       className={
-                        item.status === "done"
+                        documentItem.status === "done"
                           ? "rounded-xl bg-[#111827] px-4 py-2 text-sm font-bold text-white hover:bg-[#1f2937]"
                           : "rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-800 hover:bg-emerald-100"
                       }
                     >
-                      {item.status === "done" ? "פתח מחדש" : "סמן כבוצע"}
+                      {documentItem.status === "done" ? "פתח מחדש" : "סמן כבוצע"}
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => startEditDocument(item)}
+                      onClick={() => startEditDocument(documentItem)}
                       className="rounded-xl border border-[#e6e8ec] bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-[#fff8eb]"
                     >
                       עריכה
@@ -1188,7 +1351,7 @@ export default function DocumentsManager() {
 
                     <button
                       type="button"
-                      onClick={() => deleteDocument(item.id)}
+                      onClick={() => deleteDocument(documentItem.id)}
                       className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 hover:bg-rose-100"
                     >
                       מחיקה
@@ -1197,40 +1360,66 @@ export default function DocumentsManager() {
 
                   <div className="max-w-3xl">
                     <div className="mb-2 flex flex-wrap justify-end gap-2 text-xs font-bold">
-                      <span className="rounded-full bg-[#fff8eb] px-3 py-1 text-slate-700">
-                        {item.status === "done" ? "בוצע" : "פתוח"}
+                      <span
+                        className={`rounded-full px-3 py-1 ring-1 ${view.statusToneClass}`}
+                      >
+                        {view.statusLabel}
                       </span>
                       <span className="rounded-full bg-[#fff8eb] px-3 py-1 text-slate-700">
-                        {item.category}
+                        {view.typeLabel}
                       </span>
-                      {item.documentType && (
+                      {documentItem.documentType && (
                         <span className="rounded-full bg-[#fff8eb] px-3 py-1 text-slate-700">
-                          {item.documentType}
+                          {documentItem.documentType}
                         </span>
                       )}
                     </div>
 
-                    <h3 className="text-base font-black text-[#111827]">{item.title}</h3>
+                    <h3 className="text-base font-black text-[#111827]">
+                      {documentItem.title}
+                    </h3>
                     <p className="mt-1 line-clamp-1 text-sm leading-6 text-slate-600">
-                      {item.description}
+                      {view.summary}
                     </p>
                     <p className="mt-2 text-xs font-bold text-slate-600">
-                      אחראי: {item.owner} | תאריך: {formatDate(item.date)}
+                      אחראי: {documentItem.owner} | תאריך:{" "}
+                      {formatDate(documentItem.date)}
                     </p>
 
-                    {(item.expiryDate || item.reminderDate) && (
+                    {(documentItem.expiryDate || documentItem.reminderDate) && (
                       <p className="mt-2 text-xs font-bold text-slate-600">
-                        {item.expiryDate ? `תוקף: ${formatDate(item.expiryDate)}` : ""}
-                        {item.expiryDate && item.reminderDate ? " | " : ""}
-                        {item.reminderDate ? getReminderStatus(item) : ""}
+                        {documentItem.expiryDate
+                          ? `תוקף: ${formatDate(documentItem.expiryDate)}`
+                          : ""}
+                        {documentItem.expiryDate && documentItem.reminderDate
+                          ? " | "
+                          : ""}
+                        {documentItem.reminderDate
+                          ? getReminderStatus(documentItem)
+                          : ""}
                       </p>
                     )}
 
-                    {(item.tags?.length ?? 0) > 0 && (
+                    {view.linkedModules.length > 0 && (
                       <div className="mt-2 flex flex-wrap justify-end gap-2">
-                        {item.tags?.map((tag) => (
+                        {view.linkedModules.map((link) => (
+                          <a
+                            key={`${documentItem.id}-${link.href}-${link.label}`}
+                            href={link.href}
+                            className="rounded-full bg-blue-50 px-3 py-1 text-xs font-black text-blue-700 ring-1 ring-blue-100"
+                            title={link.description}
+                          >
+                            {link.label}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+
+                    {(documentItem.tags?.length ?? 0) > 0 && (
+                      <div className="mt-2 flex flex-wrap justify-end gap-2">
+                        {documentItem.tags?.map((tag) => (
                           <span
-                            key={`${item.id}-${tag}`}
+                            key={`${documentItem.id}-${tag}`}
                             className="rounded-full bg-[#fff8eb] px-3 py-1 text-xs font-bold text-slate-700"
                           >
                             {tag}
@@ -1239,17 +1428,33 @@ export default function DocumentsManager() {
                       </div>
                     )}
 
-                    {item.aiSummary && (
+                    {view.extractedMetadata.length > 0 && (
+                      <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                        {view.extractedMetadata.slice(0, 4).map((entry) => (
+                          <span
+                            key={`${documentItem.id}-${entry.label}`}
+                            className="rounded-xl bg-[#f8fafc] px-3 py-2 text-xs font-semibold text-slate-600"
+                          >
+                            <span className="font-black text-slate-700">
+                              {entry.label}:
+                            </span>{" "}
+                            {entry.value}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {documentItem.aiSummary && (
                       <p className="mt-2 rounded-xl bg-[#fff8eb] px-3 py-2 text-sm leading-6 text-slate-700">
-                        תיוק חכם: {item.aiSummary}
+                        תיוק חכם: {documentItem.aiSummary}
                       </p>
                     )}
 
-                    {item.attachments.length > 0 && (
+                    {documentItem.attachments.length > 0 && (
                       <div className="mt-2.5 space-y-1.5">
-                        {item.attachments.map((file, fileIndex) => (
+                        {documentItem.attachments.map((file, fileIndex) => (
                           <div
-                            key={file.id ?? `${item.id}-${file.name}-${fileIndex}`}
+                            key={file.id ?? `${documentItem.id}-${file.name}-${fileIndex}`}
                             className="flex flex-col gap-2 rounded-xl bg-[#fffdf8] px-3 py-2 text-sm text-slate-700 md:flex-row md:items-center md:justify-between"
                           >
                             <div>
@@ -1294,7 +1499,7 @@ export default function DocumentsManager() {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => removeAttachment(item.id, file)}
+                                onClick={() => removeAttachment(documentItem.id, file)}
                                 className="rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-100"
                               >
                                 הסרה
@@ -1307,8 +1512,10 @@ export default function DocumentsManager() {
                   </div>
                 </div>
               </article>
+                );
+              })()
             ))}
-            {visibleDocuments.length > 5 && (
+            {visibleDocumentViews.length > 5 && (
               <button
                 type="button"
                 onClick={() =>
@@ -1318,7 +1525,7 @@ export default function DocumentsManager() {
               >
                 {showAllDocuments
                   ? "הצג פחות"
-                  : `הצג עוד ${visibleDocuments.length - 5}`}
+                  : `הצג עוד ${visibleDocumentViews.length - 5}`}
               </button>
             )}
           </div>

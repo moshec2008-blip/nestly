@@ -7,6 +7,8 @@ import {
   ensureDefaultFamilySpace,
 } from "@/lib/familySpace";
 import { storageKeys } from "@/lib/storageKeys";
+import { localCloudRepository } from "@/lib/cloud";
+import { trackTelemetryEvent } from "@/services/telemetry";
 import {
   getScopedStorageKeyForScope,
   getStorageScopeEventName,
@@ -67,15 +69,25 @@ function mergeRecords(currentItems: unknown[], guestItems: unknown[]) {
 
 export default function AuthStorageScope() {
   const { data: session, status } = useSession();
+  const userEmail = session?.user?.email;
+  const userName = session?.user?.name;
+  const userImage = session?.user?.image;
   const accountKey =
-    session?.user?.email || session?.user?.id || session?.user?.name || "";
+    userEmail || session?.user?.id || userName || "";
   const [migrationState, setMigrationState] = useState<MigrationState | null>(null);
 
   useEffect(() => {
     if (status === "authenticated" && accountKey) {
+      void localCloudRepository.bootstrapIdentity({
+        userId: accountKey,
+        email: userEmail || accountKey,
+        name: userName,
+        image: userImage,
+      });
+
       const familySpace = ensureDefaultFamilySpace(
         accountKey,
-        session?.user?.name
+        userName
       );
 
       setActiveStorageUserScope(familySpace?.id ?? accountKey);
@@ -101,7 +113,7 @@ export default function AuthStorageScope() {
     if (status === "unauthenticated" && !isDemoModeActive()) {
       setActiveStorageUserScope(guestStorageScope);
     }
-  }, [accountKey, session?.user?.name, status]);
+  }, [accountKey, status, userEmail, userImage, userName]);
 
   function migrateGuestData() {
     if (!migrationState) {
@@ -134,6 +146,11 @@ export default function AuthStorageScope() {
 
     setMigrationState(null);
     window.dispatchEvent(new CustomEvent(getStorageScopeEventName()));
+    trackTelemetryEvent({
+      name: "migration_completed",
+      module: "auth",
+      properties: { migratedKeys: migratableStorageKeys.length },
+    });
   }
 
   return migrationState ? (

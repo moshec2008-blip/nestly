@@ -19,6 +19,10 @@ import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { consumeTaskDraft } from "@/lib/actionDrafts";
 import { storageKeys } from "@/lib/storageKeys";
+import {
+  markFirstUsefulAction,
+  trackTelemetryEvent,
+} from "@/services/telemetry";
 
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
@@ -216,6 +220,16 @@ export default function TaskManager() {
     };
 
     setTasks((currentTasks) => [task, ...currentTasks]);
+    markFirstUsefulAction("task_created", "tasks");
+    trackTelemetryEvent({
+      name: "task_created",
+      module: "tasks",
+      properties: {
+        priority: task.priority,
+        hasDescription: Boolean(cleanDescription),
+        hasDueDate: Boolean(task.dueDate),
+      },
+    });
     closeForm();
     toast({
       title: "משימה חדשה נפתחה",
@@ -266,6 +280,9 @@ export default function TaskManager() {
   }
 
   function toggleTaskStatus(id: string) {
+    const task = tasks.find((item) => item.id === id);
+    const isCompleting = task?.status === "open";
+
     setTasks((currentTasks) =>
       currentTasks.map((task) =>
         task.id === id
@@ -273,6 +290,34 @@ export default function TaskManager() {
           : task
       )
     );
+
+    if (task) {
+      if (isCompleting) {
+        markFirstUsefulAction("task_completed", "tasks");
+        trackTelemetryEvent({
+          name: "task_completed",
+          module: "tasks",
+          properties: {
+            priority: task.priority,
+            overdue: task.dueDate < getTodayDate(),
+          },
+        });
+      } else {
+        trackTelemetryEvent({
+          name: "task_reopened",
+          module: "tasks",
+          properties: { priority: task.priority },
+        });
+      }
+
+      toast({
+        title: isCompleting ? "סומן כבוצע" : "המשימה נפתחה מחדש",
+        description: isCompleting
+          ? `${task.title} ירדה מהרשימה. עוד צעד קטן לבית רגוע יותר.`
+          : task.title,
+        tone: isCompleting ? "success" : "info",
+      });
+    }
   }
 
   const statCards = [

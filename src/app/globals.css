@@ -1404,3 +1404,231 @@ button:disabled,
   background: #ffffff !important;
   color: #111827 !important;
 }
+
+/* Accessibility & appearance preferences */
+html.nestly-high-contrast {
+  --background: #fffdf8;
+  --foreground: #0f172a;
+  --border-soft: #64748b;
+  --text-muted: #334155;
+  --shadow-card: 0 10px 28px rgba(15, 23, 42, 0.12);
+}
+
+html.nestly-high-contrast body,
+html.nestly-high-contrast .app-premium {
+  color: #0f172a !important;
+}
+
+html.nestly-high-contrast .text-slate-300,
+html.nestly-high-contrast .text-slate-400,
+html.nestly-high-contrast .text-slate-500,
+html.nestly-high-contrast .text-slate-600,
+html.nestly-high-contrast [class*="text-[#6b7280]"],
+html.nestly-high-contrast [class*="text-[#7a8495]"] {
+  color: #334155 !important;
+}
+
+html.nestly-high-contrast .border-white\/60,
+html.nestly-high-contrast .border-white\/70,
+html.nestly-high-contrast .border-white\/80,
+html.nestly-high-contrast .border-slate-100,
+html.nestly-high-contrast .border-slate-200,
+html.nestly-high-contrast [class*="border-[#e"],
+html.nestly-high-contrast [class*="border-[#d"] {
+  border-color: #94a3b8 !important;
+}
+
+html.nestly-high-contrast input,
+html.nestly-high-contrast select,
+html.nestly-high-contrast textarea {
+  background-color: #ffffff !important;
+  border-color: #64748b !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html.nestly-high-contrast input::placeholder,
+html.nestly-high-contrast textarea::placeholder {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html.nestly-high-contrast button:not(:disabled),
+html.nestly-high-contrast a {
+  text-decoration-thickness: 2px;
+}
+
+html.nestly-high-contrast button:focus-visible,
+html.nestly-high-contrast a:focus-visible,
+html.nestly-high-contrast input:focus-visible,
+html.nestly-high-contrast select:focus-visible,
+html.nestly-high-contrast textarea:focus-visible,
+html.nestly-high-contrast [role="button"]:focus-visible {
+  outline: 3px solid #1d4ed8 !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 6px rgba(29, 78, 216, 0.16) !important;
+}
+
+html.nestly-high-contrast svg {
+  stroke-width: 2.25;
+}
+
+html.nestly-reduce-motion,
+html.nestly-reduce-motion * {
+  scroll-behavior: auto !important;
+}
+
+html.nestly-reduce-motion *:not(.nestly-essential-motion),
+html.nestly-reduce-motion *:not(.nestly-essential-motion)::before,
+html.nestly-reduce-motion *:not(.nestly-essential-motion)::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  transition-delay: 0ms !important;
+}
+
+html.nestly-compact {
+  --nestly-header-gap: 8px;
+  --nestly-safe-bottom-gap: max(8px, env(safe-area-inset-bottom));
+  --radius-lg: 20px;
+  --radius-xl: 26px;
+}
+
+html.nestly-compact body {
+  font-size: 14px;
+}
+
+html.nestly-compact .app-premium .nestly-app-content {
+  gap: 0.5rem !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
+html.nestly-compact .app-premium [class*="space-y-6"] > :not([hidden]) ~ :not([hidden]),
+html.nestly-compact .app-premium [class*="space-y-5"] > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1rem !important;
+}
+
+html.nestly-compact .app-premium [class*="space-y-4"] > :not([hidden]) ~ :not([hidden]),
+html.nestly-compact .app-premium [class*="space-y-3"] > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0.65rem !important;
+}
+
+html.nestly-compact .app-premium [class*="gap-6"],
+html.nestly-compact .app-premium [class*="gap-5"] {
+  gap: 1rem !important;
+}
+
+html.nestly-compact .app-premium [class*="gap-4"],
+html.nestly-compact .app-premium [class*="gap-3"] {
+  gap: 0.65rem !important;
+}
+
+html.nestly-compact .app-premium [class*="p-8"],
+html.nestly-compact .app-premium [class*="p-7"],
+html.nestly-compact .app-premium [class*="p-6"] {
+  padding: 1rem !important;
+}
+
+html.nestly-compact .app-premium [class*="p-5"],
+html.nestly-compact .app-premium [class*="p-4"] {
+  padding: 0.85rem !important;
+}
+
+html.nestly-compact .app-premium [class*="py-5"],
+html.nestly-compact .app-premium [class*="py-4"] {
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+
+html.nestly-compact .app-premium [class*="rounded-[32px]"],
+html.nestly-compact .app-premium [class*="rounded-[28px]"],
+html.nestly-compact .app-premium [class*="rounded-[26px]"],
+html.nestly-compact .app-premium [class*="rounded-[24px]"] {
+  border-radius: 20px !important;
+}
+
+/* Unified design-system refinement: Home is the visual reference. */
+.app-premium .nestly-card,
+.app-premium .nestly-card-strong {
+  border-color: rgba(255, 255, 255, 0.82) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(255, 252, 246, 0.94)) !important;
+  box-shadow:
+    0 14px 34px rgba(33, 43, 63, 0.07),
+    0 1px 0 rgba(255, 255, 255, 0.82) inset !important;
+}
+
+.app-premium .nestly-card {
+  border-radius: 22px !important;
+}
+
+.app-premium .nestly-card-strong {
+  border-radius: 26px !important;
+  box-shadow:
+    0 18px 44px rgba(33, 43, 63, 0.085),
+    0 1px 0 rgba(255, 255, 255, 0.86) inset !important;
+}
+
+.app-premium button,
+.app-premium a,
+.app-premium [role="button"] {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
+}
+
+.app-premium button:not(:disabled):active,
+.app-premium a:active,
+.app-premium [role="button"]:active {
+  transform: scale(0.99);
+}
+
+.app-premium button[class*="bg-[#111827]"],
+.app-premium a[class*="bg-[#111827]"],
+.app-premium .nestly-primary-action {
+  box-shadow: 0 14px 30px rgba(17, 24, 39, 0.16) !important;
+}
+
+.app-premium button[class*="border"][class*="bg-white"],
+.app-premium a[class*="border"][class*="bg-white"] {
+  box-shadow: 0 8px 18px rgba(33, 43, 63, 0.045);
+}
+
+.app-premium input:not([type="checkbox"]):not([type="radio"]),
+.app-premium select,
+.app-premium textarea {
+  border-color: #d9dde5 !important;
+  border-radius: 1rem !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.72) inset;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.app-premium input:not([type="checkbox"]):not([type="radio"]):focus,
+.app-premium select:focus,
+.app-premium textarea:focus {
+  border-color: rgba(0, 122, 255, 0.55) !important;
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1) !important;
+}
+
+.app-premium article[class*="bg-white"],
+.app-premium li[class*="bg-white"] {
+  border-color: rgba(234, 223, 205, 0.72);
+}
+
+.app-premium [class*="text-slate-400"],
+.app-premium [class*="text-slate-500"] {
+  color: #64748b !important;
+}
+
+.app-premium [class*="divide-[#eef0f3]"] > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(234, 223, 205, 0.58) !important;
+}

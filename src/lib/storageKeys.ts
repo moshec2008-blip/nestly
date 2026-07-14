@@ -8,6 +8,7 @@ export const storageKeys = {
   financeMortgageBalance: "beit-cohen-shor-finance-mortgage-balance",
   health: "beit-cohen-shor-health-records",
   documents: "beit-cohen-shor-documents",
+  receiptDocuments: "beit-cohen-shor-receipt-documents",
   vehicles: "beit-cohen-shor-vehicle-records",
   family: "beit-cohen-shor-family-records",
   familyTree: "nestly-family-tree",

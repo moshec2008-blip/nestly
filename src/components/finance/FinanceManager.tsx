@@ -496,20 +496,34 @@ export default function FinanceManager() {
   }
 
   function handleConfirmReceiptExpense(expense: {
+    id?: string;
     title: string;
     category: string;
     amount: number;
     date: string;
     notes?: string;
+    source?: "receipt_scan";
+    receiptReference?: string;
+    documentReference?: string;
+    originalTotal?: number;
+    reimbursementAmount?: number;
+    aiConfidence?: number;
   }) {
     handleSaveTransaction({
-      id: crypto.randomUUID(),
+      id: expense.id ?? crypto.randomUUID(),
       title: expense.title,
       category: expense.category,
       amount: expense.amount,
       type: "expense",
       date: expense.date,
       status: "done",
+      notes: expense.notes,
+      source: expense.source,
+      receiptReference: expense.receiptReference,
+      documentReference: expense.documentReference,
+      originalTotal: expense.originalTotal,
+      reimbursementAmount: expense.reimbursementAmount,
+      aiConfidence: expense.aiConfidence,
     });
   }
 

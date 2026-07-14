@@ -7,6 +7,13 @@ export type FinanceTransaction = {
   date: string;
   status: "done" | "pending";
   reminderDate?: string;
+  notes?: string;
+  source?: "manual" | "receipt_scan";
+  receiptReference?: string;
+  documentReference?: string;
+  originalTotal?: number;
+  reimbursementAmount?: number;
+  aiConfidence?: number;
 };
 
 export function isFinanceTransaction(
@@ -30,7 +37,21 @@ export function isFinanceTransaction(
     typeof transaction.date === "string" &&
     (transaction.status === "done" || transaction.status === "pending") &&
     (transaction.reminderDate === undefined ||
-      typeof transaction.reminderDate === "string")
+      typeof transaction.reminderDate === "string") &&
+    (transaction.notes === undefined || typeof transaction.notes === "string") &&
+    (transaction.source === undefined ||
+      transaction.source === "manual" ||
+      transaction.source === "receipt_scan") &&
+    (transaction.receiptReference === undefined ||
+      typeof transaction.receiptReference === "string") &&
+    (transaction.documentReference === undefined ||
+      typeof transaction.documentReference === "string") &&
+    (transaction.originalTotal === undefined ||
+      typeof transaction.originalTotal === "number") &&
+    (transaction.reimbursementAmount === undefined ||
+      typeof transaction.reimbursementAmount === "number") &&
+    (transaction.aiConfidence === undefined ||
+      typeof transaction.aiConfidence === "number")
   );
 }
 

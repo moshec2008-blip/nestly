@@ -73,10 +73,10 @@ export default function HomeHero() {
     data === null
       ? "רגע, בודקים מה קורה בבית…"
       : data.overdueAmount > 0
-        ? `יש תשלום באיחור של ₪${data.overdueAmount.toLocaleString("he-IL")} — שווה להציץ`
+        ? `תשלום באיחור של ₪${data.overdueAmount.toLocaleString("he-IL")} מחכה לטיפול`
         : data.openTasks > 0
-          ? `${data.openTasks} משימות פתוחות — נתחיל מהחשובה ביותר?`
-          : "הכול מסודר להיום. אפשר להתחיל בשקט.";
+          ? `${data.openTasks} משימות פתוחות מחכות להיום`
+          : "הכול מסודר. אפשר להתחיל רגוע.";
 
   const stats = [
     {
@@ -123,16 +123,17 @@ export default function HomeHero() {
         <p className="truncate text-[11px] font-bold text-slate-400">
           {getTodayLabel()}
         </p>
-        <p className="mt-2 text-[11px] font-black uppercase tracking-[0.12em] text-slate-500">
-          Family Dashboard
-        </p>
-        <h1 className="mt-1 max-w-[16rem] text-[25px] font-black leading-8 text-[#0f172a]">
-          {data?.isDemo ? brand.demoWorkspaceName : brand.workspaceName}
+        <h1 className="mt-1 text-[26px] font-black leading-8 text-[#0f172a]">
+          {getGreeting()}
         </h1>
-        <p className="mt-1.5 max-w-[20rem] text-[13px] font-semibold leading-5 text-slate-500">
-          <span className="font-black text-[#111827]">{getGreeting()}</span>
-          <span className="mx-1 text-slate-300">·</span>
+        <p className="mt-1 max-w-[20rem] text-sm font-black leading-5 text-[#111827]">
+          הנה מה שמחכה לך היום
+        </p>
+        <p className="mt-1 max-w-[20rem] text-[13px] font-semibold leading-5 text-slate-500">
           {statusText}
+        </p>
+        <p className="mt-1 truncate text-[11px] font-semibold text-slate-400">
+          {data?.isDemo ? brand.demoWorkspaceName : brand.workspaceName}
         </p>
       </div>
 
@@ -141,7 +142,7 @@ export default function HomeHero() {
           <Link
             key={stat.id}
             href={stat.href}
-            className="rounded-[18px] bg-[#fafafb]/92 p-2.5 text-center ring-1 ring-[#e6e8ec]/65 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(33,43,63,0.08)]"
+            className="rounded-[18px] bg-[#fafafb]/92 p-2.5 text-center ring-1 ring-[#e6e8ec]/65 transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(33,43,63,0.08)] active:scale-[0.99]"
           >
             <span
               className={`mx-auto grid h-8 w-8 place-items-center rounded-2xl ring-1 ${stat.chipClass}`}

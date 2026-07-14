@@ -40,6 +40,15 @@ const homeAreas: HomeArea[] = [
     tintClass: "bg-gradient-to-br from-blue-50/70 via-white to-white",
   },
   {
+    href: "/birthdays",
+    icon: "calendar",
+    title: "אירועים",
+    subtitle: "ימי הולדת ואירועים",
+    statFallback: "אין אירועים קרובים",
+    accentClass: "bg-pink-50 text-pink-600 ring-pink-100",
+    tintClass: "bg-gradient-to-br from-pink-50/70 via-white to-white",
+  },
+  {
     href: "/health",
     icon: "health",
     title: "בריאות",
@@ -62,8 +71,7 @@ export default function HomePage() {
 
         <section>
           <HomeSectionHeader
-            title="עוד אזורים"
-            subtitle="חלקים חשובים שלא צריכים להיות במרכז כל הזמן"
+            title="עוד בבית"
           />
           <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
             {homeAreas.map((area) => (

@@ -4,6 +4,7 @@ import { initialDocumentRecords, initialVehicleRecords } from "@/data/modules";
 import { initialShoppingItems } from "@/data/shopping";
 import { initialFamilyTasks } from "@/data/tasks";
 import { storageKeys } from "@/lib/storageKeys";
+import { toSmartDocumentView } from "@/services/smartDocuments";
 import type { FinanceTransaction } from "@/data/finance";
 import type { FamilyTask } from "@/data/tasks";
 import type { FamilyEvent } from "@/types/birthdays";
@@ -276,18 +277,32 @@ function getShoppingSuggestion(
 function getDocumentSuggestion(
   records: ModuleRecord[]
 ): FamilySuggestion | null {
-  const upcomingDocument = records.find(
-    (record) => record.status === "open" && getDaysUntilDate(record.date) <= 30
+  const smartDocuments = records.map((record) => toSmartDocumentView(record));
+  const needsReview = smartDocuments.find((view) => view.needsReview);
+  const expiringSoon = smartDocuments.find(
+    (view) =>
+      view.isExpiringSoon &&
+      view.daysUntilExpiry !== null &&
+      view.daysUntilExpiry <= 45
   );
 
-  if (!upcomingDocument) {
+  if (needsReview) {
+    return {
+      id: "documents-review",
+      href: "/documents",
+      text: `${needsReview.item.title} ממתין לבדיקה במרכז המסמכים.`,
+      action: "פתח מסמכים",
+    };
+  }
+
+  if (!expiringSoon) {
     return null;
   }
 
   return {
     id: "documents-upcoming",
     href: "/documents",
-    text: `${upcomingDocument.title} מתקרב. כדאי לוודא שהמסמך מעודכן.`,
+    text: `${expiringSoon.item.title} עומד לפוג בקרוב. כדאי לוודא שהמסמך מעודכן.`,
     action: "פתח מסמכים",
   };
 }

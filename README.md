@@ -20,13 +20,31 @@ Use `npm.cmd` on Windows PowerShell:
 npm.cmd run dev
 ```
 
-## Demo access
+## Identity and demo access
 
-Authentication is currently disabled so the demo opens directly for product
-review. The app uses a local demo Family Space in the browser.
+Nestly supports three product modes:
 
-Before storing real sensitive family information, restore authentication and a
-server-backed data layer.
+- Demo Mode: fictional demo data in a separate browser storage scope.
+- Guest Mode: local device data only, without cloud sync.
+- Authenticated Mode: Google session plus a private Family Space foundation.
+
+Google OAuth is enabled when these environment variables exist:
+
+```bash
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=
+```
+
+`AUTH_SECRET` and `AUTH_URL` are also accepted as aliases. If Google variables
+are missing, `/login` shows a setup message and users can continue in Guest
+Mode.
+
+Important: the current cloud foundation includes identity, Family Space,
+membership and repository contracts, plus a local repository emulator for
+development. A real database is still required before storing real sensitive
+family information or promising multi-device persistence.
 
 ## Nestly AI foundation
 
