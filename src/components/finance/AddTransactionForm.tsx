@@ -3,7 +3,9 @@
 import { useState, type FormEvent } from "react";
 import type { FinanceTransaction } from "@/data/finance";
 import type { FinanceDraft } from "@/lib/actionDrafts";
+import { Button } from "@/components/ui/Button";
 import DateInput from "@/components/ui/DateInput";
+import FormField from "@/components/ui/FormField";
 
 type AddTransactionFormProps = {
   editingTransaction: FinanceTransaction | null;
@@ -113,13 +115,14 @@ export default function AddTransactionForm({
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center justify-start gap-2 sm:order-first">
           {(isEditing || showCancelButton) && (
-            <button
+            <Button
               type="button"
               onClick={onCancelEdit}
-              className="min-h-10 rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-white hover:text-[#111827]"
+              tone="secondary"
+              size="sm"
             >
               {isEditing ? "ביטול עריכה" : "סגור טופס"}
-            </button>
+            </Button>
           )}
         </div>
 
@@ -135,8 +138,7 @@ export default function AddTransactionForm({
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="grid gap-2 sm:grid-cols-2">
-          <label className="text-sm font-black text-[#111827]">
-            שם הפעולה
+          <FormField label="שם הפעולה" required>
             <input
               value={formValues.title}
               onChange={(event) =>
@@ -146,13 +148,13 @@ export default function AddTransactionForm({
                 }))
               }
               required
+              aria-label="שם הפעולה"
               placeholder="לדוגמה: קניות, משכורת, חשמל"
-              className={`mt-1 ${inputClassName}`}
+              className={inputClassName}
             />
-          </label>
+          </FormField>
 
-          <label className="text-sm font-black text-[#111827]">
-            קטגוריה
+          <FormField label="קטגוריה" required>
             <input
               value={formValues.category}
               onChange={(event) =>
@@ -162,13 +164,13 @@ export default function AddTransactionForm({
                 }))
               }
               required
+              aria-label="קטגוריה"
               placeholder="מזון, דיור, רכב"
-              className={`mt-1 ${inputClassName}`}
+              className={inputClassName}
             />
-          </label>
+          </FormField>
 
-          <label className="text-sm font-black text-[#111827]">
-            סכום
+          <FormField label="סכום" required>
             <input
               value={formValues.amount}
               onChange={(event) =>
@@ -179,16 +181,16 @@ export default function AddTransactionForm({
               }
               required
               type="number"
+              aria-label="סכום"
               min="0.01"
               step="0.01"
               inputMode="decimal"
               placeholder="0"
-              className={`mt-1 ${inputClassName}`}
+              className={inputClassName}
             />
-          </label>
+          </FormField>
 
-          <label className="text-sm font-black text-[#111827]">
-            תאריך
+          <FormField label="תאריך" required>
             <DateInput
               value={formValues.date}
               onChange={(date) =>
@@ -201,7 +203,7 @@ export default function AddTransactionForm({
               label="תאריך פעולה"
               className="mt-1"
             />
-          </label>
+          </FormField>
         </div>
 
         <div className="grid gap-2">
@@ -247,8 +249,7 @@ export default function AddTransactionForm({
             </div>
           </div>
 
-          <label className="text-sm font-black text-[#111827]">
-            סטטוס
+          <FormField label="סטטוס">
             <select
               value={formValues.status}
               onChange={(event) =>
@@ -261,16 +262,19 @@ export default function AddTransactionForm({
                       : "",
                 }))
               }
-              className={`mt-1 ${inputClassName}`}
+              className={inputClassName}
+              aria-label="סטטוס פעולה"
             >
               <option value="done">בוצע</option>
               <option value="pending">פעולה עתידית</option>
             </select>
-          </label>
+          </FormField>
 
           {formValues.status === "pending" && (
-            <label className="text-sm font-black text-[#111827]">
-              תאריך תזכורת
+            <FormField
+              label="תאריך תזכורת"
+              helperText="ביום הזה תופיע תזכורת אם הפעולה עדיין פתוחה."
+            >
               <DateInput
                 value={formValues.reminderDate}
                 onChange={(reminderDate) =>
@@ -282,18 +286,16 @@ export default function AddTransactionForm({
                 label="תאריך תזכורת"
                 className="mt-1"
               />
-              <span className="mt-1 block text-xs font-semibold leading-5 text-slate-500">
-                ביום הזה תופיע תזכורת אם הפעולה עדיין פתוחה.
-              </span>
-            </label>
+            </FormField>
           )}
 
-          <button
+          <Button
             type="submit"
-            className="min-h-11 rounded-2xl bg-[#111827] px-6 py-2.5 text-sm font-black text-white shadow-[0_14px_34px_rgba(15,23,42,0.16)] transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
+            tone="primary"
+            className="w-full"
           >
             {isEditing ? "שמור שינויים" : "הוסף פעולה"}
-          </button>
+          </Button>
         </div>
       </form>
     </section>

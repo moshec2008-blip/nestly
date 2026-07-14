@@ -1,5 +1,5 @@
-import Link from "next/link";
 import Badge from "@/components/ui/Badge";
+import { LinkButton } from "@/components/ui/Button";
 
 type PageHeroProps = {
   eyebrow: string;
@@ -28,18 +28,22 @@ export default function PageHero({
       />
       <div className="relative flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         {showBackHome ? (
-          <Link
+          <LinkButton
             href="/"
-            className="w-fit rounded-2xl border border-[#eadfcd] bg-[#fffdf8] px-3.5 py-2 text-sm font-bold text-slate-700 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:text-[#111827] active:scale-[0.99]"
+            tone="ghost"
+            size="sm"
+            className="w-fit"
           >
             {backLabel}
-          </Link>
+          </LinkButton>
         ) : (
           <div />
         )}
 
         <div className="max-w-3xl">
-          <Badge tone="neutral">{eyebrow}</Badge>
+          <Badge tone="neutral" size="md" withDot>
+            {eyebrow}
+          </Badge>
           <h1 className="mt-2 text-[25px] font-black leading-8 tracking-tight text-[#0f172a] md:text-3xl">
             {title}
           </h1>

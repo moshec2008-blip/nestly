@@ -1,6 +1,7 @@
 "use client";
 
 import type { BudgetReportItem } from "@/data/finance";
+import EmptyState from "@/components/ui/EmptyState";
 import { formatIlsCurrency } from "@/utils/formatters";
 
 type BudgetOverviewProps = {
@@ -55,9 +56,11 @@ export default function BudgetOverview({ items }: BudgetOverviewProps) {
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#e3d8c9] bg-[#fffdf8] p-8 text-center text-slate-600">
-          אין עדיין תקציבים להצגה.
-        </div>
+        <EmptyState
+          icon="₪"
+          title="אין עדיין תקציבים להצגה"
+          description="אחרי שתגדירו תקציב משפחתי, Nestly תציג כאן איפה אתם עומדים בכל קטגוריה."
+        />
       ) : (
         <div className="grid gap-2.5 md:grid-cols-2">
           {items.map((item) => {

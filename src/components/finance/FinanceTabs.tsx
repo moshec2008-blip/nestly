@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/Button";
 
 export type FinanceTab = "transactions" | "budget" | "reports" | "backup";
 
@@ -27,13 +28,15 @@ export default function FinanceTabs({
   return (
     <section className="mb-4 rounded-2xl border border-[#eadfcd]/70 bg-white/82 p-1.5 shadow-[0_12px_30px_rgba(33,43,63,0.055)]">
       <div className="flex items-stretch gap-1.5 overflow-x-auto">
-        <button
+        <Button
           type="button"
           onClick={onAddTransaction}
-          className="nestly-primary-action min-h-11 shrink-0 whitespace-nowrap rounded-2xl bg-[#111827] px-4 text-xs font-black text-white shadow-[0_12px_28px_rgba(17,24,39,0.16)] transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
+          tone="primary"
+          size="sm"
+          className="shrink-0 whitespace-nowrap"
         >
           + הוסף פעולה
-        </button>
+        </Button>
 
         {scanSlot && <div className="flex shrink-0 items-stretch">{scanSlot}</div>}
 

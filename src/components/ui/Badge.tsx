@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 type BadgeProps = {
   children: ReactNode;
   tone?: "neutral" | "blue" | "green" | "amber" | "rose";
+  size?: "sm" | "md";
+  withDot?: boolean;
   className?: string;
 };
 
@@ -17,12 +19,22 @@ const tones: Record<NonNullable<BadgeProps["tone"]>, string> = {
 export default function Badge({
   children,
   tone = "neutral",
+  size = "sm",
+  withDot = false,
   className = "",
 }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-bold ${tones[tone]} ${className}`}
+      className={[
+        "inline-flex items-center justify-center gap-1.5 rounded-full border font-bold",
+        size === "md" ? "px-3.5 py-1.5 text-sm" : "px-3 py-1 text-xs",
+        tones[tone],
+        className,
+      ].join(" ")}
     >
+      {withDot ? (
+        <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+      ) : null}
       {children}
     </span>
   );

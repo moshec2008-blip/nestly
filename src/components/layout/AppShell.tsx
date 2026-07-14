@@ -78,6 +78,12 @@ export default function AppShell({ children }: AppShellProps) {
       lang={language}
       className="app-premium nestly-page-shell min-h-screen overflow-x-hidden text-[#1d1d1f]"
     >
+      <a
+        href="#main-content-body"
+        className="sr-only focus:not-sr-only focus:fixed focus:right-4 focus:top-4 focus:z-[120] focus:rounded-2xl focus:bg-[#111827] focus:px-5 focus:py-3 focus:text-sm focus:font-black focus:text-white focus:shadow-[0_16px_40px_rgba(15,23,42,0.24)]"
+      >
+        דלג לתוכן המרכזי
+      </a>
       <FeedbackProvider>
         <TelemetryProvider>
           <AuthPromptProvider>
@@ -99,7 +105,12 @@ export default function AppShell({ children }: AppShellProps) {
                 onNavigate={closeMobileMenu}
               />
 
-              <div className="min-w-0 flex-1 animate-soft-in">{children}</div>
+              <div
+                id="main-content-body"
+                className="min-w-0 flex-1 animate-soft-in"
+              >
+                {children}
+              </div>
 
               {showGlobalAssists && <SmartFamilyCenter />}
             </div>

@@ -78,6 +78,15 @@ function createTaskId() {
   return `task-${Date.now()}`;
 }
 
+function isTaskOverdue(task: FamilyTask) {
+  if (task.status === "done") {
+    return false;
+  }
+
+  const today = getTodayDate();
+  return Boolean(task.dueDate) && task.dueDate < today;
+}
+
 export default function TaskManager() {
   const { confirm, toast } = useFeedback();
   const [tasks, setTasks] = usePersistentArrayState<FamilyTask>(
@@ -126,7 +135,17 @@ export default function TaskManager() {
     const normalizedSearch = searchValue.trim().toLowerCase();
 
     return sortTasks(tasks)
-      .filter((task) => statusFilter === "all" || task.status === statusFilter)
+      .filter((task) => {
+        if (statusFilter === "all") {
+          return true;
+        }
+
+        if (statusFilter === "overdue") {
+          return isTaskOverdue(task);
+        }
+
+        return task.status === statusFilter;
+      })
       .filter(
         (task) => priorityFilter === "all" || task.priority === priorityFilter
       )

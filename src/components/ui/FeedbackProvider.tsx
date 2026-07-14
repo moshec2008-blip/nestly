@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { useLanguage } from "@/i18n/useLanguage";
+import { Button } from "@/components/ui/Button";
 
 type ToastTone = "success" | "info" | "warning" | "danger";
 
@@ -206,25 +207,20 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
             )}
 
             <div className="mt-5 flex flex-wrap justify-end gap-2">
-              <button
+              <Button
                 type="button"
                 onClick={() => resolveConfirm(false)}
-                className="min-h-11 rounded-2xl border border-[#e3d8c9] bg-white px-5 text-sm font-bold text-slate-700 transition hover:bg-[#fffdf8]"
+                tone="secondary"
               >
                 {pendingConfirm.cancelLabel}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => resolveConfirm(true)}
-                className={[
-                  "min-h-11 rounded-2xl px-5 text-sm font-bold text-white transition",
-                  pendingConfirm.tone === "danger"
-                    ? "bg-rose-600 hover:bg-rose-500"
-                    : "bg-[#111827] hover:bg-[#1f2937]",
-                ].join(" ")}
+                tone={pendingConfirm.tone === "danger" ? "danger" : "primary"}
               >
                 {pendingConfirm.confirmLabel}
-              </button>
+              </Button>
             </div>
           </section>
         </div>

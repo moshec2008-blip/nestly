@@ -6,6 +6,7 @@ import { defaultLanguage, isAppLanguage, type AppLanguage } from "@/i18n/config"
 
 export type AppSettings = {
   language: AppLanguage;
+  simpleMode: boolean;
   highContrast: boolean;
   compactMode: boolean;
   reducedMotion: boolean;
@@ -13,6 +14,7 @@ export type AppSettings = {
 
 export const defaultAppSettings: AppSettings = {
   language: defaultLanguage,
+  simpleMode: false,
   highContrast: false,
   compactMode: false,
   reducedMotion: false,
@@ -34,9 +36,10 @@ export function isAppSettings(value: unknown): value is AppSettings {
   return (
     typeof settings.language === "string" &&
     isAppLanguage(settings.language) &&
-    isBoolean(settings.highContrast) &&
-    isBoolean(settings.compactMode) &&
-    isBoolean(settings.reducedMotion)
+    (settings.simpleMode === undefined || isBoolean(settings.simpleMode)) &&
+    (settings.highContrast === undefined || isBoolean(settings.highContrast)) &&
+    (settings.compactMode === undefined || isBoolean(settings.compactMode)) &&
+    (settings.reducedMotion === undefined || isBoolean(settings.reducedMotion))
   );
 }
 
@@ -48,13 +51,20 @@ export function readAppSettings(language = defaultLanguage) {
   };
 }
 
-export function applyAppPreferences(settings: Pick<AppSettings, "highContrast" | "compactMode" | "reducedMotion">) {
+export function applyAppPreferences(
+  settings: Pick<
+    AppSettings,
+    "simpleMode" | "highContrast" | "compactMode" | "reducedMotion"
+  >
+) {
   if (typeof document === "undefined") {
     return;
   }
 
   const root = document.documentElement;
 
+  root.classList.toggle("nestly-simple-mode", settings.simpleMode);
+  root.dataset.simpleMode = settings.simpleMode ? "true" : "false";
   root.classList.toggle("nestly-high-contrast", settings.highContrast);
   root.classList.toggle("nestly-compact", settings.compactMode);
   root.classList.toggle("nestly-reduce-motion", settings.reducedMotion);

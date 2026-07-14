@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import DateInput from "@/components/ui/DateInput";
+import EmptyState from "@/components/ui/EmptyState";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { initialHealthRecords } from "@/data/modules";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
@@ -472,17 +473,12 @@ export default function HealthManager() {
         </div>
 
         {visibleRecords.length === 0 ? (
-          <div className="mt-3 rounded-[22px] border border-dashed border-slate-300 bg-slate-50/80 p-6 text-center">
-            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-lg shadow-sm">
-              ❤️
-            </div>
-            <p className="mt-3 text-sm font-black text-slate-900">
-              אין תזכורות בריאות פתוחות
-            </p>
-            <p className="mx-auto mt-1 max-w-sm text-sm font-semibold leading-6 text-slate-600">
-              כשתוסיפו תור, בדיקה, תרופה או מעקב משפחתי, הם יופיעו כאן בצורה מסודרת.
-            </p>
-          </div>
+          <EmptyState
+            className="mt-3"
+            icon="❤️"
+            title="אין תזכורות בריאות פתוחות"
+            description="כשתוסיפו תור, בדיקה, תרופה או מעקב משפחתי, הם יופיעו כאן בצורה מסודרת."
+          />
         ) : (
           <div className="mt-3 divide-y divide-slate-200/75">
             {visibleRecords.map((record) => (

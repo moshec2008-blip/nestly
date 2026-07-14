@@ -225,6 +225,12 @@ export default function SettingsManager() {
     },
   ];
 
+  const simpleModePreviewItems = [
+    "טקסט גדול וברור יותר",
+    "כפתורים נוחים יותר ללחיצה",
+    "פחות עומס ויזואלי במסכים",
+  ];
+
   return (
     <section className="grid gap-3 lg:grid-cols-[1fr_300px]">
       <div className="space-y-3">
@@ -258,6 +264,59 @@ export default function SettingsManager() {
           </div>
 
           <div className="mt-3 grid gap-2 md:grid-cols-2">
+            <div className="md:col-span-2 rounded-[22px] border border-[#ebe4d8] bg-gradient-to-l from-[#fff8eb] via-white to-[#eef7ff] p-3 shadow-[0_12px_30px_rgba(33,43,63,0.06)]">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="text-right">
+                  <p className="text-sm font-black text-slate-950">
+                    תצוגה פשוטה
+                  </p>
+                  <p className="mt-1 max-w-2xl text-xs font-semibold leading-5 text-slate-600">
+                    מצב רגוע וברור יותר: טקסט מעט גדול יותר, כפתורים נוחים יותר, פחות קישוטים ופחות פעולות קטנות שמסתתרות.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => updateSetting("simpleMode", !settings.simpleMode)}
+                  className={[
+                    "min-h-11 shrink-0 rounded-2xl px-5 text-sm font-black transition hover:-translate-y-0.5",
+                    settings.simpleMode
+                      ? "border border-[#ebe4d8] bg-white text-slate-800 shadow-sm"
+                      : "bg-[#111827] text-white shadow-[0_10px_24px_rgba(17,24,39,0.18)]",
+                  ].join(" ")}
+                  aria-pressed={settings.simpleMode}
+                >
+                  {settings.simpleMode ? "חזרה לתצוגה רגילה" : "הפעל תצוגה פשוטה"}
+                </button>
+              </div>
+
+              <div className="mt-3 grid gap-2 md:grid-cols-[1fr_1fr]">
+                <div className="rounded-2xl border border-[#ebe4d8] bg-white/75 p-3 text-right">
+                  <p className="text-[11px] font-black text-slate-500">
+                    תצוגה רגילה
+                  </p>
+                  <p className="mt-1 text-sm font-black text-slate-900">
+                    יותר צפופה, יותר מידע במסך
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    מתאימה למי שמעדיף לראות כמה שיותר אפשרויות בבת אחת.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-[#d8caba] bg-white p-3 text-right shadow-sm">
+                  <p className="text-[11px] font-black text-[#9a6b17]">
+                    תצוגה פשוטה
+                  </p>
+                  <p className="mt-1 text-base font-black text-slate-950">
+                    ברורה יותר, רגועה יותר
+                  </p>
+                  <ul className="mt-2 space-y-1 text-xs font-semibold leading-5 text-slate-600">
+                    {simpleModePreviewItems.map((item) => (
+                      <li key={item}>• {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+
             {preferenceCards.map((item) => (
               <label
                 key={item.key}

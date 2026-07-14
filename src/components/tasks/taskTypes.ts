@@ -1,6 +1,6 @@
 import type { FamilyTask } from "@/data/tasks";
 
-export type TaskStatusFilter = "all" | FamilyTask["status"];
+export type TaskStatusFilter = "all" | FamilyTask["status"] | "overdue";
 export type TaskPriorityFilter = "all" | FamilyTask["priority"];
 
 export type TaskFormValues = {
@@ -11,4 +11,3 @@ export type TaskFormValues = {
   priority: FamilyTask["priority"];
   dueDate: string;
 };
-

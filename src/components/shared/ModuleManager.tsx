@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type FormEvent } from "react";
 import DateInput from "@/components/ui/DateInput";
+import EmptyState from "@/components/ui/EmptyState";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import type { ModuleRecord, ModuleRecordStatus } from "@/types/modules";
@@ -393,17 +394,11 @@ export default function ModuleManager({
         </div>
 
         {visibleRecords.length === 0 ? (
-          <div className="rounded-[22px] border border-dashed border-slate-300 bg-slate-50/80 p-6 text-center">
-            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-lg shadow-sm">
-              +
-            </div>
-            <p className="mt-3 text-sm font-black text-slate-900">
-              אין {itemPluralLabel} להצגה כרגע
-            </p>
-            <p className="mx-auto mt-1 max-w-sm text-sm font-semibold leading-6 text-slate-600">
-              אפשר לשנות סינון או להוסיף {itemLabel} חדש דרך אזור הניהול המהיר.
-            </p>
-          </div>
+          <EmptyState
+            icon="+"
+            title={`אין ${itemPluralLabel} להצגה כרגע`}
+            description={`אפשר לשנות סינון או להוסיף ${itemLabel} חדש דרך אזור הניהול המהיר.`}
+          />
         ) : (
           <div className="space-y-2">
             {displayedRecords.map((record) => (

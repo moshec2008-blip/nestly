@@ -1,4 +1,5 @@
 import type { MonthlyCashflowItem } from "@/data/finance";
+import EmptyState from "@/components/ui/EmptyState";
 import { formatIlsCurrency } from "@/utils/formatters";
 
 type FinanceChartProps = {
@@ -27,9 +28,11 @@ export default function FinanceChart({ items }: FinanceChartProps) {
       </div>
 
       {visibleItems.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#e3d8c9] bg-[#fffdf8] p-8 text-center text-slate-600">
-          אין עדיין נתונים להצגת גרף.
-        </div>
+        <EmptyState
+          icon="↗"
+          title="הגרף יתמלא אחרי כמה פעולות"
+          description="הוסיפו הכנסות והוצאות, ונציג כאן מבט חודשי קצר וברור על התזרים."
+        />
       ) : (
         <div className="space-y-2">
           {visibleItems.map((item) => {

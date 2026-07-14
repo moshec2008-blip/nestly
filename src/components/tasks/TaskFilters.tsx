@@ -57,6 +57,7 @@ export default function TaskFilters({
         >
           <option value="all">כל הסטטוסים</option>
           <option value="open">פתוחות</option>
+          <option value="overdue">באיחור</option>
           <option value="done">בוצעו</option>
         </select>
 

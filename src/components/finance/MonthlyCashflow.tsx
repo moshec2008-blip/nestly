@@ -1,6 +1,7 @@
 "use client";
 
 import type { MonthlyCashflowItem } from "@/data/finance";
+import EmptyState from "@/components/ui/EmptyState";
 import { formatIlsCurrency } from "@/utils/formatters";
 
 type MonthlyCashflowProps = {
@@ -24,9 +25,11 @@ export default function MonthlyCashflow({ items }: MonthlyCashflowProps) {
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#e3d8c9] bg-[#fffdf8] p-8 text-center text-slate-600">
-          אין נתונים להצגה בתזרים.
-        </div>
+        <EmptyState
+          icon="↕"
+          title="אין עדיין תזרים חודשי"
+          description="ברגע שיהיו מספיק פעולות, נראה כאן את היחס בין הכנסות להוצאות לאורך זמן."
+        />
       ) : (
         <div className="overflow-x-auto">
           <div className="flex min-w-[720px] items-end gap-4 rounded-2xl border border-[#e3d8c9]/80 bg-white p-4">

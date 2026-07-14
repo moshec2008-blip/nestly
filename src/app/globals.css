@@ -1548,6 +1548,111 @@ html.nestly-compact .app-premium [class*="rounded-[24px]"] {
   border-radius: 20px !important;
 }
 
+html.nestly-simple-mode {
+  --nestly-header-gap: 14px;
+  --nestly-safe-bottom-gap: max(18px, env(safe-area-inset-bottom));
+  --text-muted: #475569;
+  --border-soft: #cbd5e1;
+  --shadow-card: 0 10px 26px rgba(15, 23, 42, 0.09);
+}
+
+html.nestly-simple-mode body {
+  font-size: 16px;
+}
+
+html.nestly-simple-mode .app-premium {
+  color: #0f172a;
+}
+
+html.nestly-simple-mode .app-premium .nestly-app-content {
+  gap: 1rem !important;
+}
+
+html.nestly-simple-mode .app-premium button,
+html.nestly-simple-mode .app-premium a,
+html.nestly-simple-mode .app-premium [role="button"] {
+  min-height: 46px;
+}
+
+html.nestly-simple-mode .app-premium input,
+html.nestly-simple-mode .app-premium select,
+html.nestly-simple-mode .app-premium textarea {
+  min-height: 48px;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  font-size: 1rem;
+}
+
+html.nestly-simple-mode .app-premium input::placeholder,
+html.nestly-simple-mode .app-premium textarea::placeholder {
+  color: #64748b !important;
+  opacity: 1;
+}
+
+html.nestly-simple-mode .app-premium .text-xs,
+html.nestly-simple-mode .app-premium [class*="text-[10px]"],
+html.nestly-simple-mode .app-premium [class*="text-[11px]"] {
+  font-size: 0.8125rem !important;
+  line-height: 1.35rem !important;
+}
+
+html.nestly-simple-mode .app-premium .text-slate-300,
+html.nestly-simple-mode .app-premium .text-slate-400,
+html.nestly-simple-mode .app-premium .text-slate-500,
+html.nestly-simple-mode .app-premium .text-slate-600 {
+  color: #475569 !important;
+}
+
+html.nestly-simple-mode .app-premium [class*="border-white"],
+html.nestly-simple-mode .app-premium [class*="border-slate-100"],
+html.nestly-simple-mode .app-premium [class*="border-slate-200"],
+html.nestly-simple-mode .app-premium [class*="border-[#e"] {
+  border-color: #cbd5e1 !important;
+}
+
+html.nestly-simple-mode .app-premium [class*="rounded-[32px]"],
+html.nestly-simple-mode .app-premium [class*="rounded-[28px]"],
+html.nestly-simple-mode .app-premium [class*="rounded-[26px]"],
+html.nestly-simple-mode .app-premium [class*="rounded-[24px]"] {
+  border-radius: 22px !important;
+}
+
+html.nestly-simple-mode .app-premium .nestly-card,
+html.nestly-simple-mode .app-premium .nestly-card-strong,
+html.nestly-simple-mode .app-premium [class*="shadow-[0_16px"],
+html.nestly-simple-mode .app-premium [class*="shadow-[0_18px"],
+html.nestly-simple-mode .app-premium [class*="shadow-[0_20px"] {
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08) !important;
+}
+
+html.nestly-simple-mode .app-premium [class*="opacity-60"],
+html.nestly-simple-mode .app-premium [class*="opacity-70"] {
+  opacity: 0.88 !important;
+}
+
+html.nestly-simple-mode .app-premium svg {
+  min-width: 1.15em;
+  min-height: 1.15em;
+  stroke-width: 2.2;
+}
+
+html.nestly-simple-mode .app-premium button:focus-visible,
+html.nestly-simple-mode .app-premium a:focus-visible,
+html.nestly-simple-mode .app-premium input:focus-visible,
+html.nestly-simple-mode .app-premium select:focus-visible,
+html.nestly-simple-mode .app-premium textarea:focus-visible,
+html.nestly-simple-mode .app-premium [role="button"]:focus-visible {
+  outline: 3px solid #2563eb !important;
+  outline-offset: 3px !important;
+}
+
+html.nestly-simple-mode *:not(.nestly-essential-motion),
+html.nestly-simple-mode *:not(.nestly-essential-motion)::before,
+html.nestly-simple-mode *:not(.nestly-essential-motion)::after {
+  transition-duration: 120ms !important;
+  animation-duration: 120ms !important;
+}
+
 /* Unified design-system refinement: Home is the visual reference. */
 .app-premium .nestly-card,
 .app-premium .nestly-card-strong {
@@ -1557,6 +1662,68 @@ html.nestly-compact .app-premium [class*="rounded-[24px]"] {
   box-shadow:
     0 14px 34px rgba(33, 43, 63, 0.07),
     0 1px 0 rgba(255, 255, 255, 0.82) inset !important;
+}
+
+/* Ultimate polish: consistent interaction language across modules. */
+.app-premium {
+  overflow-x: clip;
+}
+
+.app-premium button,
+.app-premium a,
+.app-premium input,
+.app-premium select,
+.app-premium textarea,
+.app-premium [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-premium button:not(:disabled),
+.app-premium a[href],
+.app-premium [role="button"] {
+  touch-action: manipulation;
+}
+
+.app-premium button:not(:disabled):active,
+.app-premium a[href]:active,
+.app-premium [role="button"]:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.app-premium button:disabled,
+.app-premium input:disabled,
+.app-premium select:disabled,
+.app-premium textarea:disabled,
+.app-premium [aria-disabled="true"] {
+  cursor: not-allowed !important;
+  opacity: 0.72;
+}
+
+.app-premium button:focus-visible,
+.app-premium a:focus-visible,
+.app-premium input:focus-visible,
+.app-premium select:focus-visible,
+.app-premium textarea:focus-visible,
+.app-premium [role="button"]:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.12);
+}
+
+.app-premium input,
+.app-premium select,
+.app-premium textarea {
+  caret-color: #111827;
+}
+
+.app-premium input::placeholder,
+.app-premium textarea::placeholder {
+  opacity: 1;
+}
+
+.app-premium [class*="line-clamp"],
+.app-premium [class*="truncate"] {
+  min-width: 0;
 }
 
 .app-premium .nestly-card {

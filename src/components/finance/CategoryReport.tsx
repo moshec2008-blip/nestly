@@ -1,6 +1,7 @@
 "use client";
 
 import type { CategoryReportItem } from "@/data/finance";
+import EmptyState from "@/components/ui/EmptyState";
 import { formatIlsCurrency } from "@/utils/formatters";
 
 type CategoryReportProps = {
@@ -19,9 +20,11 @@ export default function CategoryReport({ items }: CategoryReportProps) {
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#e3d8c9] bg-[#fffdf8] p-8 text-center text-slate-600">
-          אין עדיין הוצאות להצגה בדוח.
-        </div>
+        <EmptyState
+          icon="₪"
+          title="אין עדיין הוצאות בדוח"
+          description="כשתוסיפו הוצאות, נראה כאן לאן הכסף הולך ונעזור לזהות קטגוריות משמעותיות."
+        />
       ) : (
         <div className="space-y-2.5">
           {items.map((item) => (
