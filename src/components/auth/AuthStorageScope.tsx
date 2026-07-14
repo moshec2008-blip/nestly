@@ -7,6 +7,10 @@ import {
   ensureDefaultFamilySpace,
 } from "@/lib/familySpace";
 import { storageKeys } from "@/lib/storageKeys";
+import {
+  ensureUserProfile,
+  updateUserDisplayName,
+} from "@/lib/userProfile";
 import { localCloudRepository } from "@/lib/cloud";
 import { trackTelemetryEvent } from "@/services/telemetry";
 import {
@@ -25,6 +29,12 @@ const migratableStorageKeys = [
 
 type MigrationState = {
   targetScope: string;
+};
+
+type ProfilePromptState = {
+  accountKey: string;
+  displayName: string;
+  migrationTargetScope?: string;
 };
 
 function readArrayFromLocalStorage(key: string) {
@@ -75,6 +85,8 @@ export default function AuthStorageScope() {
   const accountKey =
     userEmail || session?.user?.id || userName || "";
   const [migrationState, setMigrationState] = useState<MigrationState | null>(null);
+  const [profilePrompt, setProfilePrompt] =
+    useState<ProfilePromptState | null>(null);
 
   useEffect(() => {
     if (status === "authenticated" && accountKey) {
@@ -89,6 +101,12 @@ export default function AuthStorageScope() {
         accountKey,
         userName
       );
+      const userProfile = ensureUserProfile({
+        accountKey,
+        name: userName,
+        email: userEmail,
+        image: userImage,
+      });
 
       setActiveStorageUserScope(familySpace?.id ?? accountKey);
       const targetScope = familySpace?.id ?? accountKey;
@@ -97,6 +115,20 @@ export default function AuthStorageScope() {
 
         return Boolean(guestKey && window.localStorage.getItem(guestKey));
       });
+
+      if (userProfile && !userProfile.hasChosenDisplayName) {
+        const timeoutId = window.setTimeout(
+          () =>
+            setProfilePrompt({
+              accountKey,
+              displayName: userProfile.displayName,
+              migrationTargetScope: hasGuestData ? targetScope : undefined,
+            }),
+          0
+        );
+
+        return () => window.clearTimeout(timeoutId);
+      }
 
       if (!hasGuestData) {
         return;
@@ -114,6 +146,23 @@ export default function AuthStorageScope() {
       setActiveStorageUserScope(guestStorageScope);
     }
   }, [accountKey, status, userEmail, userImage, userName]);
+
+  function saveDisplayName() {
+    if (!profilePrompt) {
+      return;
+    }
+
+    updateUserDisplayName(profilePrompt.accountKey, profilePrompt.displayName);
+    if (profilePrompt.migrationTargetScope) {
+      setMigrationState({ targetScope: profilePrompt.migrationTargetScope });
+    }
+    setProfilePrompt(null);
+    trackTelemetryEvent({
+      name: "profile_updated",
+      module: "auth",
+      properties: { source: "first_login_prompt" },
+    });
+  }
 
   function migrateGuestData() {
     if (!migrationState) {
@@ -151,6 +200,68 @@ export default function AuthStorageScope() {
       module: "auth",
       properties: { migratedKeys: migratableStorageKeys.length },
     });
+  }
+
+  if (profilePrompt) {
+    return (
+      <div
+        className="fixed inset-0 z-[91] flex items-end justify-center bg-slate-950/35 px-3 pb-3 backdrop-blur-[2px] sm:items-center sm:p-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="profile-title"
+      >
+        <div className="w-full max-w-md rounded-[26px] bg-white p-4 text-right shadow-[0_28px_90px_rgba(15,23,42,0.24)] ring-1 ring-[#eadfcd]">
+          <p className="text-xs font-black text-[#9a6b17]">
+            ברוכים הבאים ל-Nestly
+          </p>
+          <h2 id="profile-title" className="mt-1 text-xl font-black text-[#111827]">
+            איך לקרוא לך באפליקציה?
+          </h2>
+          <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+            זה השם שיופיע בניווט, באבטחה ובהמשך בפעולות משפחתיות. אפשר לשנות אותו בכל רגע.
+          </p>
+          <label className="mt-4 block text-sm font-black text-slate-700">
+            שם תצוגה
+            <input
+              value={profilePrompt.displayName}
+              onChange={(event) =>
+                setProfilePrompt((currentValue) =>
+                  currentValue
+                    ? { ...currentValue, displayName: event.target.value }
+                    : currentValue
+                )
+              }
+              className="mt-2 min-h-12 w-full rounded-2xl border border-[#e6e8ec] bg-white px-4 text-right text-base font-black text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#d8b470] focus:ring-4 focus:ring-[#d8b470]/15"
+              placeholder="לדוגמה: משה"
+              autoFocus
+            />
+          </label>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={saveDisplayName}
+              className="min-h-11 rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-4 text-sm font-black text-[#111827] shadow-[0_8px_18px_rgba(33,43,63,0.06)] transition hover:bg-white"
+            >
+              שמירה והמשך
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (profilePrompt.migrationTargetScope) {
+                  setMigrationState({
+                    targetScope: profilePrompt.migrationTargetScope,
+                  });
+                }
+                setProfilePrompt(null);
+              }}
+              className="min-h-11 rounded-2xl border border-[#e6e8ec] bg-white px-4 text-sm font-black text-slate-700 transition hover:bg-[#fafafb]"
+            >
+              אחר כך
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return migrationState ? (

@@ -99,6 +99,39 @@ export function isUserScopedStorageKey(key: string) {
   return userScopedStorageKeys.has(key);
 }
 
+export function clearActiveScopedStorageData() {
+  if (typeof window === "undefined") {
+    return 0;
+  }
+
+  const scope = getActiveStorageUserScope();
+
+  if (!scope) {
+    return 0;
+  }
+
+  let removedCount = 0;
+
+  userScopedStorageKeys.forEach((key) => {
+    if (key === "beit-cohen-shor-app-settings") {
+      return;
+    }
+
+    const scopedKey = getScopedStorageKeyForScope(scope, key);
+
+    if (scopedKey && window.localStorage.getItem(scopedKey) !== null) {
+      window.localStorage.removeItem(scopedKey);
+      removedCount += 1;
+    }
+  });
+
+  if (removedCount > 0) {
+    window.dispatchEvent(new CustomEvent(storageScopeEventName));
+  }
+
+  return removedCount;
+}
+
 export function hasStoredValue(key: string) {
   if (typeof window === "undefined") {
     return false;

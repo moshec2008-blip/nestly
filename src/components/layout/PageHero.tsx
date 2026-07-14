@@ -1,5 +1,8 @@
+"use client";
+
 import Badge from "@/components/ui/Badge";
 import { LinkButton } from "@/components/ui/Button";
+import { useLanguage } from "@/i18n/useLanguage";
 
 type PageHeroProps = {
   eyebrow: string;
@@ -14,10 +17,19 @@ export default function PageHero({
   title,
   description,
   showBackHome = false,
-  backLabel = "חזרה לבית",
+  backLabel,
 }: PageHeroProps) {
+  const { language, direction } = useLanguage();
+  const resolvedBackLabel =
+    backLabel ?? (language === "en" ? "Back home" : "חזרה לבית");
+
   return (
-    <section className="relative mb-3 overflow-hidden rounded-[26px] border border-white/80 bg-white/95 p-5 text-right text-[#1d1d1f] shadow-[0_18px_42px_rgba(33,43,63,0.085)] ring-1 ring-[#eadfcd]/65 backdrop-blur-xl">
+    <section
+      className={[
+        "relative mb-3 overflow-hidden rounded-[26px] border border-white/80 bg-white/95 p-5 text-[#1d1d1f] shadow-[0_18px_42px_rgba(33,43,63,0.085)] ring-1 ring-[#eadfcd]/65 backdrop-blur-xl",
+        direction === "rtl" ? "text-right" : "text-left",
+      ].join(" ")}
+    >
       <span
         className="pointer-events-none absolute -left-12 -top-12 h-28 w-28 rounded-full bg-sky-100/40 blur-2xl"
         aria-hidden="true"
@@ -28,13 +40,8 @@ export default function PageHero({
       />
       <div className="relative flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         {showBackHome ? (
-          <LinkButton
-            href="/"
-            tone="ghost"
-            size="sm"
-            className="w-fit"
-          >
-            {backLabel}
+          <LinkButton href="/" tone="ghost" size="sm" className="w-fit">
+            {resolvedBackLabel}
           </LinkButton>
         ) : (
           <div />

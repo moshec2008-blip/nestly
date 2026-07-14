@@ -525,7 +525,7 @@ export default function ShoppingManager() {
           />
           <button
             type="submit"
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#111827] text-xl font-black text-white shadow-[0_10px_22px_rgba(15,23,42,0.16)] transition active:scale-[0.98]"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#d8caba] bg-[#fffdf8] text-xl font-black text-[#111827] shadow-[0_10px_22px_rgba(33,43,63,0.08)] transition hover:bg-white active:scale-[0.98]"
             aria-label="הוסף מוצר לרשימה"
           >
             +
@@ -567,7 +567,7 @@ export default function ShoppingManager() {
                   className={[
                     "min-h-10 rounded-full px-3 text-xs font-black transition",
                     isActive
-                      ? "bg-[#111827] text-white"
+                      ? "border border-[#d8caba] bg-[#fffdf8] text-[#111827] shadow-sm"
                       : "border border-[#e6e8ec] bg-[#fafafb] text-slate-700",
                   ].join(" ")}
                 >
@@ -1018,7 +1018,7 @@ export default function ShoppingManager() {
 
               <button
                 type="submit"
-                className="min-h-12 w-full rounded-2xl bg-[#111827] px-5 py-3 text-sm font-black text-white shadow-[0_12px_28px_rgba(15,23,42,0.14)] transition hover:bg-[#1f2937] active:scale-[0.99]"
+                className="min-h-12 w-full rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-5 py-3 text-sm font-black text-[#111827] shadow-[0_10px_22px_rgba(33,43,63,0.08)] transition hover:bg-white active:scale-[0.99]"
               >
                 {isEditing ? "שמור שינוי" : "הוסף לרשימה"}
               </button>

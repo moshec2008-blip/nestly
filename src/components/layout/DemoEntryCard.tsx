@@ -33,7 +33,7 @@ export default function DemoEntryCard() {
             enterDemoMode();
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
-          className="min-h-10 shrink-0 rounded-2xl bg-[#111827] px-4 text-xs font-black text-white shadow-[0_10px_20px_rgba(17,24,39,0.14)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#1f2937] active:scale-[0.99]"
+          className="min-h-10 shrink-0 rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-4 text-xs font-black text-[#111827] shadow-[0_8px_18px_rgba(33,43,63,0.06)] transition duration-200 hover:-translate-y-0.5 hover:bg-white active:scale-[0.99]"
         >
           צפו בדמו
         </button>

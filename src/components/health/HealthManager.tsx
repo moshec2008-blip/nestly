@@ -260,7 +260,7 @@ export default function HealthManager() {
               resetForm();
               setIsFormOpen((currentValue) => !currentValue);
             }}
-            className="min-h-11 rounded-2xl bg-[#111827] px-4 text-sm font-black text-white shadow-[0_10px_24px_rgba(17,24,39,0.16)] transition hover:bg-[#1f2937] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#111827]"
+            className="min-h-11 rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-4 text-sm font-black text-[#111827] shadow-[0_10px_22px_rgba(33,43,63,0.08)] transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d8b470]"
           >
             {isFormOpen ? "סגור" : "+ תזכורת רפואית"}
           </button>
@@ -463,7 +463,7 @@ export default function HealthManager() {
               className={[
                 "min-h-10 shrink-0 rounded-full px-3 text-xs font-black transition",
                 categoryFilter === category
-                  ? "bg-[#111827] text-white"
+                  ? "border border-[#d8caba] bg-[#fffdf8] text-[#111827] shadow-sm"
                   : "bg-slate-100 text-slate-700 hover:bg-white",
               ].join(" ")}
             >

@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ReactNode,
+} from "react";
 import AIReviewDialog from "@/components/ai/AIReviewDialog";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import {
@@ -27,6 +34,7 @@ import {
 type ReceiptScanPreviewProps = {
   userMode?: "demo" | "basic" | "authenticated";
   triggerClassName?: string;
+  triggerContent?: ReactNode;
   onConfirmExpense?: (expense: ReceiptScanConfirmedExpense) => void;
 };
 
@@ -57,7 +65,7 @@ const receiptText = {
     backHome: "חזרה לבית",
     unreadable: "לא הצלחנו לקרוא את הקבלה.",
     retryTip: "נסה לצלם שוב בתאורה טובה יותר.",
-    unsupported: "אפשר לצרף JPG, PNG, WebP או PDF בלבד.",
+    unsupported: "אפשר לצרף JPG, PNG או WebP בלבד.",
     tooLarge: "הקובץ גדול מדי לניתוח.",
   },
   en: {
@@ -86,7 +94,7 @@ const receiptText = {
     backHome: "Back home",
     unreadable: "We could not read the receipt.",
     retryTip: "Try taking the photo again in better lighting.",
-    unsupported: "Attach JPG, PNG, WebP or PDF only.",
+    unsupported: "Attach JPG, PNG or WebP only.",
     tooLarge: "The file is too large for analysis.",
   },
 } as const;
@@ -96,7 +104,6 @@ const supportedMimeTypes = new Set([
   "image/jpeg",
   "image/png",
   "image/webp",
-  "application/pdf",
 ]);
 
 const defaultTriggerClassName =
@@ -131,6 +138,7 @@ function getInitialReviewValues(result: AnalyzeReceiptResult | null) {
 export default function ReceiptScanPreview({
   userMode = "demo",
   triggerClassName = defaultTriggerClassName,
+  triggerContent,
   onConfirmExpense,
 }: ReceiptScanPreviewProps) {
   const { toast } = useFeedback();
@@ -416,11 +424,11 @@ export default function ReceiptScanPreview({
           isProcessing ? "pointer-events-none opacity-60" : "",
         ].join(" ")}
       >
-        {isProcessing ? text.processing[processingStep] : text.trigger}
+        {isProcessing ? text.processing[processingStep] : triggerContent ?? text.trigger}
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,application/pdf"
+          accept="image/jpeg,image/png,image/webp"
           capture="environment"
           onChange={handleFileSelection}
           disabled={isProcessing}

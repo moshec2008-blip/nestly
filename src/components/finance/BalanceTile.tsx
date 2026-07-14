@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
 import { formatIlsCurrency } from "@/utils/formatters";
 
 type BalanceTileProps = {
@@ -75,12 +76,12 @@ export default function BalanceTile({
             placeholder={inputPlaceholder}
             className="min-h-11 min-w-0 flex-1 rounded-2xl border border-[#e3d8c9] bg-white px-4 text-right text-sm font-bold text-[#111827] placeholder:text-slate-400 focus:border-[#111827] focus:outline-none"
           />
-          <button
+          <Button
             type="submit"
-            className="min-h-11 rounded-2xl bg-[#111827] px-5 text-sm font-bold text-white shadow-sm transition hover:bg-[#1f2937] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#111827]"
+            tone="primary"
           >
             שמור
-          </button>
+          </Button>
         </form>
       )}
     </div>

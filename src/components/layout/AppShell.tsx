@@ -7,6 +7,7 @@ import AuthStorageScope from "@/components/auth/AuthStorageScope";
 import Sidebar from "@/components/Sidebar";
 import BirthdayWelcomePopup from "@/components/birthdays/BirthdayWelcomePopup";
 import DemoModeBanner from "@/components/layout/DemoModeBanner";
+import EnglishDomTranslator from "@/components/i18n/EnglishDomTranslator";
 import MobileBottomNavigation from "@/components/layout/MobileBottomNavigation";
 import SmartFamilyCenter from "@/components/layout/SmartFamilyCenter";
 import SmartNudgePopup from "@/components/layout/SmartNudgePopup";
@@ -89,6 +90,7 @@ export default function AppShell({ children }: AppShellProps) {
           <AuthPromptProvider>
             <AuthStorageScope />
             <AppPreferencesApplier />
+            <EnglishDomTranslator />
             <StorageErrorWatcher />
             <TopNavigation
               isSidebarCollapsed={isSidebarCollapsed}

@@ -17,6 +17,7 @@ import { getDictionary, type CommonDictionary } from "@/i18n/dictionaries";
 import { getRouteLabel } from "@/i18n/navigation";
 import { useLanguage } from "@/i18n/useLanguage";
 import { brand } from "@/lib/branding";
+import { getUserProfileEventName, readUserProfile } from "@/lib/userProfile";
 import {
   getGlobalSearchResults,
   type GlobalSearchResult,
@@ -185,6 +186,7 @@ export default function TopNavigation({
   const { direction, language } = useLanguage();
   const dictionary = getDictionary(language);
   const { data: session, status } = useSession();
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const [searchValue, setSearchValue] = useState("");
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
@@ -202,6 +204,33 @@ export default function TopNavigation({
       : language === "en"
         ? "Basic mode"
         : "מצב בסיסי";
+
+  const accountDisplayLabel =
+    status === "authenticated"
+      ? displayName || accountLabel
+      : language === "en"
+        ? "Saved on device"
+        : "שמירה במכשיר";
+
+  useEffect(() => {
+    const accountKey =
+      session?.user?.email || session?.user?.id || session?.user?.name || "";
+
+    function syncDisplayName() {
+      if (!accountKey || status !== "authenticated") {
+        setDisplayName(null);
+        return;
+      }
+
+      setDisplayName(readUserProfile(accountKey)?.displayName || null);
+    }
+
+    syncDisplayName();
+    window.addEventListener(getUserProfileEventName(), syncDisplayName);
+
+    return () =>
+      window.removeEventListener(getUserProfileEventName(), syncDisplayName);
+  }, [session?.user?.email, session?.user?.id, session?.user?.name, status]);
 
   useEffect(() => {
     const headerElement = headerRef.current;
@@ -306,7 +335,7 @@ export default function TopNavigation({
             <button
               type="button"
               onClick={onToggleMobileMenu}
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl border border-[#111827] bg-[#111827] px-3 text-sm font-black text-white shadow-[0_12px_24px_rgba(17,24,39,0.16)]"
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-3 text-sm font-black text-[#111827] shadow-[0_10px_22px_rgba(33,43,63,0.08)] transition hover:border-[#d8b470] hover:bg-white"
               aria-label={dictionary.openMenu}
               aria-expanded={isMobileMenuOpen}
             >
@@ -347,7 +376,7 @@ export default function TopNavigation({
           <button
             type="button"
             onClick={onToggleMobileMenu}
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#d9dde5] bg-[#111827] text-white shadow-sm lg:hidden"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#d8caba] bg-[#fffdf8] text-[#111827] shadow-sm transition hover:bg-white lg:hidden"
             aria-label={dictionary.openMenu}
             aria-expanded={isMobileMenuOpen}
           >
@@ -405,7 +434,7 @@ export default function TopNavigation({
               <Link
                 href="/"
                 onClick={handleLogoHomeClick}
-                className="flex h-11 shrink-0 items-center gap-2 rounded-2xl px-1.5 text-sm font-black text-[#111827] transition hover:bg-[#fff8eb] lg:h-9 lg:bg-[#111827] lg:px-3 lg:text-xs lg:text-white lg:shadow-[0_12px_32px_rgba(17,24,39,0.16)]"
+                className="flex h-11 shrink-0 items-center gap-2 rounded-2xl px-1.5 text-sm font-black text-[#111827] transition hover:bg-[#fff8eb] lg:h-9 lg:border lg:border-[#eadfcd] lg:bg-[#fffdf8] lg:px-3 lg:text-xs lg:shadow-[0_10px_22px_rgba(33,43,63,0.06)]"
                 aria-label={`${brand.productName} - ${brand.workspaceName}`}
               >
                 <span
@@ -421,7 +450,7 @@ export default function TopNavigation({
                   />
                 </span>
                 <span>{brand.productName}</span>
-                <span className="hidden text-xs font-bold text-white/80 lg:inline">
+                <span className="hidden text-xs font-bold text-slate-500 lg:inline">
                   {brand.workspaceName}
                 </span>
               </Link>
@@ -515,11 +544,11 @@ export default function TopNavigation({
 
             <Link
               href="/security"
-              className="flex h-10 max-w-36 items-center justify-center truncate rounded-2xl border border-[#d9dde5] bg-[#111827] px-3 text-xs font-black text-white shadow-sm transition hover:bg-[#1f2937]"
-              aria-label={accountLabel}
+              className="flex h-10 max-w-36 items-center justify-center truncate rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-3 text-xs font-black text-[#111827] shadow-sm transition hover:bg-white"
+              aria-label={accountDisplayLabel}
               onClick={handleNavigate}
             >
-              {accountLabel}
+              {accountDisplayLabel}
             </Link>
 
             <Link

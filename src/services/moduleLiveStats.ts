@@ -8,6 +8,7 @@ import {
 } from "@/data/modules";
 import { initialShoppingItems } from "@/data/shopping";
 import { getTaskStats, initialFamilyTasks } from "@/data/tasks";
+import type { AppLanguage } from "@/i18n/config";
 import { storageKeys } from "@/lib/storageKeys";
 import type { AppRoute } from "@/types/navigation";
 import {
@@ -16,7 +17,27 @@ import {
 } from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
 
-export function getModuleLiveStat(href: AppRoute, fallback: string) {
+function getLocale(language: AppLanguage) {
+  return language === "en" ? "en-US" : "he-IL";
+}
+
+function formatCurrency(amount: number, language: AppLanguage) {
+  return new Intl.NumberFormat(getLocale(language), {
+    style: "currency",
+    currency: "ILS",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function enPlural(count: number, singular: string, plural: string) {
+  return count === 1 ? singular : plural;
+}
+
+export function getModuleLiveStat(
+  href: AppRoute,
+  fallback: string,
+  language: AppLanguage = "he"
+) {
   if (typeof window === "undefined") {
     return fallback;
   }
@@ -27,17 +48,23 @@ export function getModuleLiveStat(href: AppRoute, fallback: string) {
       initialFinanceTransactions
     );
     const stats = getFinanceStats(transactions);
-    return `${stats.balance.toLocaleString("he-IL")} ₪ יתרה`;
+    return language === "en"
+      ? `${formatCurrency(stats.balance, language)} balance`
+      : `${formatCurrency(stats.balance, language)} יתרה`;
   }
 
   if (href === "/tasks") {
     const tasks = readStorageArray(storageKeys.tasks, initialFamilyTasks);
-    return `${getTaskStats(tasks).openTasks} פתוחות`;
+    const openTasks = getTaskStats(tasks).openTasks;
+    return language === "en" ? `${openTasks} open` : `${openTasks} פתוחות`;
   }
 
   if (href === "/health") {
     const records = readStorageArray(storageKeys.health, initialHealthRecords);
-    return `${records.filter((record) => record.status === "open").length} פתוחים`;
+    const openRecords = records.filter((record) => record.status === "open").length;
+    return language === "en"
+      ? `${openRecords} ${enPlural(openRecords, "open item", "open items")}`
+      : `${openRecords} פתוחים`;
   }
 
   if (href === "/vehicles") {
@@ -45,7 +72,10 @@ export function getModuleLiveStat(href: AppRoute, fallback: string) {
       storageKeys.vehicles,
       initialVehicleRecords
     );
-    return `${records.filter((record) => record.status === "open").length} תזכורות`;
+    const openRecords = records.filter((record) => record.status === "open").length;
+    return language === "en"
+      ? `${openRecords} ${enPlural(openRecords, "reminder", "reminders")}`
+      : `${openRecords} תזכורות`;
   }
 
   if (href === "/documents") {
@@ -53,7 +83,9 @@ export function getModuleLiveStat(href: AppRoute, fallback: string) {
       storageKeys.documents,
       initialDocumentRecords
     );
-    return `${records.length} מסמכים`;
+    return language === "en"
+      ? `${records.length} ${enPlural(records.length, "document", "documents")}`
+      : `${records.length} מסמכים`;
   }
 
   if (href === "/birthdays") {
@@ -67,21 +99,27 @@ export function getModuleLiveStat(href: AppRoute, fallback: string) {
           getDaysUntilFamilyEvent(first) - getDaysUntilFamilyEvent(second)
       )[0];
 
-    return nextEvent
-      ? `${nextEvent.person || nextEvent.name} בעוד ${getDaysUntilFamilyEvent(
-          nextEvent
-        )} ימים`
-      : fallback;
+    if (!nextEvent) {
+      return fallback;
+    }
+
+    const days = getDaysUntilFamilyEvent(nextEvent);
+    return language === "en"
+      ? `${nextEvent.person || nextEvent.name} in ${days} ${enPlural(days, "day", "days")}`
+      : `${nextEvent.person || nextEvent.name} בעוד ${days} ימים`;
   }
 
   if (href === "/shopping") {
     const items = readStorageArray(storageKeys.shopping, initialShoppingItems);
-    return `${items.filter((item) => !item.purchased).length} לקנייה`;
+    const remaining = items.filter((item) => !item.purchased).length;
+    return language === "en" ? `${remaining} to buy` : `${remaining} לקנייה`;
   }
 
   if (href === "/family") {
     const records = readStorageArray(storageKeys.family, initialFamilyRecords);
-    return `${records.length} רשומות`;
+    return language === "en"
+      ? `${records.length} ${enPlural(records.length, "record", "records")}`
+      : `${records.length} רשומות`;
   }
 
   return fallback;

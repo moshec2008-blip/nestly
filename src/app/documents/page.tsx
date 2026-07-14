@@ -1,17 +1,11 @@
 import DocumentsManager from "@/components/documents/DocumentsManager";
 import AppShell from "@/components/layout/AppShell";
-import PageHero from "@/components/layout/PageHero";
+import LocalizedPageHero from "@/components/layout/LocalizedPageHero";
 
 export default function DocumentsPage() {
   return (
     <AppShell>
-      <PageHero
-        eyebrow="מסמכים"
-        title="מסמכים"
-        description="צירוף קבצים, ארגון מסמכים, חוזים, אישורים ותזכורות למסמכים חשובים."
-        showBackHome
-      />
-
+      <LocalizedPageHero module="documents" />
       <DocumentsManager />
     </AppShell>
   );

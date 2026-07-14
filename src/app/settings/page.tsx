@@ -1,17 +1,11 @@
 import AppShell from "@/components/layout/AppShell";
-import PageHero from "@/components/layout/PageHero";
+import LocalizedPageHero from "@/components/layout/LocalizedPageHero";
 import SettingsManager from "@/components/settings/SettingsManager";
 
 export default function SettingsPage() {
   return (
     <AppShell>
-      <PageHero
-        eyebrow="הגדרות"
-        title="הגדרות"
-        description="ניהול שפה, נגישות, תצוגה ושמירה מקומית של נתוני המערכת."
-        showBackHome
-      />
-
+      <LocalizedPageHero module="settings" />
       <SettingsManager />
     </AppShell>
   );

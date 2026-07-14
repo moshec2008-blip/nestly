@@ -106,7 +106,7 @@ export default function TaskForm({
 
         <button
           type="submit"
-          className="min-h-11 rounded-2xl bg-[#111827] px-4 py-2 text-sm font-black text-white hover:bg-[#1f2937]"
+          className="min-h-11 rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-4 py-2 text-sm font-black text-[#111827] shadow-[0_8px_18px_rgba(33,43,63,0.06)] transition hover:bg-white"
         >
           {isEditing ? "שמור" : "פתח"}
         </button>

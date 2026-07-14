@@ -221,7 +221,7 @@ export default function AddTransactionForm({
                 className={[
                   "flex min-h-10 w-full min-w-0 items-center justify-center overflow-hidden rounded-2xl px-3 py-2 text-center text-sm font-black leading-tight transition",
                   !isIncome
-                    ? "bg-[#111827] text-white shadow-[0_10px_24px_rgba(15,23,42,0.16)]"
+                    ? "border border-[#d8caba] bg-[#fffdf8] text-[#111827] shadow-sm ring-1 ring-[#d8b470]/35"
                     : "border border-[#d9dde5] bg-white text-slate-700 hover:text-[#111827]",
                 ].join(" ")}
                 aria-pressed={!isIncome}

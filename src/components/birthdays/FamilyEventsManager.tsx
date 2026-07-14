@@ -265,7 +265,7 @@ function UpcomingDashboard({
           <button
             type="button"
             onClick={onToggleAddForm}
-            className="bg-[#111827] text-white hover:bg-[#1f2937] min-h-11 whitespace-nowrap rounded-2xl px-3 text-xs font-black shadow-[0_10px_22px_rgba(33,43,63,0.14)] transition focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="min-h-11 whitespace-nowrap rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-3 text-xs font-black text-[#111827] shadow-[0_10px_22px_rgba(33,43,63,0.08)] transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#eadfcd]"
           >
             {isAddFormOpen ? "סגור" : "+ הוסף אירוע"}
           </button>
@@ -904,7 +904,7 @@ export default function FamilyEventsManager() {
                 onClick={() => setEventFilter(filter.id as EventFilter)}
                 className={
                   eventFilter === filter.id
-                    ? "bg-[#111827] text-white hover:bg-[#1f2937] min-h-11 whitespace-nowrap rounded-xl px-3 text-xs font-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-100"
+                    ? "min-h-11 whitespace-nowrap rounded-xl border border-[#d8caba] bg-[#fffdf8] px-3 text-xs font-black text-[#111827] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#eadfcd]"
                     : "min-h-11 whitespace-nowrap rounded-xl px-3 text-xs font-black text-slate-700 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
                 }
               >
@@ -1107,7 +1107,7 @@ export default function FamilyEventsManager() {
             />
             <button
               type="submit"
-              className="bg-[#111827] text-white hover:bg-[#1f2937] min-h-11 rounded-2xl px-4 text-sm font-black shadow-[0_12px_28px_rgba(33,43,63,0.18)] transition focus:outline-none focus:ring-2 focus:ring-blue-100 sm:col-span-2"
+              className="min-h-11 rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-4 text-sm font-black text-[#111827] shadow-[0_10px_22px_rgba(33,43,63,0.08)] transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#eadfcd] sm:col-span-2"
             >
               שמור אירוע משפחתי
             </button>
@@ -1131,7 +1131,7 @@ export default function FamilyEventsManager() {
           <button
             type="button"
             onClick={() => setShowAddForm(true)}
-            className="bg-[#111827] text-white hover:bg-[#1f2937] mt-3 min-h-11 whitespace-nowrap rounded-2xl px-5 text-sm font-black shadow-[0_10px_22px_rgba(33,43,63,0.14)] transition focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="mt-3 min-h-11 whitespace-nowrap rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-5 text-sm font-black text-[#111827] shadow-[0_10px_22px_rgba(33,43,63,0.08)] transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#eadfcd]"
           >
             הוסף אירוע משפחתי ראשון
           </button>

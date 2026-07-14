@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import DemoEntryCard from "@/components/layout/DemoEntryCard";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { useLanguage } from "@/i18n/useLanguage";
@@ -26,7 +27,8 @@ import {
   type AiServiceStatus,
 } from "@/services/documentAiClient";
 import { storageKeys } from "@/lib/storageKeys";
-import { writeStorage } from "@/utils/storage";
+import { clearActiveScopedStorageData, writeStorage } from "@/utils/storage";
+import { trackTelemetryEvent } from "@/services/telemetry";
 
 export default function SettingsManager() {
   const { confirm, toast } = useFeedback();
@@ -82,6 +84,7 @@ export default function SettingsManager() {
     }
 
     writeStorage(storageKeys.appSettings, { ...settings, language });
+    applyAppPreferences(settings);
     notifyAppPreferencesChanged({ ...settings, language });
   }, [settings, language, hasLoadedStorage]);
 
@@ -116,6 +119,37 @@ export default function SettingsManager() {
       title: "הגדרות התצוגה אופסו",
       tone: "success",
     });
+  }
+
+  async function resetFamilyData() {
+    const approved = await confirm({
+      title: "איפוס נתוני המשפחה",
+      description:
+        "למחוק את הנתונים שנשמרו במרחב הפעיל ולהתחיל מחדש? מומלץ לייצא גיבוי לפני איפוס.",
+      confirmLabel: "אפס נתונים",
+      cancelLabel: "ביטול",
+      tone: "danger",
+    });
+
+    if (!approved) {
+      return;
+    }
+
+    const removedCount = clearActiveScopedStorageData();
+
+    trackTelemetryEvent({
+      name: "family_space_reset",
+      module: "settings",
+      properties: { removedKeys: removedCount },
+    });
+
+    toast({
+      title: "הנתונים אופסו",
+      description: "נטען את Nestly מחדש כדי להתחיל נקי.",
+      tone: "success",
+    });
+
+    window.setTimeout(() => window.location.reload(), 900);
   }
 
   function exportBackup() {
@@ -215,9 +249,16 @@ export default function SettingsManager() {
       description: "מצמצמת אנימציות ומעברים למי שרגיש לתנועה במסך.",
       checked: settings.reducedMotion,
     },
+    {
+      key: "darkMode" as const,
+      title: "מצב כהה",
+      description:
+        "מעביר את Nestly למראה כהה ונעים לעבודה בערב. אפשר לכבות בכל רגע.",
+      checked: settings.darkMode,
+    },
   ];
 
-  const comingSoonPreferences = [
+  const comingSoonPreferences: Array<{ title: string; description: string }> = [
     {
       title: "מצב כהה",
       description:
@@ -378,7 +419,7 @@ export default function SettingsManager() {
               </div>
             </div>
 
-            {comingSoonPreferences.map((item) => (
+            {comingSoonPreferences.slice(0, 0).map((item) => (
               <div
                 key={item.title}
                 className="rounded-2xl border border-dashed border-[#d8cdbc] bg-[#f8f6f1] p-3 opacity-90"
@@ -516,6 +557,10 @@ export default function SettingsManager() {
 
         <div className="my-4 h-px bg-[#ebe4d8]" />
 
+        <DemoEntryCard />
+
+        <div className="my-4 h-px bg-[#ebe4d8]" />
+
         <p className="mb-2 text-sm font-bold text-slate-600">
           נתונים מקומיים
         </p>
@@ -531,6 +576,13 @@ export default function SettingsManager() {
           className="mt-4 w-full rounded-2xl bg-[#111827] px-5 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
         >
           איפוס הגדרות תצוגה
+        </button>
+        <button
+          type="button"
+          onClick={resetFamilyData}
+          className="mt-2 w-full rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-black text-rose-700 transition hover:-translate-y-0.5 hover:bg-rose-100"
+        >
+          איפוס נתוני המשפחה
         </button>
       </aside>
     </section>

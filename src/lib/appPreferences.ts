@@ -10,6 +10,7 @@ export type AppSettings = {
   highContrast: boolean;
   compactMode: boolean;
   reducedMotion: boolean;
+  darkMode: boolean;
 };
 
 export const defaultAppSettings: AppSettings = {
@@ -18,6 +19,7 @@ export const defaultAppSettings: AppSettings = {
   highContrast: false,
   compactMode: false,
   reducedMotion: false,
+  darkMode: false,
 };
 
 export const appPreferencesChangeEventName = "nestly-app-preferences-change";
@@ -39,7 +41,8 @@ export function isAppSettings(value: unknown): value is AppSettings {
     (settings.simpleMode === undefined || isBoolean(settings.simpleMode)) &&
     (settings.highContrast === undefined || isBoolean(settings.highContrast)) &&
     (settings.compactMode === undefined || isBoolean(settings.compactMode)) &&
-    (settings.reducedMotion === undefined || isBoolean(settings.reducedMotion))
+    (settings.reducedMotion === undefined || isBoolean(settings.reducedMotion)) &&
+    (settings.darkMode === undefined || isBoolean(settings.darkMode))
   );
 }
 
@@ -54,7 +57,11 @@ export function readAppSettings(language = defaultLanguage) {
 export function applyAppPreferences(
   settings: Pick<
     AppSettings,
-    "simpleMode" | "highContrast" | "compactMode" | "reducedMotion"
+    | "simpleMode"
+    | "highContrast"
+    | "compactMode"
+    | "reducedMotion"
+    | "darkMode"
   >
 ) {
   if (typeof document === "undefined") {
@@ -68,6 +75,7 @@ export function applyAppPreferences(
   root.classList.toggle("nestly-high-contrast", settings.highContrast);
   root.classList.toggle("nestly-compact", settings.compactMode);
   root.classList.toggle("nestly-reduce-motion", settings.reducedMotion);
+  root.classList.toggle("nestly-dark", settings.darkMode);
 }
 
 export function notifyAppPreferencesChanged(settings: AppSettings) {

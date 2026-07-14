@@ -1,17 +1,11 @@
 import AppShell from "@/components/layout/AppShell";
-import PageHero from "@/components/layout/PageHero";
+import LocalizedPageHero from "@/components/layout/LocalizedPageHero";
 import VehiclesManager from "@/components/vehicles/VehiclesManager";
 
 export default function VehiclesPage() {
   return (
     <AppShell>
-      <PageHero
-        eyebrow="רכבים"
-        title="רכבים"
-        description="ניהול טיפולים, טסטים, ביטוחים והוצאות רכב משפחתיות."
-        showBackHome
-      />
-
+      <LocalizedPageHero module="vehicles" />
       <VehiclesManager />
     </AppShell>
   );

@@ -6,8 +6,10 @@ import AppIcon from "@/components/ui/AppIcon";
 import { getFinanceStats, initialFinanceTransactions } from "@/data/finance";
 import { initialShoppingItems } from "@/data/shopping";
 import { getTaskStats, initialFamilyTasks } from "@/data/tasks";
-import { isDemoModeActive } from "@/lib/demoMode";
+import type { AppLanguage } from "@/i18n/config";
+import { useLanguage } from "@/i18n/useLanguage";
 import { brand } from "@/lib/branding";
+import { isDemoModeActive } from "@/lib/demoMode";
 import { storageKeys } from "@/lib/storageKeys";
 import { readStorageArray } from "@/utils/storage";
 
@@ -18,6 +20,64 @@ type HeroData = {
   overdueAmount: number;
   isDemo: boolean;
 };
+
+const copyByLanguage = {
+  he: {
+    updatedAt: "נכון ל-",
+    checking: "רגע, בודקים מה קורה בבית...",
+    overdue: (amount: string) => `תשלום באיחור של ${amount} מחכה לטיפול`,
+    openTasks: (count: number) => `${count} משימות פתוחות מחכות להיום`,
+    calm: "הכול מסודר. אפשר להתחיל רגוע.",
+    subtitle: "הנה מה שמחכה לך היום",
+    balance: "יתרה",
+    tasks: "משימות",
+    shopping: "קניות",
+    open: "פתוחות",
+    toBuy: "לקנייה",
+    greetings: {
+      morning: "בוקר טוב",
+      noon: "צהריים טובים",
+      evening: "ערב טוב",
+      night: "לילה טוב",
+    },
+  },
+  en: {
+    updatedAt: "Updated ",
+    checking: "One moment, checking what matters at home...",
+    overdue: (amount: string) => `${amount} overdue payment needs attention`,
+    openTasks: (count: number) =>
+      `${count} open ${count === 1 ? "task" : "tasks"} for today`,
+    calm: "Everything looks calm. You can start easy.",
+    subtitle: "Here is what is waiting for you today",
+    balance: "Balance",
+    tasks: "Tasks",
+    shopping: "Shopping",
+    open: "open",
+    toBuy: "to buy",
+    greetings: {
+      morning: "Good morning",
+      noon: "Good afternoon",
+      evening: "Good evening",
+      night: "Good night",
+    },
+  },
+} as const;
+
+function getCopy(language: AppLanguage) {
+  return language === "en" ? copyByLanguage.en : copyByLanguage.he;
+}
+
+function getLocale(language: AppLanguage) {
+  return language === "en" ? "en-US" : "he-IL";
+}
+
+function formatCurrency(amount: number, language: AppLanguage) {
+  return new Intl.NumberFormat(getLocale(language), {
+    style: "currency",
+    currency: "ILS",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
 
 function readHeroData(): HeroData {
   const transactions = readStorageArray(
@@ -43,48 +103,69 @@ function readHeroData(): HeroData {
   };
 }
 
-function getGreeting() {
+function getGreeting(language: AppLanguage) {
+  const copy = getCopy(language);
   const hour = new Date().getHours();
 
-  if (hour >= 5 && hour < 12) return "בוקר טוב";
-  if (hour >= 12 && hour < 17) return "צהריים טובים";
-  if (hour >= 17 && hour < 22) return "ערב טוב";
-  return "לילה טוב";
+  if (hour >= 5 && hour < 12) return copy.greetings.morning;
+  if (hour >= 12 && hour < 17) return copy.greetings.noon;
+  if (hour >= 17 && hour < 22) return copy.greetings.evening;
+  return copy.greetings.night;
 }
 
-function getTodayLabel() {
-  const now = new Date();
-  return new Intl.DateTimeFormat("he-IL", {
+function getTodayLabel(language: AppLanguage) {
+  return new Intl.DateTimeFormat(getLocale(language), {
     weekday: "long",
     day: "numeric",
     month: "long",
-  }).format(now);
+  }).format(new Date());
+}
+
+function getTimeLabel(language: AppLanguage) {
+  return new Intl.DateTimeFormat(getLocale(language), {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date());
 }
 
 export default function HomeHero() {
+  const { language, direction } = useLanguage();
+  const copy = getCopy(language);
   const [data, setData] = useState<HeroData | null>(null);
+  const [timeLabel, setTimeLabel] = useState("--:--");
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => setData(readHeroData()), 0);
     return () => window.clearTimeout(timeoutId);
   }, []);
 
+  useEffect(() => {
+    const updateTimeLabel = () => setTimeLabel(getTimeLabel(language));
+    const timeoutId = window.setTimeout(updateTimeLabel, 0);
+    const intervalId = window.setInterval(updateTimeLabel, 60_000);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      window.clearInterval(intervalId);
+    };
+  }, [language]);
+
   const statusText =
     data === null
-      ? "רגע, בודקים מה קורה בבית…"
+      ? copy.checking
       : data.overdueAmount > 0
-        ? `תשלום באיחור של ₪${data.overdueAmount.toLocaleString("he-IL")} מחכה לטיפול`
+        ? copy.overdue(formatCurrency(data.overdueAmount, language))
         : data.openTasks > 0
-          ? `${data.openTasks} משימות פתוחות מחכות להיום`
-          : "הכול מסודר. אפשר להתחיל רגוע.";
+          ? copy.openTasks(data.openTasks)
+          : copy.calm;
 
   const stats = [
     {
       id: "balance",
       href: "/finance" as const,
       icon: "finance" as const,
-      label: "יתרה",
-      value: `₪${(data?.balance ?? 0).toLocaleString("he-IL")}`,
+      label: copy.balance,
+      value: formatCurrency(data?.balance ?? 0, language),
       chipClass: "bg-emerald-50 text-emerald-700 ring-emerald-100",
       valueClass: "text-emerald-800",
     },
@@ -92,8 +173,8 @@ export default function HomeHero() {
       id: "tasks",
       href: "/tasks" as const,
       icon: "check" as const,
-      label: "משימות",
-      value: `${data?.openTasks ?? 0} פתוחות`,
+      label: copy.tasks,
+      value: `${data?.openTasks ?? 0} ${copy.open}`,
       chipClass: "bg-amber-50 text-amber-700 ring-amber-100",
       valueClass: "text-[#111827]",
     },
@@ -101,8 +182,8 @@ export default function HomeHero() {
       id: "shopping",
       href: "/shopping" as const,
       icon: "shopping" as const,
-      label: "קניות",
-      value: `${data?.itemsToBuy ?? 0} לקנייה`,
+      label: copy.shopping,
+      value: `${data?.itemsToBuy ?? 0} ${copy.toBuy}`,
       chipClass: "bg-sky-50 text-sky-700 ring-sky-100",
       valueClass: "text-[#111827]",
     },
@@ -119,15 +200,26 @@ export default function HomeHero() {
         aria-hidden="true"
       />
 
-      <div className="relative min-w-0 text-right">
-        <p className="truncate text-[11px] font-bold text-slate-400">
-          {getTodayLabel()}
-        </p>
+      <div
+        className={[
+          "relative min-w-0",
+          direction === "rtl" ? "text-right" : "text-left",
+        ].join(" ")}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <span className="inline-flex h-8 shrink-0 items-center rounded-2xl border border-[#eadfcd] bg-[#fffdf8] px-3 text-[11px] font-black tabular-nums text-slate-600 shadow-[0_8px_18px_rgba(33,43,63,0.05)]">
+            {copy.updatedAt}
+            {timeLabel}
+          </span>
+          <p className="min-w-0 truncate text-[11px] font-bold text-slate-400">
+            {getTodayLabel(language)}
+          </p>
+        </div>
         <h1 className="mt-1 text-[26px] font-black leading-8 text-[#0f172a]">
-          {getGreeting()}
+          {getGreeting(language)}
         </h1>
         <p className="mt-1 max-w-[20rem] text-sm font-black leading-5 text-[#111827]">
-          הנה מה שמחכה לך היום
+          {copy.subtitle}
         </p>
         <p className="mt-1 max-w-[20rem] text-[13px] font-semibold leading-5 text-slate-500">
           {statusText}

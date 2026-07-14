@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { useModuleLiveStat } from "@/hooks/useModuleLiveStat";
+import { useLanguage } from "@/i18n/useLanguage";
 import type { AppRoute } from "@/types/navigation";
 
 export function HomeSectionHeader({
@@ -15,13 +16,20 @@ export function HomeSectionHeader({
   subtitle?: string;
   action?: ReactNode;
 }) {
+  const { direction } = useLanguage();
+
   return (
-    <div className="mb-2.5 flex items-start justify-between gap-3 text-right">
+    <div
+      className={[
+        "mb-2.5 flex items-start justify-between gap-3",
+        direction === "rtl" ? "text-right" : "text-left",
+      ].join(" ")}
+    >
       {action ? <div className="shrink-0">{action}</div> : <span />}
       <div className="min-w-0">
-        <h2 className="text-[15px] font-black text-[#111827]">{title}</h2>
+        <h2 className="text-base font-black leading-6 text-[#111827]">{title}</h2>
         {subtitle && (
-          <p className="mt-0.5 text-[11px] font-semibold leading-4 text-slate-500">
+          <p className="mt-0.5 text-xs font-semibold leading-4 text-slate-500">
             {subtitle}
           </p>
         )}
@@ -66,33 +74,38 @@ export type HomeArea = {
 };
 
 export function HomeAreaCard({ area }: { area: HomeArea }) {
+  const { direction } = useLanguage();
   const liveStat = useModuleLiveStat(area.href, area.statFallback);
 
   return (
     <Link
       href={area.href}
-      className={`relative flex min-h-[96px] flex-col justify-between overflow-hidden rounded-[20px] border border-white/70 p-3.5 text-right shadow-[0_8px_18px_rgba(33,43,63,0.045)] ring-1 ring-[#eadfcd]/45 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(33,43,63,0.08)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${area.tintClass ?? "bg-white"}`}
+      className={`relative flex min-h-[88px] flex-col justify-between overflow-hidden rounded-[18px] border border-white/80 p-3 shadow-[0_8px_18px_rgba(33,43,63,0.04)] ring-1 ring-[#eadfcd]/50 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(33,43,63,0.08)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${direction === "rtl" ? "text-right" : "text-left"} ${area.tintClass ?? "bg-white"}`}
     >
       <span
-        className={`absolute inset-y-3 right-0 w-0.5 rounded-l-full ${area.accentClass}`}
+        className={[
+          "absolute inset-y-3 w-0.5",
+          direction === "rtl" ? "right-0 rounded-l-full" : "left-0 rounded-r-full",
+          area.accentClass,
+        ].join(" ")}
         aria-hidden="true"
       />
       <div className="flex items-start justify-between gap-2">
         <span
-          className={`grid h-9 w-9 shrink-0 place-items-center rounded-2xl ring-1 ${area.accentClass}`}
+          className={`grid h-8 w-8 shrink-0 place-items-center rounded-2xl ring-1 ${area.accentClass}`}
         >
-          <AppIcon name={area.icon} className="h-4.5 w-4.5" />
+          <AppIcon name={area.icon} className="h-4 w-4" />
         </span>
         <div className="min-w-0">
           <h3 className="truncate text-[13px] font-black text-[#111827]">
             {area.title}
           </h3>
-          <p className="truncate text-[11px] font-semibold text-slate-400">
+          <p className="truncate text-[11px] font-semibold text-slate-500">
             {area.subtitle}
           </p>
         </div>
       </div>
-      <p className="truncate text-[11px] font-black text-slate-500">
+      <p className="truncate text-[11px] font-black text-slate-600">
         {liveStat}
       </p>
     </Link>

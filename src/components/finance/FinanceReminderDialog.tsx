@@ -63,7 +63,7 @@ export default function FinanceReminderDialog({
           <button
             type="button"
             onClick={onComplete}
-            className="min-h-11 rounded-2xl bg-[#111827] px-4 py-2 text-sm font-black text-white transition hover:bg-[#1f2937]"
+            className="min-h-11 rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-4 py-2 text-sm font-black text-[#111827] shadow-sm transition hover:bg-white hover:border-[#d8b470]"
           >
             סמן כבוצע
           </button>

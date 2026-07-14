@@ -20,6 +20,8 @@ export type TelemetryEventName =
   | "auth_login_failed"
   | "guest_mode_started"
   | "migration_completed"
+  | "profile_updated"
+  | "family_space_reset"
   | "performance_metric"
   | "app_error";
 

@@ -13,7 +13,7 @@ export const buttonSizeClasses = {
 
 export const buttonToneClasses = {
   primary:
-    "nestly-primary-action bg-[#111827] text-white shadow-[0_14px_30px_rgba(17,24,39,0.18)] hover:bg-[#1f2937]",
+    "nestly-primary-action border border-[#d8caba] bg-[#fffdf8] text-[#111827] shadow-[0_10px_22px_rgba(33,43,63,0.08)] hover:bg-white hover:border-[#d8b470]",
   secondary:
     "border border-[#e3d8c9] bg-white text-[#1d1d1f] shadow-[0_8px_18px_rgba(33,43,63,0.055)] hover:bg-[#fffdf8]",
   ghost:

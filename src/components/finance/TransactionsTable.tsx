@@ -201,7 +201,7 @@ function ActionButton({
 }) {
   const toneClass =
     tone === "primary"
-      ? "bg-[#111827] text-white hover:bg-[#1f2937]"
+      ? "border border-[#d8caba] bg-[#fffdf8] text-[#111827] shadow-sm hover:bg-white hover:border-[#d8b470]"
       : tone === "danger"
         ? "border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
         : "border border-[#e6e8ec] bg-white text-slate-700 hover:bg-[#fff8eb]";
@@ -671,7 +671,7 @@ export default function TransactionsTable({
                   <ActionButton onClick={cancelInlineEdit}>ביטול</ActionButton>
                   <button
                     type="submit"
-                    className="min-h-11 rounded-2xl bg-[#111827] px-4 text-sm font-black text-white hover:bg-[#1f2937]"
+                    className="min-h-11 rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-4 text-sm font-black text-[#111827] shadow-sm hover:bg-white hover:border-[#d8b470]"
                   >
                     שמור
                   </button>
