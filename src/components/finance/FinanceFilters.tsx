@@ -21,7 +21,7 @@ type FinanceFiltersProps = {
 };
 
 const fieldClass =
-  "min-h-11 rounded-2xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-semibold text-[#111827] shadow-sm outline-none placeholder:text-slate-600 focus:border-[#007aff]/60 focus:ring-2 focus:ring-blue-100";
+  "min-h-12 rounded-2xl border border-[#d9dde5]/80 bg-white px-4 text-right text-sm font-semibold text-[#111827] shadow-sm outline-none placeholder:text-slate-400 focus:border-[#007aff]/60 focus:ring-2 focus:ring-blue-100";
 
 export default function FinanceFilters({
   searchValue,
@@ -39,12 +39,12 @@ export default function FinanceFilters({
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   return (
-    <section className="rounded-[18px] bg-white/88 p-2.5 text-[#111827] shadow-[0_8px_20px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
-      <div className="mb-2 flex items-center justify-between gap-2">
+    <section className="rounded-[22px] bg-white/88 p-4 text-[#111827] shadow-[0_12px_30px_rgba(15,23,42,0.045)] ring-1 ring-[#e6e8ec]/80">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <button
           type="button"
           onClick={onClearFilters}
-          className="min-h-9 rounded-full border border-[#e6e8ec] bg-[#fafafb] px-3 text-xs font-black text-slate-700 hover:bg-white"
+          className="min-h-10 rounded-full border border-[#e6e8ec] bg-transparent px-4 text-xs font-black text-slate-500 hover:bg-white hover:text-[#111827]"
         >
           נקה סינון
         </button>
@@ -55,16 +55,16 @@ export default function FinanceFilters({
             onClick={() =>
               setShowAdvancedFilters((currentValue) => !currentValue)
             }
-            className="min-h-9 rounded-full border border-[#e6e8ec] bg-white px-3 text-xs font-black text-slate-700 hover:bg-[#fff8eb]"
+            className="min-h-10 rounded-full border border-[#e6e8ec] bg-white px-4 text-xs font-black text-slate-600 hover:bg-[#fff8eb] hover:text-[#111827]"
             aria-expanded={showAdvancedFilters}
           >
             סינון
           </button>
-          <h2 className="text-right text-sm font-black">חיפוש</h2>
+          <h2 className="text-right text-base font-black text-[#111827]">חיפוש</h2>
         </div>
       </div>
 
-      <div className="grid gap-1.5 md:grid-cols-[1.4fr_0.8fr_0.8fr]">
+      <div className="grid gap-3 md:grid-cols-[1.4fr_0.8fr_0.8fr]">
         <input
           value={searchValue}
           onChange={(event) => onSearchChange(event.target.value)}
@@ -98,28 +98,28 @@ export default function FinanceFilters({
       </div>
 
       {showAdvancedFilters && (
-        <div className="mt-2 grid gap-2 rounded-2xl bg-[#fafafb] p-2 md:grid-cols-2">
-          <label className="text-xs font-black text-slate-700">
+        <div className="mt-4 grid gap-3 rounded-2xl bg-[#fafafb]/90 p-4 md:grid-cols-2">
+          <label className="text-xs font-black text-slate-500">
             מתאריך
             <DateInput
               value={dateFrom}
               onChange={onDateFromChange}
               label="מתאריך"
               className="mt-1"
-              inputClassName="min-h-10 w-full rounded-2xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-600 focus:border-[#007aff]/60"
-              buttonClassName="min-h-10 rounded-2xl border border-[#d9dde5] bg-white px-3 text-xs font-black text-slate-700 transition hover:bg-[#fff8eb]"
+              inputClassName="min-h-11 w-full rounded-2xl border border-[#d9dde5]/80 bg-white px-4 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/60"
+              buttonClassName="min-h-11 rounded-2xl border border-[#d9dde5]/80 bg-white px-3 text-xs font-black text-slate-500 transition hover:bg-[#fff8eb] hover:text-[#111827]"
             />
           </label>
 
-          <label className="text-xs font-black text-slate-700">
+          <label className="text-xs font-black text-slate-500">
             עד תאריך
             <DateInput
               value={dateTo}
               onChange={onDateToChange}
               label="עד תאריך"
               className="mt-1"
-              inputClassName="min-h-10 w-full rounded-2xl border border-[#d9dde5] bg-white px-3 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-600 focus:border-[#007aff]/60"
-              buttonClassName="min-h-10 rounded-2xl border border-[#d9dde5] bg-white px-3 text-xs font-black text-slate-700 transition hover:bg-[#fff8eb]"
+              inputClassName="min-h-11 w-full rounded-2xl border border-[#d9dde5]/80 bg-white px-4 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#007aff]/60"
+              buttonClassName="min-h-11 rounded-2xl border border-[#d9dde5]/80 bg-white px-3 text-xs font-black text-slate-500 transition hover:bg-[#fff8eb] hover:text-[#111827]"
             />
           </label>
         </div>

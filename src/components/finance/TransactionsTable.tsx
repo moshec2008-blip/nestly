@@ -308,24 +308,24 @@ export default function TransactionsTable({
   }
 
   return (
-    <section className="rounded-[18px] bg-white/94 p-2.5 text-right shadow-[0_8px_22px_rgba(15,23,42,0.04)] ring-1 ring-[#edf0f3]">
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-2 border-b border-[#eef0f3] pb-2">
-        <div className="flex flex-wrap gap-1.5 text-[11px] font-black">
-          <span className="rounded-full border border-[#e6e8ec] bg-white px-2.5 py-1 text-slate-600">
+    <section className="rounded-[24px] bg-white/94 p-5 text-right shadow-[0_16px_38px_rgba(15,23,42,0.055)] ring-1 ring-[#edf0f3]/80">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4 border-b border-[#eef0f3]/80 pb-4">
+        <div className="flex flex-wrap gap-2 text-xs font-black">
+          <span className="rounded-full border border-[#e6e8ec] bg-white px-3 py-1.5 text-slate-500">
             {transactions.length} פעולות
           </span>
           {summary.pendingCount > 0 && (
-            <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-amber-700">
+            <span className="rounded-full border border-amber-200/80 bg-amber-50 px-3 py-1.5 text-amber-700">
               {summary.pendingCount} ממתינות
             </span>
           )}
         </div>
 
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
             תנועות כספיות
           </p>
-          <h2 className="text-sm font-black text-[#111827]">פעולות אחרונות</h2>
+          <h2 className="text-base font-black text-[#111827]">פעולות אחרונות</h2>
         </div>
       </div>
 
@@ -343,14 +343,14 @@ export default function TransactionsTable({
         </div>
       ) : (
         <div>
-          <div className="divide-y divide-[#edf0f3]">
+          <div className="space-y-5">
             {groupedTransactions.map((group) => (
-              <div key={group.id} className="py-0.5 first:pt-0 last:pb-0">
-                <p className="px-1 pb-0.5 pt-2 text-[10px] font-black uppercase tracking-[0.12em] text-slate-500 first:pt-0">
+              <div key={group.id}>
+                <p className="px-1 pb-2 text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
                   {group.label}
                 </p>
 
-                <div className="divide-y divide-[#eef0f3]">
+                <div className="divide-y divide-[#eef0f3]/80">
                   {group.transactions.map((transaction) => {
                     const isMenuOpen = menuTransactionId === transaction.id;
                     const insight = getInsight(transaction);
@@ -360,31 +360,31 @@ export default function TransactionsTable({
                         <button
                           type="button"
                           onClick={() => openDetails(transaction)}
-                          className="grid w-full grid-cols-[minmax(0,1fr)_minmax(8.25rem,max-content)] items-center gap-1.5 rounded-[12px] py-2 pl-9 pr-1 text-right transition hover:bg-[#fafafb] sm:grid-cols-[minmax(0,1fr)_minmax(9.25rem,max-content)]"
+                          className="grid w-full grid-cols-[minmax(0,1fr)_minmax(8.75rem,max-content)] items-center gap-3 rounded-[18px] py-4 pl-10 pr-2 text-right transition hover:bg-[#fafafb] sm:grid-cols-[minmax(0,1fr)_minmax(9.75rem,max-content)]"
                         >
-                          <div className="flex min-w-0 items-center justify-end gap-2">
+                          <div className="flex min-w-0 items-center justify-end gap-3">
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center justify-end gap-2">
                                 {transaction.status === "pending" && (
-                                   <span className="rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-black text-amber-700">
+                                   <span className="rounded-full bg-amber-50 px-2 py-1 text-[10px] font-black text-amber-700">
                                     {statusLabels[transaction.status]}
                                   </span>
                                 )}
-                                 <h3 className="truncate text-[13px] font-black text-[#111827]">
+                                 <h3 className="truncate text-sm font-black text-[#0f172a]">
                                   {transaction.title}
                                 </h3>
                               </div>
-                              <p className="mt-0.5 truncate text-[10.5px] font-semibold text-slate-500">
+                              <p className="mt-1 truncate text-xs font-semibold text-slate-400">
                                 {transaction.category} · {formatDate(transaction.date)}
                                 {insight ? ` · ${insight}` : ""}
                               </p>
                             </div>
                             <span
                               className={[
-                                 "grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-black",
+                                 "grid h-9 w-9 shrink-0 place-items-center rounded-2xl text-xs font-black",
                                 transaction.type === "income"
-                                  ? "bg-emerald-50 text-emerald-700"
-                                  : "bg-slate-100 text-slate-700",
+                                  ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
+                                  : "bg-slate-50 text-slate-600 ring-1 ring-slate-100",
                               ].join(" ")}
                               aria-hidden="true"
                             >
@@ -394,7 +394,7 @@ export default function TransactionsTable({
 
                           <span
                             dir="ltr"
-                             className={`min-w-[8.25rem] shrink-0 whitespace-nowrap text-left text-[15px] font-black tabular-nums leading-5 sm:min-w-36 ${getAmountClass(
+                             className={`min-w-[8.75rem] shrink-0 whitespace-nowrap text-left text-base font-black tabular-nums leading-6 sm:min-w-40 ${getAmountClass(
                               transaction.type
                             )}`}
                           >
@@ -410,7 +410,7 @@ export default function TransactionsTable({
                               currentId === transaction.id ? null : transaction.id
                             );
                           }}
-                          className="absolute left-0.5 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-base font-black text-slate-400 transition hover:bg-[#fff8eb] hover:text-[#111827]"
+                          className="absolute left-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-base font-black text-slate-400 transition hover:bg-[#fff8eb] hover:text-[#111827]"
                           aria-label={`פעולות עבור ${transaction.title}`}
                         >
                           ...
@@ -456,8 +456,8 @@ export default function TransactionsTable({
             ))}
           </div>
 
-          <div className="mt-2 flex items-center justify-between gap-2 border-t border-[#eef0f3] pt-2 pb-[calc(var(--nestly-safe-bottom-gap)+0.25rem)] sm:pb-0">
-            <span className="text-xs font-bold text-slate-500">
+          <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#eef0f3]/80 pt-4 pb-[calc(var(--nestly-safe-bottom-gap)+0.25rem)] sm:pb-0">
+            <span className="text-xs font-bold text-slate-400">
               יתרה ברשימה: {formatCurrency(summary.balance)}
             </span>
             {transactions.length > 8 && (

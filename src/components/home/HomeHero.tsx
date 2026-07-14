@@ -9,7 +9,6 @@ import { getTaskStats, initialFamilyTasks } from "@/data/tasks";
 import { isDemoModeActive } from "@/lib/demoMode";
 import { brand } from "@/lib/branding";
 import { storageKeys } from "@/lib/storageKeys";
-import { formatHebrewDate } from "@/utils/hebrewDate";
 import { readStorageArray } from "@/utils/storage";
 
 type HeroData = {
@@ -55,14 +54,11 @@ function getGreeting() {
 
 function getTodayLabel() {
   const now = new Date();
-  const weekday = new Intl.DateTimeFormat("he-IL", {
+  return new Intl.DateTimeFormat("he-IL", {
     weekday: "long",
     day: "numeric",
     month: "long",
   }).format(now);
-  const hebrew = formatHebrewDate(now, "");
-
-  return hebrew ? `${weekday} · ${hebrew}` : weekday;
 }
 
 export default function HomeHero() {
@@ -80,7 +76,7 @@ export default function HomeHero() {
         ? `יש תשלום באיחור של ₪${data.overdueAmount.toLocaleString("he-IL")} — שווה להציץ`
         : data.openTasks > 0
           ? `${data.openTasks} משימות פתוחות — נתחיל מהחשובה ביותר?`
-          : "הכול מסודר להיום. איזה כיף 🙂";
+          : "הכול מסודר להיום. אפשר להתחיל בשקט.";
 
   const stats = [
     {
@@ -113,35 +109,50 @@ export default function HomeHero() {
   ];
 
   return (
-    <section className="nestly-hero rounded-[24px] p-4 text-right">
-      <p className="text-[11px] font-bold text-[#8a5a10]">{getTodayLabel()}</p>
-      <h1 className="mt-1 text-2xl font-black leading-8 text-[#111827]">
-        {getGreeting()},{" "}
-        {data?.isDemo ? brand.demoWorkspaceName : brand.workspaceName}
-      </h1>
-      <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
-        {statusText}
-      </p>
+    <section className="relative overflow-hidden rounded-[26px] border border-white/80 bg-white/95 p-5 shadow-[0_18px_42px_rgba(33,43,63,0.085)] ring-1 ring-[#eadfcd]/65 backdrop-blur-xl">
+      <span
+        className="pointer-events-none absolute -left-12 -top-12 h-28 w-28 rounded-full bg-sky-100/40 blur-2xl"
+        aria-hidden="true"
+      />
+      <span
+        className="pointer-events-none absolute -bottom-14 right-1 h-32 w-32 rounded-full bg-emerald-100/36 blur-2xl"
+        aria-hidden="true"
+      />
 
-      <div className="mt-3 grid grid-cols-3 gap-1.5">
+      <div className="relative min-w-0 text-right">
+        <p className="truncate text-[11px] font-bold text-slate-400">
+          {getTodayLabel()}
+        </p>
+        <p className="mt-2 text-[11px] font-black uppercase tracking-[0.12em] text-slate-500">
+          Family Dashboard
+        </p>
+        <h1 className="mt-1 max-w-[16rem] text-[25px] font-black leading-8 text-[#0f172a]">
+          {data?.isDemo ? brand.demoWorkspaceName : brand.workspaceName}
+        </h1>
+        <p className="mt-1.5 max-w-[20rem] text-[13px] font-semibold leading-5 text-slate-500">
+          <span className="font-black text-[#111827]">{getGreeting()}</span>
+          <span className="mx-1 text-slate-300">·</span>
+          {statusText}
+        </p>
+      </div>
+
+      <div className="relative mt-4 grid grid-cols-3 gap-2.5">
         {stats.map((stat) => (
           <Link
             key={stat.id}
             href={stat.href}
-            className="rounded-2xl bg-white/85 p-2 text-right shadow-sm ring-1 ring-[#e3d8c9]/60 transition hover:-translate-y-0.5 hover:bg-white"
+            className="rounded-[18px] bg-[#fafafb]/92 p-2.5 text-center ring-1 ring-[#e6e8ec]/65 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(33,43,63,0.08)]"
           >
-            <span className="flex items-center justify-end gap-1.5">
-              <span className="text-[11px] font-bold text-slate-600">
-                {stat.label}
-              </span>
-              <span
-                className={`grid h-6 w-6 shrink-0 place-items-center rounded-lg ring-1 ${stat.chipClass}`}
-              >
-                <AppIcon name={stat.icon} className="h-3.5 w-3.5" />
-              </span>
+            <span
+              className={`mx-auto grid h-8 w-8 place-items-center rounded-2xl ring-1 ${stat.chipClass}`}
+            >
+              <AppIcon name={stat.icon} className="h-4 w-4" />
+            </span>
+            <span className="mt-1.5 block text-[10px] font-bold text-slate-400">
+              {stat.label}
             </span>
             <span
-              className={`mt-1 block truncate text-sm font-extrabold tabular-nums ${stat.valueClass}`}
+              className={`mt-0.5 block truncate text-[13px] font-black tabular-nums ${stat.valueClass}`}
             >
               {stat.value}
             </span>

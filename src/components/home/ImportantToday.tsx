@@ -180,25 +180,25 @@ function readImportantData(): ImportantData {
 
 export function NestlyAiInsightCard({ insight }: { insight: HomeInsight }) {
   return (
-    <section className="rounded-[22px] border border-violet-100 bg-gradient-to-l from-violet-50/90 to-white p-4 text-right shadow-[0_10px_26px_rgba(76,29,149,0.06)]">
-      <div className="flex items-center justify-between gap-3">
+    <section className="rounded-[22px] border border-white/80 bg-gradient-to-l from-violet-100/70 via-sky-50/88 to-emerald-50/82 p-3 text-right shadow-[0_14px_30px_rgba(76,29,149,0.1)]">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
+        <span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/76 text-violet-700 shadow-sm ring-1 ring-violet-100">
+          <AppIcon name="spark" className="h-4.5 w-4.5" />
+        </span>
+
+        <div className="min-w-0 text-center">
+          <h2 className="text-sm font-black text-[#111827]">Nestly AI</h2>
+          <p className="mt-0.5 truncate text-xs font-semibold leading-5 text-slate-500">
+            {insight.text}
+          </p>
+        </div>
+
         <Link
           href={insight.href}
-          className="nestly-primary-action grid min-h-10 shrink-0 place-items-center rounded-2xl px-4 py-2 text-xs font-black transition hover:opacity-90"
+          className="grid min-h-10 shrink-0 place-items-center rounded-2xl border border-white/80 bg-white/72 px-3 text-xs font-black text-[#111827] shadow-sm transition hover:bg-white"
         >
-          פתח עכשיו
+          פתח
         </Link>
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="min-w-0">
-            <h2 className="text-sm font-black text-violet-900">Nestly AI</h2>
-            <p className="mt-0.5 text-sm font-semibold leading-5 text-slate-700">
-              {insight.text}
-            </p>
-          </div>
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white text-violet-600 shadow-sm ring-1 ring-violet-100">
-            <AppIcon name="spark" className="h-5 w-5" />
-          </span>
-        </div>
       </div>
     </section>
   );
@@ -214,43 +214,48 @@ export default function ImportantToday() {
 
   return (
     <>
-      <section className="rounded-[22px] border border-[#eadfcd]/80 bg-white/90 p-4 text-right shadow-[0_10px_26px_rgba(33,43,63,0.05)]">
-        <h2 className="text-base font-black text-[#111827]">היום חשוב</h2>
+      <section className="rounded-[26px] border border-white/80 bg-white/96 p-5 text-right shadow-[0_18px_44px_rgba(33,43,63,0.085)] ring-1 ring-[#eadfcd]/65">
+        <h2 className="text-xl font-black leading-7 text-[#111827]">
+          פעולות אחרונות
+        </h2>
+
+        {data?.insight && (
+          <div className="mt-3">
+            <NestlyAiInsightCard insight={data.insight} />
+          </div>
+        )}
 
         {data === null ? (
-          <p className="mt-3 text-sm font-semibold text-slate-500">טוען…</p>
+          <p className="mt-4 text-sm font-semibold text-slate-400">טוען…</p>
         ) : data.rows.length === 0 ? (
-          <p className="mt-3 text-sm font-semibold text-slate-600">
-            אין משימות דחופות להיום — נהנים מהשקט 🙂
+          <p className="mt-4 text-sm font-semibold text-slate-500">
+            אין משימות דחופות להיום — נהנים מהשקט.
           </p>
         ) : (
-          <ul className="mt-2 divide-y divide-[#f0ece3]">
+          <ul className="mt-4 divide-y divide-[#eef0f4]">
             {data.rows.map((row) => (
               <li key={row.id}>
                 <Link
                   href={row.href}
-                  className="group flex min-h-14 items-center justify-between gap-3 rounded-xl py-2.5 transition hover:bg-[#fffdf8]"
+                  className="group grid min-h-[72px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl px-1 py-3 transition hover:bg-[#fffdf8]"
                 >
-                  <span className="flex min-h-9 shrink-0 items-center gap-1 rounded-full border border-[#dbe3ef] bg-white px-3.5 text-xs font-black text-[#007aff] shadow-sm transition group-hover:border-[#007aff]/40">
-                    פתח
-                    <span aria-hidden="true">‹</span>
+                  <span className="text-sm font-black text-slate-400 transition group-hover:text-[#111827]">
+                    ‹
                   </span>
-                  <span className="flex min-w-0 flex-1 items-center justify-end gap-3">
-                    <span className="min-w-0 text-right">
-                      <span className="block truncate text-sm font-black text-[#111827]">
-                        {row.title}
+                  <span className="min-w-0 text-right">
+                    <span className="block truncate text-base font-black text-[#0f172a]">
+                      {row.title}
+                    </span>
+                    {row.subtitle && (
+                      <span className="mt-1 block truncate text-xs font-semibold text-slate-400">
+                        {row.subtitle}
                       </span>
-                      {row.subtitle && (
-                        <span className="block truncate text-xs font-semibold text-slate-600">
-                          {row.subtitle}
-                        </span>
-                      )}
-                    </span>
-                    <span
-                      className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ring-1 ${row.iconClass}`}
-                    >
-                      <AppIcon name={row.icon} className="h-5 w-5" />
-                    </span>
+                    )}
+                  </span>
+                  <span
+                    className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ring-1 ${row.iconClass}`}
+                  >
+                    <AppIcon name={row.icon} className="h-4.5 w-4.5" />
                   </span>
                 </Link>
               </li>
@@ -258,8 +263,6 @@ export default function ImportantToday() {
           </ul>
         )}
       </section>
-
-      {data?.insight && <NestlyAiInsightCard insight={data.insight} />}
     </>
   );
 }

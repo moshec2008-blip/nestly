@@ -176,7 +176,6 @@ export default function BirthdayWelcomePopup() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVisible]);
 
   function closeForNow() {

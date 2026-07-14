@@ -668,9 +668,9 @@ export default function FinanceManager() {
   }
 
   return (
-    <section className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] lg:pb-0">
-      <section className="nestly-card rounded-[20px] p-3 text-right text-[#1d1d1f]">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+    <section className="space-y-4 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] lg:pb-0">
+      <section className="nestly-card rounded-[24px] p-6 text-right text-[#1d1d1f]">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <p className="text-[11px] font-bold text-[#7a5212]">
               מרכז כספים · {formatMonthLabel(activeMonth)}
@@ -678,7 +678,7 @@ export default function FinanceManager() {
             <p className="mt-1 text-[28px] font-black leading-9 text-[#111827] sm:text-[32px]">
               {formatIlsCurrency(totalFinancialPosition)}
             </p>
-            <p className="mt-0.5 text-xs font-semibold text-slate-600">
+            <p className="mt-1 text-xs font-semibold text-slate-400">
               {hasAnyManualBalance
                 ? "סה\"כ מצב פיננסי: בנק וחסכונות בניכוי הלוואות ומשכנתאות"
                 : "יתרה מחושבת לפי הפעולות שהוזנו"}
@@ -694,13 +694,13 @@ export default function FinanceManager() {
           </div>
         </div>
 
-        <div className="mt-2.5">
+        <div className="mt-5">
           <FinanceSummaryCards cards={financeCards} />
         </div>
 
-        <details className="group mt-2 rounded-2xl border border-[#e3d8c9]/80 bg-[#fffdf8]">
-          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 py-2">
-            <span className="text-xs font-semibold text-slate-600">
+        <details className="group mt-4 rounded-[22px] border border-[#e3d8c9]/60 bg-[#fffdf8]/82 shadow-[0_10px_26px_rgba(33,43,63,0.04)]">
+          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 px-4 py-3">
+            <span className="text-xs font-semibold text-slate-400">
               {hasAnyManualBalance
                 ? `סה"כ כולל חסכונות והלוואות: ${formatIlsCurrency(totalFinancialPosition)}`
                 : "עדכון ידני של יתרות אמיתיות"}
@@ -716,11 +716,11 @@ export default function FinanceManager() {
             </span>
           </summary>
 
-          <div className="border-t border-[#e3d8c9]/60 p-2.5">
-            <p className="mb-2 text-[12px] font-semibold leading-5 text-slate-600">
+          <div className="border-t border-[#e3d8c9]/50 p-4">
+            <p className="mb-4 text-xs font-semibold leading-5 text-slate-400">
               מעדכנים מדי פעם לפי היתרה האמיתית: בנק וחסכונות מצד אחד, הלוואות ומשכנתאות מצד שני.
             </p>
-            <div className="grid gap-2 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               {balanceKinds.map((kind) => (
                 <BalanceTile
                   key={kind}
@@ -799,12 +799,12 @@ export default function FinanceManager() {
         <div
           className={
             isTransactionFormOpen
-              ? "grid gap-2.5 lg:grid-cols-[minmax(0,380px)_1fr]"
-              : "grid gap-2.5"
+              ? "grid gap-4 lg:grid-cols-[minmax(0,380px)_1fr]"
+              : "grid gap-4"
           }
         >
           {isTransactionFormOpen && (
-            <section className="hidden rounded-[20px] border border-white/80 bg-white/90 p-3 text-right shadow-[0_14px_34px_rgba(33,43,63,0.07)] lg:block">
+            <section className="hidden rounded-[24px] border border-white/80 bg-white/90 p-6 text-right shadow-[0_18px_42px_rgba(33,43,63,0.07)] lg:block">
               <div>
                 <p className="text-xs font-bold text-slate-600">פעולה חדשה</p>
                 <h2 className="mt-1 text-base font-bold text-[#111827]">
@@ -833,7 +833,7 @@ export default function FinanceManager() {
             </section>
           )}
 
-          <div className="space-y-2.5">
+          <div className="space-y-4">
             <FinanceFilters
               searchValue={searchValue}
               typeFilter={typeFilter}

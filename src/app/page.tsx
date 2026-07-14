@@ -13,33 +13,6 @@ import {
 
 const homeAreas: HomeArea[] = [
   {
-    href: "/tasks",
-    icon: "check",
-    title: "משימות",
-    subtitle: "משימות הבית",
-    statFallback: "0 פתוחות",
-    accentClass: "bg-amber-50 text-amber-600 ring-amber-100",
-    tintClass: "bg-gradient-to-br from-amber-50/70 via-white to-white",
-  },
-  {
-    href: "/finance",
-    icon: "finance",
-    title: "כספים",
-    subtitle: "ניהול הכנסות והוצאות",
-    statFallback: "0 ₪ יתרה",
-    accentClass: "bg-emerald-50 text-emerald-700 ring-emerald-100",
-    tintClass: "bg-gradient-to-br from-emerald-50/70 via-white to-white",
-  },
-  {
-    href: "/shopping",
-    icon: "shopping",
-    title: "קניות",
-    subtitle: "רשימת הקניות",
-    statFallback: "0 לקנייה",
-    accentClass: "bg-sky-50 text-sky-600 ring-sky-100",
-    tintClass: "bg-gradient-to-br from-sky-50/70 via-white to-white",
-  },
-  {
     href: "/family",
     icon: "family",
     title: "משפחה",
@@ -67,15 +40,6 @@ const homeAreas: HomeArea[] = [
     tintClass: "bg-gradient-to-br from-blue-50/70 via-white to-white",
   },
   {
-    href: "/birthdays",
-    icon: "calendar",
-    title: "אירועים",
-    subtitle: "אירועים קרובים",
-    statFallback: "אין אירועים קרובים",
-    accentClass: "bg-pink-50 text-pink-600 ring-pink-100",
-    tintClass: "bg-gradient-to-br from-pink-50/70 via-white to-white",
-  },
-  {
     href: "/health",
     icon: "health",
     title: "בריאות",
@@ -89,7 +53,7 @@ const homeAreas: HomeArea[] = [
 export default function HomePage() {
   return (
     <AppShell>
-      <div className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.25rem)] lg:space-y-4 lg:pb-0">
+      <div className="space-y-3.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.5rem)] lg:space-y-4 lg:pb-0">
         <HomeHero />
 
         <HomeQuickActions />
@@ -98,10 +62,10 @@ export default function HomePage() {
 
         <section>
           <HomeSectionHeader
-            title="אזורי הבית"
-            subtitle="כל מה שצריך לניהול המשפחה במקום אחד"
+            title="עוד אזורים"
+            subtitle="חלקים חשובים שלא צריכים להיות במרכז כל הזמן"
           />
-          <div className="grid grid-cols-2 gap-1.5 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 xl:grid-cols-4">
             {homeAreas.map((area) => (
               <HomeAreaCard key={area.href} area={area} />
             ))}

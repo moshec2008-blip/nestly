@@ -20,7 +20,7 @@ type ReceiptScanPreviewProps = {
 };
 
 const defaultTriggerClassName =
-  "inline-flex min-h-10 cursor-pointer items-center justify-center whitespace-nowrap rounded-[13px] border border-[#e3d8c9] bg-[#fff8eb] px-3 text-xs font-bold text-[#7a5212] transition hover:bg-[#fff2d9]";
+  "inline-flex min-h-11 cursor-pointer items-center justify-center whitespace-nowrap rounded-2xl border border-white/70 bg-gradient-to-br from-[#eff6ff]/90 via-white to-[#fff8eb]/90 px-4 text-xs font-black text-[#0f3b68] shadow-[0_12px_28px_rgba(59,130,246,0.12)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(59,130,246,0.16)]";
 
 function fileToBase64(file: File) {
   return new Promise<string>((resolve, reject) => {
