@@ -10,19 +10,18 @@ import {
   initialHealthRecords,
   initialVehicleRecords,
 } from "@/data/modules";
-import {
-  initialPermissionUsers,
-  roleLabels,
-} from "@/data/permissions";
+import { initialPermissionUsers, roleLabels } from "@/data/permissions";
 import { initialShoppingItems } from "@/data/shopping";
 import { initialFamilyTasks, type FamilyTask } from "@/data/tasks";
-import type { BirthdayPerson } from "@/types/birthdays";
-import type { ModuleRecord } from "@/types/modules";
-import type { FamilyPermissionUser } from "@/types/permissions";
-import type { ShoppingItem } from "@/types/shopping";
-import type { AppRoute } from "@/types/navigation";
+import type { AppLanguage } from "@/i18n/config";
+import { getDictionary } from "@/i18n/dictionaries";
 import { storageKeys } from "@/lib/storageKeys";
 import { toSmartDocumentView } from "@/services/smartDocuments";
+import type { BirthdayPerson } from "@/types/birthdays";
+import type { ModuleRecord } from "@/types/modules";
+import type { AppRoute } from "@/types/navigation";
+import type { FamilyPermissionUser } from "@/types/permissions";
+import type { ShoppingItem } from "@/types/shopping";
 import { readStorageArray } from "@/utils/storage";
 
 export type GlobalSearchResult = {
@@ -42,37 +41,77 @@ type DocumentSearchRecord = ModuleRecord & {
 };
 
 function normalize(value: string) {
-  return value.trim().toLowerCase();
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0591-\u05C7]/g, "");
 }
 
-function matchesQuery(query: string, values: string[]) {
+function matchesQuery(query: string, values: Array<string | number | undefined>) {
   const normalizedQuery = normalize(query);
 
   if (!normalizedQuery) {
     return false;
   }
 
-  return values.some((value) => normalize(value).includes(normalizedQuery));
+  return values.some((value) =>
+    normalize(String(value ?? "")).includes(normalizedQuery)
+  );
 }
 
-function taskToResult(task: FamilyTask): GlobalSearchResult {
+function formatCurrency(amount: number, language: AppLanguage) {
+  return new Intl.NumberFormat(language === "en" ? "en-US" : "he-IL", {
+    style: "currency",
+    currency: "ILS",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function moduleNames(language: AppLanguage) {
+  const dictionary = getDictionary(language);
+
+  return {
+    modules: language === "en" ? "Modules" : "מודולים",
+    tasks: dictionary.nav.tasks,
+    finance: dictionary.nav.finance,
+    health: dictionary.nav.health,
+    documents: dictionary.nav.documents,
+    vehicles: dictionary.nav.vehicles,
+    family: dictionary.nav.family,
+    birthdays: dictionary.nav.birthdays,
+    shopping: dictionary.nav.shopping,
+    permissions: dictionary.nav.permissions,
+  };
+}
+
+function taskToResult(
+  task: FamilyTask,
+  language: AppLanguage
+): GlobalSearchResult {
+  const names = moduleNames(language);
+  const due = language === "en" ? "Due" : "יעד";
+
   return {
     id: `task-${task.id}`,
     title: task.title,
-    description: `${task.category} · ${task.owner} · יעד ${task.dueDate}`,
-    module: "משימות",
+    description: `${task.category} · ${task.owner} · ${due} ${task.dueDate}`,
+    module: names.tasks,
     href: "/tasks",
   };
 }
 
-function financeToResult(transaction: FinanceTransaction): GlobalSearchResult {
+function financeToResult(
+  transaction: FinanceTransaction,
+  language: AppLanguage
+): GlobalSearchResult {
+  const names = moduleNames(language);
+
   return {
     id: `finance-${transaction.id}`,
     title: transaction.title,
-    description: `${transaction.category} · ${transaction.amount.toLocaleString(
-      "he-IL"
-    )} ש"ח · ${transaction.date}`,
-    module: "כספים",
+    description: `${transaction.category} · ${formatCurrency(transaction.amount, language)} · ${transaction.date}`,
+    module: names.finance,
     href: "/finance",
   };
 }
@@ -91,37 +130,56 @@ function moduleRecordToResult(
   };
 }
 
-function birthdayToResult(person: BirthdayPerson): GlobalSearchResult {
+function birthdayToResult(
+  person: BirthdayPerson,
+  language: AppLanguage
+): GlobalSearchResult {
+  const names = moduleNames(language);
+
   return {
     id: `birthday-${person.id}`,
     title: person.name,
     description: `${person.relationship} · ${person.hebrewDate} · ${person.gregorianDate}`,
-    module: "ימי הולדת",
+    module: names.birthdays,
     href: "/birthdays",
   };
 }
 
-function shoppingToResult(item: ShoppingItem): GlobalSearchResult {
+function shoppingToResult(
+  item: ShoppingItem,
+  language: AppLanguage
+): GlobalSearchResult {
+  const names = moduleNames(language);
+
   return {
     id: `shopping-${item.id}`,
     title: item.title,
     description: `${item.listName} · ${item.department} · ${item.buyer}`,
-    module: "קניות",
+    module: names.shopping,
     href: "/shopping",
   };
 }
 
-function permissionToResult(user: FamilyPermissionUser): GlobalSearchResult {
+function permissionToResult(
+  user: FamilyPermissionUser,
+  language: AppLanguage
+): GlobalSearchResult {
+  const names = moduleNames(language);
+
   return {
     id: `permission-${user.id}`,
     title: user.name,
     description: `${roleLabels[user.role]} · ${user.note}`,
-    module: "הרשאות",
+    module: names.permissions,
     href: "/permissions",
   };
 }
 
-export function getGlobalSearchResults(query: string): GlobalSearchResult[] {
+export function getGlobalSearchResults(
+  query: string,
+  language: AppLanguage = "he"
+): GlobalSearchResult[] {
+  const names = moduleNames(language);
   const tasks = readStorageArray<FamilyTask>(
     storageKeys.tasks,
     initialFamilyTasks
@@ -162,13 +220,13 @@ export function getGlobalSearchResults(query: string): GlobalSearchResult[] {
   const results: GlobalSearchResult[] = [
     ...appModules
       .filter((module) =>
-        matchesQuery(query, [module.label, module.description])
+        matchesQuery(query, [module.label, module.description, module.href])
       )
       .map((module) => ({
         id: `module-${module.href}`,
         title: module.label,
         description: module.description,
-        module: "מודולים",
+        module: names.modules,
         href: module.href,
       })),
     ...tasks
@@ -181,17 +239,18 @@ export function getGlobalSearchResults(query: string): GlobalSearchResult[] {
           task.dueDate,
         ])
       )
-      .map(taskToResult),
+      .map((task) => taskToResult(task, language)),
     ...financeTransactions
       .filter((transaction) =>
         matchesQuery(query, [
           transaction.title,
           transaction.category,
           transaction.date,
-          transaction.amount.toString(),
+          transaction.amount,
+          transaction.notes,
         ])
       )
-      .map(financeToResult),
+      .map((transaction) => financeToResult(transaction, language)),
     ...healthRecords
       .filter((record) =>
         matchesQuery(query, [
@@ -202,7 +261,7 @@ export function getGlobalSearchResults(query: string): GlobalSearchResult[] {
           record.date,
         ])
       )
-      .map((record) => moduleRecordToResult(record, "בריאות", "/health")),
+      .map((record) => moduleRecordToResult(record, names.health, "/health")),
     ...documentRecords
       .map((record) => toSmartDocumentView(record))
       .filter((view) =>
@@ -226,7 +285,7 @@ export function getGlobalSearchResults(query: string): GlobalSearchResult[] {
         ])
       )
       .map((view) =>
-        moduleRecordToResult(view.item, "מסמכים", "/documents")
+        moduleRecordToResult(view.item, names.documents, "/documents")
       ),
     ...vehicleRecords
       .filter((record) =>
@@ -238,7 +297,7 @@ export function getGlobalSearchResults(query: string): GlobalSearchResult[] {
           record.date,
         ])
       )
-      .map((record) => moduleRecordToResult(record, "רכבים", "/vehicles")),
+      .map((record) => moduleRecordToResult(record, names.vehicles, "/vehicles")),
     ...familyRecords
       .filter((record) =>
         matchesQuery(query, [
@@ -249,7 +308,7 @@ export function getGlobalSearchResults(query: string): GlobalSearchResult[] {
           record.date,
         ])
       )
-      .map((record) => moduleRecordToResult(record, "משפחה", "/family")),
+      .map((record) => moduleRecordToResult(record, names.family, "/family")),
     ...birthdays
       .filter((person) =>
         matchesQuery(query, [
@@ -260,7 +319,7 @@ export function getGlobalSearchResults(query: string): GlobalSearchResult[] {
           person.notes,
         ])
       )
-      .map(birthdayToResult),
+      .map((person) => birthdayToResult(person, language)),
     ...shoppingItems
       .filter((item) =>
         matchesQuery(query, [
@@ -270,10 +329,10 @@ export function getGlobalSearchResults(query: string): GlobalSearchResult[] {
           item.buyer,
           item.notes,
           item.quantity,
-          item.estimatedPrice.toString(),
+          item.estimatedPrice,
         ])
       )
-      .map(shoppingToResult),
+      .map((item) => shoppingToResult(item, language)),
     ...permissionUsers
       .filter((user) =>
         matchesQuery(query, [
@@ -283,7 +342,7 @@ export function getGlobalSearchResults(query: string): GlobalSearchResult[] {
           ...user.permissions.map((permission) => permission.label),
         ])
       )
-      .map(permissionToResult),
+      .map((user) => permissionToResult(user, language)),
   ];
 
   return results.slice(0, 8);

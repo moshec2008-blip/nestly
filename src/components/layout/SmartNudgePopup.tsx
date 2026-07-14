@@ -2,31 +2,18 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
-import { initialBirthdays } from "@/data/birthdays";
-import {
-  initialFinanceTransactions,
-  type FinanceTransaction,
-} from "@/data/finance";
-import { initialFamilyTasks, type FamilyTask } from "@/data/tasks";
+import AppIcon from "@/components/ui/AppIcon";
+import { useLanguage } from "@/i18n/useLanguage";
 import {
   acquireInterruption,
   releaseInterruption,
 } from "@/lib/interruptions";
 import { storageKeys } from "@/lib/storageKeys";
-import type { BirthdayPerson } from "@/types/birthdays";
-import { getDaysUntilBirthday } from "@/utils/birthdayCalendar";
-import { readStorageArray } from "@/utils/storage";
-
-type SmartNudge = {
-  id: string;
-  title: string;
-  description: string;
-  href: string;
-  actionLabel: string;
-  icon: AppIconName;
-  toneClassName: string;
-};
+import {
+  getDailyFocus,
+  type DailyFocus,
+  type IntelligenceTone,
+} from "@/services/familyIntelligence";
 
 const nudgeDelayMs = 4500;
 const nudgeInterruptionId = "smart-nudge";
@@ -35,132 +22,66 @@ function getTodayKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function getSmartNudge(): SmartNudge | null {
-  if (typeof window === "undefined") {
-    return null;
+function toneClassName(tone: IntelligenceTone) {
+  if (tone === "danger") {
+    return "bg-rose-50 text-rose-700";
   }
 
-  const today = getTodayKey();
-  const tasks = readStorageArray<FamilyTask>(
-    storageKeys.tasks,
-    initialFamilyTasks
-  );
-  const financeTransactions = readStorageArray<FinanceTransaction>(
-    storageKeys.finance,
-    initialFinanceTransactions
-  );
-  const birthdays = readStorageArray<BirthdayPerson>(
-    storageKeys.birthdays,
-    initialBirthdays
-  );
-
-  const urgentTask = [...tasks]
-    .filter((task) => task.status === "open" && task.dueDate <= today)
-    .sort((a, b) => {
-      if (a.priority !== b.priority) {
-        return a.priority === "high" ? -1 : 1;
-      }
-
-      return a.dueDate.localeCompare(b.dueDate);
-    })[0];
-
-  if (urgentTask) {
-    return {
-      id: `task-${urgentTask.id}-${today}`,
-      title: "משימה שמחכה לך",
-      description: urgentTask.title,
-      href: "/tasks",
-      actionLabel: "פתח משימות",
-      icon: "check",
-      toneClassName: "bg-orange-50 text-orange-700",
-    };
+  if (tone === "warning") {
+    return "bg-amber-50 text-amber-700";
   }
 
-  const pendingPayment = financeTransactions.find(
-    (transaction) => transaction.status === "pending"
-  );
-
-  if (pendingPayment) {
-    return {
-      id: `finance-${pendingPayment.id}-${today}`,
-      title: "תשלום דורש תשומת לב",
-      description: pendingPayment.title,
-      href: "/finance",
-      actionLabel: "פתח כספים",
-      icon: "finance",
-      toneClassName: "bg-emerald-50 text-emerald-700",
-    };
+  if (tone === "good") {
+    return "bg-emerald-50 text-emerald-700";
   }
 
-  const nextBirthday = [...birthdays].sort(
-    (first, second) =>
-      getDaysUntilBirthday({
-        gregorianDate: first.gregorianDate,
-        calendarType: first.calendarType ?? "hebrew",
-      }) -
-      getDaysUntilBirthday({
-        gregorianDate: second.gregorianDate,
-        calendarType: second.calendarType ?? "hebrew",
-      })
-  )[0];
-
-  if (
-    nextBirthday &&
-    getDaysUntilBirthday({
-      gregorianDate: nextBirthday.gregorianDate,
-      calendarType: nextBirthday.calendarType ?? "hebrew",
-    }) <= 14
-  ) {
-    return {
-      id: `birthday-${nextBirthday.id}-${today}`,
-      title: "יום הולדת מתקרב",
-      description: `${nextBirthday.name} בעוד ${getDaysUntilBirthday({
-        gregorianDate: nextBirthday.gregorianDate,
-        calendarType: nextBirthday.calendarType ?? "hebrew",
-      })} ימים`,
-      href: "/birthdays",
-      actionLabel: "פתח ימי הולדת",
-      icon: "calendar",
-      toneClassName: "bg-pink-50 text-pink-700",
-    };
-  }
-
-  return {
-    id: `documents-tip-${today}`,
-    title: "טיפ קטן לסדר בבית",
-    description: "אפשר לצרף מסמך, לסרוק מהטלפון ולהכין תיוק חכם.",
-    href: "/documents",
-    actionLabel: "פתח מסמכים",
-    icon: "document",
-    toneClassName: "bg-violet-50 text-violet-700",
-  };
+  return "bg-sky-50 text-sky-700";
 }
 
+const copy = {
+  he: {
+    close: "סגור המלצה",
+    notNow: "לא עכשיו",
+  },
+  en: {
+    close: "Close suggestion",
+    notNow: "Not now",
+  },
+} as const;
+
 export default function SmartNudgePopup() {
+  const { language, direction } = useLanguage();
+  const languageKey = language === "en" ? "en" : "he";
+  const text = copy[languageKey];
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
-  const nudge = useMemo(() => getSmartNudge(), []);
+  const nudge = useMemo<DailyFocus | null>(() => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    return getDailyFocus(language);
+  }, [language]);
 
   useEffect(() => {
-    if (!nudge || typeof window === "undefined") {
+    if (!nudge || typeof window === "undefined" || nudge.href === "/") {
       return;
     }
 
+    const nudgeId = `${nudge.href}-${getTodayKey()}`;
     const storedValue = window.localStorage.getItem(storageKeys.smartNudge);
 
-    if (storedValue === nudge.id) {
+    if (storedValue === nudgeId) {
       return;
     }
 
     const openTimeoutId = window.setTimeout(() => {
-      // פופאפ אחר (למשל יום הולדת) כבר מוצג? מדלגים הפעם ולא "שורפים"
-      // את ההמלצה — היא תוצג בכניסה הבאה.
       if (!acquireInterruption(nudgeInterruptionId)) {
         return;
       }
 
       setIsVisible(true);
-      window.localStorage.setItem(storageKeys.smartNudge, nudge.id);
+      window.localStorage.setItem(storageKeys.smartNudge, nudgeId);
     }, nudgeDelayMs);
 
     return () => {
@@ -175,18 +96,23 @@ export default function SmartNudgePopup() {
     releaseInterruption(nudgeInterruptionId);
   }
 
-  if (!nudge || !isVisible || isDismissed) {
+  if (!nudge || !isVisible || isDismissed || nudge.href === "/") {
     return null;
   }
 
   return (
-    <aside className="nestly-floating-nudge fixed left-4 z-50 w-[min(22rem,calc(100vw-2rem))] animate-soft-in rounded-[24px] border border-white/80 bg-white/94 p-3 text-right shadow-[0_24px_70px_rgba(33,43,63,0.18)] backdrop-blur-xl">
+    <aside
+      className={[
+        "nestly-floating-nudge fixed left-4 z-50 w-[min(22rem,calc(100vw-2rem))] animate-soft-in rounded-[24px] border border-white/80 bg-white/94 p-3 shadow-[0_24px_70px_rgba(33,43,63,0.18)] backdrop-blur-xl",
+        direction === "rtl" ? "text-right" : "text-left",
+      ].join(" ")}
+    >
       <div className="flex items-start justify-between gap-3">
         <button
           type="button"
           onClick={dismissNudge}
           className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] text-slate-600 transition hover:bg-white"
-          aria-label="סגור המלצה"
+          aria-label={text.close}
         >
           <AppIcon name="close" className="h-4 w-4" />
         </button>
@@ -199,7 +125,9 @@ export default function SmartNudgePopup() {
             </p>
           </div>
           <span
-            className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ${nudge.toneClassName}`}
+            className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ${toneClassName(
+              nudge.tone
+            )}`}
           >
             <AppIcon name={nudge.icon} className="h-5 w-5" />
           </span>
@@ -212,12 +140,12 @@ export default function SmartNudgePopup() {
           onClick={dismissNudge}
           className="min-h-10 rounded-2xl px-3 text-xs font-black text-slate-500 transition hover:bg-[#fff8eb]"
         >
-          לא עכשיו
+          {text.notNow}
         </button>
         <Link
           href={nudge.href}
           onClick={dismissNudge}
-          className="min-h-10 rounded-2xl bg-[#111827] px-4 py-2.5 text-xs font-black text-white shadow-[0_12px_28px_rgba(17,24,39,0.16)] transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
+          className="min-h-10 rounded-2xl border border-[#eadfcd] bg-[#fffdf8] px-4 py-2.5 text-xs font-black text-[#111827] shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
         >
           {nudge.actionLabel}
         </Link>

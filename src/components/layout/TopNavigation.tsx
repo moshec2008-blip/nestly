@@ -195,8 +195,9 @@ export default function TopNavigation({
   const currentRoute = getRouteMeta(pathname);
   const breadcrumbs = getBreadcrumbs(pathname);
   const searchResults = useMemo(
-    () => (searchValue.trim() ? getGlobalSearchResults(searchValue) : []),
-    [searchValue]
+    () =>
+      searchValue.trim() ? getGlobalSearchResults(searchValue, language) : [],
+    [language, searchValue]
   );
   const accountLabel =
     status === "authenticated"
