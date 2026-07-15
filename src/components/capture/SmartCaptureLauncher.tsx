@@ -621,10 +621,13 @@ export default function SmartCaptureLauncher() {
         <button
           type="button"
           onClick={handleTriggerClick}
-          className="grid h-12 w-12 cursor-grab place-items-center rounded-2xl border border-[#eadfcd] bg-white/96 text-[#7a5212] shadow-[0_16px_44px_rgba(33,43,63,0.16)] backdrop-blur transition active:scale-[0.98] active:cursor-grabbing lg:hidden"
+          className="inline-flex min-h-12 min-w-[6.25rem] cursor-grab items-center justify-center gap-2 rounded-2xl border border-[#d8b470] bg-[#fff8eb]/98 px-3 text-sm font-black text-[#111827] shadow-[0_18px_46px_rgba(33,43,63,0.22)] backdrop-blur transition active:scale-[0.98] active:cursor-grabbing lg:hidden"
           aria-label={`${text.trigger}. ${text.dragHint}`}
         >
-          <AppIcon name="spark" className="h-5 w-5" />
+          <span className="grid h-8 w-8 place-items-center rounded-xl bg-white text-[#7a5212] shadow-sm ring-1 ring-[#eadfcd]">
+            <AppIcon name="spark" className="h-4.5 w-4.5" />
+          </span>
+          <span>{text.trigger}</span>
         </button>
       </div>
 
