@@ -18,7 +18,8 @@ export type AppIconName =
   | "lock"
   | "settings"
   | "shopping"
-  | "spark";
+  | "spark"
+  | "timeline";
 
 type AppIconProps = SVGProps<SVGSVGElement> & {
   name: AppIconName;
@@ -99,6 +100,15 @@ function getIconPath(name: AppIconName) {
       "M18 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z",
     ],
     spark: ["M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"],
+    timeline: [
+      "M12 6h.01",
+      "M12 12h.01",
+      "M12 18h.01",
+      "M12 6v12",
+      "M15 6h5",
+      "M4 12h5",
+      "M15 18h5",
+    ],
   };
 
   return paths[name];

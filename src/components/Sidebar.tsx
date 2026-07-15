@@ -43,6 +43,12 @@ const sidebarLinks: SidebarLink[] = [
     description: "מה כדאי לטפל בו עכשיו",
   },
   {
+    label: "ציר הזמן",
+    href: "/timeline",
+    icon: "timeline",
+    description: "מה קרה לאחרונה בבית",
+  },
+  {
     label: "קניות",
     href: "/shopping",
     icon: "shopping",
@@ -160,6 +166,15 @@ const navigationAccents: Record<
     glow: "bg-cyan-400/20",
     shadow: "0 12px 30px rgba(6,182,212,0.24)",
     activeShadow: "0 16px 38px rgba(14,116,144,0.36)",
+  },
+  "/timeline": {
+    dot: "bg-stone-400",
+    icon: "border-stone-200 bg-stone-100 text-stone-900",
+    active: "border-stone-200 bg-stone-100 text-[#111827] ring-1 ring-stone-200/80",
+    hover: "hover:bg-stone-100/90",
+    glow: "bg-stone-400/20",
+    shadow: "0 12px 30px rgba(120,113,108,0.22)",
+    activeShadow: "0 16px 38px rgba(87,83,78,0.34)",
   },
   "/health": {
     dot: "bg-rose-400",

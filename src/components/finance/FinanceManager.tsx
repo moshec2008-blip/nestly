@@ -35,6 +35,7 @@ import {
   type FinanceDraft,
 } from "@/lib/actionDrafts";
 import { storageKeys } from "@/lib/storageKeys";
+import { recordMeaningfulActivity } from "@/services/timelineService";
 import { formatIlsCurrency } from "@/utils/formatters";
 import { isValidMonthKey } from "@/utils/isoDate";
 import {
@@ -471,6 +472,7 @@ export default function FinanceManager() {
   }
 
   function handleSaveTransaction(transaction: FinanceTransaction) {
+    const isNewTransaction = !transactions.some((item) => item.id === transaction.id);
     setTransactions((currentTransactions) => {
       const exists = currentTransactions.some(
         (item) => item.id === transaction.id
@@ -488,6 +490,33 @@ export default function FinanceManager() {
     setEditingTransactionId(null);
     setIsTransactionFormOpen(false);
     openTransactionsTab();
+    if (isNewTransaction && transaction.source !== "receipt_scan") {
+      recordMeaningfulActivity({
+        eventType:
+          transaction.type === "income" ? "income_added" : "expense_added",
+        title:
+          transaction.type === "income"
+            ? `נוספה הכנסה: ${transaction.title}`
+            : `נוספה הוצאה: ${transaction.title}`,
+        description: `${transaction.category} · ${transaction.amount.toLocaleString("he-IL")} ₪`,
+        occurredAt: new Date().toISOString(),
+        actorDisplayName: "הבית",
+        sourceModule: "finance",
+        sourceEntityType: "transaction",
+        sourceEntityId: transaction.id,
+        sourceUrl: "/finance",
+        relatedEntityIds: [transaction.id],
+        relatedFamilyMemberIds: [],
+        eventKey: `${transaction.type === "income" ? "income_added" : "expense_added"}:${transaction.id}`,
+        metadata: {
+          amount: transaction.amount,
+          currency: "ILS",
+          category: transaction.category,
+          sourceLabel: "כספים",
+        },
+        userConfirmed: true,
+      });
+    }
     toast({
       title: "הפעולה נשמרה",
       description: transaction.title,

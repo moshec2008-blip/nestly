@@ -12,6 +12,7 @@ export type CommonDictionary = {
     | "tasks"
     | "dashboard"
     | "commandCenter"
+    | "timeline"
     | "health"
     | "documents"
     | "vehicles"
@@ -67,6 +68,7 @@ const hebrewDictionary: CommonDictionary = {
     tasks: "משימות",
     dashboard: "סקירה",
     commandCenter: "מרכז המשפחה",
+    timeline: "ציר הזמן",
     health: "בריאות",
     documents: "מסמכים",
     vehicles: "רכבים",
@@ -121,6 +123,7 @@ const englishDictionary: CommonDictionary = {
     tasks: "Tasks",
     dashboard: "Overview",
     commandCenter: "Command Center",
+    timeline: "Timeline",
     health: "Health",
     documents: "Documents",
     vehicles: "Vehicles",

@@ -1,6 +1,7 @@
 import type { FinanceTransaction } from "@/data/finance";
 import type { AnalyzeReceiptResult } from "@/lib/ai/types";
 import { storageKeys } from "@/lib/storageKeys";
+import { recordMeaningfulActivity } from "@/services/timelineService";
 import { readStorageArray, writeStorage } from "@/utils/storage";
 
 export type ReceiptDocumentMetadata = {
@@ -171,6 +172,29 @@ export function saveReceiptScanToStorage(input: ReceiptScanSaveInput) {
   }
 
   saveReceiptDocumentMetadata(document);
+
+  recordMeaningfulActivity({
+    eventType: "receipt_confirmed",
+    title: `קבלה נשמרה מ-${transaction.title}`,
+    description: `${transaction.category} · ${transaction.amount.toLocaleString("he-IL")} ${input.currency}`,
+    occurredAt: new Date().toISOString(),
+    actorDisplayName: "הבית",
+    sourceModule: "finance",
+    sourceEntityType: "transaction",
+    sourceEntityId: transaction.id,
+    sourceUrl: "/finance",
+    relatedEntityIds: [transaction.id, document.id],
+    relatedFamilyMemberIds: [],
+    eventKey: `receipt_confirmed:${transaction.id}`,
+    metadata: {
+      amount: transaction.amount,
+      currency: input.currency,
+      category: transaction.category,
+      merchant: transaction.title,
+      sourceLabel: "כספים",
+    },
+    userConfirmed: true,
+  });
 
   return { transaction, document };
 }

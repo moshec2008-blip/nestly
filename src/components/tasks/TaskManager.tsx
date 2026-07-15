@@ -23,6 +23,7 @@ import {
   markFirstUsefulAction,
   trackTelemetryEvent,
 } from "@/services/telemetry";
+import { recordMeaningfulActivity } from "@/services/timelineService";
 
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
@@ -313,6 +314,27 @@ export default function TaskManager() {
     if (task) {
       if (isCompleting) {
         markFirstUsefulAction("task_completed", "tasks");
+        recordMeaningfulActivity({
+          eventType: "task_completed",
+          title: `${task.owner} השלים את המשימה "${task.title}"`,
+          description: task.description,
+          occurredAt: new Date().toISOString(),
+          actorDisplayName: task.owner,
+          sourceModule: "tasks",
+          sourceEntityType: "task",
+          sourceEntityId: task.id,
+          sourceUrl: "/tasks",
+          relatedEntityIds: [task.id],
+          relatedFamilyMemberIds: [],
+          eventKey: `task_completed:${task.id}:${new Date().toISOString().slice(0, 10)}`,
+          metadata: {
+            category: task.category,
+            priority: task.priority,
+            dueDate: task.dueDate,
+            sourceLabel: "משימות",
+          },
+          userConfirmed: true,
+        });
         trackTelemetryEvent({
           name: "task_completed",
           module: "tasks",
@@ -322,6 +344,26 @@ export default function TaskManager() {
           },
         });
       } else {
+        recordMeaningfulActivity({
+          eventType: "task_reopened",
+          title: `המשימה "${task.title}" נפתחה מחדש`,
+          description: task.description,
+          occurredAt: new Date().toISOString(),
+          actorDisplayName: task.owner,
+          sourceModule: "tasks",
+          sourceEntityType: "task",
+          sourceEntityId: task.id,
+          sourceUrl: "/tasks",
+          relatedEntityIds: [task.id],
+          relatedFamilyMemberIds: [],
+          eventKey: `task_reopened:${task.id}:${new Date().toISOString().slice(0, 10)}`,
+          metadata: {
+            category: task.category,
+            priority: task.priority,
+            sourceLabel: "משימות",
+          },
+          userConfirmed: true,
+        });
         trackTelemetryEvent({
           name: "task_reopened",
           module: "tasks",

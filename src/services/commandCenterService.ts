@@ -24,6 +24,7 @@ import {
   sortCommandCenterItems,
 } from "@/services/commandCenterPriorityService";
 import { readKnowledgeItems } from "@/services/familyKnowledge";
+import { recordMeaningfulActivity } from "@/services/timelineService";
 import type { BirthdayPerson } from "@/types/birthdays";
 import { isSmartCapture, type SmartCapture } from "@/types/capture";
 import type {
@@ -577,10 +578,37 @@ export function completeCommandCenterTask(item: CommandCenterItem) {
   }
 
   const tasks = readStorageArray<FamilyTask>(storageKeys.tasks, initialFamilyTasks);
+  const sourceTask = tasks.find((task) => task.id === item.sourceEntityId);
   const updatedTasks = tasks.map((task) =>
     task.id === item.sourceEntityId ? { ...task, status: "done" as const } : task
   );
-  return writeStorage(storageKeys.tasks, updatedTasks);
+  const didWrite = writeStorage(storageKeys.tasks, updatedTasks);
+
+  if (didWrite && sourceTask) {
+    recordMeaningfulActivity({
+      eventType: "task_completed",
+      title: `${sourceTask.owner} השלים את המשימה "${sourceTask.title}"`,
+      description: sourceTask.description,
+      occurredAt: new Date().toISOString(),
+      actorDisplayName: sourceTask.owner,
+      sourceModule: "tasks",
+      sourceEntityType: "task",
+      sourceEntityId: sourceTask.id,
+      sourceUrl: "/tasks",
+      relatedEntityIds: [sourceTask.id],
+      relatedFamilyMemberIds: [],
+      eventKey: `task_completed:${sourceTask.id}:${new Date().toISOString().slice(0, 10)}`,
+      metadata: {
+        category: sourceTask.category,
+        priority: sourceTask.priority,
+        dueDate: sourceTask.dueDate,
+        sourceLabel: "משימות",
+      },
+      userConfirmed: true,
+    });
+  }
+
+  return didWrite;
 }
 
 export function getTomorrowSnoozeIso(now = new Date()) {

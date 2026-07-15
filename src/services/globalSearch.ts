@@ -17,6 +17,7 @@ import type { AppLanguage } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { storageKeys } from "@/lib/storageKeys";
 import { readKnowledgeItems } from "@/services/familyKnowledge";
+import { getTimelineItems } from "@/services/timelineService";
 import { toSmartDocumentView } from "@/services/smartDocuments";
 import type { BirthdayPerson } from "@/types/birthdays";
 import { isSmartCapture, type SmartCapture } from "@/types/capture";
@@ -83,6 +84,7 @@ function moduleNames(language: AppLanguage) {
     family: dictionary.nav.family,
     birthdays: dictionary.nav.birthdays,
     knowledge: dictionary.nav.knowledge,
+    timeline: dictionary.nav.timeline,
     shopping: dictionary.nav.shopping,
     permissions: dictionary.nav.permissions,
     captures: language === "en" ? "Smart Inbox" : "Smart Inbox",
@@ -226,8 +228,19 @@ export function getGlobalSearchResults(
     isSmartCapture
   );
   const knowledgeItems = readKnowledgeItems({ includeArchived: false });
+  const timelineItems = getTimelineItems({
+    search: query,
+    limit: 8,
+  }).items;
 
   const results: GlobalSearchResult[] = [
+    ...timelineItems.map((item) => ({
+      id: `timeline-${item.id}`,
+      title: item.title,
+      description: `${item.description ?? item.sourceModule} ֲ· ${item.occurredAt.slice(0, 10)}`,
+      module: names.timeline,
+      href: "/timeline" as const,
+    })),
     ...knowledgeItems
       .filter((item) =>
         matchesQuery(query, [

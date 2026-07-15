@@ -45,6 +45,12 @@ export const appModules: NavigationItem[] = [
     status: "פעיל",
   },
   {
+    label: "ציר הזמן",
+    href: "/timeline",
+    description: "מה קרה לאחרונה במרחב המשפחתי.",
+    status: "פעיל",
+  },
+  {
     label: "בריאות",
     href: "/health",
     description: "תורים, בדיקות, תרופות ומעקב בריאות משפחתי.",

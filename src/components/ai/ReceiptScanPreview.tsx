@@ -18,6 +18,7 @@ import {
 import type { AnalyzeReceiptResult } from "@/lib/ai/types";
 import { getStoredAiAccessCode } from "@/services/documentAiClient";
 import { createProcessedReceiptCapture } from "@/services/captureEngine";
+import { recordMeaningfulActivity } from "@/services/timelineService";
 import {
   buildReceiptScanRecords,
   saveReceiptDocumentMetadata,
@@ -396,6 +397,28 @@ export default function ReceiptScanPreview({
       category: transaction.category,
       transactionId: transaction.id,
       documentId: document.id,
+    });
+    recordMeaningfulActivity({
+      eventType: "receipt_confirmed",
+      title: `קבלה נשמרה מ-${transaction.title}`,
+      description: `${transaction.category} · ${transaction.amount.toLocaleString("he-IL")} ${fields.currency || totalAmount.currency || "ILS"}`,
+      occurredAt: new Date().toISOString(),
+      actorDisplayName: "הבית",
+      sourceModule: "finance",
+      sourceEntityType: "transaction",
+      sourceEntityId: transaction.id,
+      sourceUrl: "/finance",
+      relatedEntityIds: [transaction.id, document.id],
+      relatedFamilyMemberIds: [],
+      eventKey: `receipt_confirmed:${transaction.id}`,
+      metadata: {
+        amount: transaction.amount,
+        currency: fields.currency || totalAmount.currency || "ILS",
+        category: transaction.category,
+        merchant: transaction.title,
+        sourceLabel: "כספים",
+      },
+      userConfirmed: true,
     });
 
     setSavedSummary({

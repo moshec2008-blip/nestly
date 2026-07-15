@@ -25,6 +25,7 @@ const migratableStorageKeys = [
   storageKeys.tasks,
   storageKeys.finance,
   storageKeys.family,
+  storageKeys.timeline,
 ] as const;
 
 type MigrationState = {

@@ -1,4 +1,5 @@
 import { storageKeys } from "@/lib/storageKeys";
+import { recordMeaningfulActivity } from "@/services/timelineService";
 import type {
   FamilyKnowledgeItem,
   KnowledgeCategory,
@@ -194,6 +195,28 @@ export function createKnowledgeItem(input: KnowledgeCreateInput) {
   };
 
   writeKnowledgeItems([itemWithKeywords, ...readKnowledgeItems({ includeArchived: true })]);
+  recordMeaningfulActivity({
+    eventType: input.sourceNoteId ? "note_converted" : "knowledge_created",
+    title: `נשמר מידע משפחתי: ${itemWithKeywords.title}`,
+    description: itemWithKeywords.content.slice(0, 140),
+    occurredAt: timestamp,
+    actorDisplayName: itemWithKeywords.createdBy || "הבית",
+    sourceModule: "knowledge",
+    sourceEntityType: "knowledge_item",
+    sourceEntityId: itemWithKeywords.id,
+    sourceUrl: "/knowledge",
+    relatedEntityIds: [itemWithKeywords.id],
+    relatedFamilyMemberIds: itemWithKeywords.linkedFamilyMemberId
+      ? [itemWithKeywords.linkedFamilyMemberId]
+      : [],
+    eventKey: `knowledge_created:${itemWithKeywords.id}`,
+    metadata: {
+      category: itemWithKeywords.category,
+      sourceLabel: "מידע משפחתי",
+      tags: itemWithKeywords.tags,
+    },
+    userConfirmed: true,
+  });
   return itemWithKeywords;
 }
 
@@ -233,6 +256,32 @@ export function updateKnowledgeItem(
   });
 
   writeKnowledgeItems(items);
+  const timelineUpdatedItem = updatedItem as FamilyKnowledgeItem | null;
+  if (timelineUpdatedItem) {
+    const timelineUpdatedAt = nowIso();
+    recordMeaningfulActivity({
+      eventType: "knowledge_updated",
+      title: `עודכן מידע משפחתי: ${timelineUpdatedItem.title}`,
+      description: timelineUpdatedItem.content.slice(0, 140),
+      occurredAt: timelineUpdatedAt,
+      actorDisplayName: timelineUpdatedItem.createdBy || "הבית",
+      sourceModule: "knowledge",
+      sourceEntityType: "knowledge_item",
+      sourceEntityId: timelineUpdatedItem.id,
+      sourceUrl: "/knowledge",
+      relatedEntityIds: [timelineUpdatedItem.id],
+      relatedFamilyMemberIds: timelineUpdatedItem.linkedFamilyMemberId
+        ? [timelineUpdatedItem.linkedFamilyMemberId]
+        : [],
+      eventKey: `knowledge_updated:${timelineUpdatedItem.id}:${timelineUpdatedAt.slice(0, 10)}`,
+      metadata: {
+        category: timelineUpdatedItem.category,
+        sourceLabel: "מידע משפחתי",
+        tags: timelineUpdatedItem.tags,
+      },
+      userConfirmed: true,
+    });
+  }
   return updatedItem;
 }
 

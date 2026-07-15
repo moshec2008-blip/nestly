@@ -67,6 +67,11 @@ const englishModuleCopy: Record<
     description: "Recommended next action, urgent items and what is coming soon.",
     status: "Active",
   },
+  "/timeline": {
+    label: "Timeline",
+    description: "Meaningful history of family progress and activity.",
+    status: "Active",
+  },
   "/health": {
     label: "Health",
     description: "Appointments, tests, medication and family health tracking.",

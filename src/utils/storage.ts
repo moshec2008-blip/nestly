@@ -26,6 +26,7 @@ const userScopedStorageKeys = new Set([
   "beit-cohen-shor-permissions",
   "nestly-smart-captures",
   "nestly-family-knowledge",
+  "nestly-family-timeline",
   "nestly-command-center-preferences",
 ]);
 

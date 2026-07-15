@@ -12,6 +12,7 @@ import type { AppLanguage } from "@/i18n/config";
 import { storageKeys } from "@/lib/storageKeys";
 import { readKnowledgeItems } from "@/services/familyKnowledge";
 import { getCommandCenterSections } from "@/services/commandCenterService";
+import { getRecentTimelineItems } from "@/services/timelineService";
 import type { AppRoute } from "@/types/navigation";
 import {
   getDaysUntilFamilyEvent,
@@ -67,6 +68,13 @@ export function getModuleLiveStat(
     return language === "en"
       ? `${attentionCount} need attention`
       : `${attentionCount} לטיפול`;
+  }
+
+  if (href === "/timeline") {
+    const items = getRecentTimelineItems(100);
+    return language === "en"
+      ? `${items.length} ${enPlural(items.length, "update", "updates")}`
+      : `${items.length} עדכונים`;
   }
 
   if (href === "/health") {

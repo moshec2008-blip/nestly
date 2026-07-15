@@ -89,6 +89,14 @@ const moreItems: MoreItem[] = [
     background: "bg-cyan-50",
   },
   {
+    href: "/timeline",
+    icon: "timeline",
+    title: "ציר הזמן",
+    description: "מה קרה לאחרונה בבית",
+    accent: "text-stone-700",
+    background: "bg-stone-100",
+  },
+  {
     href: "/vehicles",
     icon: "car",
     title: "רכבים",
