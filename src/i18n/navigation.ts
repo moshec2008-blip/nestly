@@ -8,6 +8,7 @@ const routeNavKeys: Record<AppRoute, NavKey> = {
   "/finance": "finance",
   "/tasks": "tasks",
   "/dashboard": "dashboard",
+  "/command-center": "commandCenter",
   "/health": "health",
   "/documents": "documents",
   "/vehicles": "vehicles",

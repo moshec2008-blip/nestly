@@ -26,6 +26,7 @@ const userScopedStorageKeys = new Set([
   "beit-cohen-shor-permissions",
   "nestly-smart-captures",
   "nestly-family-knowledge",
+  "nestly-command-center-preferences",
 ]);
 
 function normalizeStorageScope(value: string) {

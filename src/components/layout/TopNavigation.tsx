@@ -41,6 +41,7 @@ const routeMeta: AppRoute[] = [
   "/finance",
   "/tasks",
   "/dashboard",
+  "/command-center",
   "/health",
   "/documents",
   "/vehicles",

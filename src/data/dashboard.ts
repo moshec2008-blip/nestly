@@ -13,7 +13,7 @@ export const dashboardStats = [
   },
   {
     title: "מודולים פעילים",
-    value: "12",
+    value: "13",
     note: "כל אזורי הבית מחוברים",
   },
   {
@@ -36,6 +36,12 @@ export const appModules: NavigationItem[] = [
     href: "/tasks",
     description:
       "משימות בית, אחראים, תאריכי יעד, עדיפויות, חיפוש וסינון.",
+    status: "פעיל",
+  },
+  {
+    label: "מרכז המשפחה",
+    href: "/command-center",
+    description: "פעולה מומלצת, דחופים, היום ומה שמתקרב.",
     status: "פעיל",
   },
   {

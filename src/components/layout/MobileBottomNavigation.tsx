@@ -81,6 +81,14 @@ const moreItems: MoreItem[] = [
     background: "bg-sky-50",
   },
   {
+    href: "/command-center",
+    icon: "dashboard",
+    title: "מרכז המשפחה",
+    description: "מה דורש טיפול עכשיו",
+    accent: "text-cyan-700",
+    background: "bg-cyan-50",
+  },
+  {
     href: "/vehicles",
     icon: "car",
     title: "רכבים",

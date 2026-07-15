@@ -26,7 +26,7 @@ const englishStats: DashboardStat[] = [
   },
   {
     title: "Active modules",
-    value: "12",
+    value: "13",
     note: "Family areas connected",
   },
   {
@@ -60,6 +60,11 @@ const englishModuleCopy: Record<
   "/dashboard": {
     label: "Overview",
     description: "A focused snapshot of the system and active modules.",
+    status: "Active",
+  },
+  "/command-center": {
+    label: "Command Center",
+    description: "Recommended next action, urgent items and what is coming soon.",
     status: "Active",
   },
   "/health": {

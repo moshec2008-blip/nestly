@@ -47,6 +47,16 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     border: "#bae6fd",
     surface: "#f0f9ff",
   },
+  "/command-center": {
+    fallbackStat: "פעולה מומלצת",
+    icon: "dashboard",
+    iconTone: "text-cyan-700",
+    iconBg: "bg-cyan-50",
+    glow: "bg-cyan-400/10",
+    accent: "#0891b2",
+    border: "#a5f3fc",
+    surface: "#ecfeff",
+  },
   "/finance": {
     fallbackStat: "תזרים ותקציב",
     icon: "finance",

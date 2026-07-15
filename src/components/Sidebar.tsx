@@ -37,6 +37,12 @@ const sidebarLinks: SidebarLink[] = [
     description: "משימות ותזכורות לכל הבית",
   },
   {
+    label: "מרכז המשפחה",
+    href: "/command-center",
+    icon: "dashboard",
+    description: "מה כדאי לטפל בו עכשיו",
+  },
+  {
     label: "קניות",
     href: "/shopping",
     icon: "shopping",
@@ -145,6 +151,15 @@ const navigationAccents: Record<
     glow: "bg-sky-400/20",
     shadow: "0 12px 30px rgba(14,165,233,0.24)",
     activeShadow: "0 16px 38px rgba(3,105,161,0.36)",
+  },
+  "/command-center": {
+    dot: "bg-cyan-400",
+    icon: "border-cyan-200 bg-cyan-100 text-cyan-900",
+    active: "border-cyan-200 bg-cyan-50 text-[#111827] ring-1 ring-cyan-200/80",
+    hover: "hover:bg-cyan-50/90",
+    glow: "bg-cyan-400/20",
+    shadow: "0 12px 30px rgba(6,182,212,0.24)",
+    activeShadow: "0 16px 38px rgba(14,116,144,0.36)",
   },
   "/health": {
     dot: "bg-rose-400",

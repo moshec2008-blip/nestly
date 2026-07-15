@@ -17,6 +17,7 @@ export const storageKeys = {
   permissions: "beit-cohen-shor-permissions",
   smartCaptures: "nestly-smart-captures",
   familyKnowledge: "nestly-family-knowledge",
+  commandCenterPreferences: "nestly-command-center-preferences",
   authSession: "nestly-auth-session",
   smartNudge: "nestly-smart-nudge",
 } as const;
