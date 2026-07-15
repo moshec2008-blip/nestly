@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import AISuggestionCard from "@/components/ai/AISuggestionCard";
 import AppIcon from "@/components/ui/AppIcon";
 import {
   archiveKnowledgeItem,
@@ -15,6 +16,8 @@ import {
   setKnowledgePinned,
   updateKnowledgeItem,
 } from "@/services/familyKnowledge";
+import { suggestKnowledgeFields } from "@/services/ai/contextualSuggestionService";
+import type { AISuggestion } from "@/types/aiSuggestions";
 import type { FamilyKnowledgeItem, KnowledgeLinkedModule } from "@/types/knowledge";
 
 type KnowledgeFormState = {
@@ -76,6 +79,7 @@ export default function FamilyKnowledgeManager() {
   const [editingItem, setEditingItem] = useState<FamilyKnowledgeItem | null>(null);
   const [form, setForm] = useState<KnowledgeFormState>(initialFormState);
   const [notice, setNotice] = useState("");
+  const [knowledgeSuggestions, setKnowledgeSuggestions] = useState<AISuggestion[]>([]);
 
   const visibleItems = useMemo(() => {
     const source = showArchived ? archivedItems : searchKnowledgeItems(query);
@@ -170,6 +174,42 @@ export default function FamilyKnowledgeManager() {
     restoreKnowledgeItem(item.id);
     refresh();
     setNotice("המידע שוחזר וחזר לזיכרון הפעיל.");
+  }
+
+  function requestKnowledgeSuggestions() {
+    const sourceText = [form.title, form.content].filter(Boolean).join(" ");
+    const suggestions = suggestKnowledgeFields({
+      sourceModule: "knowledge",
+      sourceEntityType: editingItem ? "knowledge_item" : "knowledge_draft",
+      sourceEntityId: editingItem?.id ?? "new-knowledge-item",
+      text: sourceText,
+    });
+
+    setKnowledgeSuggestions(suggestions);
+    if (suggestions.length === 0) {
+      setNotice("לא נמצאה הצעה מספיק ברורה. אפשר להמשיך למלא ידנית.");
+    }
+  }
+
+  function applyKnowledgeSuggestion(suggestion: AISuggestion) {
+    setForm((current) => ({
+      ...current,
+      title:
+        typeof suggestion.proposedValues.title === "string"
+          ? suggestion.proposedValues.title
+          : current.title,
+      category:
+        typeof suggestion.proposedValues.category === "string"
+          ? suggestion.proposedValues.category
+          : current.category,
+      tags: Array.isArray(suggestion.proposedValues.tags)
+        ? suggestion.proposedValues.tags.join(", ")
+        : current.tags,
+    }));
+    setKnowledgeSuggestions((current) =>
+      current.filter((item) => item.id !== suggestion.id)
+    );
+    setNotice("ההצעה הוחלה בטופס. בדקו וערכו לפני שמירה.");
   }
 
   return (
@@ -447,6 +487,37 @@ export default function FamilyKnowledgeManager() {
                   className="mt-1 w-full resize-none rounded-2xl border border-[#e3d8c9] bg-[#fffdf8] p-3 text-sm font-semibold leading-6 text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#d8b470] focus:bg-white"
                 />
               </label>
+
+              <div className="rounded-2xl border border-sky-100 bg-sky-50/55 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-xs font-bold leading-5 text-slate-600">
+                    אפשר לבקש מ-Nestly להציע כותרת, קטגוריה ותגיות לפי הטקסט.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={requestKnowledgeSuggestions}
+                    className="min-h-9 rounded-full border border-sky-100 bg-white px-3 text-xs font-black text-sky-800 shadow-sm transition hover:bg-sky-50"
+                  >
+                    הצעות חכמות
+                  </button>
+                </div>
+                {knowledgeSuggestions.length > 0 ? (
+                  <div className="mt-2 grid gap-2">
+                    {knowledgeSuggestions.map((suggestion) => (
+                      <AISuggestionCard
+                        key={suggestion.id}
+                        suggestion={suggestion}
+                        onApply={applyKnowledgeSuggestion}
+                        onReject={() =>
+                          setKnowledgeSuggestions((current) =>
+                            current.filter((item) => item.id !== suggestion.id)
+                          )
+                        }
+                      />
+                    ))}
+                  </div>
+                ) : null}
+              </div>
 
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                 <label className="block">

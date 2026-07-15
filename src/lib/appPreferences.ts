@@ -11,6 +11,10 @@ export type AppSettings = {
   compactMode: boolean;
   reducedMotion: boolean;
   darkMode: boolean;
+  aiSuggestionsEnabled: boolean;
+  aiProactiveSuggestions: boolean;
+  aiDocumentAnalysis: boolean;
+  aiNoteAnalysis: boolean;
 };
 
 export const defaultAppSettings: AppSettings = {
@@ -20,6 +24,10 @@ export const defaultAppSettings: AppSettings = {
   compactMode: false,
   reducedMotion: false,
   darkMode: false,
+  aiSuggestionsEnabled: true,
+  aiProactiveSuggestions: true,
+  aiDocumentAnalysis: true,
+  aiNoteAnalysis: true,
 };
 
 export const appPreferencesChangeEventName = "nestly-app-preferences-change";
@@ -42,7 +50,14 @@ export function isAppSettings(value: unknown): value is AppSettings {
     (settings.highContrast === undefined || isBoolean(settings.highContrast)) &&
     (settings.compactMode === undefined || isBoolean(settings.compactMode)) &&
     (settings.reducedMotion === undefined || isBoolean(settings.reducedMotion)) &&
-    (settings.darkMode === undefined || isBoolean(settings.darkMode))
+    (settings.darkMode === undefined || isBoolean(settings.darkMode)) &&
+    (settings.aiSuggestionsEnabled === undefined ||
+      isBoolean(settings.aiSuggestionsEnabled)) &&
+    (settings.aiProactiveSuggestions === undefined ||
+      isBoolean(settings.aiProactiveSuggestions)) &&
+    (settings.aiDocumentAnalysis === undefined ||
+      isBoolean(settings.aiDocumentAnalysis)) &&
+    (settings.aiNoteAnalysis === undefined || isBoolean(settings.aiNoteAnalysis))
   );
 }
 

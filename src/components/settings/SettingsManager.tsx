@@ -783,6 +783,29 @@ export default function SettingsManager() {
             </p>
           </div>
 
+          <div className="grid gap-2 sm:grid-cols-2">
+            <PreferenceSwitch
+              title={languageKey === "en" ? "Smart suggestions" : "הצעות חכמות"}
+              description={
+                languageKey === "en"
+                  ? "Show optional AI/rule-based suggestions inside workflows."
+                  : "הצגת הצעות אופציונליות בתוך משימות, קניות ומידע משפחתי."
+              }
+              checked={settings.aiSuggestionsEnabled}
+              onChange={(value) => updateSetting("aiSuggestionsEnabled", value)}
+            />
+            <PreferenceSwitch
+              title={languageKey === "en" ? "Text analysis" : "ניתוח טקסט"}
+              description={
+                languageKey === "en"
+                  ? "Allow Nestly to organize text you type, without saving changes automatically."
+                  : "מאפשר ל-Nestly לסדר טקסט שכתבת, בלי לשמור שינויים אוטומטית."
+              }
+              checked={settings.aiNoteAnalysis}
+              onChange={(value) => updateSetting("aiNoteAnalysis", value)}
+            />
+          </div>
+
           {aiStatus?.mode === "live" && aiStatus.requiresAccessCode ? (
             <div className="rounded-[20px] border border-[#ebe4d8] bg-[#fffdf8] p-3">
               <h3 className="text-sm font-black text-slate-950">

@@ -191,3 +191,31 @@ Recommended next work:
 5. Expand receipt confirmation into a polished bottom sheet for mobile.
 6. Add bill-to-reminder review flow.
 7. Add medical document consent screen and retention settings.
+
+## Contextual AI Everywhere Layer
+
+The broader contextual suggestion layer is documented in
+`docs/AI_EVERYWHERE.md`.
+
+Current implementation adds a provider-agnostic suggestion model and reusable
+review components for small workflow assistance:
+
+- `src/types/aiSuggestions.ts`
+- `src/repositories/aiSuggestionRepository.ts`
+- `src/services/ai/aiOrchestrator.ts`
+- `src/services/ai/contextualSuggestionService.ts`
+- `src/components/ai/AISuggestionCard.tsx`
+
+Text suggestions currently use deterministic local rules unless a live provider
+is explicitly configured later. This distinction is intentional: Nestly should
+not claim provider-backed AI when it is using local assistance.
+
+Integrated modules today:
+
+- Tasks: field suggestions from task text.
+- Shopping: split a typed shopping note into reviewed list items.
+- Family Knowledge: title, category and tag suggestions.
+
+Every integration keeps the same rule:
+
+**suggestion first, user review second, existing module save flow last.**

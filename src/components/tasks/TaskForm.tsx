@@ -1,6 +1,9 @@
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import type { FamilyTask } from "@/data/tasks";
+import AISuggestionCard from "@/components/ai/AISuggestionCard";
 import DateInput from "@/components/ui/DateInput";
+import { suggestTaskFields } from "@/services/ai/contextualSuggestionService";
+import type { AISuggestion } from "@/types/aiSuggestions";
 import type { TaskFormValues } from "@/components/tasks/taskTypes";
 
 type TaskFormProps = {
@@ -21,6 +24,56 @@ export default function TaskForm({
   onClose,
   onChange,
 }: TaskFormProps) {
+  const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
+  const [suggestionNotice, setSuggestionNotice] = useState("");
+
+  function requestSuggestions() {
+    const sourceText = [form.title, form.description].filter(Boolean).join(". ");
+    const nextSuggestions = suggestTaskFields({
+      sourceModule: "tasks",
+      sourceEntityType: "task_draft",
+      sourceEntityId: form.title || "new-task",
+      text: sourceText,
+    });
+
+    setSuggestions(nextSuggestions);
+    setSuggestionNotice(
+      nextSuggestions.length === 0
+        ? "לא נמצאו הצעות בטוחות. אפשר להמשיך למלא ידנית."
+        : ""
+    );
+  }
+
+  function applySuggestion(suggestion: AISuggestion) {
+    const values = suggestion.proposedValues;
+
+    onChange({
+      ...form,
+      title:
+        typeof values.title === "string" && values.title
+          ? values.title
+          : form.title,
+      category:
+        typeof values.category === "string" && values.category
+          ? values.category
+          : form.category,
+      priority:
+        values.priority === "high" ||
+        values.priority === "medium" ||
+        values.priority === "low"
+          ? values.priority
+          : form.priority,
+      dueDate:
+        typeof values.dueDate === "string" && values.dueDate
+          ? values.dueDate
+          : form.dueDate,
+    });
+    setSuggestions((current) =>
+      current.filter((item) => item.id !== suggestion.id)
+    );
+    setSuggestionNotice("ההצעה הוחלה בשדות. אפשר לערוך לפני שמירה.");
+  }
+
   return (
     <section className="rounded-[18px] border border-[#e6e8ec] bg-white p-2.5 text-right shadow-[0_8px_22px_rgba(15,23,42,0.045)]">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
@@ -41,6 +94,43 @@ export default function TaskForm({
           </h2>
         </div>
       </div>
+
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] px-3 py-2">
+        <p className="text-xs font-semibold leading-5 text-slate-600">
+          הצעות חכמות עוזרות לקצר כותרת, לזהות קטגוריה ותאריך. שום דבר לא נשמר בלי אישור.
+        </p>
+        <button
+          type="button"
+          onClick={requestSuggestions}
+          className="min-h-10 rounded-2xl border border-[#d8caba] bg-white px-3 text-xs font-black text-[#111827] shadow-sm transition hover:bg-[#fff8eb]"
+        >
+          הצעות חכמות
+        </button>
+      </div>
+
+      {suggestionNotice ? (
+        <p className="mt-2 rounded-2xl bg-[#fff8eb] px-3 py-2 text-xs font-bold text-[#7a5212]">
+          {suggestionNotice}
+        </p>
+      ) : null}
+
+      {suggestions.length > 0 ? (
+        <div className="mt-2 grid gap-2">
+          {suggestions.map((suggestion) => (
+            <AISuggestionCard
+              key={suggestion.id}
+              suggestion={suggestion}
+              applyLabel="החל בשדות"
+              onApply={applySuggestion}
+              onReject={(rejectedSuggestion) =>
+                setSuggestions((current) =>
+                  current.filter((item) => item.id !== rejectedSuggestion.id)
+                )
+              }
+            />
+          ))}
+        </div>
+      ) : null}
 
       <form
         onSubmit={onSubmit}

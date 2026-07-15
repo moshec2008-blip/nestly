@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import AISuggestionCard from "@/components/ai/AISuggestionCard";
 import ReceiptScanPreview from "@/components/ai/ReceiptScanPreview";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import {
@@ -15,6 +16,8 @@ import {
   markFirstUsefulAction,
   trackTelemetryEvent,
 } from "@/services/telemetry";
+import { parseShoppingText } from "@/services/ai/contextualSuggestionService";
+import type { AISuggestion } from "@/types/aiSuggestions";
 import type { ShoppingItem } from "@/types/shopping";
 
 type ShoppingForm = Omit<ShoppingItem, "id" | "purchased">;
@@ -99,6 +102,8 @@ export default function ShoppingManager() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(false);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
+  const [shoppingSuggestions, setShoppingSuggestions] = useState<AISuggestion[]>([]);
+  const [suggestionNotice, setSuggestionNotice] = useState("");
 
   useEffect(() => {
     if (!isFormOpen && !activeItemId) {
@@ -272,6 +277,69 @@ export default function ShoppingManager() {
   function handleQuickAdd(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     addItemFromTitle(quickTitle);
+  }
+
+  function requestShoppingSuggestions() {
+    const nextSuggestions = parseShoppingText({
+      sourceModule: "shopping",
+      sourceEntityType: "shopping_text",
+      sourceEntityId: quickTitle || "quick-add",
+      text: quickTitle,
+    });
+
+    setShoppingSuggestions(nextSuggestions);
+    setSuggestionNotice(
+      nextSuggestions.length === 0
+        ? "לא נמצאו כמה פריטים בטוחים. אפשר להוסיף מוצר אחד כרגיל."
+        : ""
+    );
+  }
+
+  function applyShoppingSuggestion(suggestion: AISuggestion) {
+    const rawItems = suggestion.proposedValues.items;
+
+    if (typeof rawItems !== "string") {
+      return;
+    }
+
+    try {
+      const parsedItems = JSON.parse(rawItems) as Array<{
+        title?: string;
+        quantity?: string;
+      }>;
+      const newItems: ShoppingItem[] = parsedItems
+        .filter((item) => item.title?.trim())
+        .map((item) => ({
+          id: crypto.randomUUID(),
+          listName: getDefaultListName(),
+          title: item.title?.trim() ?? "",
+          quantity: item.quantity || "1",
+          department: getDefaultDepartment(),
+          estimatedPrice: 0,
+          buyer: "",
+          notes: "",
+          purchased: false,
+        }));
+
+      if (newItems.length === 0) {
+        return;
+      }
+
+      setItems((currentItems) => [...newItems, ...currentItems]);
+      setPurchaseFilter("remaining");
+      setQuickTitle("");
+      setShoppingSuggestions((current) =>
+        current.filter((item) => item.id !== suggestion.id)
+      );
+      setSuggestionNotice(`${newItems.length} פריטים נוספו לרשימה.`);
+      trackTelemetryEvent({
+        name: "ai_suggestion_accepted",
+        module: "shopping",
+        properties: { suggestionType: suggestion.suggestionType },
+      });
+    } catch {
+      setSuggestionNotice("לא הצלחנו להחיל את ההצעה. אפשר להמשיך ידנית.");
+    }
   }
 
   function openNewProductForm() {
@@ -546,11 +614,39 @@ export default function ShoppingManager() {
               triggerClassName="inline-flex min-h-9 cursor-pointer items-center justify-center whitespace-nowrap rounded-full border border-[#eadfcd] bg-white px-3 text-[11px] font-black text-[#7a5212] transition hover:bg-[#fff8eb]"
               onConfirmExpense={handleConfirmReceiptExpense}
             />
+            <button
+              type="button"
+              onClick={requestShoppingSuggestions}
+              className="min-h-9 rounded-full border border-sky-100 bg-sky-50/70 px-3 text-[11px] font-black text-sky-800 transition hover:bg-sky-50"
+            >
+              הצעות חכמות
+            </button>
           </div>
           <p className="truncate text-xs font-semibold text-slate-500">
             הקלדה, פלוס, ממשיכים לקנות.
           </p>
         </div>
+        {suggestionNotice ? (
+          <p className="mt-2 rounded-2xl bg-[#fff8eb] px-3 py-2 text-xs font-bold text-[#7a5212]">
+            {suggestionNotice}
+          </p>
+        ) : null}
+        {shoppingSuggestions.length > 0 ? (
+          <div className="mt-2 grid gap-2">
+            {shoppingSuggestions.map((suggestion) => (
+              <AISuggestionCard
+                key={suggestion.id}
+                suggestion={suggestion}
+                onApply={applyShoppingSuggestion}
+                onReject={() =>
+                  setShoppingSuggestions((current) =>
+                    current.filter((item) => item.id !== suggestion.id)
+                  )
+                }
+              />
+            ))}
+          </div>
+        ) : null}
       </section>
 
       <section className="nestly-sticky-below-header sticky z-20 rounded-[22px] border border-[#e6e8ec] bg-white/95 p-2.5 shadow-[0_10px_26px_rgba(15,23,42,0.06)] backdrop-blur-xl">
