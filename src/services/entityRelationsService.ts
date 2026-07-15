@@ -52,6 +52,8 @@ function notifyRelationsChanged() {
   }
 }
 
+let didRunLegacyRelationMigration = false;
+
 function routeForEntity(entityType: EntityRelationType) {
   return entityTypeRoutes[entityType];
 }
@@ -293,7 +295,13 @@ export function findConnectedRecords(entity: EntityReference) {
   });
 }
 
-export function migrateLegacyEntityRelations() {
+export function migrateLegacyEntityRelations(options?: { force?: boolean }) {
+  if (didRunLegacyRelationMigration && !options?.force) {
+    return 0;
+  }
+
+  didRunLegacyRelationMigration = true;
+
   const documents = readStorageArray<Record<string, unknown>>(
     storageKeys.documents,
     initialDocumentRecords

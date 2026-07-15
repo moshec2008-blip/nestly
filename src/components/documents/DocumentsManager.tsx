@@ -313,6 +313,9 @@ export default function DocumentsManager() {
   );
   const [smartFilter, setSmartFilter] = useState<SmartDocumentFilter>("all");
   const [showAllDocuments, setShowAllDocuments] = useState(false);
+  const [relationsDocumentId, setRelationsDocumentId] = useState<string | null>(
+    null
+  );
   const [aiSuggestion, setAiSuggestion] = useState<ReturnType<
     typeof suggestDocumentClassification
   > | null>(null);
@@ -1512,20 +1515,39 @@ export default function DocumentsManager() {
                       </div>
                     )}
 
-                    <div className="mt-3 grid gap-2">
-                      <SuggestedConnectionsPanel
-                        entity={{
-                          entityType: "document",
-                          entityId: documentItem.id,
-                        }}
-                      />
-                      <RelatedItemsPanel
-                        entity={{
-                          entityType: "document",
-                          entityId: documentItem.id,
-                        }}
-                        compact
-                      />
+                    <div className="mt-3">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setRelationsDocumentId((currentValue) =>
+                            currentValue === documentItem.id
+                              ? null
+                              : documentItem.id
+                          )
+                        }
+                        className="min-h-10 rounded-2xl border border-[#e6e8ec] bg-white px-3 text-xs font-black text-slate-700 transition hover:bg-[#fff8eb]"
+                      >
+                        {relationsDocumentId === documentItem.id
+                          ? "הסתר פריטים קשורים"
+                          : "פריטים קשורים"}
+                      </button>
+                      {relationsDocumentId === documentItem.id ? (
+                        <div className="mt-2 grid gap-2">
+                          <SuggestedConnectionsPanel
+                            entity={{
+                              entityType: "document",
+                              entityId: documentItem.id,
+                            }}
+                          />
+                          <RelatedItemsPanel
+                            entity={{
+                              entityType: "document",
+                              entityId: documentItem.id,
+                            }}
+                            compact
+                          />
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 </div>

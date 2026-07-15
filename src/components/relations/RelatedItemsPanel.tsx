@@ -32,23 +32,32 @@ export default function RelatedItemsPanel({
   limit = 4,
   compact = false,
 }: RelatedItemsPanelProps) {
-  const [, setRefreshToken] = useState(0);
+  const [records, setRecords] = useState<RelatedRecordPreview[]>([]);
   const { entityId, entityType, familySpaceId } = entity;
-  const records = findConnectedRecords({ entityId, entityType, familySpaceId });
   const confirmedRecords = records.filter((record) => record.status === "active");
   const visibleRecords = confirmedRecords.slice(0, limit);
   const remainingCount = Math.max(0, confirmedRecords.length - visibleRecords.length);
 
   useEffect(() => {
-    migrateLegacyEntityRelations();
+    let isMounted = true;
 
     function refresh() {
-      setRefreshToken((current) => current + 1);
+      if (isMounted) {
+        setRecords(findConnectedRecords({ entityId, entityType, familySpaceId }));
+      }
     }
 
+    const loadTimer = window.setTimeout(() => {
+      migrateLegacyEntityRelations();
+      refresh();
+    }, 0);
     window.addEventListener("nestly-relations-change", refresh);
-    return () => window.removeEventListener("nestly-relations-change", refresh);
-  }, []);
+    return () => {
+      isMounted = false;
+      window.clearTimeout(loadTimer);
+      window.removeEventListener("nestly-relations-change", refresh);
+    };
+  }, [entityId, entityType, familySpaceId]);
 
   if (confirmedRecords.length === 0) {
     return (
@@ -106,7 +115,6 @@ export default function RelatedItemsPanel({
                 type="button"
                 onClick={() => {
                   archiveRelation(record.relationId);
-                  window.dispatchEvent(new CustomEvent("nestly-relations-change"));
                 }}
                 className="min-h-9 rounded-full border border-[#e6e8ec] bg-white px-3 text-[11px] font-black text-slate-600 transition hover:bg-[#fff8eb]"
                 aria-label={`הסר קישור אל ${record.title}`}

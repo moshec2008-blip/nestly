@@ -6,7 +6,7 @@ import {
   findConnectedRecords,
   rejectRelationSuggestion,
 } from "@/services/entityRelationsService";
-import type { EntityReference } from "@/types/entityRelations";
+import type { EntityReference, RelatedRecordPreview } from "@/types/entityRelations";
 
 type SuggestedConnectionsPanelProps = {
   entity: EntityReference;
@@ -17,22 +17,32 @@ export default function SuggestedConnectionsPanel({
   entity,
   title = "קישורים מוצעים",
 }: SuggestedConnectionsPanelProps) {
-  const [, setRefreshToken] = useState(0);
+  const [suggestions, setSuggestions] = useState<RelatedRecordPreview[]>([]);
   const { entityId, entityType, familySpaceId } = entity;
-  const suggestions = findConnectedRecords({
-    entityId,
-    entityType,
-    familySpaceId,
-  }).filter((record) => record.status === "suggested");
 
   useEffect(() => {
+    let isMounted = true;
+
     function refresh() {
-      setRefreshToken((current) => current + 1);
+      if (isMounted) {
+        setSuggestions(
+          findConnectedRecords({
+            entityId,
+            entityType,
+            familySpaceId,
+          }).filter((record) => record.status === "suggested")
+        );
+      }
     }
 
+    const loadTimer = window.setTimeout(refresh, 0);
     window.addEventListener("nestly-relations-change", refresh);
-    return () => window.removeEventListener("nestly-relations-change", refresh);
-  }, []);
+    return () => {
+      isMounted = false;
+      window.clearTimeout(loadTimer);
+      window.removeEventListener("nestly-relations-change", refresh);
+    };
+  }, [entityId, entityType, familySpaceId]);
 
   if (suggestions.length === 0) {
     return null;
@@ -65,7 +75,6 @@ export default function SuggestedConnectionsPanel({
                 type="button"
                 onClick={() => {
                   acceptRelationSuggestion(suggestion.relationId);
-                  window.dispatchEvent(new CustomEvent("nestly-relations-change"));
                 }}
                 className="min-h-9 flex-1 rounded-xl bg-[#111827] px-3 text-xs font-black text-white"
               >
@@ -75,7 +84,6 @@ export default function SuggestedConnectionsPanel({
                 type="button"
                 onClick={() => {
                   rejectRelationSuggestion(suggestion.relationId);
-                  window.dispatchEvent(new CustomEvent("nestly-relations-change"));
                 }}
                 className="min-h-9 rounded-xl border border-[#e6e8ec] bg-white px-3 text-xs font-black text-slate-700"
               >

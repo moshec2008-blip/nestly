@@ -59,12 +59,30 @@ export default function SmartFamilyCenter() {
   const { language, direction } = useLanguage();
   const languageKey = language === "en" ? "en" : "he";
   const text = copy[languageKey];
+  const [isEnabled, setIsEnabled] = useState(false);
   const [focus, setFocus] = useState<DailyFocus | null>(null);
   const [items, setItems] = useState<TodayAttentionItem[]>([]);
   const [activity, setActivity] = useState<FamilyActivity[]>([]);
   const [score, setScore] = useState<OrganizationScore | null>(null);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 1536px)");
+
+    function updateEnabledState() {
+      setIsEnabled(mediaQuery.matches);
+    }
+
+    updateEnabledState();
+    mediaQuery.addEventListener("change", updateEnabledState);
+
+    return () => mediaQuery.removeEventListener("change", updateEnabledState);
+  }, []);
+
+  useEffect(() => {
+    if (!isEnabled) {
+      return;
+    }
+
     const timeoutId = window.setTimeout(() => {
       setFocus(getDailyFocus(language));
       setItems(getTodayAttentionItems(language));
@@ -73,7 +91,11 @@ export default function SmartFamilyCenter() {
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
-  }, [language]);
+  }, [isEnabled, language]);
+
+  if (!isEnabled) {
+    return null;
+  }
 
   return (
     <aside
