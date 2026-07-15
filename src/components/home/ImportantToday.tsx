@@ -365,32 +365,34 @@ export default function ImportantToday() {
             <li key={row.id}>
               <Link
                 href={row.href}
-                className="group grid min-h-[72px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl px-1 py-3 transition duration-200 hover:bg-[#fffdf8] active:scale-[0.99]"
+                className="group flex min-h-[72px] min-w-0 items-center gap-3 rounded-2xl px-1 py-3 transition duration-200 hover:bg-[#fffdf8] active:scale-[0.99]"
               >
                 <span
-                  className={`rounded-full px-2.5 py-1 text-[10px] font-black ring-1 ${row.statusClass}`}
+                  className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ring-1 ${row.iconClass}`}
                 >
-                  {row.statusLabel}
+                  <AppIcon name={row.icon} className="h-4.5 w-4.5" />
                 </span>
                 <span
                   className={[
-                    "min-w-0",
+                    "min-w-0 flex-1",
                     direction === "rtl" ? "text-right" : "text-left",
                   ].join(" ")}
                 >
-                  <span className="block truncate text-base font-black text-[#0f172a]">
-                    {row.title}
+                  <span className="flex min-w-0 flex-wrap items-center justify-between gap-1.5">
+                    <span className="min-w-0 flex-1 truncate text-base font-black text-[#0f172a]">
+                      {row.title}
+                    </span>
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ring-1 ${row.statusClass}`}
+                    >
+                      {row.statusLabel}
+                    </span>
                   </span>
                   {row.subtitle && (
                     <span className="mt-1 block truncate text-xs font-semibold text-slate-400">
                       {row.subtitle}
                     </span>
                   )}
-                </span>
-                <span
-                  className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ring-1 ${row.iconClass}`}
-                >
-                  <AppIcon name={row.icon} className="h-4.5 w-4.5" />
                 </span>
               </Link>
             </li>
