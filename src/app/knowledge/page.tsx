@@ -1,5 +1,10 @@
 import FamilyKnowledgeManager from "@/components/knowledge/FamilyKnowledgeManager";
+import AppShell from "@/components/layout/AppShell";
 
 export default function KnowledgePage() {
-  return <FamilyKnowledgeManager />;
+  return (
+    <AppShell>
+      <FamilyKnowledgeManager />
+    </AppShell>
+  );
 }

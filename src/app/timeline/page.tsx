@@ -1,5 +1,10 @@
 import FamilyTimelinePage from "@/components/timeline/FamilyTimelinePage";
+import AppShell from "@/components/layout/AppShell";
 
 export default function TimelineRoute() {
-  return <FamilyTimelinePage />;
+  return (
+    <AppShell>
+      <FamilyTimelinePage />
+    </AppShell>
+  );
 }
