@@ -1,6 +1,7 @@
 import type { FinanceTransaction } from "@/data/finance";
 import type { AnalyzeReceiptResult } from "@/lib/ai/types";
 import { storageKeys } from "@/lib/storageKeys";
+import { createRelation } from "@/services/entityRelationsService";
 import { recordMeaningfulActivity } from "@/services/timelineService";
 import { readStorageArray, writeStorage } from "@/utils/storage";
 
@@ -159,6 +160,46 @@ export function saveReceiptDocumentMetadata(document: ReceiptDocumentMetadata) {
   return receiptWriteSucceeded && documentWriteSucceeded;
 }
 
+export function createReceiptScanRelations(input: {
+  transactionId: string;
+  documentId: string;
+  merchant: string;
+  confidence?: number;
+}) {
+  const sharedMetadata = {
+    sourceFlow: "receipt_scan",
+    merchant: input.merchant,
+  };
+
+  createRelation({
+    sourceEntityType: "receipt",
+    sourceEntityId: input.documentId,
+    targetEntityType: "finance_transaction",
+    targetEntityId: input.transactionId,
+    relationshipType: "linked_transaction",
+    direction: "bidirectional",
+    source: "system",
+    confidence: input.confidence,
+    reason: "הקבלה והפעולה הכספית נוצרו יחד אחרי אישור סריקת קבלה.",
+    visibility: "family",
+    metadata: sharedMetadata,
+  });
+
+  createRelation({
+    sourceEntityType: "document",
+    sourceEntityId: input.documentId,
+    targetEntityType: "finance_transaction",
+    targetEntityId: input.transactionId,
+    relationshipType: "linked_transaction",
+    direction: "bidirectional",
+    source: "system",
+    confidence: input.confidence,
+    reason: "המסמך נשמר מתוך אותה קבלה שאושרה לפעולה כספית.",
+    visibility: "family",
+    metadata: sharedMetadata,
+  });
+}
+
 export function saveReceiptScanToStorage(input: ReceiptScanSaveInput) {
   const { transaction, document } = buildReceiptScanRecords(input);
   const transactions = readStorageArray<FinanceTransaction>(
@@ -172,6 +213,12 @@ export function saveReceiptScanToStorage(input: ReceiptScanSaveInput) {
   }
 
   saveReceiptDocumentMetadata(document);
+  createReceiptScanRelations({
+    transactionId: transaction.id,
+    documentId: document.id,
+    merchant: transaction.title,
+    confidence: transaction.aiConfidence,
+  });
 
   recordMeaningfulActivity({
     eventType: "receipt_confirmed",

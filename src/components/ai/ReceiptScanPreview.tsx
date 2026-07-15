@@ -21,6 +21,7 @@ import { createProcessedReceiptCapture } from "@/services/captureEngine";
 import { recordMeaningfulActivity } from "@/services/timelineService";
 import {
   buildReceiptScanRecords,
+  createReceiptScanRelations,
   saveReceiptDocumentMetadata,
   saveReceiptScanToStorage,
   validateReceiptSplit,
@@ -372,6 +373,12 @@ export default function ReceiptScanPreview({
     if (onConfirmExpense) {
       onConfirmExpense(transaction);
       saveReceiptDocumentMetadata(document);
+      createReceiptScanRelations({
+        transactionId: transaction.id,
+        documentId: document.id,
+        merchant: transaction.title,
+        confidence: transaction.aiConfidence,
+      });
     } else {
       saveReceiptScanToStorage({
         id: transaction.id,

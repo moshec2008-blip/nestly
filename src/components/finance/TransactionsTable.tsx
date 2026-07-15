@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import DateInput from "@/components/ui/DateInput";
+import RelatedItemsPanel from "@/components/relations/RelatedItemsPanel";
+import SuggestedConnectionsPanel from "@/components/relations/SuggestedConnectionsPanel";
 import type { FinanceTransaction } from "@/data/finance";
 
 type TransactionsTableProps = {
@@ -525,6 +527,22 @@ export default function TransactionsTable({
               </p>
             </div>
 
+            <div className="mb-3 grid gap-2">
+              <SuggestedConnectionsPanel
+                entity={{
+                  entityType: "finance_transaction",
+                  entityId: activeTransaction.id,
+                }}
+              />
+              <RelatedItemsPanel
+                entity={{
+                  entityType: "finance_transaction",
+                  entityId: activeTransaction.id,
+                }}
+                compact
+              />
+            </div>
+
             {editingTransactionId === activeTransaction.id && editValues ? (
               <form
                 onSubmit={(event) => {
@@ -703,7 +721,7 @@ export default function TransactionsTable({
                 <button
                   type="button"
                   disabled
-                  className="min-h-11 rounded-2xl border border-dashed border-[#d8b470] bg-[#fff8eb] px-4 text-sm font-black text-[#7a5212] opacity-70 sm:col-span-2"
+                  className="hidden min-h-11 rounded-2xl border border-dashed border-[#d8b470] bg-[#fff8eb] px-4 text-sm font-black text-[#7a5212] opacity-70 sm:col-span-2"
                 >
                   צירוף מסמך יתחבר בהמשך
                 </button>

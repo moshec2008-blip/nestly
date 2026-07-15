@@ -18,6 +18,7 @@ export const storageKeys = {
   smartCaptures: "nestly-smart-captures",
   familyKnowledge: "nestly-family-knowledge",
   timeline: "nestly-family-timeline",
+  entityRelations: "nestly-entity-relations",
   aiSuggestions: "nestly-ai-suggestions",
   aiAudit: "nestly-ai-audit",
   aiSuggestionFeedback: "nestly-ai-suggestion-feedback",

@@ -10,6 +10,8 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthPrompt } from "@/components/auth/AuthPromptProvider";
+import RelatedItemsPanel from "@/components/relations/RelatedItemsPanel";
+import SuggestedConnectionsPanel from "@/components/relations/SuggestedConnectionsPanel";
 import { setFinanceDraft, setTaskDraft } from "@/lib/actionDrafts";
 import {
   deleteAttachmentData,
@@ -1509,6 +1511,22 @@ export default function DocumentsManager() {
                         ))}
                       </div>
                     )}
+
+                    <div className="mt-3 grid gap-2">
+                      <SuggestedConnectionsPanel
+                        entity={{
+                          entityType: "document",
+                          entityId: documentItem.id,
+                        }}
+                      />
+                      <RelatedItemsPanel
+                        entity={{
+                          entityType: "document",
+                          entityId: documentItem.id,
+                        }}
+                        compact
+                      />
+                    </div>
                   </div>
                 </div>
               </article>

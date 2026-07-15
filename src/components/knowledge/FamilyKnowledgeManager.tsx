@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import AISuggestionCard from "@/components/ai/AISuggestionCard";
+import RelatedItemsPanel from "@/components/relations/RelatedItemsPanel";
+import SuggestedConnectionsPanel from "@/components/relations/SuggestedConnectionsPanel";
 import AppIcon from "@/components/ui/AppIcon";
 import {
   archiveKnowledgeItem,
@@ -646,6 +648,22 @@ export default function FamilyKnowledgeManager() {
                   </div>
                 </div>
               ) : null}
+
+              <div className="mt-4 grid gap-3 border-t border-[#eadfcd] pt-3">
+                <SuggestedConnectionsPanel
+                  entity={{
+                    entityType: "family_knowledge",
+                    entityId: selectedItem.id,
+                  }}
+                />
+                <RelatedItemsPanel
+                  entity={{
+                    entityType: "family_knowledge",
+                    entityId: selectedItem.id,
+                  }}
+                  compact
+                />
+              </div>
             </div>
           ) : null}
         </aside>
