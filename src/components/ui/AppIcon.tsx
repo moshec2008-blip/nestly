@@ -14,6 +14,7 @@ export type AppIconName =
   | "finance"
   | "health"
   | "home"
+  | "knowledge"
   | "lock"
   | "settings"
   | "shopping"
@@ -74,6 +75,13 @@ function getIconPath(name: AppIconName) {
       "M3 11 12 3l9 8",
       "M5 10v10h14V10",
       "M9 20v-6h6v6",
+    ],
+    knowledge: [
+      "M4 19.5A2.5 2.5 0 0 1 6.5 17H20",
+      "M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15Z",
+      "M8 7h8",
+      "M8 11h7",
+      "M8 15h5",
     ],
     lock: [
       "M7 11V8a5 5 0 0 1 10 0v3",

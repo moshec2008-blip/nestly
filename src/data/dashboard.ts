@@ -13,7 +13,7 @@ export const dashboardStats = [
   },
   {
     title: "מודולים פעילים",
-    value: "11",
+    value: "12",
     note: "כל אזורי הבית מחוברים",
   },
   {
@@ -60,6 +60,12 @@ export const appModules: NavigationItem[] = [
     label: "משפחה",
     href: "/family",
     description: "מידע משפחתי, אנשי קשר והרשאות.",
+    status: "פעיל",
+  },
+  {
+    label: "מידע משפחתי",
+    href: "/knowledge",
+    description: "זיכרון ארוך טווח לבית: דגמים, העדפות, הוראות ואנשי קשר.",
     status: "פעיל",
   },
   {

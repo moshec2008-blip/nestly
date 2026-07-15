@@ -26,7 +26,7 @@ const englishStats: DashboardStat[] = [
   },
   {
     title: "Active modules",
-    value: "11",
+    value: "12",
     note: "Family areas connected",
   },
   {
@@ -80,6 +80,11 @@ const englishModuleCopy: Record<
   "/family": {
     label: "Family",
     description: "Family information, contacts and permissions.",
+    status: "Active",
+  },
+  "/knowledge": {
+    label: "Family Knowledge",
+    description: "Long-term household memory for details worth keeping.",
     status: "Active",
   },
   "/birthdays": {

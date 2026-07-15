@@ -6,6 +6,7 @@ import AuthPromptProvider from "@/components/auth/AuthPromptProvider";
 import AuthStorageScope from "@/components/auth/AuthStorageScope";
 import Sidebar from "@/components/Sidebar";
 import BirthdayWelcomePopup from "@/components/birthdays/BirthdayWelcomePopup";
+import SmartCaptureLauncher from "@/components/capture/SmartCaptureLauncher";
 import DemoModeBanner from "@/components/layout/DemoModeBanner";
 import EnglishDomTranslator from "@/components/i18n/EnglishDomTranslator";
 import MobileBottomNavigation from "@/components/layout/MobileBottomNavigation";
@@ -118,6 +119,7 @@ export default function AppShell({ children }: AppShellProps) {
             </div>
 
             <DemoModeBanner />
+            {pathname !== "/login" && <SmartCaptureLauncher />}
             {!isMobileMenuOpen && <MobileBottomNavigation />}
             {showGlobalAssists && <SmartNudgePopup />}
             {showGlobalAssists && <BirthdayWelcomePopup />}

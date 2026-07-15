@@ -55,6 +55,12 @@ const sidebarLinks: SidebarLink[] = [
     description: "מידע, קשרים ותפקידים",
   },
   {
+    label: "מידע משפחתי",
+    href: "/knowledge",
+    icon: "knowledge",
+    description: "דברים שהבית צריך לזכור",
+  },
+  {
     label: "אירועי משפחה",
     href: "/birthdays",
     icon: "calendar",
@@ -175,6 +181,15 @@ const navigationAccents: Record<
     glow: "bg-purple-400/20",
     shadow: "0 12px 30px rgba(168,85,247,0.24)",
     activeShadow: "0 16px 38px rgba(126,34,206,0.36)",
+  },
+  "/knowledge": {
+    dot: "bg-teal-400",
+    icon: "border-teal-200 bg-teal-100 text-teal-900",
+    active: "border-teal-200 bg-teal-50 text-[#111827] ring-1 ring-teal-200/80",
+    hover: "hover:bg-teal-50/90",
+    glow: "bg-teal-400/20",
+    shadow: "0 12px 30px rgba(20,184,166,0.24)",
+    activeShadow: "0 16px 38px rgba(15,118,110,0.36)",
   },
   "/birthdays": {
     dot: "bg-pink-400",

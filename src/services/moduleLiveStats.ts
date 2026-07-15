@@ -10,6 +10,7 @@ import { initialShoppingItems } from "@/data/shopping";
 import { getTaskStats, initialFamilyTasks } from "@/data/tasks";
 import type { AppLanguage } from "@/i18n/config";
 import { storageKeys } from "@/lib/storageKeys";
+import { readKnowledgeItems } from "@/services/familyKnowledge";
 import type { AppRoute } from "@/types/navigation";
 import {
   getDaysUntilFamilyEvent,
@@ -120,6 +121,13 @@ export function getModuleLiveStat(
     return language === "en"
       ? `${records.length} ${enPlural(records.length, "record", "records")}`
       : `${records.length} רשומות`;
+  }
+
+  if (href === "/knowledge") {
+    const items = readKnowledgeItems();
+    return language === "en"
+      ? `${items.length} ${enPlural(items.length, "memory", "memories")}`
+      : `${items.length} פריטים`;
   }
 
   return fallback;

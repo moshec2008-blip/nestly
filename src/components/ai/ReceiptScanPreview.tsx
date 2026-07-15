@@ -17,6 +17,7 @@ import {
 } from "@/lib/ai/normalization/amount";
 import type { AnalyzeReceiptResult } from "@/lib/ai/types";
 import { getStoredAiAccessCode } from "@/services/documentAiClient";
+import { createProcessedReceiptCapture } from "@/services/captureEngine";
 import {
   buildReceiptScanRecords,
   saveReceiptDocumentMetadata,
@@ -387,6 +388,15 @@ export default function ReceiptScanPreview({
         analysis: result,
       });
     }
+
+    createProcessedReceiptCapture({
+      merchant: transaction.title,
+      amount: transaction.amount,
+      date: transaction.date,
+      category: transaction.category,
+      transactionId: transaction.id,
+      documentId: document.id,
+    });
 
     setSavedSummary({
       merchant: transaction.title,

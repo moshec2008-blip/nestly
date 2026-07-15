@@ -16,8 +16,10 @@ import { initialFamilyTasks, type FamilyTask } from "@/data/tasks";
 import type { AppLanguage } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { storageKeys } from "@/lib/storageKeys";
+import { readKnowledgeItems } from "@/services/familyKnowledge";
 import { toSmartDocumentView } from "@/services/smartDocuments";
 import type { BirthdayPerson } from "@/types/birthdays";
+import { isSmartCapture, type SmartCapture } from "@/types/capture";
 import type { ModuleRecord } from "@/types/modules";
 import type { AppRoute } from "@/types/navigation";
 import type { FamilyPermissionUser } from "@/types/permissions";
@@ -80,8 +82,10 @@ function moduleNames(language: AppLanguage) {
     vehicles: dictionary.nav.vehicles,
     family: dictionary.nav.family,
     birthdays: dictionary.nav.birthdays,
+    knowledge: dictionary.nav.knowledge,
     shopping: dictionary.nav.shopping,
     permissions: dictionary.nav.permissions,
+    captures: language === "en" ? "Smart Inbox" : "Smart Inbox",
   };
 }
 
@@ -216,8 +220,49 @@ export function getGlobalSearchResults(
     storageKeys.permissions,
     initialPermissionUsers
   );
+  const captures = readStorageArray<SmartCapture>(
+    storageKeys.smartCaptures,
+    [],
+    isSmartCapture
+  );
+  const knowledgeItems = readKnowledgeItems({ includeArchived: false });
 
   const results: GlobalSearchResult[] = [
+    ...knowledgeItems
+      .filter((item) =>
+        matchesQuery(query, [
+          item.title,
+          item.content,
+          item.category,
+          item.linkedModule,
+          ...item.tags,
+          ...item.searchKeywords,
+        ])
+      )
+      .map((item) => ({
+        id: `knowledge-${item.id}`,
+        title: item.title,
+        description: `${item.category} · ${item.content.slice(0, 80)}`,
+        module: names.knowledge,
+        href: "/knowledge" as const,
+      })),
+    ...captures
+      .filter((capture) =>
+        matchesQuery(query, [
+          capture.title,
+          capture.content,
+          capture.status,
+          capture.source,
+          ...capture.suggestions.map((suggestion) => suggestion.title),
+        ])
+      )
+      .map((capture) => ({
+        id: `capture-${capture.id}`,
+        title: capture.title,
+        description: capture.content.slice(0, 96),
+        module: names.captures,
+        href: "/" as const,
+      })),
     ...appModules
       .filter((module) =>
         matchesQuery(query, [module.label, module.description, module.href])

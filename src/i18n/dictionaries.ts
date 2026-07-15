@@ -15,6 +15,7 @@ export type CommonDictionary = {
     | "documents"
     | "vehicles"
     | "family"
+    | "knowledge"
     | "birthdays"
     | "shopping"
     | "permissions"
@@ -68,6 +69,7 @@ const hebrewDictionary: CommonDictionary = {
     documents: "מסמכים",
     vehicles: "רכבים",
     family: "משפחה",
+    knowledge: "מידע משפחתי",
     birthdays: "אירועי משפחה",
     shopping: "קניות",
     permissions: "הרשאות",
@@ -120,6 +122,7 @@ const englishDictionary: CommonDictionary = {
     documents: "Documents",
     vehicles: "Vehicles",
     family: "Family",
+    knowledge: "Family Knowledge",
     birthdays: "Family Events",
     shopping: "Shopping",
     permissions: "Sharing",

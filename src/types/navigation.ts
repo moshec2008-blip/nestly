@@ -7,6 +7,7 @@ export type AppRoute =
   | "/documents"
   | "/vehicles"
   | "/family"
+  | "/knowledge"
   | "/birthdays"
   | "/shopping"
   | "/security"

@@ -45,6 +45,7 @@ const routeMeta: AppRoute[] = [
   "/documents",
   "/vehicles",
   "/family",
+  "/knowledge",
   "/birthdays",
   "/shopping",
   "/security",

@@ -97,6 +97,14 @@ const moreItems: MoreItem[] = [
     background: "bg-violet-50",
   },
   {
+    href: "/knowledge",
+    icon: "knowledge",
+    title: "מידע משפחתי",
+    description: "דברים שהבית צריך לזכור",
+    accent: "text-teal-700",
+    background: "bg-teal-50",
+  },
+  {
     href: "/birthdays",
     icon: "calendar",
     title: "אירועי משפחה",

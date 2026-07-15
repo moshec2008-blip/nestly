@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import DemoEntryCard from "@/components/layout/DemoEntryCard";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
@@ -20,24 +20,371 @@ import {
   parseBackup,
   restoreBackup,
 } from "@/lib/dataBackup";
+import { storageKeys } from "@/lib/storageKeys";
 import {
   fetchAiServiceStatus,
   getStoredAiAccessCode,
   setStoredAiAccessCode,
   type AiServiceStatus,
 } from "@/services/documentAiClient";
-import { storageKeys } from "@/lib/storageKeys";
-import { clearActiveScopedStorageData, writeStorage } from "@/utils/storage";
 import { trackTelemetryEvent } from "@/services/telemetry";
+import { clearActiveScopedStorageData, writeStorage } from "@/utils/storage";
+
+type SettingCopy = {
+  status: {
+    language: string;
+    local: string;
+    ai: string;
+    saved: string;
+    live: string;
+    basic: string;
+    checking: string;
+  };
+  sections: {
+    display: string;
+    displayDescription: string;
+    data: string;
+    dataDescription: string;
+    ai: string;
+    aiDescription: string;
+  };
+  language: {
+    title: string;
+    description: string;
+    active: string;
+  };
+  preferences: Record<
+    "simpleMode" | "highContrast" | "reducedMotion" | "darkMode",
+    { title: string; description: string }
+  >;
+  density: {
+    title: string;
+    description: string;
+    comfortable: string;
+    compact: string;
+  };
+  backup: {
+    title: string;
+    description: string;
+    export: string;
+    restore: string;
+    demoTitle: string;
+  };
+  ai: {
+    statusLive: string;
+    statusMock: string;
+    codeTitle: string;
+    codeDescription: string;
+    codePlaceholder: string;
+    saveCode: string;
+    noCode: string;
+    savedCode: string;
+    clearedCode: string;
+    codeDeviceOnly: string;
+  };
+  reset: {
+    display: string;
+    familyData: string;
+    displayConfirmTitle: string;
+    displayConfirmDescription: string;
+    displayConfirm: string;
+    familyConfirmTitle: string;
+    familyConfirmDescription: string;
+    familyConfirm: string;
+    cancel: string;
+    displayResetDone: string;
+    dataResetDone: string;
+    dataResetDescription: string;
+  };
+  backupMessages: {
+    noDataTitle: string;
+    noDataDescription: string;
+    exportedTitle: string;
+    exportedDescription: string;
+    invalidTitle: string;
+    invalidDescription: string;
+    restoreTitle: string;
+    restoreDescription: (date: string, count: number) => string;
+    restoreConfirm: string;
+    restoreFailedTitle: string;
+    restoreFailedDescription: string;
+    restoreDoneTitle: string;
+    restoreDoneDescription: string;
+  };
+};
+
+const copyByLanguage: Record<"he" | "en", SettingCopy> = {
+  he: {
+    status: {
+      language: "שפה",
+      local: "שמירה",
+      ai: "AI",
+      saved: "נשמר אוטומטית",
+      live: "פעיל",
+      basic: "מצב בסיסי",
+      checking: "בודק חיבור",
+    },
+    sections: {
+      display: "תצוגה ונגישות",
+      displayDescription:
+        "כל מה שמשפיע על איך Nestly נראית ומרגישה בכל המסכים.",
+      data: "נתונים וגיבוי",
+      dataDescription:
+        "שמירה מקומית, גיבוי ידני, דמו ואיפוס נתונים בצורה ברורה.",
+      ai: "AI ופרטיות",
+      aiDescription:
+        "מצב ניתוח המסמכים והקוד המשפחתי, בלי לשמור שום דבר בלי אישור.",
+    },
+    language: {
+      title: "שפה וכיוון",
+      description: "עברית היא ברירת המחדל. אנגלית זמינה, ושפות נוספות יגיעו בהמשך.",
+      active: "שפה פעילה",
+    },
+    preferences: {
+      simpleMode: {
+        title: "תצוגה פשוטה",
+        description: "פחות עומס, טקסט מעט גדול יותר ופעולות ברורות יותר.",
+      },
+      highContrast: {
+        title: "ניגודיות מוגברת",
+        description: "טקסטים, גבולות ופוקוס חזקים יותר לקריאות טובה.",
+      },
+      reducedMotion: {
+        title: "הפחתת תנועה",
+        description: "מצמצם אנימציות ומעברים שאינם חיוניים.",
+      },
+      darkMode: {
+        title: "מצב כהה",
+        description: "מראה כהה ונעים יותר לעבודה בערב. לא מופעל כברירת מחדל.",
+      },
+    },
+    density: {
+      title: "צפיפות ממשק",
+      description: "בחירה בין מסך נוח ומרווח לבין תצוגה קומפקטית יותר.",
+      comfortable: "נוחה",
+      compact: "קומפקטית",
+    },
+    backup: {
+      title: "גיבוי ושחזור",
+      description:
+        "המידע נשמר בדפדפן של המכשיר. מומלץ לייצא גיבוי לפני איפוס או מעבר מכשיר.",
+      export: "ייצוא גיבוי",
+      restore: "שחזור מקובץ",
+      demoTitle: "רוצים לראות דמו?",
+    },
+    ai: {
+      statusLive: "AI פעיל",
+      statusMock: "מצב בסיסי ללא AI",
+      codeTitle: "קוד גישה משפחתי",
+      codeDescription:
+        "אם השרת דורש קוד, שומרים אותו במכשיר הזה בלבד. אין שמירה אוטומטית בענן.",
+      codePlaceholder: "הזינו קוד משפחתי",
+      saveCode: "שמירה",
+      noCode: "לא הוגדר קוד",
+      savedCode: "קוד הגישה נשמר",
+      clearedCode: "קוד הגישה נמחק",
+      codeDeviceOnly: "הקוד נשמר במכשיר זה בלבד.",
+    },
+    reset: {
+      display: "איפוס הגדרות תצוגה",
+      familyData: "איפוס נתוני המשפחה",
+      displayConfirmTitle: "איפוס הגדרות תצוגה",
+      displayConfirmDescription: "לאפס את הגדרות התצוגה לברירת המחדל?",
+      displayConfirm: "אפס הגדרות",
+      familyConfirmTitle: "איפוס נתוני המשפחה",
+      familyConfirmDescription:
+        "למחוק את הנתונים שנשמרו במרחב הפעיל ולהתחיל מחדש? מומלץ לייצא גיבוי לפני איפוס.",
+      familyConfirm: "אפס נתונים",
+      cancel: "ביטול",
+      displayResetDone: "הגדרות התצוגה אופסו",
+      dataResetDone: "הנתונים אופסו",
+      dataResetDescription: "נטען את Nestly מחדש כדי להתחיל נקי.",
+    },
+    backupMessages: {
+      noDataTitle: "אין נתונים לגיבוי",
+      noDataDescription: "עדיין לא נשמר מידע במכשיר הזה.",
+      exportedTitle: "קובץ הגיבוי ירד למכשיר",
+      exportedDescription: "מומלץ לשמור אותו במקום בטוח.",
+      invalidTitle: "הקובץ אינו גיבוי תקין של Nestly",
+      invalidDescription: "יש לבחור קובץ שנוצר מכפתור ייצוא גיבוי.",
+      restoreTitle: "שחזור מגיבוי",
+      restoreDescription: (date, count) =>
+        `הגיבוי${date ? ` מ-${date}` : ""} כולל ${count} רשומות. נתונים קיימים באותם אזורים יוחלפו. להמשיך?`,
+      restoreConfirm: "שחזר נתונים",
+      restoreFailedTitle: "השחזור נכשל",
+      restoreFailedDescription: "אין מספיק מקום באחסון הדפדפן. פנו מקום ונסו שוב.",
+      restoreDoneTitle: "השחזור הושלם",
+      restoreDoneDescription: "האפליקציה תיטען מחדש עם הנתונים המשוחזרים.",
+    },
+  },
+  en: {
+    status: {
+      language: "Language",
+      local: "Storage",
+      ai: "AI",
+      saved: "Saved automatically",
+      live: "Live",
+      basic: "Basic mode",
+      checking: "Checking",
+    },
+    sections: {
+      display: "Appearance and Accessibility",
+      displayDescription:
+        "Everything that changes how Nestly looks and feels across the app.",
+      data: "Data and Backup",
+      dataDescription:
+        "Local storage, manual backup, demo mode and reset controls in one clear place.",
+      ai: "AI and Privacy",
+      aiDescription:
+        "Document analysis status and family access code, with review before saving.",
+    },
+    language: {
+      title: "Language and direction",
+      description:
+        "Hebrew is the default. English is available, and more languages can be added later.",
+      active: "Active language",
+    },
+    preferences: {
+      simpleMode: {
+        title: "Simple view",
+        description: "Less visual load, slightly larger text and clearer actions.",
+      },
+      highContrast: {
+        title: "High contrast",
+        description: "Stronger text, borders and focus states for better readability.",
+      },
+      reducedMotion: {
+        title: "Reduce motion",
+        description: "Reduces non-essential animation and transitions.",
+      },
+      darkMode: {
+        title: "Dark mode",
+        description: "A darker evening-friendly appearance. Off by default.",
+      },
+    },
+    density: {
+      title: "Interface density",
+      description: "Choose between a comfortable layout and a more compact view.",
+      comfortable: "Comfortable",
+      compact: "Compact",
+    },
+    backup: {
+      title: "Backup and restore",
+      description:
+        "Family data is saved in this browser. Export a backup before reset or device changes.",
+      export: "Export backup",
+      restore: "Restore file",
+      demoTitle: "Want to see a demo?",
+    },
+    ai: {
+      statusLive: "AI live",
+      statusMock: "Basic mode without AI",
+      codeTitle: "Family access code",
+      codeDescription:
+        "If the server requires a code, it is saved on this device only. Nothing is saved to the cloud automatically.",
+      codePlaceholder: "Enter family code",
+      saveCode: "Save",
+      noCode: "No code set",
+      savedCode: "Access code saved",
+      clearedCode: "Access code cleared",
+      codeDeviceOnly: "The code is saved on this device only.",
+    },
+    reset: {
+      display: "Reset appearance settings",
+      familyData: "Reset family data",
+      displayConfirmTitle: "Reset appearance settings",
+      displayConfirmDescription: "Reset appearance preferences to default?",
+      displayConfirm: "Reset settings",
+      familyConfirmTitle: "Reset family data",
+      familyConfirmDescription:
+        "Delete the data saved in the active space and start fresh? Export a backup first if needed.",
+      familyConfirm: "Reset data",
+      cancel: "Cancel",
+      displayResetDone: "Appearance settings reset",
+      dataResetDone: "Data reset",
+      dataResetDescription: "Nestly will reload to start fresh.",
+    },
+    backupMessages: {
+      noDataTitle: "No data to back up",
+      noDataDescription: "No family data has been saved on this device yet.",
+      exportedTitle: "Backup file downloaded",
+      exportedDescription: "Keep it somewhere safe.",
+      invalidTitle: "This is not a valid Nestly backup",
+      invalidDescription: "Choose a file created by the export backup button.",
+      restoreTitle: "Restore backup",
+      restoreDescription: (date, count) =>
+        `This backup${date ? ` from ${date}` : ""} includes ${count} records. Existing data in the same areas will be replaced. Continue?`,
+      restoreConfirm: "Restore data",
+      restoreFailedTitle: "Restore failed",
+      restoreFailedDescription:
+        "There is not enough browser storage available. Free space and try again.",
+      restoreDoneTitle: "Restore complete",
+      restoreDoneDescription: "The app will reload with the restored data.",
+    },
+  },
+};
+
+function SectionShell({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-[24px] border border-white/80 bg-white/92 p-4 shadow-[0_16px_40px_rgba(33,43,63,0.07)] ring-1 ring-[#eadfcd]/55">
+      <div className="mb-3">
+        <h2 className="text-lg font-black text-slate-950">{title}</h2>
+        <p className="mt-1 max-w-3xl text-sm font-semibold leading-6 text-slate-600">
+          {description}
+        </p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function PreferenceSwitch({
+  title,
+  description,
+  checked,
+  onChange,
+}: {
+  title: string;
+  description: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+}) {
+  return (
+    <label className="flex min-h-[86px] cursor-pointer items-start justify-between gap-3 rounded-[20px] border border-[#ebe4d8] bg-[#fffdf8] p-3 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(33,43,63,0.07)]">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="mt-1 h-5 w-5 shrink-0 accent-[#111827]"
+      />
+      <span className="min-w-0">
+        <span className="block text-sm font-black text-slate-950">{title}</span>
+        <span className="mt-1 block text-xs font-semibold leading-5 text-slate-600">
+          {description}
+        </span>
+      </span>
+    </label>
+  );
+}
 
 export default function SettingsManager() {
   const { confirm, toast } = useFeedback();
-  const { language } = useLanguage();
+  const { language, direction } = useLanguage();
+  const languageKey = language === "en" ? "en" : "he";
+  const text = useMemo(() => copyByLanguage[languageKey], [languageKey]);
   const [settings, setSettings] = useState<AppSettings>(defaultAppSettings);
   const [hasLoadedStorage, setHasLoadedStorage] = useState(false);
-  const restoreInputRef = useRef<HTMLInputElement | null>(null);
   const [aiStatus, setAiStatus] = useState<AiServiceStatus | null>(null);
   const [aiAccessCode, setAiAccessCode] = useState("");
+  const restoreInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     let isActive = true;
@@ -56,15 +403,6 @@ export default function SettingsManager() {
       window.clearTimeout(timeoutId);
     };
   }, []);
-
-  function saveAiAccessCode() {
-    setStoredAiAccessCode(aiAccessCode);
-    toast({
-      title: aiAccessCode.trim() ? "קוד הגישה נשמר" : "קוד הגישה נמחק",
-      description: "הקוד נשמר במכשיר זה בלבד.",
-      tone: "success",
-    });
-  }
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -98,12 +436,21 @@ export default function SettingsManager() {
     }));
   }
 
+  function saveAiAccessCode() {
+    setStoredAiAccessCode(aiAccessCode);
+    toast({
+      title: aiAccessCode.trim() ? text.ai.savedCode : text.ai.clearedCode,
+      description: text.ai.codeDeviceOnly,
+      tone: "success",
+    });
+  }
+
   async function resetSettings() {
     const approved = await confirm({
-      title: "איפוס הגדרות תצוגה",
-      description: "לאפס את הגדרות התצוגה לברירת המחדל?",
-      confirmLabel: "אפס הגדרות",
-      cancelLabel: "ביטול",
+      title: text.reset.displayConfirmTitle,
+      description: text.reset.displayConfirmDescription,
+      confirmLabel: text.reset.displayConfirm,
+      cancelLabel: text.reset.cancel,
       tone: "danger",
     });
 
@@ -115,19 +462,15 @@ export default function SettingsManager() {
     setSettings(nextSettings);
     applyAppPreferences(nextSettings);
     notifyAppPreferencesChanged(nextSettings);
-    toast({
-      title: "הגדרות התצוגה אופסו",
-      tone: "success",
-    });
+    toast({ title: text.reset.displayResetDone, tone: "success" });
   }
 
   async function resetFamilyData() {
     const approved = await confirm({
-      title: "איפוס נתוני המשפחה",
-      description:
-        "למחוק את הנתונים שנשמרו במרחב הפעיל ולהתחיל מחדש? מומלץ לייצא גיבוי לפני איפוס.",
-      confirmLabel: "אפס נתונים",
-      cancelLabel: "ביטול",
+      title: text.reset.familyConfirmTitle,
+      description: text.reset.familyConfirmDescription,
+      confirmLabel: text.reset.familyConfirm,
+      cancelLabel: text.reset.cancel,
       tone: "danger",
     });
 
@@ -144,8 +487,8 @@ export default function SettingsManager() {
     });
 
     toast({
-      title: "הנתונים אופסו",
-      description: "נטען את Nestly מחדש כדי להתחיל נקי.",
+      title: text.reset.dataResetDone,
+      description: text.reset.dataResetDescription,
       tone: "success",
     });
 
@@ -157,8 +500,8 @@ export default function SettingsManager() {
 
     if (countBackupDataEntries(backup) === 0) {
       toast({
-        title: "אין נתונים לגיבוי",
-        description: "עדיין לא נשמר מידע במכשיר הזה.",
+        title: text.backupMessages.noDataTitle,
+        description: text.backupMessages.noDataDescription,
         tone: "info",
       });
       return;
@@ -177,8 +520,8 @@ export default function SettingsManager() {
     URL.revokeObjectURL(url);
 
     toast({
-      title: "קובץ הגיבוי ירד למכשיר",
-      description: "מומלץ לשמור אותו במקום בטוח — למשל בדוא\"ל או בענן.",
+      title: text.backupMessages.exportedTitle,
+      description: text.backupMessages.exportedDescription,
       tone: "success",
     });
   }
@@ -195,21 +538,26 @@ export default function SettingsManager() {
 
     if (!backup || countBackupDataEntries(backup) === 0) {
       toast({
-        title: "הקובץ אינו גיבוי תקין של Nestly",
-        description: "יש לבחור קובץ שיוצא מכפתור \"ייצוא גיבוי\".",
+        title: text.backupMessages.invalidTitle,
+        description: text.backupMessages.invalidDescription,
         tone: "danger",
       });
       return;
     }
 
     const exportedAtLabel = backup.exportedAt
-      ? new Date(backup.exportedAt).toLocaleDateString("he-IL")
+      ? new Date(backup.exportedAt).toLocaleDateString(
+          language === "en" ? "en-US" : "he-IL"
+        )
       : "";
     const approved = await confirm({
-      title: "שחזור מגיבוי",
-      description: `הגיבוי${exportedAtLabel ? ` מ-${exportedAtLabel}` : ""} כולל ${countBackupDataEntries(backup)} רשומות. נתונים קיימים באותם אזורים יוחלפו בתוכן הגיבוי. להמשיך?`,
-      confirmLabel: "שחזר נתונים",
-      cancelLabel: "ביטול",
+      title: text.backupMessages.restoreTitle,
+      description: text.backupMessages.restoreDescription(
+        exportedAtLabel,
+        countBackupDataEntries(backup)
+      ),
+      confirmLabel: text.backupMessages.restoreConfirm,
+      cancelLabel: text.reset.cancel,
       tone: "danger",
     });
 
@@ -221,370 +569,261 @@ export default function SettingsManager() {
 
     if (restoredCount === null) {
       toast({
-        title: "השחזור נכשל",
-        description: "אין מספיק מקום באחסון הדפדפן. פנו מקום ונסו שוב.",
+        title: text.backupMessages.restoreFailedTitle,
+        description: text.backupMessages.restoreFailedDescription,
         tone: "danger",
       });
       return;
     }
 
     toast({
-      title: "השחזור הושלם",
-      description: "האפליקציה תיטען מחדש עם הנתונים המשוחזרים.",
+      title: text.backupMessages.restoreDoneTitle,
+      description: text.backupMessages.restoreDoneDescription,
       tone: "success",
     });
     window.setTimeout(() => window.location.reload(), 1200);
   }
 
-  const preferenceCards = [
-    {
-      key: "highContrast" as const,
-      title: "ניגודיות מוגברת",
-      description: "מחזקת קריאות טקסט וכפתורים למי שמעדיף ממשק ברור יותר.",
-      checked: settings.highContrast,
-    },
-    {
-      key: "reducedMotion" as const,
-      title: "הפחתת תנועה",
-      description: "מצמצמת אנימציות ומעברים למי שרגיש לתנועה במסך.",
-      checked: settings.reducedMotion,
-    },
-    {
-      key: "darkMode" as const,
-      title: "מצב כהה",
-      description:
-        "מעביר את Nestly למראה כהה ונעים לעבודה בערב. אפשר לכבות בכל רגע.",
-      checked: settings.darkMode,
-    },
-  ];
-
-  const comingSoonPreferences: Array<{ title: string; description: string }> = [
-    {
-      title: "מצב כהה",
-      description:
-        "ערכת צבע כהה מלאה עדיין לא מוכנה. עד אז Nestly נשארת במצב בהיר ונגיש.",
-    },
-  ];
-
-  const simpleModePreviewItems = [
-    "טקסט גדול וברור יותר",
-    "כפתורים נוחים יותר ללחיצה",
-    "פחות עומס ויזואלי במסכים",
-  ];
+  const aiStatusLabel =
+    aiStatus === null
+      ? text.status.checking
+      : aiStatus.mode === "live"
+        ? text.ai.statusLive
+        : text.ai.statusMock;
 
   return (
-    <section className="grid gap-3 lg:grid-cols-[1fr_300px]">
-      <div className="space-y-3">
-        <section className="rounded-[24px] border border-white/80 bg-white/90 p-4 text-right shadow-[0_16px_40px_rgba(33,43,63,0.08)]">
-          <p className="mb-1 text-xs font-bold text-[#007aff]">שפה וכיוון</p>
-          <h2 className="text-lg font-black text-slate-950">ריבוי שפות</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-            עברית נשארת ברירת המחדל. התשתית כבר מוכנה לשפות נוספות ולכיוון
-            כתיבה RTL/LTR דרך שכבת layout משותפת.
+    <section
+      className={[
+        "space-y-3",
+        direction === "rtl" ? "text-right" : "text-left",
+      ].join(" ")}
+    >
+      <div className="grid gap-2 md:grid-cols-3">
+        <div className="rounded-[20px] border border-white/80 bg-white/90 p-3 shadow-[0_10px_24px_rgba(33,43,63,0.055)] ring-1 ring-[#eadfcd]/45">
+          <p className="text-[11px] font-black text-slate-400">
+            {text.status.language}
           </p>
-
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] p-3">
-            <p className="text-sm font-bold text-slate-700">שפה פעילה</p>
-            <LanguageSwitcher />
-          </div>
-        </section>
-
-        <section className="rounded-[24px] border border-white/80 bg-white/90 p-4 text-right shadow-[0_16px_40px_rgba(33,43,63,0.08)]">
-          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="mb-1 text-xs font-bold text-[#9a6b17]">
-                נגישות ותצוגה
-              </p>
-              <h2 className="text-lg font-black text-slate-950">
-                העדפות ממשק
-              </h2>
-            </div>
-            <span className="w-fit rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">
-              נשמר אוטומטית
-            </span>
-          </div>
-
-          <div className="mt-3 grid gap-2 md:grid-cols-2">
-            <div className="md:col-span-2 rounded-[22px] border border-[#ebe4d8] bg-gradient-to-l from-[#fff8eb] via-white to-[#eef7ff] p-3 shadow-[0_12px_30px_rgba(33,43,63,0.06)]">
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div className="text-right">
-                  <p className="text-sm font-black text-slate-950">
-                    תצוגה פשוטה
-                  </p>
-                  <p className="mt-1 max-w-2xl text-xs font-semibold leading-5 text-slate-600">
-                    מצב רגוע וברור יותר: טקסט מעט גדול יותר, כפתורים נוחים יותר, פחות קישוטים ופחות פעולות קטנות שמסתתרות.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => updateSetting("simpleMode", !settings.simpleMode)}
-                  className={[
-                    "min-h-11 shrink-0 rounded-2xl px-5 text-sm font-black transition hover:-translate-y-0.5",
-                    settings.simpleMode
-                      ? "border border-[#ebe4d8] bg-white text-slate-800 shadow-sm"
-                      : "bg-[#111827] text-white shadow-[0_10px_24px_rgba(17,24,39,0.18)]",
-                  ].join(" ")}
-                  aria-pressed={settings.simpleMode}
-                >
-                  {settings.simpleMode ? "חזרה לתצוגה רגילה" : "הפעל תצוגה פשוטה"}
-                </button>
-              </div>
-
-              <div className="mt-3 grid gap-2 md:grid-cols-[1fr_1fr]">
-                <div className="rounded-2xl border border-[#ebe4d8] bg-white/75 p-3 text-right">
-                  <p className="text-[11px] font-black text-slate-500">
-                    תצוגה רגילה
-                  </p>
-                  <p className="mt-1 text-sm font-black text-slate-900">
-                    יותר צפופה, יותר מידע במסך
-                  </p>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">
-                    מתאימה למי שמעדיף לראות כמה שיותר אפשרויות בבת אחת.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-[#d8caba] bg-white p-3 text-right shadow-sm">
-                  <p className="text-[11px] font-black text-[#9a6b17]">
-                    תצוגה פשוטה
-                  </p>
-                  <p className="mt-1 text-base font-black text-slate-950">
-                    ברורה יותר, רגועה יותר
-                  </p>
-                  <ul className="mt-2 space-y-1 text-xs font-semibold leading-5 text-slate-600">
-                    {simpleModePreviewItems.map((item) => (
-                      <li key={item}>• {item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {preferenceCards.map((item) => (
-              <label
-                key={item.key}
-                className="group flex min-h-[112px] cursor-pointer flex-col justify-between rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] p-3 transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(33,43,63,0.08)]"
-              >
-                <span className="flex items-start justify-between gap-3">
-                  <input
-                    type="checkbox"
-                    checked={item.checked}
-                    onChange={(event) =>
-                      updateSetting(item.key, event.target.checked)
-                    }
-                    className="mt-1 h-5 w-5 accent-[#111827]"
-                  />
-                  <span className="text-right">
-                    <span className="block text-sm font-black text-slate-950">
-                      {item.title}
-                    </span>
-                    <span className="mt-1 block text-xs leading-5 text-slate-600">
-                      {item.description}
-                    </span>
-                  </span>
-                </span>
-              </label>
-            ))}
-          </div>
-
-          <div className="mt-3 grid gap-2 md:grid-cols-2">
-            <div className="rounded-2xl border border-[#ebe4d8] bg-white p-3">
-              <p className="text-sm font-black text-slate-950">צפיפות ממשק</p>
-              <p className="mt-1 text-xs leading-5 text-slate-600">
-                מצב קומפקטי מקטין ריווח וכרטיסים, בלי להקטין אזורי לחיצה חשובים.
-              </p>
-              <div className="mt-3 grid grid-cols-2 rounded-2xl bg-[#f5f0e8] p-1 text-xs font-black">
-                <button
-                  type="button"
-                  onClick={() => updateSetting("compactMode", false)}
-                  className={[
-                    "min-h-10 rounded-xl transition",
-                    !settings.compactMode
-                      ? "bg-white text-slate-950 shadow-sm"
-                      : "text-slate-600 hover:bg-white/60",
-                  ].join(" ")}
-                >
-                  נוחה
-                </button>
-                <button
-                  type="button"
-                  onClick={() => updateSetting("compactMode", true)}
-                  className={[
-                    "min-h-10 rounded-xl transition",
-                    settings.compactMode
-                      ? "bg-white text-slate-950 shadow-sm"
-                      : "text-slate-600 hover:bg-white/60",
-                  ].join(" ")}
-                >
-                  קומפקטית
-                </button>
-              </div>
-            </div>
-
-            {comingSoonPreferences.slice(0, 0).map((item) => (
-              <div
-                key={item.title}
-                className="rounded-2xl border border-dashed border-[#d8cdbc] bg-[#f8f6f1] p-3 opacity-90"
-                aria-disabled="true"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-black text-slate-600">
-                    בקרוב
-                  </span>
-                  <div className="text-right">
-                    <p className="text-sm font-black text-slate-700">{item.title}</p>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
-                      {item.description}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  disabled
-                  className="mt-3 min-h-10 w-full cursor-not-allowed rounded-2xl border border-[#d8cdbc] bg-white/70 px-4 text-xs font-black text-slate-400"
-                >
-                  לא פעיל כרגע
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="rounded-[24px] border border-white/80 bg-white/90 p-4 text-right shadow-[0_16px_40px_rgba(33,43,63,0.08)]">
-          <p className="mb-1 text-xs font-bold text-[#9a6b17]">גיבוי ושחזור</p>
-          <h2 className="text-lg font-black text-slate-950">
-            הנתונים שלכם — בידיים שלכם
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-            כל המידע נשמר בדפדפן במכשיר הזה בלבד. ניקוי היסטוריה או החלפת
-            מכשיר ימחקו אותו — לכן מומלץ לייצא גיבוי מדי פעם. את קובץ הגיבוי
-            אפשר לשחזר כאן בכל מכשיר.
+          <p className="mt-1 text-sm font-black text-slate-950">
+            {language === "en" ? "English" : "עברית"}
           </p>
+        </div>
+        <div className="rounded-[20px] border border-white/80 bg-white/90 p-3 shadow-[0_10px_24px_rgba(33,43,63,0.055)] ring-1 ring-[#eadfcd]/45">
+          <p className="text-[11px] font-black text-slate-400">
+            {text.status.local}
+          </p>
+          <p className="mt-1 text-sm font-black text-emerald-700">
+            {text.status.saved}
+          </p>
+        </div>
+        <div className="rounded-[20px] border border-white/80 bg-white/90 p-3 shadow-[0_10px_24px_rgba(33,43,63,0.055)] ring-1 ring-[#eadfcd]/45">
+          <p className="text-[11px] font-black text-slate-400">
+            {text.status.ai}
+          </p>
+          <p className="mt-1 text-sm font-black text-slate-950">
+            {aiStatusLabel}
+          </p>
+        </div>
+      </div>
 
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={exportBackup}
-              className="min-h-12 rounded-2xl bg-[#111827] px-5 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
-            >
-              ייצוא גיבוי (JSON)
-            </button>
-            <button
-              type="button"
-              onClick={() => restoreInputRef.current?.click()}
-              className="min-h-12 rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] px-5 text-sm font-black text-slate-700 transition hover:-translate-y-0.5 hover:bg-white"
-            >
-              שחזור מקובץ גיבוי
-            </button>
-            <input
-              ref={restoreInputRef}
-              type="file"
-              accept="application/json,.json"
-              onChange={handleRestoreFile}
-              className="hidden"
-              aria-hidden="true"
+      <SectionShell
+        title={text.sections.display}
+        description={text.sections.displayDescription}
+      >
+        <div className="grid gap-2 lg:grid-cols-[1fr_1fr]">
+          <div className="rounded-[20px] border border-[#ebe4d8] bg-[#fffdf8] p-3">
+            <h3 className="text-sm font-black text-slate-950">
+              {text.language.title}
+            </h3>
+            <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">
+              {text.language.description}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white p-2 ring-1 ring-[#ebe4d8]">
+              <span className="text-xs font-black text-slate-600">
+                {text.language.active}
+              </span>
+              <LanguageSwitcher />
+            </div>
+          </div>
+
+          <div className="rounded-[20px] border border-[#ebe4d8] bg-white p-3">
+            <h3 className="text-sm font-black text-slate-950">
+              {text.density.title}
+            </h3>
+            <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">
+              {text.density.description}
+            </p>
+            <div className="mt-3 grid grid-cols-2 rounded-2xl bg-[#f5f0e8] p-1 text-xs font-black">
+              <button
+                type="button"
+                onClick={() => updateSetting("compactMode", false)}
+                className={[
+                  "min-h-10 rounded-xl transition",
+                  !settings.compactMode
+                    ? "bg-white text-slate-950 shadow-sm"
+                    : "text-slate-600 hover:bg-white/60",
+                ].join(" ")}
+              >
+                {text.density.comfortable}
+              </button>
+              <button
+                type="button"
+                onClick={() => updateSetting("compactMode", true)}
+                className={[
+                  "min-h-10 rounded-xl transition",
+                  settings.compactMode
+                    ? "bg-white text-slate-950 shadow-sm"
+                    : "text-slate-600 hover:bg-white/60",
+                ].join(" ")}
+              >
+                {text.density.compact}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-2 grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+          {(
+            [
+              "simpleMode",
+              "highContrast",
+              "reducedMotion",
+              "darkMode",
+            ] as const
+          ).map((key) => (
+            <PreferenceSwitch
+              key={key}
+              title={text.preferences[key].title}
+              description={text.preferences[key].description}
+              checked={settings[key]}
+              onChange={(value) => updateSetting(key, value)}
             />
-          </div>
-        </section>
+          ))}
+        </div>
 
-        <section className="rounded-[24px] border border-white/80 bg-white/90 p-4 text-right shadow-[0_16px_40px_rgba(33,43,63,0.08)]">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span
-              className={[
-                "rounded-full px-3 py-1 text-xs font-black",
-                aiStatus?.mode === "live"
-                  ? "bg-emerald-50 text-emerald-700"
-                  : "bg-slate-100 text-slate-600",
-              ].join(" ")}
-            >
-              {aiStatus === null
-                ? "בודק חיבור…"
-                : aiStatus.mode === "live"
-                  ? "AI פעיל"
-                  : "מצב בסיסי (ללא AI)"}
-            </span>
-            <div>
-              <p className="mb-1 text-xs font-bold text-[#007aff]">Nestly AI</p>
-              <h2 className="text-lg font-black text-slate-950">ניתוח מסמכים חכם</h2>
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={resetSettings}
+            className="min-h-11 rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] px-4 text-xs font-black text-slate-700 transition hover:-translate-y-0.5 hover:bg-white"
+          >
+            {text.reset.display}
+          </button>
+        </div>
+      </SectionShell>
+
+      <SectionShell
+        title={text.sections.data}
+        description={text.sections.dataDescription}
+      >
+        <div className="grid gap-2 lg:grid-cols-[1fr_20rem]">
+          <div className="rounded-[20px] border border-[#ebe4d8] bg-[#fffdf8] p-3">
+            <h3 className="text-sm font-black text-slate-950">
+              {text.backup.title}
+            </h3>
+            <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">
+              {text.backup.description}
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={exportBackup}
+                className="min-h-11 rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-4 text-sm font-black text-[#111827] shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
+              >
+                {text.backup.export}
+              </button>
+              <button
+                type="button"
+                onClick={() => restoreInputRef.current?.click()}
+                className="min-h-11 rounded-2xl border border-[#d8caba] bg-white px-4 text-sm font-black text-[#111827] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#fffdf8]"
+              >
+                {text.backup.restore}
+              </button>
+              <input
+                ref={restoreInputRef}
+                type="file"
+                accept="application/json,.json"
+                onChange={handleRestoreFile}
+                className="hidden"
+                aria-hidden="true"
+              />
             </div>
           </div>
 
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-            כשה-AI פעיל, סריקת מסמך מזהה אוטומטית ספק, סכום ותאריך תשלום —
-            ואתם רק מאשרים. מסמכים נשלחים לניתוח לשירות חיצוני מאובטח, ושום
-            דבר לא נשמר בלי אישור שלכם. ללא חיבור AI הכול ממשיך לעבוד במצב
-            בסיסי וחינמי.
-          </p>
+          <div className="space-y-2">
+            <DemoEntryCard />
+            <button
+              type="button"
+              onClick={resetFamilyData}
+              className="min-h-11 w-full rounded-2xl border border-rose-200 bg-rose-50 px-4 text-sm font-black text-rose-700 transition hover:-translate-y-0.5 hover:bg-rose-100"
+            >
+              {text.reset.familyData}
+            </button>
+          </div>
+        </div>
+      </SectionShell>
 
-          {aiStatus?.mode === "live" && aiStatus.requiresAccessCode && (
-            <div className="mt-3 rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] p-3">
-              <p className="text-sm font-bold text-slate-700">
-                קוד גישה משפחתי
+      <SectionShell title={text.sections.ai} description={text.sections.aiDescription}>
+        <div className="grid gap-2 lg:grid-cols-[1fr_1fr]">
+          <div className="rounded-[20px] border border-[#ebe4d8] bg-gradient-to-l from-[#eef7ff] via-white to-[#fff8eb] p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span
+                className={[
+                  "rounded-full px-3 py-1 text-xs font-black",
+                  aiStatus?.mode === "live"
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "bg-slate-100 text-slate-600",
+                ].join(" ")}
+              >
+                {aiStatusLabel}
+              </span>
+              <p className="text-sm font-black text-slate-950">{brand.productName} AI</p>
+            </div>
+            <p className="mt-2 text-xs font-semibold leading-5 text-slate-600">
+              {text.sections.aiDescription}
+            </p>
+          </div>
+
+          {aiStatus?.mode === "live" && aiStatus.requiresAccessCode ? (
+            <div className="rounded-[20px] border border-[#ebe4d8] bg-[#fffdf8] p-3">
+              <h3 className="text-sm font-black text-slate-950">
+                {text.ai.codeTitle}
+              </h3>
+              <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">
+                {text.ai.codeDescription}
               </p>
-              <p className="mt-1 text-xs leading-5 text-slate-600">
-                הקוד מגן על השימוש ב-AI. מזינים אותו פעם אחת בכל מכשיר של
-                המשפחה.
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 <input
                   type="password"
                   value={aiAccessCode}
                   onChange={(event) => setAiAccessCode(event.target.value)}
                   autoComplete="off"
-                  className="min-h-11 min-w-0 flex-1 rounded-2xl border border-[#e6e8ec] bg-white px-4 text-right text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400"
-                  placeholder="הזינו את הקוד המשפחתי"
+                  className={[
+                    "min-h-11 min-w-0 flex-1 rounded-2xl border border-[#e6e8ec] bg-white px-4 text-sm font-semibold text-[#111827] outline-none placeholder:text-slate-400",
+                    direction === "rtl" ? "text-right" : "text-left",
+                  ].join(" ")}
+                  placeholder={text.ai.codePlaceholder}
                 />
                 <button
                   type="button"
                   onClick={saveAiAccessCode}
-                  className="min-h-11 rounded-2xl bg-[#111827] px-5 text-sm font-black text-white transition hover:bg-[#1f2937]"
+                  className="min-h-11 rounded-2xl border border-[#d8caba] bg-white px-5 text-sm font-black text-[#111827] shadow-sm transition hover:bg-[#fffdf8]"
                 >
-                  שמירה
+                  {text.ai.saveCode}
                 </button>
               </div>
             </div>
+          ) : (
+            <div className="rounded-[20px] border border-[#ebe4d8] bg-[#fffdf8] p-3">
+              <h3 className="text-sm font-black text-slate-950">
+                {text.ai.codeTitle}
+              </h3>
+              <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">
+                {text.ai.noCode}
+              </p>
+            </div>
           )}
-        </section>
-      </div>
-
-      <aside className="rounded-[24px] border border-white/80 bg-gradient-to-br from-[#fff8eb] to-white p-4 text-right shadow-[0_16px_40px_rgba(33,43,63,0.08)]">
-        <p className="mb-1 text-xs font-bold text-slate-500">אודות</p>
-        <h2 className="text-xl font-black text-slate-950">{brand.productName}</h2>
-        <p className="mt-2 text-sm font-black text-[#9a6b17]">
-          {brand.taglineHe}
-        </p>
-        <p className="mt-3 text-sm leading-6 text-slate-600">
-          מרחב משפחתי: {brand.workspaceName}
-        </p>
-
-        <div className="my-4 h-px bg-[#ebe4d8]" />
-
-        <DemoEntryCard />
-
-        <div className="my-4 h-px bg-[#ebe4d8]" />
-
-        <p className="mb-2 text-sm font-bold text-slate-600">
-          נתונים מקומיים
-        </p>
-        <h3 className="text-lg font-black text-slate-950">שמירה בדפדפן</h3>
-        <p className="mt-3 text-sm leading-6 text-slate-600">
-          כספים, משימות ושאר המודולים נשמרים כרגע מקומית בדפדפן. המבנה מוכן
-          לחיבור עתידי של משתמשים, הרשאות וסנכרון.
-        </p>
-
-        <button
-          type="button"
-          onClick={resetSettings}
-          className="mt-4 w-full rounded-2xl bg-[#111827] px-5 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-[#1f2937]"
-        >
-          איפוס הגדרות תצוגה
-        </button>
-        <button
-          type="button"
-          onClick={resetFamilyData}
-          className="mt-2 w-full rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-black text-rose-700 transition hover:-translate-y-0.5 hover:bg-rose-100"
-        >
-          איפוס נתוני המשפחה
-        </button>
-      </aside>
+        </div>
+      </SectionShell>
     </section>
   );
 }
