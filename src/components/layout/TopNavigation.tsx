@@ -183,7 +183,7 @@ function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
     <span
       className={[
-        "relative shrink-0 overflow-hidden rounded-2xl bg-white/90 shadow-[0_6px_18px_rgba(31,41,55,0.08)] ring-1 ring-[#eadfcd]/70",
+        "relative shrink-0 overflow-hidden rounded-2xl",
         compact ? "h-6 w-6 rounded-xl" : "h-9 w-9",
       ].join(" ")}
       aria-hidden="true"
@@ -193,7 +193,7 @@ function BrandMark({ compact = false }: { compact?: boolean }) {
         alt=""
         width={96}
         height={96}
-        className="h-full w-full object-contain"
+        className="h-full w-full object-contain drop-shadow-[0_3px_8px_rgba(33,43,63,0.12)]"
       />
     </span>
   );
@@ -459,7 +459,7 @@ export default function TopNavigation({
               <Link
                 href="/"
                 onClick={handleLogoHomeClick}
-                className="flex h-11 shrink-0 items-center gap-2 rounded-2xl px-1.5 text-sm font-black text-[#111827] transition hover:bg-[#fff8eb] lg:h-9 lg:border lg:border-[#eadfcd] lg:bg-[#fffdf8] lg:px-3 lg:text-xs lg:shadow-[0_10px_22px_rgba(33,43,63,0.06)]"
+                className="flex h-11 shrink-0 items-center gap-2 rounded-2xl px-1.5 text-sm font-black text-[#111827] transition hover:bg-[#fff8eb] lg:h-9 lg:border lg:border-[#eadfcd]/70 lg:bg-white/62 lg:px-3 lg:text-xs lg:shadow-[0_8px_18px_rgba(33,43,63,0.045)]"
                 aria-label={`${brand.productName} - ${brand.workspaceName}`}
               >
                 <span

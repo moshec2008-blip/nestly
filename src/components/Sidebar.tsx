@@ -347,13 +347,13 @@ export default function Sidebar({
             </button>
 
             <div className="flex min-w-0 items-center gap-2 text-right">
-              <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white/90 shadow-[0_6px_18px_rgba(31,41,55,0.08)] ring-1 ring-[#eadfcd]/70">
+              <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-2xl">
                 <Image
                   src="/nestly-logo.png"
                   alt=""
                   width={96}
                   height={96}
-                  className="h-full w-full object-contain"
+                  className="h-full w-full object-contain drop-shadow-[0_3px_8px_rgba(33,43,63,0.12)]"
                   aria-hidden="true"
                 />
               </span>
@@ -377,7 +377,7 @@ export default function Sidebar({
             <button
               type="button"
               onClick={handleLogoHomeRefresh}
-              className="grid h-9 w-9 place-items-center overflow-hidden rounded-2xl bg-white/90 shadow-[0_6px_18px_rgba(31,41,55,0.08)] ring-1 ring-[#eadfcd]/70 transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#b86f68]/35"
+              className="grid h-9 w-9 place-items-center overflow-hidden rounded-2xl transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[#b86f68]/35"
               aria-label={`${brand.productName} - ${dictionary.nav.home}`}
             >
               <Image
@@ -385,7 +385,7 @@ export default function Sidebar({
                 alt=""
                 width={96}
                 height={96}
-                className="h-full w-full object-contain"
+                className="h-full w-full object-contain drop-shadow-[0_3px_8px_rgba(33,43,63,0.12)]"
                 aria-hidden="true"
               />
             </button>
