@@ -2193,3 +2193,72 @@ html.nestly-dark .app-premium .home-area-card .home-area-stat {
 html.nestly-dark .app-premium .home-area-card .home-area-subtitle {
   color: #cbd5e1 !important;
 }
+
+/* Dark-mode final readability pass.
+   The app stays light by default. These rules apply only after the user enables
+   dark mode and protect screens that still use white/cream utility surfaces. */
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="bg-white"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="from-white"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="via-white"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="to-white"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="bg-[#fff"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="from-[#fff"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="via-[#fff"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="to-[#fff"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="bg-[#faf"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="bg-[#fbf"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="bg-[#f8f"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="from-[#faf"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="via-[#faf"],
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="to-[#faf"],
+html.nestly-dark .app-premium .finance-balance-card {
+  border-color: rgba(226, 232, 240, 0.16) !important;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(216, 180, 112, 0.14), transparent 14rem),
+    linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.94)) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.26) !important;
+}
+
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="bg-white"] :is(h1, h2, h3, h4, p, span, strong, small, b, em, label, td, th),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="from-white"] :is(h1, h2, h3, h4, p, span, strong, small, b, em, label, td, th),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="via-white"] :is(h1, h2, h3, h4, p, span, strong, small, b, em, label, td, th),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="to-white"] :is(h1, h2, h3, h4, p, span, strong, small, b, em, label, td, th),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="bg-[#fff"] :is(h1, h2, h3, h4, p, span, strong, small, b, em, label, td, th),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="from-[#fff"] :is(h1, h2, h3, h4, p, span, strong, small, b, em, label, td, th),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="via-[#fff"] :is(h1, h2, h3, h4, p, span, strong, small, b, em, label, td, th),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="to-[#fff"] :is(h1, h2, h3, h4, p, span, strong, small, b, em, label, td, th),
+html.nestly-dark .app-premium .finance-balance-card :is(h1, h2, h3, h4, p, span, strong, small, b, em, label, td, th) {
+  color: #f8fafc !important;
+}
+
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="bg-white"] :is([class*="text-slate-"], [class*="text-zinc-"], [class*="text-neutral-"], [class*="text-gray-"], [class*="text-white"]),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="from-white"] :is([class*="text-slate-"], [class*="text-zinc-"], [class*="text-neutral-"], [class*="text-gray-"], [class*="text-white"]),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="via-white"] :is([class*="text-slate-"], [class*="text-zinc-"], [class*="text-neutral-"], [class*="text-gray-"], [class*="text-white"]),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="to-white"] :is([class*="text-slate-"], [class*="text-zinc-"], [class*="text-neutral-"], [class*="text-gray-"], [class*="text-white"]),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="bg-[#fff"] :is([class*="text-slate-"], [class*="text-zinc-"], [class*="text-neutral-"], [class*="text-gray-"], [class*="text-white"]),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="from-[#fff"] :is([class*="text-slate-"], [class*="text-zinc-"], [class*="text-neutral-"], [class*="text-gray-"], [class*="text-white"]),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="via-[#fff"] :is([class*="text-slate-"], [class*="text-zinc-"], [class*="text-neutral-"], [class*="text-gray-"], [class*="text-white"]),
+html.nestly-dark .app-premium :is(section, article, aside, nav, div, a, button, li, form, label)[class*="to-[#fff"] :is([class*="text-slate-"], [class*="text-zinc-"], [class*="text-neutral-"], [class*="text-gray-"], [class*="text-white"]),
+html.nestly-dark .app-premium .finance-balance-card :is([class*="text-slate-"], [class*="text-zinc-"], [class*="text-neutral-"], [class*="text-gray-"], [class*="text-white"]) {
+  color: #cbd5e1 !important;
+}
+
+html.nestly-dark .app-premium :is(input, select, textarea)[class*="bg-white"],
+html.nestly-dark .app-premium :is(input, select, textarea)[class*="bg-[#fff"],
+html.nestly-dark .app-premium :is(input, select, textarea)[class*="bg-[#faf"],
+html.nestly-dark .app-premium :is(input, select, textarea)[class*="bg-[#fbf"] {
+  border-color: rgba(226, 232, 240, 0.22) !important;
+  background: rgba(15, 23, 42, 0.9) !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+html.nestly-dark .app-premium :is(input, select, textarea)[class*="bg-white"]::placeholder,
+html.nestly-dark .app-premium :is(input, select, textarea)[class*="bg-[#fff"]::placeholder,
+html.nestly-dark .app-premium :is(input, select, textarea)[class*="bg-[#faf"]::placeholder,
+html.nestly-dark .app-premium :is(input, select, textarea)[class*="bg-[#fbf"]::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+}

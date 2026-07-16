@@ -29,7 +29,10 @@ export type GuestMigrationInput = {
   userId: string;
   familySpaceId: string;
   decision: GuestMigrationDecision;
-  records: Array<Pick<FamilyScopedRecord, "id" | "kind" | "data">>;
+  records: Array<
+    Pick<FamilyScopedRecord, "id" | "kind" | "data"> &
+      Partial<Pick<FamilyScopedRecord, "visibility" | "ownerUserId">>
+  >;
 };
 
 export interface NestlyCloudRepository {

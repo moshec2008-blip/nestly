@@ -31,6 +31,8 @@ It is not yet ready for public production use because it does not have a real cl
 | Item | Status | Notes |
 | --- | --- | --- |
 | Family Space concept | Partial | Local family space is created for authenticated users. |
+| Backend selection | Complete | Supabase is selected for PostgreSQL, RLS, Storage and scoped realtime. See `docs/FAMILY_SPACES.md`. |
+| Capability model | Partial | `src/lib/cloud/authorization.ts` defines roles and capabilities; server enforcement still missing. |
 | Owner-only family reset | Partial | UI/client-side owner check exists for connected accounts. Must be server-enforced later. |
 | Family sharing | Missing | UI concepts exist, but no real invitations or shared database. |
 | Roles and permissions | Partial | Permission UI exists; not production security without backend enforcement. |
@@ -45,6 +47,17 @@ It is not yet ready for public production use because it does not have a real cl
 | Real database | Missing | Required before cross-device sync and real sharing. |
 | Backup/export | Partial | Manual local export/import exists. Needs versioned migration and stronger restore reporting. |
 | Cloud sync | Missing | Do not claim cloud sync in product copy. |
+
+## Closed Beta Collaboration
+
+| Item | Status | Notes |
+| --- | --- | --- |
+| Feature flags | Complete | `src/lib/featureFlags.ts` centralizes closed beta/collaboration flags. |
+| Invitation model | Partial | `CloudInvitation` type and email abstraction exist; no production invitation flow yet. |
+| Email provider | Partial | Mock provider exists for development only. Production must use Resend/Postmark or equivalent. |
+| Supabase migration draft | Partial | `docs/supabase/001_family_spaces.sql` is a draft and must be reviewed before use. |
+| Realtime collaboration | Missing | Must wait for server authorization and scoped subscriptions. |
+| Secure document storage | Missing | Requires private bucket, signed URLs and server access checks. |
 
 ## File and Document Storage
 

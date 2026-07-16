@@ -1,6 +1,7 @@
 import type {
   CloudBootstrapResult,
   CloudFamilySpace,
+  CloudInvitation,
   CloudMembership,
   CloudUser,
   FamilyScopedRecord,
@@ -20,6 +21,7 @@ type LocalCloudState = {
   users: CloudUser[];
   familySpaces: CloudFamilySpace[];
   memberships: CloudMembership[];
+  invitations: CloudInvitation[];
   records: FamilyScopedRecord[];
   migrations: GuestMigrationRecord[];
 };
@@ -29,6 +31,7 @@ function getEmptyState(): LocalCloudState {
     users: [],
     familySpaces: [],
     memberships: [],
+    invitations: [],
     records: [],
     migrations: [],
   };
@@ -63,6 +66,9 @@ function readState(): LocalCloudState {
         : [],
       memberships: Array.isArray(parsedValue.memberships)
         ? parsedValue.memberships
+        : [],
+      invitations: Array.isArray(parsedValue.invitations)
+        ? parsedValue.invitations
         : [],
       records: Array.isArray(parsedValue.records) ? parsedValue.records : [],
       migrations: Array.isArray(parsedValue.migrations)
@@ -103,13 +109,21 @@ export const localCloudRepository: NestlyCloudRepository = {
           email: input.email,
           name: input.name,
           image: input.image,
+          authProviderId: input.userId,
+          status: existingUser.status ?? "active",
+          lastSeenAt: timestamp,
           updatedAt: timestamp,
         }
       : {
           id: userId,
+          authProviderId: input.userId,
           email: input.email,
           name: input.name,
           image: input.image,
+          locale: "he",
+          timezone: "Asia/Jerusalem",
+          status: "active",
+          lastSeenAt: timestamp,
           createdAt: timestamp,
           updatedAt: timestamp,
         };
@@ -129,6 +143,10 @@ export const localCloudRepository: NestlyCloudRepository = {
         id: `space_${user.id}_${Date.now()}`,
         name: createFamilySpaceName(input.name),
         ownerUserId: user.id,
+        status: "active",
+        defaultLocale: "he",
+        defaultCurrency: "ILS",
+        timezone: "Asia/Jerusalem",
         createdAt: timestamp,
         updatedAt: timestamp,
       };
@@ -139,6 +157,8 @@ export const localCloudRepository: NestlyCloudRepository = {
         userId: user.id,
         familySpaceId: familySpace.id,
         role: "owner",
+        status: "active",
+        joinedAt: timestamp,
         createdAt: timestamp,
         updatedAt: timestamp,
       };
@@ -190,6 +210,8 @@ export const localCloudRepository: NestlyCloudRepository = {
       familySpaceId,
       kind,
       data,
+      visibility: existingRecord?.visibility ?? "family",
+      ownerUserId: existingRecord?.ownerUserId,
       createdAt: existingRecord?.createdAt ?? timestamp,
       updatedAt: timestamp,
       deletedAt: null,
@@ -255,6 +277,8 @@ export const localCloudRepository: NestlyCloudRepository = {
         nextRecords.unshift({
           ...record,
           familySpaceId: input.familySpaceId,
+          visibility: record.visibility ?? "family",
+          ownerUserId: record.ownerUserId,
           createdAt: timestamp,
           updatedAt: timestamp,
           deletedAt: null,

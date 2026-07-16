@@ -46,6 +46,27 @@ membership and repository contracts, plus a local repository emulator for
 development. A real database is still required before storing real sensitive
 family information or promising multi-device persistence.
 
+## Collaboration and closed beta status
+
+Production collaboration is planned around Supabase:
+
+- PostgreSQL
+- Row Level Security
+- private Storage
+- server-side authorization
+- scoped realtime subscriptions
+
+The current app does **not** yet provide real cloud collaboration. Invitations,
+secure document sharing, realtime sync and server-enforced permissions remain
+behind feature flags or documentation until the backend is connected.
+
+Read:
+
+- `docs/FAMILY_SPACES.md`
+- `docs/PERMISSIONS.md`
+- `docs/INVITATIONS.md`
+- `docs/CLOSED_BETA_READINESS.md`
+
 ## Nestly AI foundation
 
 The AI layer is provider-agnostic and server-side first. The current safe

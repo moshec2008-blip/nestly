@@ -6,6 +6,7 @@ import {
   roleLabels,
 } from "@/data/permissions";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
+import { isFeatureEnabled } from "@/lib/featureFlags";
 import { storageKeys } from "@/lib/storageKeys";
 import type {
   FamilyPermissionUser,
@@ -38,6 +39,9 @@ export default function PermissionsManager() {
     [selectedUserId, users]
   );
   const selectedPermissions = selectedUser?.permissions ?? [];
+  const cloudPermissionsEnabled = isFeatureEnabled("cloudPersistence");
+  const permissionDisabledReason =
+    "ניהול הרשאות אמיתי דורש חיבור ענן והרשאות שרת. כרגע זה מוצג כמודל תכנון בלבד.";
   const invitationDisabledReason =
     "הזמנות אמיתיות דורשות חיבור ענן, אימייל והרשאות שרת. האפשרות תיפתח אחרי חיבור התשתית המאובטחת.";
 
@@ -53,6 +57,10 @@ export default function PermissionsManager() {
     moduleLabel: string,
     permissionKey: PermissionKey
   ) {
+    if (!cloudPermissionsEnabled) {
+      return;
+    }
+
     if (!userId) {
       return;
     }
@@ -179,6 +187,12 @@ export default function PermissionsManager() {
               </p>
             </div>
 
+            {!cloudPermissionsEnabled && (
+              <p className="mb-3 rounded-2xl border border-dashed border-[#d8cdbc] bg-white px-3 py-2 text-xs font-bold leading-5 text-slate-600">
+                {permissionDisabledReason}
+              </p>
+            )}
+
             {selectedUser && selectedPermissions.length > 0 ? (
               <div className="overflow-x-auto rounded-2xl border border-[#ebe4d8] bg-white">
                 <table className="w-full min-w-[760px] text-right text-sm">
@@ -214,6 +228,7 @@ export default function PermissionsManager() {
                                 <input
                                   type="checkbox"
                                   checked={permission[permissionKey]}
+                                  disabled={!cloudPermissionsEnabled}
                                   onChange={() =>
                                     togglePermission(
                                       selectedUser.id,
@@ -221,7 +236,7 @@ export default function PermissionsManager() {
                                       permissionKey
                                     )
                                   }
-                                  className="h-4 w-4 accent-[#111827]"
+                                  className="h-4 w-4 accent-[#111827] disabled:cursor-not-allowed disabled:opacity-40"
                                 />
                                 <span className="text-xs font-bold text-slate-600">
                                   {permission[permissionKey] ? "כן" : "לא"}

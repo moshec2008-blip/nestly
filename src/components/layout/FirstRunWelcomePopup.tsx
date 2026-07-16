@@ -11,6 +11,7 @@ import { storageKeys } from "@/lib/storageKeys";
 
 const welcomeInterruptionId = "first-run-welcome";
 const welcomeDelayMs = 700;
+const welcomePreviewParam = "welcome";
 
 const copy = {
   he: {
@@ -62,6 +63,16 @@ export default function FirstRunWelcomePopup() {
 
   useEffect(() => {
     if (typeof window === "undefined") {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const explicitlyPreviewWelcome = params.get(welcomePreviewParam) === "1";
+    const isLocalPreview =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (isLocalPreview && !explicitlyPreviewWelcome) {
       return;
     }
 
