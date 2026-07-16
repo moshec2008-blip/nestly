@@ -10,6 +10,7 @@ import SmartCaptureLauncher from "@/components/capture/SmartCaptureLauncher";
 import CommandPalette from "@/components/command-palette/CommandPalette";
 import DemoModeBanner from "@/components/layout/DemoModeBanner";
 import EnglishDomTranslator from "@/components/i18n/EnglishDomTranslator";
+import FirstRunWelcomePopup from "@/components/layout/FirstRunWelcomePopup";
 import MobileBottomNavigation from "@/components/layout/MobileBottomNavigation";
 import SmartFamilyCenter from "@/components/layout/SmartFamilyCenter";
 import SmartNudgePopup from "@/components/layout/SmartNudgePopup";
@@ -120,6 +121,7 @@ export default function AppShell({ children }: AppShellProps) {
             </div>
 
             <DemoModeBanner />
+            {pathname !== "/login" && <FirstRunWelcomePopup />}
             {pathname !== "/login" && <CommandPalette />}
             {pathname !== "/login" && <SmartCaptureLauncher />}
             {!isMobileMenuOpen && <MobileBottomNavigation />}

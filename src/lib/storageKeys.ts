@@ -27,5 +27,6 @@ export const storageKeys = {
   aiSuggestionFeedback: "nestly-ai-suggestion-feedback",
   commandCenterPreferences: "nestly-command-center-preferences",
   authSession: "nestly-auth-session",
+  firstRunWelcome: "nestly-first-run-welcome-dismissed",
   smartNudge: "nestly-smart-nudge",
 } as const;
