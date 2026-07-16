@@ -21,6 +21,11 @@ import {
   parseBackup,
   restoreBackup,
 } from "@/lib/dataBackup";
+import {
+  getActiveFamilySpace,
+  getFamilySpaceEventName,
+  type FamilySpace,
+} from "@/lib/familySpace";
 import { storageKeys } from "@/lib/storageKeys";
 import {
   fetchAiServiceStatus,
@@ -393,10 +398,14 @@ const feedbackAreas = [
 
 const defaultFeedbackEmail = "moshe.c2008@gmail.com";
 
+function normalizeAccountKey(value: string) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9._-]/g, "_");
+}
+
 export default function SettingsManager() {
   const { confirm, toast } = useFeedback();
   const { language, direction } = useLanguage();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const languageKey = language === "en" ? "en" : "he";
   const text = useMemo(() => copyByLanguage[languageKey], [languageKey]);
   const [settings, setSettings] = useState<AppSettings>(defaultAppSettings);
@@ -408,12 +417,49 @@ export default function SettingsManager() {
   const [feedbackContact, setFeedbackContact] = useState("");
   const [isDangerZoneUnlocked, setIsDangerZoneUnlocked] = useState(false);
   const [resetConfirmationText, setResetConfirmationText] = useState("");
+  const [activeFamilySpace, setActiveFamilySpace] =
+    useState<FamilySpace | null>(null);
   const restoreInputRef = useRef<HTMLInputElement | null>(null);
   const isAuthenticated = status === "authenticated";
+  const accountKey =
+    session?.user?.email || session?.user?.id || session?.user?.name || "";
+  const isFamilySpaceOwner =
+    !isAuthenticated ||
+    Boolean(
+      accountKey &&
+        activeFamilySpace?.ownerUserKey === normalizeAccountKey(accountKey)
+    );
+  const canUnlockDangerZone = status !== "loading" && isFamilySpaceOwner;
   const requiredResetPhrase = languageKey === "en" ? "RESET DATA" : "אפס נתונים";
-  const canRequestFamilyReset = isDangerZoneUnlocked;
+  const canRequestFamilyReset = canUnlockDangerZone && isDangerZoneUnlocked;
   const canResetFamilyData =
     canRequestFamilyReset && resetConfirmationText.trim() === requiredResetPhrase;
+
+  useEffect(() => {
+    function syncFamilySpace() {
+      setActiveFamilySpace(getActiveFamilySpace());
+    }
+
+    syncFamilySpace();
+    window.addEventListener(getFamilySpaceEventName(), syncFamilySpace);
+
+    return () => {
+      window.removeEventListener(getFamilySpaceEventName(), syncFamilySpace);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (canUnlockDangerZone) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setIsDangerZoneUnlocked(false);
+      setResetConfirmationText("");
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [canUnlockDangerZone]);
 
   useEffect(() => {
     let isActive = true;
@@ -560,6 +606,21 @@ export default function SettingsManager() {
   }
 
   async function resetFamilyData() {
+    if (!canUnlockDangerZone) {
+      toast({
+        title:
+          languageKey === "en"
+            ? "Owner permission required"
+            : "נדרשת הרשאת בעלים",
+        description:
+          languageKey === "en"
+            ? "Only the family space owner can reset family history."
+            : "רק בעל המרחב המשפחתי יכול לאפס את כל ההיסטוריה המשפחתית.",
+        tone: "warning",
+      });
+      return;
+    }
+
     if (!canRequestFamilyReset) {
       toast({
         title:
@@ -929,18 +990,19 @@ export default function SettingsManager() {
               </p>
               <p className="mt-1 text-sm font-semibold leading-6 text-rose-700">
                 {languageKey === "en"
-                  ? "This action deletes the active family data stored on this device. Export a backup first. In production this must be enforced by owner/admin permissions on the server."
-                  : "הפעולה מוחקת את נתוני המשפחה במרחב הפעיל מהמכשיר הזה. מומלץ לייצא גיבוי קודם. בפרודקשן זה חייב להיאכף בהרשאת בעלים/מנהל בצד שרת."}
+                  ? "This action deletes the active family data stored on this device. Export a backup first. Connected accounts require family-space owner permission."
+                  : "הפעולה מוחקת מהמכשיר את נתוני המרחב המשפחתי הפעיל. מומלץ לייצא גיבוי קודם. בחשבון מחובר, רק בעל המרחב יכול לבצע איפוס."}
               </p>
 
               <label className="mt-3 flex cursor-pointer items-start justify-end gap-3 rounded-2xl bg-white/80 p-3 text-sm font-bold text-slate-700 ring-1 ring-rose-100">
                 <input
                   type="checkbox"
                   checked={isDangerZoneUnlocked}
+                  disabled={!canUnlockDangerZone}
                   onChange={(event) =>
                     setIsDangerZoneUnlocked(event.target.checked)
                   }
-                  className="mt-1 h-5 w-5 accent-rose-700"
+                  className="mt-1 h-5 w-5 accent-rose-700 disabled:cursor-not-allowed disabled:opacity-45"
                 />
                 <span>
                   {isAuthenticated
@@ -952,6 +1014,22 @@ export default function SettingsManager() {
                       : "אני מבין שזו פעולה הרסנית שמיועדת רק לבעל הרשאה במצב בסיסי."}
                 </span>
               </label>
+              <p
+                className={[
+                  "mt-2 rounded-2xl px-3 py-2 text-xs font-black leading-5",
+                  canUnlockDangerZone
+                    ? "bg-white/75 text-rose-700 ring-1 ring-rose-100"
+                    : "bg-slate-100 text-slate-600 ring-1 ring-slate-200",
+                ].join(" ")}
+              >
+                {canUnlockDangerZone
+                  ? languageKey === "en"
+                    ? "Permission confirmed: this device/account can unlock the reset flow."
+                    : "הרשאה מאושרת: החשבון או המכשיר הזה יכול לפתוח את תהליך האיפוס."
+                  : languageKey === "en"
+                    ? "Locked: only the family-space owner can reset family history."
+                    : "נעול: רק בעל המרחב המשפחתי יכול לאפס את היסטוריית המשפחה."}
+              </p>
             </div>
 
             <div className="rounded-[20px] bg-white p-3 ring-1 ring-rose-100">
