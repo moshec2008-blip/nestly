@@ -15,6 +15,7 @@ export type AppSettings = {
   aiProactiveSuggestions: boolean;
   aiDocumentAnalysis: boolean;
   aiNoteAnalysis: boolean;
+  showFloatingCapture: boolean;
 };
 
 export const defaultAppSettings: AppSettings = {
@@ -28,6 +29,7 @@ export const defaultAppSettings: AppSettings = {
   aiProactiveSuggestions: true,
   aiDocumentAnalysis: true,
   aiNoteAnalysis: true,
+  showFloatingCapture: true,
 };
 
 export const appPreferencesChangeEventName = "nestly-app-preferences-change";
@@ -57,7 +59,10 @@ export function isAppSettings(value: unknown): value is AppSettings {
       isBoolean(settings.aiProactiveSuggestions)) &&
     (settings.aiDocumentAnalysis === undefined ||
       isBoolean(settings.aiDocumentAnalysis)) &&
-    (settings.aiNoteAnalysis === undefined || isBoolean(settings.aiNoteAnalysis))
+    (settings.aiNoteAnalysis === undefined ||
+      isBoolean(settings.aiNoteAnalysis)) &&
+    (settings.showFloatingCapture === undefined ||
+      isBoolean(settings.showFloatingCapture))
   );
 }
 

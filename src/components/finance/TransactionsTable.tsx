@@ -310,8 +310,8 @@ export default function TransactionsTable({
   }
 
   return (
-    <section className="rounded-[24px] bg-white/94 p-5 text-right shadow-[0_16px_38px_rgba(15,23,42,0.055)] ring-1 ring-[#edf0f3]/80">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-4 border-b border-[#eef0f3]/80 pb-4">
+    <section className="rounded-[24px] bg-white/94 p-4 text-right shadow-[0_16px_38px_rgba(15,23,42,0.055)] ring-1 ring-[#edf0f3]/80 sm:p-5">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-[#eef0f3]/80 pb-3">
         <div className="flex flex-wrap gap-2 text-xs font-black">
           <span className="rounded-full border border-[#e6e8ec] bg-white px-3 py-1.5 text-slate-500">
             {transactions.length} פעולות
@@ -345,10 +345,10 @@ export default function TransactionsTable({
         </div>
       ) : (
         <div>
-          <div className="space-y-5">
+          <div className="space-y-3">
             {groupedTransactions.map((group) => (
               <div key={group.id}>
-                <p className="px-1 pb-2 text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
+                <p className="px-1 pb-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
                   {group.label}
                 </p>
 
@@ -362,13 +362,13 @@ export default function TransactionsTable({
                         <button
                           type="button"
                           onClick={() => openDetails(transaction)}
-                          className="grid w-full gap-2 rounded-[18px] py-4 pl-12 pr-2 text-right transition hover:bg-[#fafafb] sm:grid-cols-[minmax(0,1fr)_minmax(9.75rem,max-content)] sm:items-center sm:gap-3 sm:pl-10"
+                          className="grid w-full grid-cols-[minmax(0,1fr)_max-content] items-center gap-2 rounded-[16px] py-2.5 pl-12 pr-2 text-right transition hover:bg-[#fafafb] sm:gap-3 sm:pl-10"
                         >
-                          <div className="flex min-w-0 items-center justify-end gap-3">
+                          <div className="flex min-w-0 items-center justify-end gap-2.5">
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center justify-end gap-2">
                                 {transaction.status === "pending" && (
-                                   <span className="rounded-full bg-amber-50 px-2 py-1 text-[10px] font-black text-amber-700">
+                                   <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-black text-amber-700">
                                     {statusLabels[transaction.status]}
                                   </span>
                                 )}
@@ -376,14 +376,14 @@ export default function TransactionsTable({
                                   {transaction.title}
                                 </h3>
                               </div>
-                              <p className="mt-1 truncate text-xs font-semibold text-slate-400">
+                              <p className="mt-0.5 truncate text-[11px] font-semibold text-slate-400">
                                 {transaction.category} · {formatDate(transaction.date)}
                                 {insight ? ` · ${insight}` : ""}
                               </p>
                             </div>
                             <span
                               className={[
-                                 "grid h-9 w-9 shrink-0 place-items-center rounded-2xl text-xs font-black",
+                                 "grid h-8 w-8 shrink-0 place-items-center rounded-xl text-[11px] font-black",
                                 transaction.type === "income"
                                   ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
                                   : "bg-slate-50 text-slate-600 ring-1 ring-slate-100",
@@ -396,11 +396,11 @@ export default function TransactionsTable({
 
                           <span
                             dir="ltr"
-                            className="flex min-w-0 items-center justify-start sm:block"
+                            className="flex min-w-[5.75rem] shrink-0 items-center justify-start"
                           >
                             <span
                               dir="ltr"
-                              className={`max-w-full shrink-0 whitespace-nowrap text-left text-base font-black tabular-nums leading-6 sm:block sm:min-w-40 ${getAmountClass(
+                              className={`shrink-0 whitespace-nowrap text-left text-sm font-black tabular-nums leading-5 sm:text-base ${getAmountClass(
                                 transaction.type
                               )}`}
                             >

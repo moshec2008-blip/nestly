@@ -785,6 +785,19 @@ export default function SettingsManager() {
           ))}
         </div>
 
+        <div className="mt-2 grid gap-2 md:grid-cols-2">
+          <PreferenceSwitch
+            title={languageKey === "en" ? "Floating capture button" : "כפתור לכידה צף"}
+            description={
+              languageKey === "en"
+                ? "Show the movable Capture button above the app. Turn it off if it gets in the way."
+                : "מציג את כפתור הלכידה הצף מעל האפליקציה. אפשר לכבות אם הוא מפריע."
+            }
+            checked={settings.showFloatingCapture}
+            onChange={(value) => updateSetting("showFloatingCapture", value)}
+          />
+        </div>
+
         <div className="mt-3 flex justify-end">
           <button
             type="button"

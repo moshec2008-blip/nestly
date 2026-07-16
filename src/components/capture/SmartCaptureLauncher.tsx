@@ -15,6 +15,11 @@ import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { useLanguage } from "@/i18n/useLanguage";
 import {
+  appPreferencesChangeEventName,
+  readAppSettings,
+  type AppSettings,
+} from "@/lib/appPreferences";
+import {
   convertCapture,
   createCapture,
   readCaptures,
@@ -204,6 +209,9 @@ export default function SmartCaptureLauncher() {
   const [buttonPosition, setButtonPosition] = useState<FloatingPosition | null>(
     null
   );
+  const [showFloatingCapture, setShowFloatingCapture] = useState(
+    () => readAppSettings(language).showFloatingCapture
+  );
 
   const clampFloatingPosition = useCallback((position: FloatingPosition) => {
     if (typeof window === "undefined") {
@@ -347,6 +355,29 @@ export default function SmartCaptureLauncher() {
       href: "/documents",
     },
   ];
+
+  useEffect(() => {
+    function syncFloatingCapturePreference(event?: Event) {
+      const customEvent = event as CustomEvent<AppSettings> | undefined;
+      setShowFloatingCapture(
+        customEvent?.detail?.showFloatingCapture ??
+          readAppSettings(language).showFloatingCapture
+      );
+    }
+
+    syncFloatingCapturePreference();
+    window.addEventListener(
+      appPreferencesChangeEventName,
+      syncFloatingCapturePreference
+    );
+
+    return () => {
+      window.removeEventListener(
+        appPreferencesChangeEventName,
+        syncFloatingCapturePreference
+      );
+    };
+  }, [language]);
 
   useEffect(() => {
     const restorePosition = window.setTimeout(() => {
@@ -590,6 +621,10 @@ export default function SmartCaptureLauncher() {
   const floatingButtonStyle: CSSProperties | undefined = buttonPosition
     ? { left: buttonPosition.x, top: buttonPosition.y }
     : undefined;
+
+  if (!showFloatingCapture) {
+    return null;
+  }
 
   return (
     <>
