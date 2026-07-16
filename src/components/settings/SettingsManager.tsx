@@ -390,6 +390,8 @@ const feedbackAreas = [
   { value: "settings", he: "הגדרות", en: "Settings" },
 ] as const;
 
+const defaultFeedbackEmail = "moshe.c2008@gmail.com";
+
 export default function SettingsManager() {
   const { confirm, toast } = useFeedback();
   const { language, direction } = useLanguage();
@@ -482,7 +484,8 @@ export default function SettingsManager() {
       feedbackAreas.find((area) => area.value === feedbackArea) ??
       feedbackAreas[0];
     const areaLabel = selectedArea[languageKey];
-    const recipient = process.env.NEXT_PUBLIC_FEEDBACK_EMAIL ?? "";
+    const recipient =
+      process.env.NEXT_PUBLIC_FEEDBACK_EMAIL ?? defaultFeedbackEmail;
     const subject =
       languageKey === "en"
         ? `Nestly feedback - ${areaLabel}`
@@ -928,8 +931,8 @@ export default function SettingsManager() {
 
             <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
               {languageKey === "en"
-                ? "Your email app opens before sending. To prefill the recipient, set NEXT_PUBLIC_FEEDBACK_EMAIL."
-                : "המייל ייפתח אצלכם לפני שליחה. כדי למלא נמען אוטומטית, הגדירו NEXT_PUBLIC_FEEDBACK_EMAIL."}
+                ? "Your email app opens before sending. The recipient can be changed later with NEXT_PUBLIC_FEEDBACK_EMAIL."
+                : "המייל ייפתח אצלכם לפני שליחה. אפשר להחליף את הנמען בעתיד דרך NEXT_PUBLIC_FEEDBACK_EMAIL."}
             </p>
           </div>
         </div>
