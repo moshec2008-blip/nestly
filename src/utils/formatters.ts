@@ -13,10 +13,28 @@ export function formatShortHebrewDateLabel(date: string | Date) {
   }).format(new Date(date));
 }
 
+const ilsCurrencyFormatter = new Intl.NumberFormat("he-IL", {
+  style: "currency",
+  currency: "ILS",
+  maximumFractionDigits: 0,
+});
+
 export function formatIlsCurrency(amount: number) {
-  return new Intl.NumberFormat("he-IL", {
-    style: "currency",
-    currency: "ILS",
-    maximumFractionDigits: 0,
-  }).format(amount);
+  return ilsCurrencyFormatter.format(amount);
+}
+
+export function formatSignedIlsCurrency(
+  amount: number,
+  type: "income" | "expense"
+) {
+  const sign = type === "income" ? "+" : "-";
+  return `${sign}\u00a0${formatIlsCurrency(Math.abs(amount))}`;
+}
+
+export function formatAccessibleSignedIlsCurrency(
+  amount: number,
+  type: "income" | "expense"
+) {
+  const directionLabel = type === "income" ? "הכנסה" : "הוצאה";
+  return `${directionLabel}: ${formatIlsCurrency(Math.abs(amount))}`;
 }

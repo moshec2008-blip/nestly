@@ -1,16 +1,25 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import DateInput from "@/components/ui/DateInput";
+import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import RelatedItemsPanel from "@/components/relations/RelatedItemsPanel";
 import SuggestedConnectionsPanel from "@/components/relations/SuggestedConnectionsPanel";
 import type { FinanceTransaction } from "@/data/finance";
+import {
+  formatAccessibleSignedIlsCurrency,
+  formatIlsCurrency,
+  formatSignedIlsCurrency,
+} from "@/utils/formatters";
 
 type TransactionsTableProps = {
   transactions: FinanceTransaction[];
   onDelete: (id: string) => void;
   onSave: (transaction: FinanceTransaction) => void;
   onToggleStatus: (id: string) => void;
+  hasActiveFilters?: boolean;
+  onClearFilters?: () => void;
+  isLoading?: boolean;
 };
 
 type TransactionsSummary = {
@@ -21,9 +30,10 @@ type TransactionsSummary = {
   pendingCount: number;
 };
 
-type TransactionGroup = {
+type MonthlyTransactionGroup = {
   id: string;
   label: string;
+  summary: TransactionsSummary;
   transactions: FinanceTransaction[];
 };
 
@@ -42,14 +52,6 @@ const compactInputClass =
 
 const compactLabelClass = "text-xs font-black text-slate-600";
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("he-IL", {
-    style: "currency",
-    currency: "ILS",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
 function formatDate(date: string) {
   return new Intl.DateTimeFormat("he-IL", {
     day: "2-digit",
@@ -62,6 +64,21 @@ function formatFullDate(date: string) {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
+  }).format(new Date(date));
+}
+
+function formatMonthHeader(date: string) {
+  return new Intl.DateTimeFormat("he-IL", {
+    month: "long",
+    year: "numeric",
+  }).format(new Date(`${date.slice(0, 7)}-01`));
+}
+
+function formatDayHeader(date: string) {
+  return new Intl.DateTimeFormat("he-IL", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
   }).format(new Date(date));
 }
 
@@ -93,8 +110,7 @@ function getTransactionsSummary(
 }
 
 function getSignedAmount(transaction: FinanceTransaction) {
-  const sign = transaction.type === "income" ? "+" : "-";
-  return `${sign}${formatCurrency(transaction.amount)}`;
+  return formatSignedIlsCurrency(transaction.amount, transaction.type);
 }
 
 function getInitialEditValues(transaction: FinanceTransaction) {
@@ -109,30 +125,53 @@ function getInitialEditValues(transaction: FinanceTransaction) {
   };
 }
 
-function getCategoryIcon(transaction: FinanceTransaction) {
+type CategoryVisual = {
+  icon: AppIconName;
+  className: string;
+};
+
+function getCategoryVisual(transaction: FinanceTransaction): CategoryVisual {
   const value = `${transaction.category} ${transaction.title}`;
 
   if (transaction.type === "income") {
-    return "₪";
+    return {
+      icon: "finance",
+      className: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+    };
   }
 
-  if (/דיור|שכירות|בית/.test(value)) {
-    return "⌂";
+  if (/דיור|שכירות|בית|משכנתא/.test(value)) {
+    return {
+      icon: "home",
+      className: "bg-blue-50 text-blue-700 ring-blue-100",
+    };
   }
 
-  if (/מזון|קניות|סופר/.test(value)) {
-    return "◔";
+  if (/מזון|קניות|סופר|חלב|ירקות/.test(value)) {
+    return {
+      icon: "shopping",
+      className: "bg-sky-50 text-sky-700 ring-sky-100",
+    };
   }
 
-  if (/רכב|דלק|טיפול/.test(value)) {
-    return "◈";
+  if (/רכב|דלק|טיפול|טסט|ביטוח/.test(value)) {
+    return {
+      icon: "car",
+      className: "bg-indigo-50 text-indigo-700 ring-indigo-100",
+    };
   }
 
   if (/חשבון|חשמל|מים|ביטוח/.test(value)) {
-    return "▣";
+    return {
+      icon: "document",
+      className: "bg-amber-50 text-amber-700 ring-amber-100",
+    };
   }
 
-  return "•";
+  return {
+    icon: "finance",
+    className: "bg-slate-50 text-slate-600 ring-slate-100",
+  };
 }
 
 function getInsight(transaction: FinanceTransaction) {
@@ -150,44 +189,34 @@ function getInsight(transaction: FinanceTransaction) {
 
   return null;
 }
+function groupTransactionsByMonth(
+  transactions: FinanceTransaction[]
+): MonthlyTransactionGroup[] {
+  const groups = new Map<string, FinanceTransaction[]>();
 
-function getGroupId(transaction: FinanceTransaction) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  [...transactions]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .forEach((transaction) => {
+      const monthKey = transaction.date.slice(0, 7);
+      const existing = groups.get(monthKey) ?? [];
+      existing.push(transaction);
+      groups.set(monthKey, existing);
+    });
 
-  const transactionDate = new Date(transaction.date);
-  transactionDate.setHours(0, 0, 0, 0);
-
-  const diffDays = Math.round(
-    (today.getTime() - transactionDate.getTime()) / (1000 * 60 * 60 * 24)
-  );
-
-  if (diffDays === 0) {
-    return "today";
-  }
-
-  if (diffDays > 0 && diffDays <= 7) {
-    return "week";
-  }
-
-  return "earlier";
+  return Array.from(groups.entries()).map(([monthKey, monthTransactions]) => ({
+    id: monthKey,
+    label: formatMonthHeader(`${monthKey}-01`),
+    summary: getTransactionsSummary(monthTransactions),
+    transactions: monthTransactions,
+  }));
 }
 
-function groupTransactions(transactions: FinanceTransaction[]) {
-  const groups: TransactionGroup[] = [
-    { id: "today", label: "היום", transactions: [] },
-    { id: "week", label: "השבוע", transactions: [] },
-    { id: "earlier", label: "מוקדם יותר", transactions: [] },
-  ];
-
-  transactions.forEach((transaction) => {
-    const group = groups.find((item) => item.id === getGroupId(transaction));
-    group?.transactions.push(transaction);
-  });
-
-  return groups.filter((group) => group.transactions.length > 0);
+function shouldShowDaySeparator(
+  transaction: FinanceTransaction,
+  previousTransaction?: FinanceTransaction
+) {
+  return !previousTransaction || previousTransaction.date !== transaction.date;
 }
-
 function getAmountClass(type: FinanceTransaction["type"]) {
   return type === "income" ? "text-emerald-700" : "text-rose-700";
 }
@@ -219,14 +248,59 @@ function ActionButton({
   );
 }
 
+function TransactionsSkeleton() {
+  return (
+    <section className="rounded-[24px] bg-white/94 p-3 text-right shadow-[0_16px_38px_rgba(15,23,42,0.055)] ring-1 ring-[#edf0f3]/80 sm:p-5">
+      <div className="mb-3 flex items-center justify-between border-b border-[#eef0f3]/80 pb-3">
+        <div className="h-7 w-24 animate-pulse rounded-full bg-slate-100" />
+        <div className="space-y-2">
+          <div className="mr-auto h-3 w-24 animate-pulse rounded-full bg-slate-100" />
+          <div className="h-5 w-32 animate-pulse rounded-full bg-slate-100" />
+        </div>
+      </div>
+      <div className="space-y-3">
+        {[0, 1, 2].map((month) => (
+          <div key={month} className="overflow-hidden rounded-[20px] border border-[#edf0f3]">
+            <div className="flex items-center justify-between bg-[#fffaf1] p-3">
+              <div className="h-4 w-28 animate-pulse rounded-full bg-slate-100" />
+              <div className="h-5 w-32 animate-pulse rounded-full bg-slate-100" />
+            </div>
+            {[0, 1, 2].map((row) => (
+              <div
+                key={row}
+                className="grid min-h-[66px] grid-cols-[minmax(0,1fr)_7rem_2.35rem] items-center gap-2 border-t border-[#eef0f3] px-2 py-2"
+              >
+                <div className="flex items-center justify-end gap-2.5">
+                  <div className="space-y-2">
+                    <div className="h-4 w-28 animate-pulse rounded-full bg-slate-100" />
+                    <div className="h-3 w-36 animate-pulse rounded-full bg-slate-100" />
+                  </div>
+                  <div className="h-8 w-8 animate-pulse rounded-xl bg-slate-100" />
+                </div>
+                <div className="h-5 w-24 animate-pulse rounded-full bg-slate-100" />
+                <div className="h-9 w-9 animate-pulse rounded-full bg-slate-100" />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function TransactionsTable({
   transactions,
   onDelete,
   onSave,
   onToggleStatus,
+  hasActiveFilters = false,
+  onClearFilters,
+  isLoading = false,
 }: TransactionsTableProps) {
   const summary = useMemo(() => getTransactionsSummary(transactions), [transactions]);
-  const [showAllTransactions, setShowAllTransactions] = useState(false);
+  const [collapsedMonthIds, setCollapsedMonthIds] = useState<Set<string>>(
+    () => new Set()
+  );
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
   const [menuTransactionId, setMenuTransactionId] = useState<string | null>(null);
   const [editingTransactionId, setEditingTransactionId] = useState<string | null>(
@@ -235,13 +309,31 @@ export default function TransactionsTable({
   const [editValues, setEditValues] =
     useState<ReturnType<typeof getInitialEditValues> | null>(null);
 
-  const displayedTransactions = showAllTransactions
-    ? transactions
-    : transactions.slice(0, 8);
-  const groupedTransactions = groupTransactions(displayedTransactions);
+  const groupedTransactions = useMemo(
+    () => groupTransactionsByMonth(transactions),
+    [transactions]
+  );
   const activeTransaction =
     transactions.find((transaction) => transaction.id === activeTransactionId) ??
     null;
+
+  if (isLoading) {
+    return <TransactionsSkeleton />;
+  }
+
+  function toggleMonth(monthId: string) {
+    setCollapsedMonthIds((currentIds) => {
+      const nextIds = new Set(currentIds);
+
+      if (nextIds.has(monthId)) {
+        nextIds.delete(monthId);
+      } else {
+        nextIds.add(monthId);
+      }
+
+      return nextIds;
+    });
+  }
 
   function openDetails(transaction: FinanceTransaction) {
     setActiveTransactionId(transaction.id);
@@ -310,7 +402,7 @@ export default function TransactionsTable({
   }
 
   return (
-    <section className="rounded-[24px] bg-white/94 p-4 text-right shadow-[0_16px_38px_rgba(15,23,42,0.055)] ring-1 ring-[#edf0f3]/80 sm:p-5">
+    <section className="rounded-[24px] bg-white/94 p-3 text-right shadow-[0_16px_38px_rgba(15,23,42,0.055)] ring-1 ring-[#edf0f3]/80 sm:p-5">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-[#eef0f3]/80 pb-3">
         <div className="flex flex-wrap gap-2 text-xs font-black">
           <span className="rounded-full border border-[#e6e8ec] bg-white px-3 py-1.5 text-slate-500">
@@ -333,157 +425,247 @@ export default function TransactionsTable({
 
       {transactions.length === 0 ? (
         <div className="rounded-[18px] border border-dashed border-[#cbd5e1] bg-[#fafafb] p-5 text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white text-2xl shadow-sm">
-            ₪
+          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white shadow-sm">
+            <AppIcon name={hasActiveFilters ? "dashboard" : "finance"} className="h-6 w-6 text-emerald-700" />
           </div>
           <p className="mt-3 text-base font-black text-[#111827]">
-            עדיין אין פעולות להצגה
+            {hasActiveFilters ? "לא נמצאו פעולות מתאימות" : "עדיין אין פעולות להצגה"}
           </p>
           <p className="mx-auto mt-1 max-w-sm text-sm font-semibold leading-6 text-slate-600">
-            ברגע שתוסיף הכנסה או הוצאה, Nestly יסדר לך תמונה כספית פשוטה וברורה.
+            {hasActiveFilters
+              ? "אפשר לנקות את הסינון ולראות שוב את כל הפעולות הכספיות."
+              : "ברגע שתוסיף הכנסה או הוצאה, Nestly יסדר לך תמונה כספית פשוטה וברורה."}
           </p>
+          {hasActiveFilters && onClearFilters && (
+            <button
+              type="button"
+              onClick={onClearFilters}
+              className="mt-4 min-h-10 rounded-full border border-[#e6d8c6] bg-white px-4 text-xs font-black text-[#7a5212] transition hover:bg-[#fff8eb]"
+            >
+              נקה סינון
+            </button>
+          )}
         </div>
       ) : (
         <div>
           <div className="space-y-3">
-            {groupedTransactions.map((group) => (
-              <div key={group.id}>
-                <p className="px-1 pb-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
-                  {group.label}
-                </p>
+            {groupedTransactions.map((month) => {
+              const isCollapsed = collapsedMonthIds.has(month.id);
 
-                <div className="divide-y divide-[#eef0f3]/80">
-                  {group.transactions.map((transaction) => {
-                    const isMenuOpen = menuTransactionId === transaction.id;
-                    const insight = getInsight(transaction);
+              return (
+                <section
+                  key={month.id}
+                  className="overflow-hidden rounded-[22px] border border-[#edf0f3] bg-white shadow-[0_10px_26px_rgba(15,23,42,0.035)]"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleMonth(month.id)}
+                    className="sticky top-[calc(var(--nestly-header-offset,0px)+0.5rem)] z-10 flex w-full flex-col gap-2 bg-[#fffaf1]/95 px-3 py-2.5 text-right backdrop-blur sm:flex-row sm:items-center sm:justify-between"
+                    aria-expanded={!isCollapsed}
+                  >
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="grid h-8 w-8 place-items-center rounded-full border border-[#e6d8c6] bg-white text-sm font-black text-[#7a5212]">
+                        {isCollapsed ? "+" : "−"}
+                      </span>
+                      <div>
+                        <h3 className="text-sm font-black text-[#111827]">{month.label}</h3>
+                        <p className="text-[11px] font-semibold text-slate-500">
+                          {month.transactions.length} פעולות
+                        </p>
+                      </div>
+                    </div>
 
-                    return (
-                      <article key={transaction.id} className="relative">
-                        <button
-                          type="button"
-                          onClick={() => openDetails(transaction)}
-                          className="grid w-full grid-cols-[minmax(0,1fr)_max-content] items-center gap-2 rounded-[16px] py-2.5 pl-12 pr-2 text-right transition hover:bg-[#fafafb] sm:gap-3 sm:pl-10"
-                        >
-                          <div className="flex min-w-0 items-center justify-end gap-2.5">
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center justify-end gap-2">
-                                {transaction.status === "pending" && (
-                                   <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-black text-amber-700">
-                                    {statusLabels[transaction.status]}
-                                  </span>
-                                )}
-                                 <h3 className="truncate text-sm font-black text-[#0f172a]">
-                                  {transaction.title}
-                                </h3>
+                    <div className="grid w-full grid-cols-3 gap-1.5 text-center text-[10px] font-black sm:w-auto sm:min-w-[22rem]">
+                      <span className="truncate rounded-full bg-emerald-50 px-2 py-1 text-emerald-700">
+                        הכנסות <bdi className="whitespace-nowrap">{formatIlsCurrency(month.summary.income)}</bdi>
+                      </span>
+                      <span className="truncate rounded-full bg-rose-50 px-2 py-1 text-rose-700">
+                        הוצאות <bdi className="whitespace-nowrap">{formatIlsCurrency(month.summary.expenses)}</bdi>
+                      </span>
+                      <span className="truncate rounded-full bg-white px-2 py-1 text-slate-700 ring-1 ring-[#ece4d7]">
+                        נטו <bdi className="whitespace-nowrap">{formatIlsCurrency(month.summary.balance)}</bdi>
+                      </span>
+                    </div>
+                  </button>
+
+                  {!isCollapsed && (
+                    <div className="divide-y divide-[#eef0f3]/80">
+                      {month.transactions.map((transaction, index) => {
+                        const previousTransaction = month.transactions[index - 1];
+                        const showDaySeparator = shouldShowDaySeparator(
+                          transaction,
+                          previousTransaction
+                        );
+                        const isMenuOpen = menuTransactionId === transaction.id;
+                        const insight = getInsight(transaction);
+                        const categoryVisual = getCategoryVisual(transaction);
+
+                        return (
+                          <article key={transaction.id} className="relative">
+                            {showDaySeparator && (
+                              <div className="bg-[#fbfaf7] px-3 py-1.5 text-[10px] font-black text-slate-400">
+                                {formatDayHeader(transaction.date)}
                               </div>
-                              <p className="mt-0.5 truncate text-[11px] font-semibold text-slate-400">
-                                {transaction.category} · {formatDate(transaction.date)}
-                                {insight ? ` · ${insight}` : ""}
-                              </p>
-                            </div>
-                            <span
-                              className={[
-                                 "grid h-8 w-8 shrink-0 place-items-center rounded-xl text-[11px] font-black",
-                                transaction.type === "income"
-                                  ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
-                                  : "bg-slate-50 text-slate-600 ring-1 ring-slate-100",
-                              ].join(" ")}
-                              aria-hidden="true"
-                            >
-                            {getCategoryIcon(transaction)}
-                          </span>
-                        </div>
+                            )}
 
-                          <span
-                            dir="ltr"
-                            className="flex min-w-[5.75rem] shrink-0 items-center justify-start"
-                          >
-                            <span
-                              dir="ltr"
-                              className={`shrink-0 whitespace-nowrap text-left text-sm font-black tabular-nums leading-5 sm:text-base ${getAmountClass(
-                                transaction.type
-                              )}`}
-                            >
-                              {getSignedAmount(transaction)}
-                            </span>
-                          </span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setMenuTransactionId((currentId) =>
-                              currentId === transaction.id ? null : transaction.id
-                            );
-                          }}
-                          className="absolute left-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-base font-black text-slate-400 transition hover:bg-[#fff8eb] hover:text-[#111827]"
-                          aria-label={`פעולות עבור ${transaction.title}`}
-                        >
-                          ...
-                        </button>
-
-                        {isMenuOpen && (
-                          <div className="absolute left-1 top-10 z-20 w-44 rounded-2xl border border-[#e6e8ec] bg-white p-1.5 text-right shadow-[0_18px_44px_rgba(15,23,42,0.14)]">
-                            <button
-                              type="button"
+                            <div
+                              role="button"
+                              tabIndex={0}
+                              dir="rtl"
                               onClick={() => openDetails(transaction)}
-                              className="block min-h-10 w-full rounded-xl px-3 text-sm font-bold text-slate-700 hover:bg-[#fff8eb]"
+                              onKeyDown={(event) => {
+                                if (event.key !== "Enter" && event.key !== " ") {
+                                  return;
+                                }
+
+                                event.preventDefault();
+                                openDetails(transaction);
+                              }}
+                              className="grid min-h-[58px] w-full cursor-pointer grid-cols-[2.25rem_minmax(0,1fr)_minmax(6.85rem,max-content)_2.15rem] items-center gap-2 px-2 py-1.5 text-right transition duration-200 hover:bg-[#fbfaf7] active:scale-[0.995] focus:outline-none focus:ring-2 focus:ring-[#8aa3c2]/35 sm:min-h-[62px] sm:grid-cols-[2.5rem_minmax(0,1fr)_minmax(7.5rem,max-content)_2.35rem] sm:gap-3 sm:px-3"
                             >
-                              פרטים
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => startInlineEdit(transaction)}
-                              className="block min-h-10 w-full rounded-xl px-3 text-sm font-bold text-slate-700 hover:bg-[#fff8eb]"
-                            >
-                              עריכה
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => onToggleStatus(transaction.id)}
-                              className="block min-h-10 w-full rounded-xl px-3 text-sm font-bold text-slate-700 hover:bg-[#fff8eb]"
-                            >
-                              {transaction.status === "done" ? "פתח מחדש" : "סמן כבוצע"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => onDelete(transaction.id)}
-                              className="block min-h-10 w-full rounded-xl px-3 text-sm font-bold text-rose-700 hover:bg-rose-50"
-                            >
-                              מחיקה
-                            </button>
-                          </div>
-                        )}
-                      </article>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+                              <span
+                                className={[
+                                  "grid h-8 w-8 shrink-0 place-items-center rounded-xl ring-1 sm:h-9 sm:w-9",
+                                  categoryVisual.className,
+                                ].join(" ")}
+                                aria-hidden="true"
+                              >
+                                <AppIcon name={categoryVisual.icon} className="h-4 w-4" />
+                              </span>
+
+                              <div className="min-w-0">
+                                <div className="flex min-w-0 items-center justify-start gap-1.5">
+                                  <h3 className="min-w-0 truncate text-sm font-black leading-5 text-[#0f172a]">
+                                    {transaction.title}
+                                  </h3>
+                                  {transaction.status === "pending" && (
+                                    <span className="shrink-0 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-black text-amber-700">
+                                      {statusLabels[transaction.status]}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="mt-0.5 truncate text-[11px] font-semibold leading-4 text-slate-400">
+                                  {transaction.category}
+                                  {insight ? ` · ${insight}` : ""}
+                                </p>
+                              </div>
+
+                              <span
+                                dir="ltr"
+                                className="flex min-w-[6.85rem] shrink-0 items-center justify-start overflow-visible text-left [unicode-bidi:isolate] sm:min-w-[7.5rem]"
+                              >
+                                <span
+                                  dir="ltr"
+                                  className={`shrink-0 whitespace-nowrap text-left text-[14px] font-black tabular-nums leading-5 tracking-[-0.01em] sm:text-base ${getAmountClass(
+                                    transaction.type
+                                  )}`}
+                                  aria-label={formatAccessibleSignedIlsCurrency(
+                                    transaction.amount,
+                                    transaction.type
+                                  )}
+                                >
+                                  {getSignedAmount(transaction)}
+                                </span>
+                              </span>
+
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  setMenuTransactionId((currentId) =>
+                                    currentId === transaction.id
+                                      ? null
+                                      : transaction.id
+                                  );
+                                }}
+                                onKeyDown={(event) => {
+                                  if (event.key !== "Enter" && event.key !== " ") {
+                                    return;
+                                  }
+
+                                  event.preventDefault();
+                                  event.stopPropagation();
+                                  setMenuTransactionId((currentId) =>
+                                    currentId === transaction.id
+                                      ? null
+                                      : transaction.id
+                                  );
+                                }}
+                                className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-base font-black text-slate-500 transition hover:bg-[#fff8eb] hover:text-[#111827] sm:h-9 sm:w-9"
+                                aria-label={`פעולות עבור ${transaction.title}`}
+                              >
+                                <span aria-hidden="true" className="text-xl leading-none">
+                                  ⋯
+                                </span>
+                              </span>
+                            </div>
+
+                            {isMenuOpen && (
+                              <div className="absolute left-1 top-12 z-20 w-44 rounded-2xl border border-[#e6e8ec] bg-white p-1.5 text-right shadow-[0_18px_44px_rgba(15,23,42,0.14)]">
+                                <button
+                                  type="button"
+                                  onClick={() => openDetails(transaction)}
+                                  className="block min-h-10 w-full rounded-xl px-3 text-sm font-bold text-slate-700 hover:bg-[#fff8eb]"
+                                >
+                                  פרטים
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => startInlineEdit(transaction)}
+                                  className="block min-h-10 w-full rounded-xl px-3 text-sm font-bold text-slate-700 hover:bg-[#fff8eb]"
+                                >
+                                  עריכה
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => duplicateTransaction(transaction)}
+                                  className="block min-h-10 w-full rounded-xl px-3 text-sm font-bold text-slate-700 hover:bg-[#fff8eb]"
+                                >
+                                  שכפול
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => onToggleStatus(transaction.id)}
+                                  className="block min-h-10 w-full rounded-xl px-3 text-sm font-bold text-slate-700 hover:bg-[#fff8eb]"
+                                >
+                                  {transaction.status === "done" ? "פתח מחדש" : "סמן כבוצע"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => onDelete(transaction.id)}
+                                  className="block min-h-10 w-full rounded-xl px-3 text-sm font-bold text-rose-700 hover:bg-rose-50"
+                                >
+                                  מחיקה
+                                </button>
+                              </div>
+                            )}
+                          </article>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+              );
+            })}
           </div>
 
-          <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#eef0f3]/80 pt-4 pb-[calc(var(--nestly-safe-bottom-gap)+0.25rem)] sm:pb-0">
-            <span className="text-xs font-bold text-slate-400">
-              יתרה ברשימה: {formatCurrency(summary.balance)}
-            </span>
-            {transactions.length > 8 && (
-              <button
-                type="button"
-                onClick={() =>
-                  setShowAllTransactions((currentValue) => !currentValue)
-                }
-                className="min-h-10 rounded-full border border-[#e6e8ec] bg-white px-4 text-xs font-black text-slate-700 hover:bg-[#fff8eb]"
+          <div className="mt-4 flex flex-col gap-2 rounded-[18px] border border-[#ece4d7] bg-[#fffaf1] px-3 py-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.35rem)] sm:flex-row sm:items-center sm:justify-between sm:pb-2.5">
+            <span className="text-xs font-black text-slate-600">
+              יתרה ברשימה:{" "}
+              <span
+                dir="ltr"
+                className="inline-block whitespace-nowrap text-base text-[#111827] [unicode-bidi:isolate]"
               >
-                {showAllTransactions
-                  ? "הצג פחות"
-                  : `הצג עוד ${transactions.length - 8}`}
-              </button>
-            )}
+                {formatIlsCurrency(summary.balance)}
+              </span>
+            </span>
+            <span className="text-[11px] font-semibold text-slate-500">
+              {groupedTransactions.length} חודשים מוצגים
+            </span>
           </div>
         </div>
       )}
-
       {activeTransaction && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/35 px-3 pb-3 backdrop-blur-[2px] sm:items-center sm:p-6"
@@ -517,7 +699,8 @@ export default function TransactionsTable({
 
             <div className="py-4 text-left">
               <p
-                className={`text-3xl font-black tabular-nums ${getAmountClass(
+                dir="ltr"
+                className={`whitespace-nowrap text-3xl font-black tabular-nums [unicode-bidi:isolate] ${getAmountClass(
                   activeTransaction.type
                 )}`}
               >
@@ -738,3 +921,9 @@ export default function TransactionsTable({
     </section>
   );
 }
+
+
+
+
+
+

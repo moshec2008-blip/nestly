@@ -51,6 +51,27 @@ type CaptureHistoryFilter = "all" | "today" | "week" | "needs_review" | "convert
 const captureButtonPositionKey = "nestly-smart-capture-button-position";
 const dragThreshold = 6;
 
+function getReservedBottomSpace() {
+  if (typeof window === "undefined") {
+    return 112;
+  }
+
+  const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+  if (isDesktop) {
+    return 24;
+  }
+
+  const rootStyles = window.getComputedStyle(document.documentElement);
+  const bottomNavHeight =
+    Number.parseFloat(rootStyles.getPropertyValue("--nestly-bottom-nav-height")) ||
+    76;
+  const safeBottomGap =
+    Number.parseFloat(rootStyles.getPropertyValue("--nestly-safe-bottom-gap")) ||
+    12;
+
+  return bottomNavHeight + safeBottomGap + 16;
+}
+
 const copy = {
   he: {
     trigger: "לכידה",
@@ -223,7 +244,7 @@ export default function SmartCaptureLauncher() {
     const elementHeight = element?.offsetHeight || 56;
     const horizontalPadding = 8;
     const topPadding = 72;
-    const bottomPadding = 12;
+    const bottomPadding = getReservedBottomSpace();
     const maxX = Math.max(
       horizontalPadding,
       window.innerWidth - elementWidth - horizontalPadding
@@ -249,7 +270,7 @@ export default function SmartCaptureLauncher() {
     const elementHeight = element?.offsetHeight || 56;
     const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
     const rightOffset = isDesktop ? 16 : 12;
-    const bottomOffset = isDesktop ? 24 : 96;
+    const bottomOffset = getReservedBottomSpace();
 
     return clampFloatingPosition({
       x: window.innerWidth - elementWidth - rightOffset,

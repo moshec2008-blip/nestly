@@ -9,6 +9,7 @@ import FinanceFilters, {
   type TransactionStatusFilter,
   type TransactionTypeFilter,
 } from "@/components/finance/FinanceFilters";
+import FinanceInsightStrip from "@/components/finance/FinanceInsightStrip";
 import FinanceReminderDialog from "@/components/finance/FinanceReminderDialog";
 import FinanceReports from "@/components/finance/FinanceReports";
 import FinanceSummaryCards from "@/components/finance/FinanceSummaryCards";
@@ -317,7 +318,7 @@ export default function FinanceManager() {
   const filteredTransactions = useMemo(() => {
     const normalizedSearch = searchValue.trim().toLowerCase();
 
-    return [...activeMonthTransactions]
+    return [...transactions]
       .filter((item) => typeFilter === "all" || item.type === typeFilter)
       .filter((item) => statusFilter === "all" || item.status === statusFilter)
       .filter((item) => !dateFrom || item.date >= dateFrom)
@@ -335,13 +336,20 @@ export default function FinanceManager() {
       })
       .sort((a, b) => b.date.localeCompare(a.date));
   }, [
-    activeMonthTransactions,
     dateFrom,
     dateTo,
     searchValue,
     typeFilter,
     statusFilter,
+    transactions,
   ]);
+
+  const hasActiveTransactionFilters =
+    searchValue.trim().length > 0 ||
+    typeFilter !== "all" ||
+    statusFilter !== "all" ||
+    Boolean(dateFrom) ||
+    Boolean(dateTo);
 
   const exportTransactions = useMemo(
     () => [...transactions].sort((a, b) => b.date.localeCompare(a.date)),
@@ -891,11 +899,15 @@ export default function FinanceManager() {
               onClearFilters={handleClearFilters}
             />
 
+            <FinanceInsightStrip transactions={filteredTransactions} />
+
             <TransactionsTable
               transactions={filteredTransactions}
               onDelete={handleDeleteTransaction}
               onSave={handleSaveTransaction}
               onToggleStatus={handleToggleStatus}
+              hasActiveFilters={hasActiveTransactionFilters}
+              onClearFilters={handleClearFilters}
             />
           </div>
         </div>
