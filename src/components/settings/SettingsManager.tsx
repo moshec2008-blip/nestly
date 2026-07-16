@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useSession } from "next-auth/react";
 import DemoEntryCard from "@/components/layout/DemoEntryCard";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
@@ -395,6 +396,7 @@ const defaultFeedbackEmail = "moshe.c2008@gmail.com";
 export default function SettingsManager() {
   const { confirm, toast } = useFeedback();
   const { language, direction } = useLanguage();
+  const { status } = useSession();
   const languageKey = language === "en" ? "en" : "he";
   const text = useMemo(() => copyByLanguage[languageKey], [languageKey]);
   const [settings, setSettings] = useState<AppSettings>(defaultAppSettings);
@@ -404,7 +406,14 @@ export default function SettingsManager() {
   const [feedbackArea, setFeedbackArea] = useState("general");
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackContact, setFeedbackContact] = useState("");
+  const [isDangerZoneUnlocked, setIsDangerZoneUnlocked] = useState(false);
+  const [resetConfirmationText, setResetConfirmationText] = useState("");
   const restoreInputRef = useRef<HTMLInputElement | null>(null);
+  const isAuthenticated = status === "authenticated";
+  const requiredResetPhrase = languageKey === "en" ? "RESET DATA" : "אפס נתונים";
+  const canRequestFamilyReset = isDangerZoneUnlocked;
+  const canResetFamilyData =
+    canRequestFamilyReset && resetConfirmationText.trim() === requiredResetPhrase;
 
   useEffect(() => {
     let isActive = true;
@@ -551,6 +560,36 @@ export default function SettingsManager() {
   }
 
   async function resetFamilyData() {
+    if (!canRequestFamilyReset) {
+      toast({
+        title:
+          languageKey === "en"
+            ? "Admin approval required"
+            : "נדרשת הרשאת מנהל",
+        description:
+          languageKey === "en"
+            ? "Unlock the dangerous action area before resetting family data."
+            : "יש לבטל נעילה של אזור הפעולות המסוכנות לפני איפוס נתוני משפחה.",
+        tone: "warning",
+      });
+      return;
+    }
+
+    if (!canResetFamilyData) {
+      toast({
+        title:
+          languageKey === "en"
+            ? "Confirmation phrase is missing"
+            : "חסר משפט אישור",
+        description:
+          languageKey === "en"
+            ? `Type ${requiredResetPhrase} exactly before resetting data.`
+            : `יש להקליד בדיוק: ${requiredResetPhrase}`,
+        tone: "warning",
+      });
+      return;
+    }
+
     const approved = await confirm({
       title: text.reset.familyConfirmTitle,
       description: text.reset.familyConfirmDescription,
@@ -560,6 +599,25 @@ export default function SettingsManager() {
     });
 
     if (!approved) {
+      return;
+    }
+
+    const finalApproval = await confirm({
+      title:
+        languageKey === "en"
+          ? "Last check before deletion"
+          : "בדיקה אחרונה לפני מחיקה",
+      description:
+        languageKey === "en"
+          ? "This will delete the active family space data from this device. Continue?"
+          : "הפעולה תמחק מהמכשיר את נתוני המרחב המשפחתי הפעיל. להמשיך?",
+      confirmLabel:
+        languageKey === "en" ? "Delete family data" : "מחק נתוני משפחה",
+      cancelLabel: text.reset.cancel,
+      tone: "danger",
+    });
+
+    if (!finalApproval) {
       return;
     }
 
@@ -577,6 +635,8 @@ export default function SettingsManager() {
       tone: "success",
     });
 
+    setResetConfirmationText("");
+    setIsDangerZoneUnlocked(false);
     window.setTimeout(() => window.location.reload(), 900);
   }
 
@@ -849,13 +909,76 @@ export default function SettingsManager() {
 
           <div className="space-y-2">
             <DemoEntryCard />
-            <button
-              type="button"
-              onClick={resetFamilyData}
-              className="min-h-11 w-full rounded-2xl border border-rose-200 bg-rose-50 px-4 text-sm font-black text-rose-700 transition hover:-translate-y-0.5 hover:bg-rose-100"
-            >
-              {text.reset.familyData}
-            </button>
+          </div>
+        </div>
+      </SectionShell>
+
+      <SectionShell
+        title={languageKey === "en" ? "Admin danger zone" : "אזור מנהל מסוכן"}
+        description={
+          languageKey === "en"
+            ? "Actions here can remove family history. They are intentionally locked and require explicit confirmation."
+            : "פעולות כאן יכולות למחוק היסטוריה משפחתית. לכן הן נעולות ודורשות אישור מפורש."
+        }
+      >
+        <div className="rounded-[22px] border border-rose-200 bg-rose-50/70 p-4">
+          <div className="grid gap-3 lg:grid-cols-[1fr_18rem]">
+            <div>
+              <p className="text-sm font-black text-rose-800">
+                {text.reset.familyData}
+              </p>
+              <p className="mt-1 text-sm font-semibold leading-6 text-rose-700">
+                {languageKey === "en"
+                  ? "This action deletes the active family data stored on this device. Export a backup first. In production this must be enforced by owner/admin permissions on the server."
+                  : "הפעולה מוחקת את נתוני המשפחה במרחב הפעיל מהמכשיר הזה. מומלץ לייצא גיבוי קודם. בפרודקשן זה חייב להיאכף בהרשאת בעלים/מנהל בצד שרת."}
+              </p>
+
+              <label className="mt-3 flex cursor-pointer items-start justify-end gap-3 rounded-2xl bg-white/80 p-3 text-sm font-bold text-slate-700 ring-1 ring-rose-100">
+                <input
+                  type="checkbox"
+                  checked={isDangerZoneUnlocked}
+                  onChange={(event) =>
+                    setIsDangerZoneUnlocked(event.target.checked)
+                  }
+                  className="mt-1 h-5 w-5 accent-rose-700"
+                />
+                <span>
+                  {isAuthenticated
+                    ? languageKey === "en"
+                      ? "Connected account detected. Keep this unlocked only while performing the reset."
+                      : "זוהה חשבון מחובר. השאירו פתוח רק בזמן ביצוע האיפוס."
+                    : languageKey === "en"
+                      ? "I understand this is an admin-only destructive action in Basic mode."
+                      : "אני מבין שזו פעולה הרסנית שמיועדת רק לבעל הרשאה במצב בסיסי."}
+                </span>
+              </label>
+            </div>
+
+            <div className="rounded-[20px] bg-white p-3 ring-1 ring-rose-100">
+              <label className="block">
+                <span className="text-xs font-black text-rose-700">
+                  {languageKey === "en"
+                    ? `Type ${requiredResetPhrase}`
+                    : `הקלד/י בדיוק: ${requiredResetPhrase}`}
+                </span>
+                <input
+                  value={resetConfirmationText}
+                  onChange={(event) => setResetConfirmationText(event.target.value)}
+                  disabled={!canRequestFamilyReset}
+                  className="mt-2 min-h-11 w-full rounded-2xl border border-rose-200 bg-white px-4 text-sm font-black text-slate-950 outline-none placeholder:text-slate-400 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+                  placeholder={requiredResetPhrase}
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={resetFamilyData}
+                disabled={!canResetFamilyData}
+                className="mt-3 min-h-11 w-full rounded-2xl border border-rose-200 bg-rose-600 px-4 text-sm font-black text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-rose-100 disabled:text-rose-400"
+              >
+                {text.reset.familyData}
+              </button>
+            </div>
           </div>
         </div>
       </SectionShell>
