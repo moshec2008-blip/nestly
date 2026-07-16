@@ -375,6 +375,21 @@ function PreferenceSwitch({
   );
 }
 
+const feedbackAreas = [
+  { value: "general", he: "כללי", en: "General" },
+  { value: "home", he: "דף הבית", en: "Home" },
+  { value: "tasks", he: "משימות", en: "Tasks" },
+  { value: "shopping", he: "קניות", en: "Shopping" },
+  { value: "finance", he: "כספים", en: "Finance" },
+  { value: "family", he: "מידע משפחתי", en: "Family" },
+  { value: "events", he: "אירועי משפחה", en: "Family Events" },
+  { value: "vehicles", he: "רכבים", en: "Vehicles" },
+  { value: "health", he: "בריאות", en: "Health" },
+  { value: "documents", he: "מסמכים", en: "Documents" },
+  { value: "capture", he: "לכידה ו-AI", en: "Capture and AI" },
+  { value: "settings", he: "הגדרות", en: "Settings" },
+] as const;
+
 export default function SettingsManager() {
   const { confirm, toast } = useFeedback();
   const { language, direction } = useLanguage();
@@ -384,6 +399,9 @@ export default function SettingsManager() {
   const [hasLoadedStorage, setHasLoadedStorage] = useState(false);
   const [aiStatus, setAiStatus] = useState<AiServiceStatus | null>(null);
   const [aiAccessCode, setAiAccessCode] = useState("");
+  const [feedbackArea, setFeedbackArea] = useState("general");
+  const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackContact, setFeedbackContact] = useState("");
   const restoreInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -441,6 +459,70 @@ export default function SettingsManager() {
     toast({
       title: aiAccessCode.trim() ? text.ai.savedCode : text.ai.clearedCode,
       description: text.ai.codeDeviceOnly,
+      tone: "success",
+    });
+  }
+
+  function openFeedbackEmail() {
+    const suggestion = feedbackText.trim();
+
+    if (!suggestion) {
+      toast({
+        title: languageKey === "en" ? "Write a suggestion first" : "כתבו הצעה קצרה קודם",
+        description:
+          languageKey === "en"
+            ? "A few words are enough. The email will open before anything is sent."
+            : "מספיק כמה מילים. המייל ייפתח לפני שליחה.",
+        tone: "info",
+      });
+      return;
+    }
+
+    const selectedArea =
+      feedbackAreas.find((area) => area.value === feedbackArea) ??
+      feedbackAreas[0];
+    const areaLabel = selectedArea[languageKey];
+    const recipient = process.env.NEXT_PUBLIC_FEEDBACK_EMAIL ?? "";
+    const subject =
+      languageKey === "en"
+        ? `Nestly feedback - ${areaLabel}`
+        : `הצעת ייעול ל-Nestly - ${areaLabel}`;
+    const bodyLines = [
+      languageKey === "en" ? `Area: ${areaLabel}` : `אזור באפליקציה: ${areaLabel}`,
+      feedbackContact.trim()
+        ? languageKey === "en"
+          ? `Contact: ${feedbackContact.trim()}`
+          : `פרטי קשר: ${feedbackContact.trim()}`
+        : "",
+      "",
+      languageKey === "en" ? "Suggestion:" : "הצעה:",
+      suggestion,
+      "",
+      languageKey === "en"
+        ? "Sent from Nestly settings. No content was saved automatically."
+        : "נשלח מתוך ההגדרות של Nestly. שום תוכן לא נשמר אוטומטית.",
+    ].filter(Boolean);
+
+    trackTelemetryEvent({
+      name: "feedback_email_opened",
+      module: "settings",
+      properties: {
+        area: selectedArea.value,
+        hasContact: Boolean(feedbackContact.trim()),
+        recipientConfigured: Boolean(recipient),
+      },
+    });
+
+    window.location.href = `mailto:${recipient}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+
+    toast({
+      title: languageKey === "en" ? "Opening email" : "פותח מייל לשליחה",
+      description:
+        languageKey === "en"
+          ? "You can review the message before sending."
+          : "אפשר לעבור על ההודעה לפני ששולחים.",
       tone: "success",
     });
   }
@@ -758,6 +840,97 @@ export default function SettingsManager() {
             >
               {text.reset.familyData}
             </button>
+          </div>
+        </div>
+      </SectionShell>
+
+      <SectionShell
+        title={languageKey === "en" ? "Suggestions and feedback" : "הצעות ושיפור"}
+        description={
+          languageKey === "en"
+            ? "A quick way to send product feedback by email, without saving private family content."
+            : "דרך קצרה לשלוח רעיון לשיפור במייל, בלי לשמור תוכן משפחתי פרטי."
+        }
+      >
+        <div className="grid gap-3 lg:grid-cols-[18rem_1fr]">
+          <div className="rounded-[20px] border border-[#ebe4d8] bg-gradient-to-l from-[#f7fbff] via-white to-[#fff8eb] p-3">
+            <h3 className="text-sm font-black text-slate-950">
+              {languageKey === "en" ? "What area is this about?" : "לאיזה אזור זה קשור?"}
+            </h3>
+            <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">
+              {languageKey === "en"
+                ? "Choose the closest area so the suggestion arrives with context."
+                : "בחרו את האזור הקרוב ביותר, כדי שההצעה תגיע עם הקשר ברור."}
+            </p>
+            <select
+              value={feedbackArea}
+              onChange={(event) => setFeedbackArea(event.target.value)}
+              className={[
+                "mt-3 min-h-11 w-full rounded-2xl border border-[#d8caba] bg-white px-4 text-sm font-black text-slate-900 outline-none transition focus:border-[#8aa3c2] focus:ring-4 focus:ring-[#dbeafe]",
+                direction === "rtl" ? "text-right" : "text-left",
+              ].join(" ")}
+            >
+              {feedbackAreas.map((area) => (
+                <option key={area.value} value={area.value}>
+                  {area[languageKey]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="rounded-[20px] border border-[#ebe4d8] bg-[#fffdf8] p-3">
+            <label className="block">
+              <span className="text-sm font-black text-slate-950">
+                {languageKey === "en" ? "What should be improved?" : "מה כדאי לשפר?"}
+              </span>
+              <textarea
+                value={feedbackText}
+                onChange={(event) => setFeedbackText(event.target.value)}
+                rows={4}
+                maxLength={900}
+                placeholder={
+                  languageKey === "en"
+                    ? "Write a short suggestion, friction point or idea..."
+                    : "כתבו בקצרה רעיון, בעיה או משהו שהיה הופך את Nestly לטובה יותר..."
+                }
+                className={[
+                  "mt-2 w-full resize-none rounded-2xl border border-[#e0d6c8] bg-white px-4 py-3 text-sm font-semibold leading-6 text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#8aa3c2] focus:ring-4 focus:ring-[#dbeafe]",
+                  direction === "rtl" ? "text-right" : "text-left",
+                ].join(" ")}
+              />
+            </label>
+
+            <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
+              <label className="block">
+                <span className="text-xs font-black text-slate-500">
+                  {languageKey === "en" ? "Contact details, optional" : "פרטי קשר, לא חובה"}
+                </span>
+                <input
+                  value={feedbackContact}
+                  onChange={(event) => setFeedbackContact(event.target.value)}
+                  placeholder={languageKey === "en" ? "Name or email" : "שם או מייל"}
+                  className={[
+                    "mt-1 min-h-11 w-full rounded-2xl border border-[#e0d6c8] bg-white px-4 text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#8aa3c2] focus:ring-4 focus:ring-[#dbeafe]",
+                    direction === "rtl" ? "text-right" : "text-left",
+                  ].join(" ")}
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={openFeedbackEmail}
+                disabled={!feedbackText.trim()}
+                className="min-h-11 self-end rounded-2xl border border-[#d8caba] bg-white px-5 text-sm font-black text-slate-950 shadow-sm transition hover:-translate-y-0.5 hover:bg-[#fff8eb] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+              >
+                {languageKey === "en" ? "Open email" : "פתח מייל לשליחה"}
+              </button>
+            </div>
+
+            <p className="mt-3 text-xs font-semibold leading-5 text-slate-500">
+              {languageKey === "en"
+                ? "Your email app opens before sending. To prefill the recipient, set NEXT_PUBLIC_FEEDBACK_EMAIL."
+                : "המייל ייפתח אצלכם לפני שליחה. כדי למלא נמען אוטומטית, הגדירו NEXT_PUBLIC_FEEDBACK_EMAIL."}
+            </p>
           </div>
         </div>
       </SectionShell>

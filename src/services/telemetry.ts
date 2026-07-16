@@ -33,6 +33,7 @@ export type TelemetryEventName =
   | "guest_mode_started"
   | "migration_completed"
   | "profile_updated"
+  | "feedback_email_opened"
   | "family_space_reset"
   | "performance_metric"
   | "app_error";
