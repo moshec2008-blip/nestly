@@ -362,7 +362,7 @@ export default function TransactionsTable({
                         <button
                           type="button"
                           onClick={() => openDetails(transaction)}
-                          className="grid w-full gap-2 rounded-[18px] px-2 py-4 text-right transition hover:bg-[#fafafb] sm:grid-cols-[minmax(0,1fr)_minmax(9.75rem,max-content)] sm:items-center sm:gap-3 sm:pl-10"
+                          className="grid w-full gap-2 rounded-[18px] py-4 pl-12 pr-2 text-right transition hover:bg-[#fafafb] sm:grid-cols-[minmax(0,1fr)_minmax(9.75rem,max-content)] sm:items-center sm:gap-3 sm:pl-10"
                         >
                           <div className="flex min-w-0 items-center justify-end gap-3">
                             <div className="min-w-0 flex-1">
@@ -394,16 +394,18 @@ export default function TransactionsTable({
                           </span>
                         </div>
 
-                          <span className="flex min-w-0 items-center justify-between gap-2 sm:block">
+                          <span
+                            dir="ltr"
+                            className="flex min-w-0 items-center justify-start sm:block"
+                          >
                             <span
                               dir="ltr"
-                              className={`min-w-0 shrink-0 whitespace-nowrap text-left text-base font-black tabular-nums leading-6 sm:block sm:min-w-40 ${getAmountClass(
+                              className={`max-w-full shrink-0 whitespace-nowrap text-left text-base font-black tabular-nums leading-6 sm:block sm:min-w-40 ${getAmountClass(
                                 transaction.type
                               )}`}
                             >
                               {getSignedAmount(transaction)}
                             </span>
-                            <span className="h-9 w-9 shrink-0 sm:hidden" aria-hidden="true" />
                           </span>
                         </button>
 
