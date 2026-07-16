@@ -31,6 +31,20 @@ export const defaultKnowledgeCategories: KnowledgeCategory[] = [
     href: "/family",
   },
   {
+    id: "family-humor",
+    label: "הומור משפחתי",
+    description: "בדיחות פנימיות, משפטים וסיפורים שמעלים חיוך",
+    linkedModule: "family",
+    href: "/family",
+  },
+  {
+    id: "small-secrets",
+    label: "סודות קטנים",
+    description: "דברים אישיים וחמודים שרק המשפחה יודעת",
+    linkedModule: "family",
+    href: "/family",
+  },
+  {
     id: "health",
     label: "בריאות",
     description: "העדפות רפואיות ומידע שימושי",

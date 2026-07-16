@@ -51,6 +51,23 @@ const moduleLabels: Record<KnowledgeLinkedModule, string> = {
   general: "כללי",
 };
 
+const familyMemoryPrompts = [
+  {
+    title: "בדיחה פנימית",
+    category: "הומור משפחתי",
+    tags: "הומור, משפחה",
+    content:
+      "כתבו כאן משפט, סיפור קצר או רגע משפחתי שתמיד גורם לכולם לחייך.",
+  },
+  {
+    title: "סוד קטן",
+    category: "סודות קטנים",
+    tags: "משפחה, אישי",
+    content:
+      "שמרו כאן דבר קטן ומתוק שרק המשפחה יודעת. לא מידע רגיש מדי, רק משהו שמרגיש שלכם.",
+  },
+];
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("he-IL", {
     day: "numeric",
@@ -212,6 +229,18 @@ export default function FamilyKnowledgeManager() {
       current.filter((item) => item.id !== suggestion.id)
     );
     setNotice("ההצעה הוחלה בטופס. בדקו וערכו לפני שמירה.");
+  }
+
+  function applyFamilyMemoryPrompt(prompt: (typeof familyMemoryPrompts)[number]) {
+    setForm((current) => ({
+      ...current,
+      title: current.title || prompt.title,
+      content: current.content || prompt.content,
+      category: prompt.category,
+      tags: current.tags || prompt.tags,
+      linkedModule: "family",
+    }));
+    setNotice("פתחתי לך התחלה קטנה. אפשר לערוך ולשמור רק אם זה מתאים למשפחה.");
   }
 
   return (
@@ -489,6 +518,36 @@ export default function FamilyKnowledgeManager() {
                   className="mt-1 w-full resize-none rounded-2xl border border-[#e3d8c9] bg-[#fffdf8] p-3 text-sm font-semibold leading-6 text-[#111827] outline-none placeholder:text-slate-400 focus:border-[#d8b470] focus:bg-white"
                 />
               </label>
+
+              <div className="rounded-2xl border border-[#eadfcd] bg-[#fffdf8] p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-xs font-black text-[#7a5212]">
+                    פינה משפחתית
+                  </p>
+                  <p className="text-xs font-semibold text-slate-500">
+                    מקום קטן לדברים שמרגישים רק שלכם.
+                  </p>
+                </div>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {familyMemoryPrompts.map((prompt) => (
+                    <button
+                      key={prompt.category}
+                      type="button"
+                      onClick={() => applyFamilyMemoryPrompt(prompt)}
+                      className="min-h-14 rounded-2xl border border-[#eadfcd] bg-white px-3 py-2 text-right transition hover:bg-[#fff8eb]"
+                    >
+                      <span className="block text-sm font-black text-[#111827]">
+                        {prompt.category}
+                      </span>
+                      <span className="mt-1 block text-xs font-semibold leading-5 text-slate-500">
+                        {prompt.title === "בדיחה פנימית"
+                          ? "בדיחות, משפטים וסיפורים קטנים"
+                          : "רק דברים חמודים, לא מידע רגיש"}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <div className="rounded-2xl border border-sky-100 bg-sky-50/55 p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
