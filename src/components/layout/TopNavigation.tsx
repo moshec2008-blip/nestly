@@ -369,7 +369,7 @@ export default function TopNavigation({
           <Link
             href="/"
             onClick={handleLogoHomeClick}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#eadfcd]/70 bg-white/55 p-1 shadow-[0_8px_18px_rgba(33,43,63,0.08)] transition hover:bg-white hover:shadow-[0_10px_22px_rgba(33,43,63,0.1)]"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl p-1.5 transition hover:bg-[#fff8eb]/70"
             aria-label={brand.productName}
           >
             <Image
@@ -377,7 +377,7 @@ export default function TopNavigation({
               alt=""
               width={36}
               height={36}
-              className="h-full w-full object-contain"
+              className="h-8 w-8 object-contain"
               aria-hidden="true"
             />
           </Link>
