@@ -369,7 +369,7 @@ export default function TopNavigation({
           <Link
             href="/"
             onClick={handleLogoHomeClick}
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#e6d9c9] bg-[#fff8eb] p-1.5 shadow-[0_10px_24px_rgba(154,107,23,0.14)] transition hover:scale-105"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#eadfcd]/70 bg-white/55 p-1 shadow-[0_8px_18px_rgba(33,43,63,0.08)] transition hover:bg-white hover:shadow-[0_10px_22px_rgba(33,43,63,0.1)]"
             aria-label={brand.productName}
           >
             <Image

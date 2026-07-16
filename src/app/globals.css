@@ -1935,3 +1935,113 @@ html.nestly-dark .app-premium [class*="bg-[#fff8eb]"] {
   background-color: rgba(120, 53, 15, 0.28) !important;
   color: #fde68a !important;
 }
+
+/* Soft evening mode: keep Nestly readable instead of forcing every surface dark. */
+html.nestly-dark {
+  color-scheme: light;
+  background: #eef2f7;
+}
+
+html.nestly-dark body,
+html.nestly-dark .app-premium {
+  background:
+    radial-gradient(circle at 80% 8%, rgba(216, 180, 112, 0.16), transparent 28rem),
+    linear-gradient(180deg, #f4f7fb 0%, #eef2f7 100%) !important;
+  color: #111827 !important;
+}
+
+html.nestly-dark body::before {
+  opacity: 0.42;
+}
+
+html.nestly-dark .app-premium header[class*="fixed"] {
+  border-color: rgba(216, 202, 186, 0.78) !important;
+  background: rgba(255, 253, 248, 0.92) !important;
+  color: #111827 !important;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.1) !important;
+}
+
+html.nestly-dark .app-premium aside,
+html.nestly-dark .app-premium section,
+html.nestly-dark .app-premium article,
+html.nestly-dark .app-premium details,
+html.nestly-dark .app-premium li,
+html.nestly-dark .app-premium nav[class*="bg-white"],
+html.nestly-dark .app-premium div[class*="bg-white"],
+html.nestly-dark .app-premium div[class*="bg-[#fff"],
+html.nestly-dark .app-premium div[class*="bg-[#fafafb"] {
+  border-color: rgba(216, 202, 186, 0.72) !important;
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  color: #111827 !important;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.095) !important;
+}
+
+html.nestly-dark .app-premium h1,
+html.nestly-dark .app-premium h2,
+html.nestly-dark .app-premium h3,
+html.nestly-dark .app-premium h4,
+html.nestly-dark .app-premium [class*="font-black"],
+html.nestly-dark .app-premium [class*="text-[#111827]"],
+html.nestly-dark .app-premium [class*="text-[#0f172a]"],
+html.nestly-dark .app-premium [class*="text-slate-950"],
+html.nestly-dark .app-premium [class*="text-slate-900"],
+html.nestly-dark .app-premium [class*="text-slate-800"] {
+  color: #111827 !important;
+}
+
+html.nestly-dark .app-premium [class*="text-slate-700"],
+html.nestly-dark .app-premium [class*="text-slate-600"],
+html.nestly-dark .app-premium [class*="text-slate-500"],
+html.nestly-dark .app-premium [class*="text-slate-400"],
+html.nestly-dark .app-premium [class*="text-white"] {
+  color: #475569 !important;
+}
+
+html.nestly-dark .app-premium button,
+html.nestly-dark .app-premium a[role="button"],
+html.nestly-dark .app-premium a[class*="rounded"] {
+  border-color: rgba(216, 202, 186, 0.78) !important;
+}
+
+html.nestly-dark .app-premium button[class*="bg-[#111827]"]:not(.nestly-keep-dark),
+html.nestly-dark .app-premium a[class*="bg-[#111827]"]:not(.nestly-keep-dark),
+html.nestly-dark .app-premium button[class*="bg-slate-900"]:not(.nestly-keep-dark),
+html.nestly-dark .app-premium a[class*="bg-slate-900"]:not(.nestly-keep-dark),
+html.nestly-dark .app-premium button[class*="bg-slate-950"]:not(.nestly-keep-dark),
+html.nestly-dark .app-premium a[class*="bg-slate-950"]:not(.nestly-keep-dark),
+html.nestly-dark .app-premium .nestly-primary-action:not(.nestly-keep-dark) {
+  background: linear-gradient(180deg, #ffffff, #fff8eb) !important;
+  color: #111827 !important;
+  box-shadow: 0 10px 22px rgba(33, 43, 63, 0.1) !important;
+}
+
+html.nestly-dark .app-premium button[class*="bg-[#111827]"]:not(.nestly-keep-dark) *,
+html.nestly-dark .app-premium a[class*="bg-[#111827]"]:not(.nestly-keep-dark) *,
+html.nestly-dark .app-premium button[class*="bg-slate-900"]:not(.nestly-keep-dark) *,
+html.nestly-dark .app-premium a[class*="bg-slate-900"]:not(.nestly-keep-dark) *,
+html.nestly-dark .app-premium button[class*="bg-slate-950"]:not(.nestly-keep-dark) *,
+html.nestly-dark .app-premium a[class*="bg-slate-950"]:not(.nestly-keep-dark) *,
+html.nestly-dark .app-premium .nestly-primary-action:not(.nestly-keep-dark) * {
+  color: inherit !important;
+}
+
+html.nestly-dark .app-premium input,
+html.nestly-dark .app-premium select,
+html.nestly-dark .app-premium textarea {
+  border-color: #cbd5e1 !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+html.nestly-dark .app-premium input::placeholder,
+html.nestly-dark .app-premium textarea::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html.nestly-dark .app-premium img[src*="nestly-logo"] {
+  border-radius: 14px;
+  background: transparent !important;
+  box-shadow: none !important;
+}
