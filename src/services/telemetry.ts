@@ -34,6 +34,12 @@ export type TelemetryEventName =
   | "migration_completed"
   | "profile_updated"
   | "feedback_email_opened"
+  | "palette_opened"
+  | "search_performed"
+  | "result_opened"
+  | "command_executed"
+  | "no_results"
+  | "create_from_search"
   | "family_space_reset"
   | "performance_metric"
   | "app_error";

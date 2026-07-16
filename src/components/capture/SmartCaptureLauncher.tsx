@@ -357,6 +357,37 @@ export default function SmartCaptureLauncher() {
   ];
 
   useEffect(() => {
+    function handleOpenCaptureEvent(event: Event) {
+      const customEvent = event as CustomEvent<{
+        source?: CaptureSource;
+        mode?: "text" | "brain" | "receipt";
+      }>;
+      const source = customEvent.detail?.source ?? "quick_note";
+      const mode = customEvent.detail?.mode ?? "text";
+
+      setIsOpen(true);
+      setReviewCapture(null);
+
+      if (mode === "receipt") {
+        setActiveMode(null);
+        setActiveSource("receipt_scan");
+        return;
+      }
+
+      openTextCapture(source, mode === "brain" ? "brain" : "text");
+    }
+
+    window.addEventListener("nestly-open-smart-capture", handleOpenCaptureEvent);
+
+    return () => {
+      window.removeEventListener(
+        "nestly-open-smart-capture",
+        handleOpenCaptureEvent
+      );
+    };
+  }, []);
+
+  useEffect(() => {
     function syncFloatingCapturePreference(event?: Event) {
       const customEvent = event as CustomEvent<AppSettings> | undefined;
       setShowFloatingCapture(

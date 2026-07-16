@@ -15,6 +15,7 @@ import { initialShoppingItems } from "@/data/shopping";
 import { initialFamilyTasks, type FamilyTask } from "@/data/tasks";
 import type { AppLanguage } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
+import { matchesSearchQuery } from "@/lib/search/searchNormalization";
 import { storageKeys } from "@/lib/storageKeys";
 import { readKnowledgeItems } from "@/services/familyKnowledge";
 import { getTimelineItems } from "@/services/timelineService";
@@ -43,24 +44,8 @@ type DocumentSearchRecord = ModuleRecord & {
   }[];
 };
 
-function normalize(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .normalize("NFKD")
-    .replace(/[\u0591-\u05C7]/g, "");
-}
-
 function matchesQuery(query: string, values: Array<string | number | undefined>) {
-  const normalizedQuery = normalize(query);
-
-  if (!normalizedQuery) {
-    return false;
-  }
-
-  return values.some((value) =>
-    normalize(String(value ?? "")).includes(normalizedQuery)
-  );
+  return matchesSearchQuery(query, values);
 }
 
 function formatCurrency(amount: number, language: AppLanguage) {

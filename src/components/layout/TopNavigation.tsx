@@ -326,6 +326,13 @@ export default function TopNavigation({
     window.location.assign("/");
   }
 
+  function openCommandPalette() {
+    window.dispatchEvent(new CustomEvent("nestly-open-command-palette"));
+    setSearchValue("");
+    setIsNotificationsOpen(false);
+    onCloseMobileMenu();
+  }
+
   return (
     <header
       ref={headerRef}
@@ -475,6 +482,21 @@ export default function TopNavigation({
               onNavigate={handleNavigate}
             />
           </div>
+
+          <button
+            type="button"
+            onClick={openCommandPalette}
+            className="hidden h-10 shrink-0 items-center gap-2 rounded-2xl border border-[#d8caba] bg-[#fffdf8] px-3 text-xs font-black text-[#111827] shadow-sm transition hover:bg-white md:inline-flex"
+            aria-label={language === "en" ? "Open search and commands" : "פתח חיפוש ופעולות"}
+          >
+            <AppIcon name="spark" className="h-4.5 w-4.5 text-[#7a5212]" />
+            <span className="hidden xl:inline">
+              {language === "en" ? "Search and actions" : "חיפוש ופעולות"}
+            </span>
+            <kbd className="rounded-lg bg-white px-1.5 py-0.5 text-[10px] font-black text-slate-500 ring-1 ring-[#eadfcd]">
+              Ctrl K
+            </kbd>
+          </button>
 
           <div className="hidden items-center gap-2 xl:flex">
             <span className="rounded-2xl border border-[#d9dde5] bg-[#fafafb] px-3 py-2 text-[11px] font-bold text-slate-700 shadow-sm">

@@ -223,6 +223,11 @@ export default function MobileBottomNavigation() {
     }
   }
 
+  function openCommandPalette() {
+    closeMoreMenu();
+    window.dispatchEvent(new CustomEvent("nestly-open-command-palette"));
+  }
+
   const isMoreActive = moreItems.some((item) => pathname.startsWith(item.href));
 
   return (
@@ -261,6 +266,24 @@ export default function MobileBottomNavigation() {
             </div>
 
             <div className="grid gap-1.5 overflow-y-auto p-2.5">
+              <button
+                type="button"
+                onClick={openCommandPalette}
+                className="flex min-h-[60px] items-center gap-3 rounded-[20px] bg-white px-3 py-2 text-right shadow-sm ring-1 ring-[#eadfcd] transition active:scale-[0.99]"
+              >
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#fff8eb] text-[#7a5212]">
+                  <AppIcon name="spark" className="h-5 w-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-black text-[#111827]">
+                    חיפוש ופעולות
+                  </span>
+                  <span className="block truncate text-[12px] font-semibold text-slate-600">
+                    מצאו כל דבר או פתחו פעולה מהירה
+                  </span>
+                </span>
+              </button>
+
               {moreItems.map((item) => {
                 const isActive = pathname.startsWith(item.href);
 
