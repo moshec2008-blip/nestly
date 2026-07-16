@@ -77,6 +77,37 @@ const telemetryUserKey = "nestly-telemetry-user";
 const appOpenStartedAtKey = "nestly-telemetry-app-opened-at";
 const firstUsefulActionKey = "nestly-telemetry-first-action";
 const maxStoredEvents = 1200;
+const safePropertyKeyPattern = /^[a-zA-Z0-9_.:-]{1,48}$/;
+const sensitivePropertyKeyFragments = [
+  "account",
+  "address",
+  "amount",
+  "body",
+  "content",
+  "description",
+  "documentid",
+  "email",
+  "entityid",
+  "filename",
+  "family",
+  "license",
+  "message",
+  "name",
+  "note",
+  "password",
+  "phone",
+  "plate",
+  "query",
+  "receipt",
+  "reference",
+  "search",
+  "secret",
+  "text",
+  "title",
+  "token",
+  "transactionid",
+  "userid",
+];
 
 function createId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -118,6 +149,14 @@ function getSessionId() {
   return nextValue;
 }
 
+function isSensitivePropertyKey(key: string) {
+  const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  return sensitivePropertyKeyFragments.some((fragment) =>
+    normalizedKey.includes(fragment)
+  );
+}
+
 function sanitizeProperties(
   properties?: Record<string, unknown>
 ): TelemetryEvent["properties"] {
@@ -127,8 +166,12 @@ function sanitizeProperties(
 
   return Object.fromEntries(
     Object.entries(properties)
-      .filter(([, value]) =>
-        ["string", "number", "boolean"].includes(typeof value) || value === null
+      .filter(
+        ([key, value]) =>
+          safePropertyKeyPattern.test(key) &&
+          !isSensitivePropertyKey(key) &&
+          (["string", "number", "boolean"].includes(typeof value) ||
+            value === null)
       )
       .map(([key, value]) => [
         key,
@@ -210,15 +253,14 @@ export function trackTelemetryError(
   error: unknown,
   module: TelemetryModule = "app"
 ) {
+  const errorType = error instanceof Error ? error.name || "Error" : typeof error;
+
   trackTelemetryEvent({
     name: "app_error",
     module,
     properties: {
       source,
-      message:
-        error instanceof Error
-          ? error.message.slice(0, 80)
-          : "unknown-error",
+      errorType,
     },
   });
 }

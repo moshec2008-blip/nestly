@@ -76,6 +76,7 @@ It is not yet ready for public production use because it does not have a real cl
 | Server-side API validation | Partial | AI routes validate size/access, but full schema validation is still needed. |
 | Server-enforced permissions | Missing | Required before production family sharing. |
 | Production monitoring | Missing | Needs external observability provider or backend logging. |
+| Telemetry privacy guardrails | Complete | Local telemetry now strips sensitive property keys such as names, amounts, queries, file names, tokens, IDs and raw error messages. |
 | Dependency audit | Partial | `npm audit --audit-level=high` reports moderate advisories through `next`/`next-auth`; forced fixes are breaking and should be handled in a planned dependency-upgrade sprint. |
 
 ## Accessibility and Preferences

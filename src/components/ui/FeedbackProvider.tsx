@@ -117,7 +117,10 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
         trackTelemetryEvent({
           name: "undo_used",
           module: "app",
-          properties: { source: toastMessage.dedupeKey ?? "toast" },
+          properties: {
+            actionKind: toastMessage.actionKind,
+            hasDedupeKey: Boolean(toastMessage.dedupeKey),
+          },
         });
       }
 
