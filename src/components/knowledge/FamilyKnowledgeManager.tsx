@@ -251,8 +251,8 @@ export default function FamilyKnowledgeManager() {
         </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        <div className="space-y-4">
+      <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_24rem]">
+        <div className="min-w-0 space-y-4">
           {notice ? (
             <div
               className="rounded-2xl border border-[#d8caba] bg-[#fff8eb] px-4 py-3 text-sm font-bold text-[#7a5212]"
@@ -262,12 +262,12 @@ export default function FamilyKnowledgeManager() {
             </div>
           ) : null}
 
-          <div className="rounded-[24px] border border-[#ebe4d8] bg-white/92 p-4 shadow-[0_16px_45px_rgba(33,43,63,0.08)]">
-            <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_14rem]">
+          <div className="overflow-hidden rounded-[24px] border border-[#ebe4d8] bg-white/92 p-4 shadow-[0_16px_45px_rgba(33,43,63,0.08)]">
+            <div className="grid min-w-0 gap-3 lg:grid-cols-[minmax(0,1fr)_14rem]">
               <label className="sr-only" htmlFor="knowledge-search">
                 חיפוש מידע משפחתי
               </label>
-              <div className="relative">
+              <div className="relative min-w-0">
                 <AppIcon
                   name="spark"
                   className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8a5b16]"
@@ -285,7 +285,7 @@ export default function FamilyKnowledgeManager() {
                 type="button"
                 onClick={() => setShowArchived((current) => !current)}
                 className={[
-                  "min-h-12 rounded-2xl border px-4 text-sm font-black transition",
+                  "min-h-12 w-full rounded-2xl border px-4 text-sm font-black transition lg:w-auto",
                   showArchived
                     ? "border-[#111827]/15 bg-[#111827] text-white"
                     : "border-[#e3d8c9] bg-white text-slate-700 hover:bg-[#fff8eb]",
@@ -295,12 +295,12 @@ export default function FamilyKnowledgeManager() {
               </button>
             </div>
 
-            <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+            <div className="mt-3 flex flex-wrap justify-end gap-1.5 pb-1">
               <button
                 type="button"
                 onClick={() => setActiveCategory("הכל")}
                 className={[
-                  "min-h-9 shrink-0 rounded-full px-3 text-xs font-black transition",
+                  "min-h-9 rounded-full px-2.5 text-xs font-black transition",
                   activeCategory === "הכל"
                     ? "bg-[#111827] text-white"
                     : "bg-[#fffdf8] text-slate-600 ring-1 ring-[#eadfcd]",
@@ -314,7 +314,7 @@ export default function FamilyKnowledgeManager() {
                   type="button"
                   onClick={() => setActiveCategory(category.label)}
                   className={[
-                    "min-h-9 shrink-0 rounded-full px-3 text-xs font-black transition",
+                    "min-h-9 rounded-full px-2.5 text-xs font-black transition",
                     activeCategory === category.label
                       ? "bg-[#111827] text-white"
                       : "bg-[#fffdf8] text-slate-600 ring-1 ring-[#eadfcd]",
