@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -372,14 +371,12 @@ export default function TopNavigation({
             className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl p-1.5 transition hover:bg-[#fff8eb]/70"
             aria-label={brand.productName}
           >
-            <Image
-              src="/nestly-logo.png"
-              alt=""
-              width={36}
-              height={36}
-              className="h-8 w-8 object-contain"
+            <span
+              className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-[#f4d7a1] via-[#d7efe2] to-[#c9d7ff] text-sm font-black text-[#111827] shadow-[0_8px_18px_rgba(33,43,63,0.08)]"
               aria-hidden="true"
-            />
+            >
+              N
+            </span>
           </Link>
         </div>
 
@@ -449,16 +446,10 @@ export default function TopNavigation({
                 aria-label={`${brand.productName} - ${brand.workspaceName}`}
               >
                 <span
-                  className="grid h-8 w-8 place-items-center overflow-hidden rounded-full bg-[#f4e7c8] p-1 lg:h-5 lg:w-5 lg:p-0.5"
+                  className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-[#f4d7a1] via-[#d7efe2] to-[#c9d7ff] text-xs font-black text-[#111827] lg:h-5 lg:w-5 lg:rounded-lg lg:text-[10px]"
                   aria-hidden="true"
                 >
-                  <Image
-                    src="/nestly-logo.png"
-                    alt=""
-                    width={32}
-                    height={32}
-                    className="h-full w-full object-contain"
-                  />
+                  N
                 </span>
                 <span>{brand.productName}</span>
                 <span className="hidden text-xs font-bold text-slate-500 lg:inline">
