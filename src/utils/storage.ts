@@ -32,6 +32,13 @@ const userScopedStorageKeys = new Set([
   "nestly-ai-audit",
   "nestly-ai-suggestion-feedback",
   "nestly-command-center-preferences",
+  "nestly-automations",
+  "nestly-automation-history",
+  "nestly-automation-review-queue",
+  "nestly-smart-templates",
+  "nestly-smart-collections",
+  "nestly-import-jobs",
+  "nestly-export-jobs",
 ]);
 
 function normalizeStorageScope(value: string) {

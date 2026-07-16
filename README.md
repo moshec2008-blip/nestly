@@ -67,6 +67,23 @@ Read:
 - `docs/INVITATIONS.md`
 - `docs/CLOSED_BETA_READINESS.md`
 
+## Release 1.0 foundations
+
+Epic 12 adds internal foundations for safe automations, Smart Templates, Smart
+Collections, import/export validation and a versioned backup format. These are
+architecture foundations, not a claim that every workflow is already visible in
+the UI.
+
+Read:
+
+- `docs/AUTOMATIONS.md`
+- `docs/SMART_TEMPLATES.md`
+- `docs/SMART_COLLECTIONS.md`
+- `docs/IMPORT_EXPORT.md`
+- `docs/BACKUP_AND_RESTORE.md`
+- `docs/RELEASE_1_0_CHECKLIST.md`
+- `docs/EPIC_12_RELEASE_FOUNDATION_REPORT.md`
+
 ## Nestly AI foundation
 
 The AI layer is provider-agnostic and server-side first. The current safe

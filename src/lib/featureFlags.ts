@@ -8,7 +8,14 @@ export type NestlyFeatureFlag =
   | "multipleFamilySpaces"
   | "emailNotifications"
   | "closedBetaFeedback"
-  | "cloudPersistence";
+  | "cloudPersistence"
+  | "automations"
+  | "smartTemplates"
+  | "smartCollections"
+  | "importExport"
+  | "advancedBackup"
+  | "offlineQueue"
+  | "releaseNotes";
 
 const defaultFlags: Record<NestlyFeatureFlag, boolean> = {
   familyInvitations: false,
@@ -21,6 +28,13 @@ const defaultFlags: Record<NestlyFeatureFlag, boolean> = {
   emailNotifications: false,
   closedBetaFeedback: true,
   cloudPersistence: false,
+  automations: false,
+  smartTemplates: true,
+  smartCollections: true,
+  importExport: false,
+  advancedBackup: true,
+  offlineQueue: false,
+  releaseNotes: true,
 };
 
 function readBooleanEnv(value: string | undefined, fallback: boolean) {
