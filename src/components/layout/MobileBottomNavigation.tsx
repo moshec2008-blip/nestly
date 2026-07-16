@@ -89,6 +89,14 @@ const moreItems: MoreItem[] = [
     background: "bg-cyan-50",
   },
   {
+    href: "/assistant",
+    icon: "spark",
+    title: "העוזר של Nestly",
+    description: "תשובות מתוך המידע המשפחתי",
+    accent: "text-violet-700",
+    background: "bg-violet-50",
+  },
+  {
     href: "/timeline",
     icon: "timeline",
     title: "ציר הזמן",

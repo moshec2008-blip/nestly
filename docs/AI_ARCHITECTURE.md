@@ -18,6 +18,30 @@ The new foundation is provider-agnostic:
 - Real provider calls run server-side only.
 - Structured output is validated before product code sees it.
 
+## Nestly Assistant
+
+The Nestly Assistant now adds a deterministic, source-backed layer on top of the
+AI foundation.
+
+Files:
+
+- `src/types/assistant.ts`
+- `src/services/assistant/nestlyAssistantService.ts`
+- `src/components/assistant/NestlyAssistantPage.tsx`
+- `src/app/assistant/page.tsx`
+
+The Assistant currently works without an external AI provider. It retrieves
+context from Command Center, Family Timeline, Family Knowledge and Global Search,
+then returns a typed answer with sources, confidence, warnings and proposed
+actions.
+
+Trust rule:
+
+- If no saved source exists, the Assistant says it did not find saved
+  information.
+- AI may later help phrase or rank answers, but must not replace source
+  retrieval, validation or user confirmation.
+
 Core files:
 
 - `src/lib/ai/types.ts`

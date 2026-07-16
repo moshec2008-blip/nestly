@@ -67,6 +67,11 @@ const englishModuleCopy: Record<
     description: "Recommended next action, urgent items and what is coming soon.",
     status: "Active",
   },
+  "/assistant": {
+    label: "Nestly Assistant",
+    description: "Source-backed answers from the family records.",
+    status: "Active",
+  },
   "/timeline": {
     label: "Timeline",
     description: "Meaningful history of family progress and activity.",

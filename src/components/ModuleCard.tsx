@@ -57,6 +57,16 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     border: "#a5f3fc",
     surface: "#ecfeff",
   },
+  "/assistant": {
+    fallbackStat: "תשובות עם מקורות",
+    icon: "spark",
+    iconTone: "text-violet-700",
+    iconBg: "bg-violet-50",
+    glow: "bg-violet-400/10",
+    accent: "#7c3aed",
+    border: "#ddd6fe",
+    surface: "#f5f3ff",
+  },
   "/timeline": {
     fallbackStat: "היסטוריה משפחתית",
     icon: "timeline",

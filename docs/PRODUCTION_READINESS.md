@@ -79,6 +79,17 @@ It is not yet ready for public production use because it does not have a real cl
 | Telemetry privacy guardrails | Complete | Local telemetry now strips sensitive property keys such as names, amounts, queries, file names, tokens, IDs and raw error messages. |
 | Dependency audit | Partial | `npm audit --audit-level=high` reports moderate advisories through `next`/`next-auth`; forced fixes are breaking and should be handled in a planned dependency-upgrade sprint. |
 
+## Family OS and Assistant
+
+| Item | Status | Notes |
+| --- | --- | --- |
+| Source-backed Assistant | Partial | `/assistant` answers from Command Center, Timeline, Knowledge and Global Search without a paid AI provider. |
+| Assistant sources | Complete | Every useful answer includes source records and routes. |
+| Assistant fallback | Complete | When no saved source exists, it clearly says no saved information was found. |
+| Assistant action execution | Missing | Proposed actions are review/navigation only; no automatic write pipeline exists yet. |
+| Automation audit log | Missing | Required before high-risk automated actions. |
+| Exact deep links to records | Partial | Sources currently open module pages; exact record anchors should be added later. |
+
 ## Accessibility and Preferences
 
 | Item | Status | Notes |

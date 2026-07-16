@@ -80,7 +80,7 @@ export function HomeAreaCard({ area }: { area: HomeArea }) {
   return (
     <Link
       href={area.href}
-      className={`relative flex min-h-[88px] flex-col justify-between overflow-hidden rounded-[18px] border border-white/80 p-3 shadow-[0_8px_18px_rgba(33,43,63,0.04)] ring-1 ring-[#eadfcd]/50 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(33,43,63,0.08)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${direction === "rtl" ? "text-right" : "text-left"} ${area.tintClass ?? "bg-white"}`}
+      className={`home-area-card relative flex min-h-[88px] flex-col justify-between overflow-hidden rounded-[18px] border border-white/80 p-3 shadow-[0_8px_18px_rgba(33,43,63,0.04)] ring-1 ring-[#eadfcd]/50 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(33,43,63,0.08)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${direction === "rtl" ? "text-right" : "text-left"} ${area.tintClass ?? "bg-white"}`}
     >
       <span
         className={[
@@ -97,15 +97,15 @@ export function HomeAreaCard({ area }: { area: HomeArea }) {
           <AppIcon name={area.icon} className="h-4 w-4" />
         </span>
         <div className="min-w-0">
-          <h3 className="truncate text-[13px] font-black text-[#111827]">
+          <h3 className="home-area-title truncate text-[13px] font-black text-[#111827]">
             {area.title}
           </h3>
-          <p className="truncate text-[11px] font-semibold text-slate-500">
+          <p className="home-area-subtitle truncate text-[11px] font-semibold text-slate-500">
             {area.subtitle}
           </p>
         </div>
       </div>
-      <p className="truncate text-[11px] font-black text-slate-600">
+      <p className="home-area-stat truncate text-[11px] font-black text-slate-600">
         {liveStat}
       </p>
     </Link>

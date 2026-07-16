@@ -42,6 +42,11 @@ export type TelemetryEventName =
   | "command_executed"
   | "no_results"
   | "create_from_search"
+  | "assistant_opened"
+  | "assistant_question_submitted"
+  | "assistant_answer_shown"
+  | "assistant_source_opened"
+  | "assistant_no_answer"
   | "family_space_reset"
   | "performance_metric"
   | "app_error";

@@ -134,7 +134,7 @@ export default function HomePage() {
 
         <ImportantToday />
 
-        <section className="rounded-[24px] border border-white/80 bg-gradient-to-br from-white/92 via-[#fffdf8]/92 to-white/82 p-3 shadow-[0_12px_30px_rgba(33,43,63,0.055)] ring-1 ring-[#eadfcd]/55">
+        <section className="home-more-section rounded-[24px] border border-white/80 bg-gradient-to-br from-white/92 via-[#fffdf8]/92 to-white/82 p-3 shadow-[0_12px_30px_rgba(33,43,63,0.055)] ring-1 ring-[#eadfcd]/55">
           <HomeSectionHeader title={copy.title} subtitle={copy.subtitle} />
           <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
             {homeAreas.map((area) => (

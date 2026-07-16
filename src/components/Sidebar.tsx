@@ -167,6 +167,15 @@ const navigationAccents: Record<
     shadow: "0 12px 30px rgba(6,182,212,0.24)",
     activeShadow: "0 16px 38px rgba(14,116,144,0.36)",
   },
+  "/assistant": {
+    dot: "bg-violet-400",
+    icon: "border-violet-200 bg-violet-100 text-violet-900",
+    active: "border-violet-200 bg-violet-50 text-[#111827] ring-1 ring-violet-200/80",
+    hover: "hover:bg-violet-50/90",
+    glow: "bg-violet-400/20",
+    shadow: "0 12px 30px rgba(139,92,246,0.22)",
+    activeShadow: "0 16px 38px rgba(109,40,217,0.32)",
+  },
   "/timeline": {
     dot: "bg-stone-400",
     icon: "border-stone-200 bg-stone-100 text-stone-900",
