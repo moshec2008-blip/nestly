@@ -118,9 +118,9 @@ function getInitialVehicleForm(): VehicleProfileForm {
     makeModel: "",
     type: "",
     odometer: "",
-    testDate: getTodayDate(),
-    insuranceRenewalDate: getTodayDate(),
-    purchaseDate: getTodayDate(),
+    testDate: "",
+    insuranceRenewalDate: "",
+    purchaseDate: "",
     saleDate: "",
     isClosed: false,
   };
@@ -172,14 +172,30 @@ function formatDate(date: string) {
 }
 
 function getDaysUntil(date: string) {
+  if (!date) {
+    return Number.POSITIVE_INFINITY;
+  }
+
   const today = new Date(getTodayDate());
   const targetDate = new Date(date);
+  if (Number.isNaN(targetDate.getTime())) {
+    return Number.POSITIVE_INFINITY;
+  }
+
   const difference = targetDate.getTime() - today.getTime();
   return Math.ceil(difference / (1000 * 60 * 60 * 24));
 }
 
 function getDateLabel(date: string) {
+  if (!date) {
+    return "לא הוזן";
+  }
+
   const daysUntil = getDaysUntil(date);
+
+  if (!Number.isFinite(daysUntil)) {
+    return "לא הוזן";
+  }
 
   if (daysUntil < 0) {
     return `באיחור ${Math.abs(daysUntil)} ימים`;
@@ -631,6 +647,7 @@ export default function VehiclesManager() {
             </label>
             <DateInput
               value={vehicleForm.testDate}
+              className="hidden"
               onChange={(date) =>
                 setVehicleForm((current) => ({ ...current, testDate: date }))
               }
@@ -639,6 +656,7 @@ export default function VehiclesManager() {
             />
             <DateInput
               value={vehicleForm.insuranceRenewalDate}
+              className="hidden"
               onChange={(date) =>
                 setVehicleForm((current) => ({
                   ...current,
@@ -650,6 +668,7 @@ export default function VehiclesManager() {
             />
             <DateInput
               value={vehicleForm.purchaseDate}
+              className="hidden"
               onChange={(date) =>
                 setVehicleForm((current) => ({ ...current, purchaseDate: date }))
               }
@@ -658,12 +677,88 @@ export default function VehiclesManager() {
             />
             <DateInput
               value={vehicleForm.saleDate ?? ""}
+              className="hidden"
               onChange={(date) =>
                 setVehicleForm((current) => ({ ...current, saleDate: date }))
               }
               label="תאריך מכירה / סגירה"
               inputClassName="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-slate-950 outline-none focus:border-slate-400"
             />
+            <details className="rounded-[22px] border border-[#eadfcd] bg-white/70 p-3 lg:col-span-4">
+              <summary className="cursor-pointer list-none text-sm font-black text-[#111827]">
+                תאריכים חשובים
+                <span className="mt-1 block text-xs font-semibold text-slate-500">
+                  טסט, ביטוח, רכישה ומכירה - אפשר להשלים גם אחר כך
+                </span>
+              </summary>
+              <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+                <label className="grid gap-1">
+                  <span className="text-xs font-bold text-slate-600">
+                    תאריך טסט
+                  </span>
+                  <DateInput
+                    value={vehicleForm.testDate}
+                    onChange={(date) =>
+                      setVehicleForm((current) => ({
+                        ...current,
+                        testDate: date,
+                      }))
+                    }
+                    label="תאריך טסט"
+                    inputClassName="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-slate-950 outline-none focus:border-slate-400"
+                  />
+                </label>
+                <label className="grid gap-1">
+                  <span className="text-xs font-bold text-slate-600">
+                    חידוש ביטוח
+                  </span>
+                  <DateInput
+                    value={vehicleForm.insuranceRenewalDate}
+                    onChange={(date) =>
+                      setVehicleForm((current) => ({
+                        ...current,
+                        insuranceRenewalDate: date,
+                      }))
+                    }
+                    label="חידוש ביטוח"
+                    inputClassName="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-slate-950 outline-none focus:border-slate-400"
+                  />
+                </label>
+                <label className="grid gap-1">
+                  <span className="text-xs font-bold text-slate-600">
+                    תאריך רכישה
+                  </span>
+                  <DateInput
+                    value={vehicleForm.purchaseDate}
+                    onChange={(date) =>
+                      setVehicleForm((current) => ({
+                        ...current,
+                        purchaseDate: date,
+                      }))
+                    }
+                    label="תאריך רכישה"
+                    inputClassName="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-slate-950 outline-none focus:border-slate-400"
+                  />
+                </label>
+                <label className="grid gap-1">
+                  <span className="text-xs font-bold text-slate-600">
+                    מכירה / סגירה
+                  </span>
+                  <DateInput
+                    value={vehicleForm.saleDate ?? ""}
+                    onChange={(date) =>
+                      setVehicleForm((current) => ({
+                        ...current,
+                        saleDate: date,
+                      }))
+                    }
+                    label="תאריך מכירה או סגירה"
+                    inputClassName="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-right text-slate-950 outline-none focus:border-slate-400"
+                  />
+                </label>
+              </div>
+            </details>
+
             <button
               type="submit"
               className="min-h-11 rounded-2xl bg-[#007aff] px-4 text-sm font-black text-white transition hover:bg-[#0065d1] lg:col-span-4"
