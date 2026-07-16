@@ -183,22 +183,17 @@ function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
     <span
       className={[
-        "relative shrink-0 overflow-hidden rounded-xl bg-white/40",
-        compact ? "h-5 w-5 rounded-lg" : "h-8 w-8",
+        "relative shrink-0 overflow-hidden rounded-2xl bg-white/90 shadow-[0_6px_18px_rgba(31,41,55,0.08)] ring-1 ring-[#eadfcd]/70",
+        compact ? "h-6 w-6 rounded-xl" : "h-9 w-9",
       ].join(" ")}
       aria-hidden="true"
     >
       <Image
         src="/nestly-logo.png"
         alt=""
-        width={compact ? 52 : 78}
-        height={compact ? 52 : 78}
-        className={[
-          "absolute max-w-none object-contain",
-          compact
-            ? "-left-[14px] -top-[5px] h-[52px] w-[52px]"
-            : "-left-[21px] -top-[7px] h-[78px] w-[78px]",
-        ].join(" ")}
+        width={96}
+        height={96}
+        className="h-full w-full object-contain"
       />
     </span>
   );

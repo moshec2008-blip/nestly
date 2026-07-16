@@ -54,10 +54,52 @@ const copy = {
   },
 } as const;
 
+const storyCopy = {
+  he: {
+    close: "סגור חלון פתיחה",
+    eyebrow: "ברוכים הבאים ל-Nestly",
+    title: "הקן הדיגיטלי של המשפחה שלכם",
+    intro: "סיפור קצר על המקום שבו המשפחה שומרת סדר, שקט ומה שחשוב באמת.",
+    confirm: "הבנתי, בואו נתחיל",
+    lines: [
+      "Nestly נולדה מהמילה Nest: קן, בית קטן וחם שבו הדברים החשובים נשמרים קרוב.",
+      "בכל משפחה יש משימות, קניות, תשלומים, מסמכים ותזכורות שרצים בראש.",
+      "המטרה של Nestly היא לא להוסיף עוד ניהול, אלא להוריד עומס.",
+      "כאן אפשר לראות מה חשוב היום, מה מחכה להמשך, ומה כבר טופל.",
+      "אפשר לרשום קנייה, לסמן משימה, לשמור קבלה או לזכור תאריך חשוב ברגע אחד.",
+      "עם הזמן, Nestly לומדת להפוך את המידע המשפחתי למשהו מסודר, נגיש ושקט יותר.",
+      "במצב בסיסי, המידע נשמר במכשיר שלכם בלבד. מה שבבית, נשאר בבית.",
+      "וכשיהיה חיבור משפחתי מלא, תוכלו לבחור מה לשתף ועם מי.",
+      "Nestly כאן כדי להיות המקום שבו המשפחה פחות מחפשת ויותר רגועה.",
+      "בואו נתחיל, צעד קטן אחד בכל פעם.",
+    ],
+  },
+  en: {
+    close: "Close welcome",
+    eyebrow: "Welcome to Nestly",
+    title: "Your family's digital nest",
+    intro:
+      "A short story about the place where family life becomes calmer and easier to hold.",
+    confirm: "Got it, let's start",
+    lines: [
+      "Nestly comes from Nest: a small warm home where important things stay close.",
+      "Every family carries tasks, shopping, payments, documents and reminders in their head.",
+      "Nestly is not here to add more management. It is here to reduce the load.",
+      "Here you can see what matters today, what can wait and what is already done.",
+      "You can add a shopping item, complete a task, save a receipt or remember a date in one moment.",
+      "Over time, Nestly turns family information into something organized, reachable and calmer.",
+      "In basic mode, your information stays on this device only. What belongs at home stays at home.",
+      "When shared family accounts are ready, you will choose what to share and with whom.",
+      "Nestly is here so the family searches less and feels more settled.",
+      "Let's begin, one small step at a time.",
+    ],
+  },
+} as const;
+
 export default function FirstRunWelcomePopup() {
   const { language, direction } = useLanguage();
   const languageKey = language === "en" ? "en" : "he";
-  const text = copy[languageKey];
+  const text = storyCopy[languageKey] ?? copy[languageKey];
   const [isVisible, setIsVisible] = useState(false);
   const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -76,7 +118,10 @@ export default function FirstRunWelcomePopup() {
       return;
     }
 
-    if (window.localStorage.getItem(storageKeys.firstRunWelcome) === "true") {
+    if (
+      !explicitlyPreviewWelcome &&
+      window.localStorage.getItem(storageKeys.firstRunWelcome) === "true"
+    ) {
       return;
     }
 
@@ -176,19 +221,30 @@ export default function FirstRunWelcomePopup() {
         </div>
 
         <div className="px-4 pb-4 pt-3 sm:px-5">
-          <ol className="grid gap-2">
+          <div className="grid gap-2.5">
             {text.lines.map((line, index) => (
-              <li
+              <p
                 key={line}
-                className="flex items-start gap-3 rounded-2xl bg-white/72 px-3 py-2.5 text-sm font-semibold leading-6 text-slate-700 shadow-[0_1px_0_rgba(226,232,240,0.75)]"
+                className={[
+                  "flex items-start gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-semibold leading-6 text-slate-700 shadow-[0_1px_0_rgba(226,232,240,0.65)]",
+                  index === 0
+                    ? "bg-[#fff7e8] text-slate-800"
+                    : "bg-white/72",
+                ].join(" ")}
               >
-                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#f7efe2] text-xs font-black text-[#8a5c17]">
-                  {index + 1}
+                <span
+                  className={[
+                    "mt-2 h-2 w-2 shrink-0 rounded-full",
+                    index === 0 ? "bg-[#d8a447]" : "bg-[#d8c8ac]",
+                  ].join(" ")}
+                  aria-hidden="true"
+                />
+                <span className="min-w-0">
+                  {line}
                 </span>
-                <span className="min-w-0">{line}</span>
-              </li>
+              </p>
             ))}
-          </ol>
+          </div>
 
           <button
             ref={confirmButtonRef}
