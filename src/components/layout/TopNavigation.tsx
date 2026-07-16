@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -173,6 +174,31 @@ function MenuGlyph({ isOpen }: { isOpen: boolean }) {
       <span className="block h-0.5 w-5 rounded-full bg-current" />
       <span className="block h-0.5 w-5 rounded-full bg-current" />
       <span className="block h-0.5 w-5 rounded-full bg-current" />
+    </span>
+  );
+}
+
+function BrandMark({ compact = false }: { compact?: boolean }) {
+  return (
+    <span
+      className={[
+        "relative shrink-0 overflow-hidden rounded-xl bg-white/40",
+        compact ? "h-5 w-5 rounded-lg" : "h-8 w-8",
+      ].join(" ")}
+      aria-hidden="true"
+    >
+      <Image
+        src="/nestly-logo.png"
+        alt=""
+        width={compact ? 52 : 78}
+        height={compact ? 52 : 78}
+        className={[
+          "absolute max-w-none object-contain",
+          compact
+            ? "-left-[14px] -top-[5px] h-[52px] w-[52px]"
+            : "-left-[21px] -top-[7px] h-[78px] w-[78px]",
+        ].join(" ")}
+      />
     </span>
   );
 }
@@ -371,12 +397,7 @@ export default function TopNavigation({
             className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl p-1.5 transition hover:bg-[#fff8eb]/70"
             aria-label={brand.productName}
           >
-            <span
-              className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-[#f4d7a1] via-[#d7efe2] to-[#c9d7ff] text-sm font-black text-[#111827] shadow-[0_8px_18px_rgba(33,43,63,0.08)]"
-              aria-hidden="true"
-            >
-              N
-            </span>
+            <BrandMark />
           </Link>
         </div>
 
@@ -446,10 +467,10 @@ export default function TopNavigation({
                 aria-label={`${brand.productName} - ${brand.workspaceName}`}
               >
                 <span
-                  className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-[#f4d7a1] via-[#d7efe2] to-[#c9d7ff] text-xs font-black text-[#111827] lg:h-5 lg:w-5 lg:rounded-lg lg:text-[10px]"
+                  className="grid h-8 w-8 place-items-center lg:h-5 lg:w-5"
                   aria-hidden="true"
                 >
-                  N
+                  <BrandMark compact />
                 </span>
                 <span>{brand.productName}</span>
                 <span className="hidden text-xs font-bold text-slate-500 lg:inline">
