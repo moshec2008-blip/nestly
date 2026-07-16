@@ -34,6 +34,8 @@ export type TelemetryEventName =
   | "migration_completed"
   | "profile_updated"
   | "feedback_email_opened"
+  | "success_message_shown"
+  | "undo_used"
   | "palette_opened"
   | "search_performed"
   | "result_opened"

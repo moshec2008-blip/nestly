@@ -12,6 +12,7 @@ import {
 } from "react";
 import { useLanguage } from "@/i18n/useLanguage";
 import { Button } from "@/components/ui/Button";
+import { trackTelemetryEvent } from "@/services/telemetry";
 
 type ToastTone = "success" | "info" | "warning" | "danger";
 
@@ -20,6 +21,11 @@ type ToastMessage = {
   title: string;
   description?: string;
   tone: ToastTone;
+  actionLabel?: string;
+  actionKind?: "undo" | "open" | "retry";
+  dedupeKey?: string;
+  durationMs?: number;
+  onAction?: () => void;
 };
 
 type ConfirmOptions = {
@@ -55,8 +61,16 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
     null
   );
   const confirmQueueRef = useRef<PendingConfirm[]>([]);
+  const toastTimersRef = useRef<Map<string, number>>(new Map());
 
   const closeToast = useCallback((id: string) => {
+    const timerId = toastTimersRef.current.get(id);
+
+    if (timerId) {
+      window.clearTimeout(timerId);
+      toastTimersRef.current.delete(id);
+    }
+
     setToasts((currentToasts) =>
       currentToasts.filter((toastMessage) => toastMessage.id !== id)
     );
@@ -65,9 +79,49 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
   const toast = useCallback(
     (message: Omit<ToastMessage, "id">) => {
       const id = crypto.randomUUID();
+      const durationMs =
+        message.durationMs ?? (message.actionLabel ? 7600 : 4200);
 
-      setToasts((currentToasts) => [...currentToasts.slice(-3), { id, ...message }]);
-      window.setTimeout(() => closeToast(id), 4200);
+      setToasts((currentToasts) => {
+        const nextToasts = message.dedupeKey
+          ? currentToasts.filter(
+              (toastMessage) => toastMessage.dedupeKey !== message.dedupeKey
+            )
+          : currentToasts;
+
+        return [...nextToasts.slice(-3), { id, ...message }];
+      });
+
+      if (message.tone === "success") {
+        trackTelemetryEvent({
+          name: "success_message_shown",
+          module: "app",
+          properties: {
+            hasAction: Boolean(message.actionLabel),
+            deduped: Boolean(message.dedupeKey),
+          },
+        });
+      }
+
+      const timerId = window.setTimeout(() => closeToast(id), durationMs);
+      toastTimersRef.current.set(id, timerId);
+    },
+    [closeToast]
+  );
+
+  const handleToastAction = useCallback(
+    (toastMessage: ToastMessage) => {
+      toastMessage.onAction?.();
+
+      if (toastMessage.actionKind === "undo") {
+        trackTelemetryEvent({
+          name: "undo_used",
+          module: "app",
+          properties: { source: toastMessage.dedupeKey ?? "toast" },
+        });
+      }
+
+      closeToast(toastMessage.id);
     },
     [closeToast]
   );
@@ -170,6 +224,15 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
                   <p className="mt-1 leading-6 opacity-80">
                     {toastMessage.description}
                   </p>
+                )}
+                {toastMessage.actionLabel && toastMessage.onAction && (
+                  <button
+                    type="button"
+                    onClick={() => handleToastAction(toastMessage)}
+                    className="mt-3 min-h-9 rounded-2xl border border-current/20 bg-white/70 px-3 text-xs font-black transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-current/25"
+                  >
+                    {toastMessage.actionLabel}
+                  </button>
                 )}
               </div>
             </div>

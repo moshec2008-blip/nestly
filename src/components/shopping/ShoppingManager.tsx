@@ -11,6 +11,7 @@ import {
 } from "@/data/finance";
 import { initialShoppingItems, shoppingLists } from "@/data/shopping";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
+import { getDelightMessage } from "@/lib/delightMessages";
 import { storageKeys } from "@/lib/storageKeys";
 import {
   markFirstUsefulAction,
@@ -272,6 +273,15 @@ export default function ShoppingManager() {
     });
     setPurchaseFilter("remaining");
     setQuickTitle("");
+    const message = getDelightMessage("shoppingItemAdded", {
+      title: cleanTitle,
+    });
+    toast({
+      title: message.title,
+      description: message.description,
+      tone: "success",
+      dedupeKey: `shopping:${cleanTitle}:added`,
+    });
   }
 
   function handleQuickAdd(event: FormEvent<HTMLFormElement>) {
@@ -456,6 +466,31 @@ export default function ShoppingManager() {
           hasEstimatedPrice: item.estimatedPrice > 0,
         },
       });
+
+      if (remainingAfterPurchase > 0) {
+        const message = getDelightMessage("shoppingItemPurchased", {
+          title: item.title,
+          remaining: remainingAfterPurchase,
+        });
+
+        toast({
+          title: message.title,
+          description: message.description,
+          tone: "success",
+          actionLabel: "ביטול",
+          actionKind: "undo",
+          dedupeKey: `shopping:${item.id}:purchased`,
+          onAction: () => {
+            setItems((currentItems) =>
+              currentItems.map((currentItem) =>
+                currentItem.id === item.id
+                  ? { ...currentItem, purchased: false }
+                  : currentItem
+              )
+            );
+          },
+        });
+      }
 
       if (remainingAfterPurchase === 0) {
         toast({
