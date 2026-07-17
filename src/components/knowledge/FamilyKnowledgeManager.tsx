@@ -5,6 +5,7 @@ import AISuggestionCard from "@/components/ai/AISuggestionCard";
 import RelatedItemsPanel from "@/components/relations/RelatedItemsPanel";
 import SuggestedConnectionsPanel from "@/components/relations/SuggestedConnectionsPanel";
 import AppIcon from "@/components/ui/AppIcon";
+import { addFavorite, removeFavorite } from "@/lib/personalization";
 import {
   archiveKnowledgeItem,
   createKnowledgeItem,
@@ -178,7 +179,18 @@ export default function FamilyKnowledgeManager() {
   }
 
   function toggleFavorite(item: FamilyKnowledgeItem) {
-    setKnowledgeFavorite(item.id, !item.favorite);
+    const nextFavorite = !item.favorite;
+    setKnowledgeFavorite(item.id, nextFavorite);
+    if (nextFavorite) {
+      addFavorite({
+        type: "knowledge",
+        entityId: item.id,
+        title: item.title,
+        route: "/knowledge",
+      });
+    } else {
+      removeFavorite(`knowledge:${item.id}`);
+    }
     refresh();
   }
 

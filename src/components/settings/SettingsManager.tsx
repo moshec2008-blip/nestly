@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { useSession } from "next-auth/react";
 import DemoEntryCard from "@/components/layout/DemoEntryCard";
+import AppIcon from "@/components/ui/AppIcon";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { useLanguage } from "@/i18n/useLanguage";
@@ -26,7 +27,22 @@ import {
   getFamilySpaceEventName,
   type FamilySpace,
 } from "@/lib/familySpace";
+import {
+  getVisibleIntegrationProviders,
+  type IntegrationStatus,
+} from "@/lib/integrations";
+import {
+  moveHomeSection,
+  updateHomeSectionVisibility,
+  updateQuickActionPinned,
+} from "@/lib/personalization";
+import {
+  submitBetaFeedback,
+  type BetaFeedbackType,
+} from "@/lib/productInsights";
 import { storageKeys } from "@/lib/storageKeys";
+import { usePersonalization } from "@/hooks/usePersonalization";
+import type { HomeSectionId, QuickActionId } from "@/types/personalization";
 import {
   fetchAiServiceStatus,
   getStoredAiAccessCode,
@@ -398,6 +414,38 @@ const feedbackAreas = [
 
 const defaultFeedbackEmail = "moshe.c2008@gmail.com";
 
+const feedbackTypes: Array<{
+  value: BetaFeedbackType;
+  he: string;
+  en: string;
+}> = [
+  { value: "bug", he: "תקלה", en: "Bug" },
+  { value: "suggestion", he: "הצעה", en: "Suggestion" },
+  { value: "confusing", he: "לא ברור", en: "Confusing" },
+  { value: "love", he: "אהבתי", en: "Love it" },
+];
+
+const integrationStatusClass: Record<IntegrationStatus, string> = {
+  available: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+  setup_required: "bg-amber-50 text-amber-700 ring-amber-100",
+  coming_soon: "bg-slate-100 text-slate-600 ring-slate-200",
+  disabled: "bg-slate-100 text-slate-400 ring-slate-200",
+};
+
+function getIntegrationStatusLabel(
+  status: IntegrationStatus,
+  languageKey: "he" | "en"
+) {
+  const labels: Record<IntegrationStatus, Record<"he" | "en", string>> = {
+    available: { he: "פעיל", en: "Active" },
+    setup_required: { he: "דרוש חיבור", en: "Setup required" },
+    coming_soon: { he: "בקרוב", en: "Coming soon" },
+    disabled: { he: "לא פעיל", en: "Disabled" },
+  };
+
+  return labels[status][languageKey];
+}
+
 function normalizeAccountKey(value: string) {
   return value.trim().toLowerCase().replace(/[^a-z0-9._-]/g, "_");
 }
@@ -405,13 +453,20 @@ function normalizeAccountKey(value: string) {
 export default function SettingsManager() {
   const { confirm, toast } = useFeedback();
   const { language, direction } = useLanguage();
+  const personalization = usePersonalization();
   const { data: session, status } = useSession();
   const languageKey = language === "en" ? "en" : "he";
   const text = useMemo(() => copyByLanguage[languageKey], [languageKey]);
+  const integrationProviders = useMemo(
+    () => getVisibleIntegrationProviders(),
+    []
+  );
   const [settings, setSettings] = useState<AppSettings>(defaultAppSettings);
   const [hasLoadedStorage, setHasLoadedStorage] = useState(false);
   const [aiStatus, setAiStatus] = useState<AiServiceStatus | null>(null);
   const [aiAccessCode, setAiAccessCode] = useState("");
+  const [feedbackType, setFeedbackType] =
+    useState<BetaFeedbackType>("suggestion");
   const [feedbackArea, setFeedbackArea] = useState("general");
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackContact, setFeedbackContact] = useState("");
@@ -434,6 +489,18 @@ export default function SettingsManager() {
   const canRequestFamilyReset = canUnlockDangerZone && isDangerZoneUnlocked;
   const canResetFamilyData =
     canRequestFamilyReset && resetConfirmationText.trim() === requiredResetPhrase;
+  const homeSectionLabels: Record<HomeSectionId, { he: string; en: string }> = {
+    quickActions: { he: "פעולות מהירות", en: "Quick actions" },
+    importantToday: { he: "מה חשוב היום", en: "Today brief" },
+    moreAreas: { he: "עוד בבית", en: "More areas" },
+  };
+  const quickActionLabels: Record<QuickActionId, { he: string; en: string }> = {
+    shopping: { he: "רשימת קניות", en: "Shopping list" },
+    tasks: { he: "משימות לביצוע", en: "Open tasks" },
+    finance: { he: "תקציב משפחתי", en: "Family budget" },
+    events: { he: "אירועים", en: "Events" },
+    scanReceipt: { he: "סריקת קבלה", en: "Scan receipt" },
+  };
 
   useEffect(() => {
     function syncFamilySpace() {
@@ -538,15 +605,38 @@ export default function SettingsManager() {
     const selectedArea =
       feedbackAreas.find((area) => area.value === feedbackArea) ??
       feedbackAreas[0];
+    const selectedType =
+      feedbackTypes.find((type) => type.value === feedbackType) ??
+      feedbackTypes[1];
+    const savedFeedback = submitBetaFeedback({
+      type: feedbackType,
+      area: selectedArea.value,
+      text: suggestion,
+      contact: feedbackContact,
+    });
     const areaLabel = selectedArea[languageKey];
+    const typeLabel = selectedType[languageKey];
     const recipient =
       process.env.NEXT_PUBLIC_FEEDBACK_EMAIL ?? defaultFeedbackEmail;
     const subject =
       languageKey === "en"
-        ? `Nestly feedback - ${areaLabel}`
-        : `הצעת ייעול ל-Nestly - ${areaLabel}`;
+        ? `Nestly feedback - ${typeLabel} - ${areaLabel}`
+        : `Nestly - ${typeLabel}: ${areaLabel}`;
     const bodyLines = [
       languageKey === "en" ? `Area: ${areaLabel}` : `אזור באפליקציה: ${areaLabel}`,
+      languageKey === "en" ? `Type: ${typeLabel}` : `סוג פידבק: ${typeLabel}`,
+      languageKey === "en"
+        ? `Page: ${savedFeedback.page || "Unknown"}`
+        : `עמוד: ${savedFeedback.page || "לא ידוע"}`,
+      languageKey === "en"
+        ? `App version: ${savedFeedback.appVersion}`
+        : `גרסה: ${savedFeedback.appVersion}`,
+      languageKey === "en"
+        ? `Browser: ${savedFeedback.browser}`
+        : `דפדפן: ${savedFeedback.browser}`,
+      languageKey === "en"
+        ? `Screen: ${savedFeedback.screen}`
+        : `מסך: ${savedFeedback.screen}`,
       feedbackContact.trim()
         ? languageKey === "en"
           ? `Contact: ${feedbackContact.trim()}`
@@ -565,6 +655,7 @@ export default function SettingsManager() {
       name: "feedback_email_opened",
       module: "settings",
       properties: {
+        type: feedbackType,
         area: selectedArea.value,
         hasContact: Boolean(feedbackContact.trim()),
         recipientConfigured: Boolean(recipient),
@@ -579,8 +670,8 @@ export default function SettingsManager() {
       title: languageKey === "en" ? "Opening email" : "פותח מייל לשליחה",
       description:
         languageKey === "en"
-          ? "You can review the message before sending."
-          : "אפשר לעבור על ההודעה לפני ששולחים.",
+          ? "Feedback was saved locally without private content. You can review the email before sending."
+          : "הפידבק נשמר מקומית בלי תוכן פרטי. אפשר לעבור על המייל לפני ששולחים.",
       tone: "success",
     });
   }
@@ -931,6 +1022,156 @@ export default function SettingsManager() {
       </SectionShell>
 
       <SectionShell
+        title={languageKey === "en" ? "Personalization" : "התאמה אישית"}
+        description={
+          languageKey === "en"
+            ? "Choose what appears on Home and which actions stay close at hand."
+            : "בחרו מה יופיע בדף הבית ואילו פעולות יהיו זמינות מהר."
+        }
+      >
+        <div className="grid gap-3 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="rounded-[20px] border border-[#ebe4d8] bg-[#fffdf8] p-3">
+            <h3 className="text-sm font-black text-slate-950">
+              {languageKey === "en" ? "Home sections" : "אזורי דף הבית"}
+            </h3>
+            <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">
+              {languageKey === "en"
+                ? "Hide sections that are not useful today, or change their order."
+                : "אפשר להסתיר אזורים שלא שימושיים כרגע, או לשנות את הסדר שלהם."}
+            </p>
+
+            <div className="mt-3 space-y-2">
+              {personalization.homeSections.map((section, index) => (
+                <div
+                  key={section.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white p-2 ring-1 ring-[#ebe4d8]"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => moveHomeSection(section.id, -1)}
+                      disabled={index === 0}
+                      className="grid h-9 w-9 place-items-center rounded-xl border border-[#e0d6c8] bg-[#fffdf8] text-xs font-black text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                      aria-label={
+                        languageKey === "en" ? "Move section up" : "העבר למעלה"
+                      }
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveHomeSection(section.id, 1)}
+                      disabled={index === personalization.homeSections.length - 1}
+                      className="grid h-9 w-9 place-items-center rounded-xl border border-[#e0d6c8] bg-[#fffdf8] text-xs font-black text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                      aria-label={
+                        languageKey === "en" ? "Move section down" : "העבר למטה"
+                      }
+                    >
+                      ↓
+                    </button>
+                  </div>
+                  <PreferenceSwitch
+                    title={homeSectionLabels[section.id][languageKey]}
+                    description={
+                      languageKey === "en"
+                        ? "Visible on the Home page"
+                        : "מוצג בדף הבית"
+                    }
+                    checked={section.visible}
+                    onChange={(value) =>
+                      updateHomeSectionVisibility(section.id, value)
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[20px] border border-[#ebe4d8] bg-white p-3">
+            <h3 className="text-sm font-black text-slate-950">
+              {languageKey === "en" ? "Pinned quick actions" : "פעולות מוצמדות"}
+            </h3>
+            <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">
+              {languageKey === "en"
+                ? "Keep only the actions your family uses most."
+                : "השאירו רק את הפעולות שהמשפחה באמת משתמשת בהן."}
+            </p>
+
+            <div className="mt-3 grid gap-2">
+              {personalization.quickActions.map((action) => (
+                <PreferenceSwitch
+                  key={action.id}
+                  title={quickActionLabels[action.id][languageKey]}
+                  description={
+                    languageKey === "en"
+                      ? "Show in Home quick actions"
+                      : "הצג בפעולות המהירות בדף הבית"
+                  }
+                  checked={action.pinned}
+                  onChange={(value) => updateQuickActionPinned(action.id, value)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <div className="rounded-[20px] border border-[#ebe4d8] bg-white p-3">
+            <h3 className="text-sm font-black text-slate-950">
+              {languageKey === "en" ? "Favorites" : "מועדפים"}
+            </h3>
+            <div className="mt-3 space-y-2">
+              {personalization.favorites.slice(0, 5).map((favorite) => (
+                <a
+                  key={favorite.id}
+                  href={favorite.route}
+                  className="block rounded-2xl bg-[#fffdf8] px-3 py-2 text-sm font-black text-slate-800 ring-1 ring-[#ebe4d8]"
+                >
+                  {favorite.title}
+                </a>
+              ))}
+              {personalization.favorites.length === 0 ? (
+                <p className="rounded-2xl bg-[#fffdf8] px-3 py-4 text-sm font-semibold text-slate-500">
+                  {languageKey === "en"
+                    ? "Favorites you mark in modules will appear here."
+                    : "מועדפים שתסמנו במודולים יופיעו כאן."}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="rounded-[20px] border border-[#ebe4d8] bg-white p-3">
+            <h3 className="text-sm font-black text-slate-950">
+              {languageKey === "en" ? "Saved views" : "תצוגות שמורות"}
+            </h3>
+            <div className="mt-3 space-y-2">
+              {personalization.savedViews.slice(0, 5).map((view) => (
+                <a
+                  key={view.id}
+                  href={view.route}
+                  className="block rounded-2xl bg-[#fffdf8] px-3 py-2 ring-1 ring-[#ebe4d8]"
+                >
+                  <span className="block text-sm font-black text-slate-800">
+                    {view.title}
+                  </span>
+                  <span className="mt-0.5 block text-xs font-semibold text-slate-500">
+                    {view.description}
+                  </span>
+                </a>
+              ))}
+              {personalization.savedViews.length === 0 ? (
+                <p className="rounded-2xl bg-[#fffdf8] px-3 py-4 text-sm font-semibold text-slate-500">
+                  {languageKey === "en"
+                    ? "Saved filters from modules will appear here."
+                    : "פילטרים שמורים ממודולים יופיעו כאן."}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </SectionShell>
+
+      <SectionShell
         title={text.sections.data}
         description={text.sections.dataDescription}
       >
@@ -971,6 +1212,92 @@ export default function SettingsManager() {
           <div className="space-y-2">
             <DemoEntryCard />
           </div>
+        </div>
+      </SectionShell>
+
+      <SectionShell
+        title={languageKey === "en" ? "Connected accounts" : "חשבונות מחוברים"}
+        description={
+          languageKey === "en"
+            ? "A platform layer for future integrations. Only fully connected services will become active here."
+            : "שכבת תשתית לחיבורים עתידיים. רק שירותים שמחוברים באמת יוצגו כאן כפעילים."
+        }
+      >
+        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+          {integrationProviders.map((provider) => {
+            const description =
+              languageKey === "en"
+                ? provider.descriptionEn
+                : provider.descriptionHe;
+            const statusLabel = getIntegrationStatusLabel(
+              provider.status,
+              languageKey
+            );
+            const isConnectable = provider.status === "available";
+
+            return (
+              <article
+                key={provider.id}
+                className="rounded-[20px] border border-[#ebe4d8] bg-[#fffdf8] p-3 shadow-[0_10px_24px_rgba(33,43,63,0.045)]"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-[#334155] shadow-sm ring-1 ring-[#edf0f4]">
+                    <AppIcon name={provider.icon} className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0 flex-1 text-right">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <span
+                        className={[
+                          "rounded-full px-2 py-1 text-[11px] font-black ring-1",
+                          integrationStatusClass[provider.status],
+                        ].join(" ")}
+                      >
+                        {statusLabel}
+                      </span>
+                      <h3 className="text-sm font-black text-slate-950">
+                        {provider.name}
+                      </h3>
+                    </div>
+                    <p className="mt-1 text-xs font-semibold leading-5 text-slate-600">
+                      {description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                  <span className="rounded-full bg-white px-2 py-1 text-[11px] font-black text-slate-500 ring-1 ring-[#edf0f4]">
+                    {provider.requiresOAuth
+                      ? languageKey === "en"
+                        ? "OAuth required"
+                        : "דורש OAuth"
+                      : languageKey === "en"
+                        ? "Server key"
+                        : "מפתח שרת"}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={!isConnectable}
+                    onClick={() =>
+                      trackTelemetryEvent({
+                        name: "integration_status_viewed",
+                        module: "settings",
+                        properties: { provider: provider.id },
+                      })
+                    }
+                    className="min-h-10 rounded-2xl border border-[#d8caba] bg-white px-4 text-xs font-black text-slate-700 shadow-sm transition hover:bg-[#fff8eb] disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400 disabled:shadow-none"
+                  >
+                    {isConnectable
+                      ? languageKey === "en"
+                        ? "Manage"
+                        : "ניהול"
+                      : languageKey === "en"
+                        ? "Not available yet"
+                        : "עדיין לא זמין"}
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </SectionShell>
 
@@ -1079,6 +1406,25 @@ export default function SettingsManager() {
                 ? "Choose the closest area so the suggestion arrives with context."
                 : "בחרו את האזור הקרוב ביותר, כדי שההצעה תגיע עם הקשר ברור."}
             </p>
+            <select
+              value={feedbackType}
+              onChange={(event) =>
+                setFeedbackType(event.target.value as BetaFeedbackType)
+              }
+              className={[
+                "mt-3 min-h-11 w-full rounded-2xl border border-[#d8caba] bg-white px-4 text-sm font-black text-slate-900 outline-none transition focus:border-[#8aa3c2] focus:ring-4 focus:ring-[#dbeafe]",
+                direction === "rtl" ? "text-right" : "text-left",
+              ].join(" ")}
+              aria-label={
+                languageKey === "en" ? "Feedback type" : "סוג פידבק"
+              }
+            >
+              {feedbackTypes.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type[languageKey]}
+                </option>
+              ))}
+            </select>
             <select
               value={feedbackArea}
               onChange={(event) => setFeedbackArea(event.target.value)}

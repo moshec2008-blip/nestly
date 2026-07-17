@@ -1,4 +1,8 @@
 import { storageKeys } from "@/lib/storageKeys";
+import {
+  readKnowledgeRevisions,
+  writeKnowledgeRevision,
+} from "@/services/knowledgeRevisions";
 import { recordMeaningfulActivity } from "@/services/timelineService";
 import type {
   FamilyKnowledgeItem,
@@ -256,6 +260,15 @@ export function updateKnowledgeItem(
       return item;
     }
 
+    writeKnowledgeRevision({
+      knowledgeItemId: item.id,
+      title: item.title,
+      content: item.content,
+      category: item.category,
+      tags: item.tags,
+      linkedModule: item.linkedModule,
+    });
+
     const nextItem = {
       ...item,
       ...patch,
@@ -297,6 +310,22 @@ export function updateKnowledgeItem(
     });
   }
   return updatedItem;
+}
+
+export function restoreKnowledgeRevision(revisionId: string) {
+  const revision = readKnowledgeRevisions().find((item) => item.id === revisionId);
+
+  if (!revision) {
+    return null;
+  }
+
+  return updateKnowledgeItem(revision.knowledgeItemId, {
+    title: revision.title,
+    content: revision.content,
+    category: revision.category,
+    tags: revision.tags,
+    linkedModule: revision.linkedModule,
+  });
 }
 
 export function setKnowledgePinned(id: string, pinned: boolean) {

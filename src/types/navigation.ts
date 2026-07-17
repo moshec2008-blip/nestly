@@ -11,6 +11,7 @@ export type AppRoute =
   | "/vehicles"
   | "/family"
   | "/knowledge"
+  | "/legacy"
   | "/birthdays"
   | "/shopping"
   | "/security"

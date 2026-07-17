@@ -167,6 +167,16 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     border: "#99f6e4",
     surface: "#f0fdfa",
   },
+  "/legacy": {
+    fallbackStat: "ארכיון משפחתי",
+    icon: "timeline",
+    iconTone: "text-amber-800",
+    iconBg: "bg-amber-50",
+    glow: "bg-amber-400/10",
+    accent: "#b45309",
+    border: "#fde68a",
+    surface: "#fffbeb",
+  },
   "/permissions": {
     fallbackStat: "שיתוף והרשאות",
     icon: "lock",

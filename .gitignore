@@ -49,3 +49,6 @@ Thumbs.db
 
 # Deployment
 .vercel
+
+# Local assistant scratch space
+.claude/

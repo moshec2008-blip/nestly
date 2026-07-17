@@ -3,10 +3,13 @@
 import Link from "next/link";
 import ReceiptScanPreview from "@/components/ai/ReceiptScanPreview";
 import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
+import { usePersonalization } from "@/hooks/usePersonalization";
 import { useLanguage } from "@/i18n/useLanguage";
 import type { AppRoute } from "@/types/navigation";
+import type { QuickActionId } from "@/types/personalization";
 
 type QuickAction = {
+  id: QuickActionId;
   href: AppRoute;
   icon: AppIconName;
   labels: {
@@ -19,6 +22,7 @@ type QuickAction = {
 
 const quickActions: QuickAction[] = [
   {
+    id: "shopping",
     href: "/shopping",
     icon: "shopping",
     labels: { he: "רשימת קניות", en: "Shopping list" },
@@ -26,6 +30,7 @@ const quickActions: QuickAction[] = [
     tileClass: "bg-gradient-to-br from-[#d9eefb] to-[#8fb9d9]",
   },
   {
+    id: "tasks",
     href: "/tasks",
     icon: "check",
     labels: { he: "משימות לביצוע", en: "Open tasks" },
@@ -33,6 +38,7 @@ const quickActions: QuickAction[] = [
     tileClass: "bg-gradient-to-br from-[#fff8d8] to-[#f6e9ad]",
   },
   {
+    id: "finance",
     href: "/finance",
     icon: "finance",
     labels: { he: "תקציב משפחתי", en: "Family budget" },
@@ -40,6 +46,7 @@ const quickActions: QuickAction[] = [
     tileClass: "bg-gradient-to-br from-[#dcf7df] to-[#a8d8b5]",
   },
   {
+    id: "events",
     href: "/birthdays",
     icon: "calendar",
     labels: { he: "אירועים", en: "Events" },
@@ -63,13 +70,24 @@ const receiptCopy = {
 
 export default function HomeQuickActions() {
   const { language, direction } = useLanguage();
+  const personalization = usePersonalization();
   const copy = language === "en" ? receiptCopy.en : receiptCopy.he;
   const labelKey = language === "en" ? "en" : "he";
+  const pinnedActions = new Set(
+    personalization.quickActions
+      .filter((action) => action.pinned)
+      .map((action) => action.id)
+  );
+  const visibleActions = quickActions.filter((action) =>
+    pinnedActions.has(action.id)
+  );
+  const showReceiptScan = pinnedActions.has("scanReceipt");
 
   return (
     <section aria-label={copy.aria} className="space-y-2.5">
-      <nav className="grid grid-cols-2 gap-2.5">
-        {quickActions.map((action) => (
+      {visibleActions.length > 0 ? (
+        <nav className="grid grid-cols-2 gap-2.5">
+          {visibleActions.map((action) => (
           <Link
             key={action.href}
             href={action.href}
@@ -84,10 +102,12 @@ export default function HomeQuickActions() {
               {action.labels[labelKey]}
             </span>
           </Link>
-        ))}
-      </nav>
+          ))}
+        </nav>
+      ) : null}
 
-      <ReceiptScanPreview
+      {showReceiptScan ? (
+        <ReceiptScanPreview
         userMode="demo"
         triggerClassName={[
           "flex min-h-[58px] cursor-pointer items-center justify-between gap-3 rounded-[18px] border border-[#eadfcd] bg-gradient-to-l from-[#fbf7ff] via-white to-[#fffdf8] px-3.5 py-2.5 shadow-[0_8px_18px_rgba(33,43,63,0.055)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.09)] focus-within:ring-2 focus-within:ring-[#eadfcd]",
@@ -120,7 +140,8 @@ export default function HomeQuickActions() {
             </span>
           </>
         }
-      />
+        />
+      ) : null}
     </section>
   );
 }

@@ -16,6 +16,7 @@ export type TelemetryEventName =
   | "document_reviewed"
   | "document_ai_failed"
   | "document_ai_completed"
+  | "smart_capture_completed"
   | "ai_suggestion_shown"
   | "ai_suggestion_accepted"
   | "ai_suggestion_edited"
@@ -48,6 +49,17 @@ export type TelemetryEventName =
   | "assistant_source_opened"
   | "assistant_no_answer"
   | "family_space_reset"
+  | "integration_status_viewed"
+  | "feedback_submitted"
+  | "quick_feedback_submitted"
+  | "satisfaction_submitted"
+  | "workflow_abandoned"
+  | "product_friction_detected"
+  | "feature_discovery_dismissed"
+  | "job_queued"
+  | "job_succeeded"
+  | "job_failed"
+  | "job_cancelled"
   | "performance_metric"
   | "app_error";
 
@@ -63,6 +75,7 @@ export type TelemetryModule =
   | "family"
   | "events"
   | "auth"
+  | "operations"
   | "settings";
 
 export type TelemetryEvent = {

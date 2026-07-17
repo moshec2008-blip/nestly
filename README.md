@@ -67,12 +67,14 @@ Read:
 - `docs/INVITATIONS.md`
 - `docs/CLOSED_BETA_READINESS.md`
 
-## Release 1.0 foundations
+## Release foundations
 
-Epic 12 adds internal foundations for safe automations, Smart Templates, Smart
-Collections, import/export validation and a versioned backup format. These are
-architecture foundations, not a claim that every workflow is already visible in
-the UI.
+Nestly is currently being prepared as a Version 2.0 release candidate. Recent
+work focuses on trust, product consistency, operational readiness, privacy-safe
+telemetry, support workflows and clear product truth.
+
+These are foundations, not a claim that every future workflow is production
+ready.
 
 Read:
 
@@ -83,6 +85,30 @@ Read:
 - `docs/BACKUP_AND_RESTORE.md`
 - `docs/RELEASE_1_0_CHECKLIST.md`
 - `docs/EPIC_12_RELEASE_FOUNDATION_REPORT.md`
+- `docs/RELEASE_NOTES_2_0.md`
+- `docs/OPERATIONS.md`
+- `docs/MONITORING.md`
+- `docs/SUPPORT.md`
+- `docs/SCALING.md`
+- `docs/DEPLOYMENT.md`
+
+## Internal operations
+
+Internal operations are disabled by default.
+
+To enable the local operations dashboard:
+
+```bash
+NESTLY_INTERNAL_OPERATIONS_ENABLED=true
+```
+
+Routes:
+
+- `/operations`
+- `/api/ops/health`
+
+These routes are for internal diagnostics only and must not expose private
+family content.
 
 ## Nestly AI foundation
 
@@ -111,5 +137,14 @@ Open:
 ## Build
 
 ```bash
+npm.cmd run lint
+npm.cmd run typecheck
 npm.cmd run build
 ```
+
+## Current production truth
+
+Nestly is suitable for local demos, founder testing and careful closed beta with
+clear expectations. It is not yet ready for public production with sensitive
+cloud data until a real database, server-side authorization, secure storage,
+production monitoring and automated tests are completed.

@@ -15,6 +15,8 @@ Nestly is suitable for continued local demos, founder testing, and careful famil
 
 It is not yet ready for public production use because it does not have a real cloud database, server-enforced family permissions, cloud file storage, account deletion, or production monitoring.
 
+Version 2.0 RC preparation improves product consistency, operations, support, monitoring documentation and release truth. It does not replace the missing backend foundation.
+
 ## Authentication
 
 | Item | Status | Notes |
@@ -90,6 +92,7 @@ It is not yet ready for public production use because it does not have a real cl
 | Server-enforced permissions | Missing | Required before production family sharing. |
 | Production monitoring | Missing | Needs external observability provider or backend logging. |
 | Telemetry privacy guardrails | Complete | Local telemetry now strips sensitive property keys such as names, amounts, queries, file names, tokens, IDs and raw error messages. |
+| Internal operations dashboard | Partial | `/operations` and `/api/ops/health` exist behind `NESTLY_INTERNAL_OPERATIONS_ENABLED`; production admin auth is still required. |
 | Dependency audit | Partial | `npm audit --audit-level=high` reports moderate advisories through `next`/`next-auth`; forced fixes are breaking and should be handled in a planned dependency-upgrade sprint. |
 
 ## Family OS and Assistant
@@ -124,6 +127,17 @@ It is not yet ready for public production use because it does not have a real cl
 | Unit tests | Missing | No test runner configured yet. |
 | E2E tests | Missing | Needed for beta-critical journeys. |
 | GitHub Actions | Complete | Basic quality workflow runs install, lint, typecheck and build. |
+
+## Operations
+
+| Item | Status | Notes |
+| --- | --- | --- |
+| Operations route | Partial | Internal route exists and is disabled by default. |
+| Health endpoint | Partial | Local status snapshot exists. Needs external uptime checks. |
+| Support workflows | Partial | Documentation exists; no real support console with admin roles yet. |
+| Audit tools | Partial | Telemetry and local events exist; no server-side audit log yet. |
+| Cost visibility | Partial | Local storage estimates exist; AI/email/database costs require providers. |
+| Recovery procedures | Partial | Documented in `docs/DEPLOYMENT.md`; not automated. |
 
 ## Performance
 
@@ -168,7 +182,7 @@ It is not yet ready for public production use because it does not have a real cl
 10. Privacy/legal copy for beta families.
 11. Migration/versioning strategy for local data.
 
-## Recommended Epic 10
+## Recommended Next Sprint
 
 Build the real persistence foundation:
 

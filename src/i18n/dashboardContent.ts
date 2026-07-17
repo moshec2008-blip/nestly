@@ -102,6 +102,11 @@ const englishModuleCopy: Record<
     description: "Long-term household memory for details worth keeping.",
     status: "Active",
   },
+  "/legacy": {
+    label: "Family Legacy",
+    description: "Family history, milestones, collections and archive.",
+    status: "Active",
+  },
   "/birthdays": {
     label: "Birthdays",
     description:

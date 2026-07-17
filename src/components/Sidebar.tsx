@@ -230,6 +230,15 @@ const navigationAccents: Record<
     shadow: "0 12px 30px rgba(20,184,166,0.24)",
     activeShadow: "0 16px 38px rgba(15,118,110,0.36)",
   },
+  "/legacy": {
+    dot: "bg-amber-400",
+    icon: "border-amber-200 bg-amber-100 text-amber-900",
+    active: "border-amber-200 bg-amber-50 text-[#111827] ring-1 ring-amber-200/80",
+    hover: "hover:bg-amber-50/90",
+    glow: "bg-amber-400/20",
+    shadow: "0 12px 30px rgba(245,158,11,0.22)",
+    activeShadow: "0 16px 38px rgba(180,83,9,0.34)",
+  },
   "/birthdays": {
     dot: "bg-pink-400",
     icon: "border-pink-200 bg-pink-100 text-pink-900",

@@ -37,6 +37,7 @@ const userScopedStorageKeys = new Set([
   "nestly-automation-review-queue",
   "nestly-smart-templates",
   "nestly-smart-collections",
+  "nestly-personalization-preferences",
   "nestly-import-jobs",
   "nestly-export-jobs",
 ]);

@@ -10,6 +10,7 @@ type HebrewDateInputProps = {
   value: string; // ISO גרגוריאני
   onChange: (isoDate: string) => void;
   className?: string;
+  autoInitialize?: boolean;
 };
 
 // מספור חודשים של hebcal: ניסן=1 ... אלול=6, תשרי=7 ... אדר=12, אדר ב׳=13
@@ -81,6 +82,7 @@ export default function HebrewDateInput({
   value,
   onChange,
   className = "",
+  autoInitialize = true,
 }: HebrewDateInputProps) {
   // הבחירה חיה ב-state מקומי — מה שהמשתמש בחר תמיד מוצג בקוביות,
   // וההמרה ללועזי נשלחת החוצה בלי לחשב את הקוביות מחדש ממנה.
@@ -96,7 +98,7 @@ export default function HebrewDateInput({
   // אם אין עדיין תאריך בטופס — משדרים את ברירת המחדל (היום) כבר בהתחלה,
   // כדי שהטופס לא יישאר עם תאריך ריק כשלא נוגעים בקוביות.
   useEffect(() => {
-    if (!value) {
+    if (autoInitialize && !value) {
       const initial = new HDate(selection.day, selection.month, selection.year);
       onChange(toIsoDate(initial.greg()));
     }

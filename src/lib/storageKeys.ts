@@ -20,6 +20,9 @@ export const storageKeys = {
   permissions: "beit-cohen-shor-permissions",
   smartCaptures: "nestly-smart-captures",
   familyKnowledge: "nestly-family-knowledge",
+  familyKnowledgeRevisions: "nestly-family-knowledge-revisions",
+  familyLegacyCollections: "nestly-family-legacy-collections",
+  familyLegacyArchive: "nestly-family-legacy-archive",
   timeline: "nestly-family-timeline",
   entityRelations: "nestly-entity-relations",
   aiSuggestions: "nestly-ai-suggestions",
@@ -36,4 +39,5 @@ export const storageKeys = {
   authSession: "nestly-auth-session",
   firstRunWelcome: "nestly-first-run-welcome-dismissed",
   smartNudge: "nestly-smart-nudge",
+  personalization: "nestly-personalization-preferences",
 } as const;

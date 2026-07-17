@@ -52,13 +52,6 @@ const compactInputClass =
 
 const compactLabelClass = "text-xs font-black text-slate-600";
 
-function formatDate(date: string) {
-  return new Intl.DateTimeFormat("he-IL", {
-    day: "2-digit",
-    month: "short",
-  }).format(new Date(date));
-}
-
 function formatFullDate(date: string) {
   return new Intl.DateTimeFormat("he-IL", {
     day: "2-digit",

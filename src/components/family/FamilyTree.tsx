@@ -1,9 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { HDate, gematriya } from "hebcal";
 import AppIcon from "@/components/ui/AppIcon";
 import DateInput from "@/components/ui/DateInput";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
+import HebrewDateInput from "@/components/ui/HebrewDateInput";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
 
@@ -33,7 +35,9 @@ type FamilyTreePerson = {
   generation: FamilyGeneration;
   parentIds: string[];
   birthDate: string;
+  birthHebrewDate?: string;
   memorialDate: string;
+  memorialHebrewDate?: string;
   note: string;
 };
 
@@ -46,7 +50,9 @@ const emptyForm: FamilyTreeForm = {
   generation: "children",
   parentIds: [],
   birthDate: "",
+  birthHebrewDate: "",
   memorialDate: "",
+  memorialHebrewDate: "",
   note: "",
 };
 
@@ -144,6 +150,22 @@ const initialFamilyTreePeople: FamilyTreePerson[] = [
 
 const generations: FamilyGeneration[] = ["children", "parents", "grandparents"];
 
+const hebrewMonthLabels: Record<number, string> = {
+  1: "ניסן",
+  2: "אייר",
+  3: "סיון",
+  4: "תמוז",
+  5: "אב",
+  6: "אלול",
+  7: "תשרי",
+  8: "חשוון",
+  9: "כסלו",
+  10: "טבת",
+  11: "שבט",
+  12: "אדר",
+  13: "אדר ב׳",
+};
+
 const generationLabels: Record<FamilyGeneration, string> = {
   grandparents: "דור סבים וסבתות",
   parents: "דור ההורים",
@@ -151,7 +173,7 @@ const generationLabels: Record<FamilyGeneration, string> = {
 };
 
 const tabs: { id: FamilyTab; label: string }[] = [
-  { id: "members", label: "בני הבית" },
+  { id: "members", label: "אילן יוחסין" },
   { id: "connections", label: "קשרים" },
   { id: "contacts", label: "אנשי קשר" },
   { id: "permissions", label: "הרשאות" },
@@ -241,6 +263,49 @@ function formatDate(date: string) {
   }).format(new Date(date));
 }
 
+function parseIsoLocalDate(date: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(date);
+
+  if (!match) {
+    return new Date(date);
+  }
+
+  return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+}
+
+function formatHebrewLetters(value: number) {
+  return gematriya(value).replace(/"/g, "״").replace(/'/g, "׳");
+}
+
+function formatHebrewDate(date: string) {
+  if (!date) {
+    return "";
+  }
+
+  const parsedDate = parseIsoLocalDate(date);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return "";
+  }
+
+  const hebrewDate = new HDate(parsedDate);
+  const day = formatHebrewLetters(hebrewDate.getDate());
+  const month = hebrewMonthLabels[hebrewDate.getMonth()] ?? "";
+  const year = formatHebrewLetters(hebrewDate.getFullYear());
+
+  return [day, month, year].filter(Boolean).join(" ");
+}
+
+function getHebrewDateLabel(gregorianDate: string, manualHebrewDate?: string) {
+  const cleanManualDate = manualHebrewDate?.trim();
+
+  if (cleanManualDate) {
+    return cleanManualDate;
+  }
+
+  return formatHebrewDate(gregorianDate);
+}
+
 export default function FamilyTree() {
   const { confirm } = useFeedback();
   const [storedPeople, setPeople] = usePersistentArrayState<FamilyTreePerson>(
@@ -299,6 +364,12 @@ export default function FamilyTree() {
         person.name.toLowerCase().includes(normalizedSearch) ||
         person.role.toLowerCase().includes(normalizedSearch) ||
         person.side.toLowerCase().includes(normalizedSearch) ||
+        getHebrewDateLabel(person.birthDate, person.birthHebrewDate)
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        getHebrewDateLabel(person.memorialDate, person.memorialHebrewDate)
+          .toLowerCase()
+          .includes(normalizedSearch) ||
         person.birthDate.includes(normalizedSearch);
       const matchesSide = sideFilter === "all" || person.side === sideFilter;
 
@@ -360,10 +431,20 @@ export default function FamilyTree() {
       generation: person.generation,
       parentIds: person.parentIds,
       birthDate: person.birthDate,
+      birthHebrewDate: person.birthHebrewDate ?? "",
       memorialDate: person.memorialDate,
+      memorialHebrewDate: person.memorialHebrewDate ?? "",
       note: person.note,
     });
-    setShowMoreFormFields(Boolean(person.birthDate || person.memorialDate || person.note));
+    setShowMoreFormFields(
+      Boolean(
+        person.birthDate ||
+          person.birthHebrewDate ||
+          person.memorialDate ||
+          person.memorialHebrewDate ||
+          person.note
+      )
+    );
     setSelectedPersonId(null);
     setMenuPersonId(null);
     setIsFormOpen(true);
@@ -405,6 +486,8 @@ export default function FamilyTree() {
                 ...form,
                 name: cleanName,
                 role: cleanRole,
+                birthHebrewDate: form.birthHebrewDate?.trim() ?? "",
+                memorialHebrewDate: form.memorialHebrewDate?.trim() ?? "",
                 note: form.note.trim(),
               }
             : person
@@ -418,6 +501,8 @@ export default function FamilyTree() {
           id: createPersonId(),
           name: cleanName,
           role: cleanRole,
+          birthHebrewDate: form.birthHebrewDate?.trim() ?? "",
+          memorialHebrewDate: form.memorialHebrewDate?.trim() ?? "",
           note: form.note.trim(),
         },
       ]);
@@ -455,6 +540,14 @@ export default function FamilyTree() {
 
   function renderPersonRow(person: FamilyTreePerson) {
     const parentNames = getPersonNames(person.parentIds, people);
+    const hebrewBirthDate = getHebrewDateLabel(
+      person.birthDate,
+      person.birthHebrewDate
+    );
+    const hebrewMemorialDate = getHebrewDateLabel(
+      person.memorialDate,
+      person.memorialHebrewDate
+    );
 
     return (
       <article key={person.id} className="relative">
@@ -482,6 +575,13 @@ export default function FamilyTree() {
               {person.role}
               {parentNames ? ` · ${parentNames}` : ""}
             </span>
+            {(hebrewBirthDate || hebrewMemorialDate) && (
+              <span className="mt-0.5 block truncate text-[11px] font-semibold text-slate-500">
+                {hebrewBirthDate ? `נולד/ה: ${hebrewBirthDate}` : ""}
+                {hebrewBirthDate && hebrewMemorialDate ? " · " : ""}
+                {hebrewMemorialDate ? `אזכרה: ${hebrewMemorialDate}` : ""}
+              </span>
+            )}
           </span>
 
           <span className="rounded-full bg-[#fafafb] px-2 py-1 text-[10px] font-black text-slate-600">
@@ -553,10 +653,10 @@ export default function FamilyTree() {
             </span>
             <div className="min-w-0">
               <h1 className="text-xl font-black tracking-tight text-[#111827]">
-                משפחה
+                אילן יוחסין
               </h1>
               <p className="mt-0.5 truncate text-sm font-semibold text-slate-600">
-                בני הבית, קשרים ופרטים חשובים במקום אחד
+                בני המשפחה, דורות וקשרים חשובים במקום אחד
               </p>
             </div>
           </div>
@@ -581,7 +681,11 @@ export default function FamilyTree() {
       </section>
 
       <section className="rounded-[18px] bg-white/92 p-2 shadow-[0_8px_22px_rgba(15,23,42,0.04)] ring-1 ring-[#e6e8ec]">
-        <div className="grid grid-cols-5 gap-1 overflow-x-auto rounded-2xl bg-[#fafafb] p-1">
+        <div
+          className="flex gap-1.5 overflow-x-auto rounded-2xl bg-[#f3f5f8] p-1.5"
+          role="tablist"
+          aria-label="ניווט אזור משפחה"
+        >
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
 
@@ -589,11 +693,13 @@ export default function FamilyTree() {
               <button
                 key={tab.id}
                 type="button"
+                role="tab"
+                aria-selected={isActive}
                 onClick={() => setActiveTab(tab.id)}
                 className={
                   isActive
-                    ? "min-h-10 whitespace-nowrap rounded-xl bg-white px-2 text-xs font-black text-[#111827] shadow-sm ring-1 ring-[#eadfcd]"
-                    : "min-h-10 whitespace-nowrap rounded-xl px-2 text-xs font-black text-slate-600 transition hover:bg-white"
+                    ? "min-h-11 flex-1 whitespace-nowrap rounded-2xl border border-[#d8c8b4] bg-white px-4 text-xs font-black text-[#111827] shadow-[0_8px_18px_rgba(33,43,63,0.08)]"
+                    : "min-h-11 flex-1 whitespace-nowrap rounded-2xl border border-transparent bg-white/55 px-4 text-xs font-black text-slate-600 transition hover:border-[#d8c8b4] hover:bg-white hover:text-[#111827]"
                 }
               >
                 {tab.label}
@@ -720,6 +826,25 @@ export default function FamilyTree() {
               </label>
 
               <label className="text-xs font-black text-slate-700">
+                תאריך לידה עברי
+                <HebrewDateInput
+                  value={form.birthDate}
+                  autoInitialize={false}
+                  onChange={(birthDate) =>
+                    setForm((currentForm) => ({
+                      ...currentForm,
+                      birthDate,
+                      birthHebrewDate: "",
+                    }))
+                  }
+                  className="mt-1 rounded-2xl bg-[#fffdf8] p-2 ring-1 ring-[#eadfcd]"
+                />
+                <span className="mt-1 block text-[11px] font-semibold text-slate-500">
+                  בחירה בלוח העברי מעדכנת גם את התאריך הלועזי.
+                </span>
+              </label>
+
+              <label className="text-xs font-black text-slate-700">
                 תאריך אזכרה
                 <DateInput
                   value={form.memorialDate}
@@ -731,6 +856,22 @@ export default function FamilyTree() {
                   }
                   label="תאריך אזכרה"
                   className="mt-1"
+                />
+              </label>
+
+              <label className="text-xs font-black text-slate-700">
+                תאריך אזכרה עברי
+                <HebrewDateInput
+                  value={form.memorialDate}
+                  autoInitialize={false}
+                  onChange={(memorialDate) =>
+                    setForm((currentForm) => ({
+                      ...currentForm,
+                      memorialDate,
+                      memorialHebrewDate: "",
+                    }))
+                  }
+                  className="mt-1 rounded-2xl bg-[#fffdf8] p-2 ring-1 ring-[#eadfcd]"
                 />
               </label>
 
@@ -1001,8 +1142,26 @@ export default function FamilyTree() {
               {selectedPerson.birthDate && (
                 <p>תאריך לידה: {formatDate(selectedPerson.birthDate)}</p>
               )}
+              {selectedPerson.birthDate && (
+                <p>
+                  תאריך לידה עברי:{" "}
+                  {getHebrewDateLabel(
+                    selectedPerson.birthDate,
+                    selectedPerson.birthHebrewDate
+                  )}
+                </p>
+              )}
               {selectedPerson.memorialDate && (
                 <p>תאריך אזכרה: {formatDate(selectedPerson.memorialDate)}</p>
+              )}
+              {selectedPerson.memorialDate && (
+                <p>
+                  תאריך אזכרה עברי:{" "}
+                  {getHebrewDateLabel(
+                    selectedPerson.memorialDate,
+                    selectedPerson.memorialHebrewDate
+                  )}
+                </p>
               )}
               {selectedPerson.note && (
                 <p className="rounded-2xl bg-[#fafafb] p-3">{selectedPerson.note}</p>
@@ -1031,3 +1190,4 @@ export default function FamilyTree() {
     </section>
   );
 }
+

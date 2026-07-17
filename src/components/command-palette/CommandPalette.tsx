@@ -9,6 +9,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
+import { usePersonalization } from "@/hooks/usePersonalization";
 import { useLanguage } from "@/i18n/useLanguage";
 import type { CommandPaletteCommand } from "@/types/commands";
 import type { AppRoute } from "@/types/navigation";
@@ -28,6 +29,8 @@ type PaletteItem =
   | { kind: "command"; command: CommandPaletteCommand }
   | { kind: "result"; result: GlobalSearchResult }
   | { kind: "recent"; query: string }
+  | { kind: "favorite"; id: string; route: AppRoute; title: string; description: string }
+  | { kind: "recentRecord"; id: string; route: AppRoute; title: string; description: string }
   | { kind: "create"; route: AppRoute; title: string; description: string; icon: AppIconName };
 
 type PaletteGroup = {
@@ -121,6 +124,36 @@ function groupResults(results: GlobalSearchResult[], label: string): PaletteGrou
   }));
 }
 
+function HighlightedText({ text, query }: { text: string; query: string }) {
+  const cleanQuery = query.trim();
+
+  if (!cleanQuery) {
+    return <>{text}</>;
+  }
+
+  const lowerText = text.toLowerCase();
+  const lowerQuery = cleanQuery.toLowerCase();
+  const matchIndex = lowerText.indexOf(lowerQuery);
+
+  if (matchIndex === -1) {
+    return <>{text}</>;
+  }
+
+  const before = text.slice(0, matchIndex);
+  const match = text.slice(matchIndex, matchIndex + cleanQuery.length);
+  const after = text.slice(matchIndex + cleanQuery.length);
+
+  return (
+    <>
+      {before}
+      <mark className="rounded-md bg-[#fff1c2] px-1 text-inherit">
+        {match}
+      </mark>
+      {after}
+    </>
+  );
+}
+
 function buildCreateActions(query: string, language: string): PaletteItem[] {
   const cleanQuery = query.trim();
 
@@ -159,12 +192,15 @@ function itemKey(item: PaletteItem) {
   if (item.kind === "command") return `command-${item.command.id}`;
   if (item.kind === "result") return `result-${item.result.id}`;
   if (item.kind === "recent") return `recent-${item.query}`;
+  if (item.kind === "favorite") return `favorite-${item.id}`;
+  if (item.kind === "recentRecord") return `recent-record-${item.id}`;
   return `create-${item.route}-${item.title}`;
 }
 
 export default function CommandPalette() {
   const router = useRouter();
   const { language, direction } = useLanguage();
+  const personalization = usePersonalization();
   const text = copy[languageKey(language)];
   const inputRef = useRef<HTMLInputElement | null>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
@@ -203,6 +239,40 @@ export default function CommandPalette() {
       });
     }
 
+    if (!hasQuery && personalization.favorites.length > 0) {
+      nextGroups.push({
+        id: "favorites",
+        label: languageKey(language) === "he" ? "מועדפים" : "Favorites",
+        items: personalization.favorites.slice(0, 5).map((favorite) => ({
+          kind: "favorite",
+          id: favorite.id,
+          route: favorite.route,
+          title: favorite.title,
+          description:
+            languageKey(language) === "he"
+              ? "פריט שסימנת כמועדף"
+              : "Pinned favorite",
+        })),
+      });
+    }
+
+    if (!hasQuery && personalization.recentRecords.length > 0) {
+      nextGroups.push({
+        id: "recent-records",
+        label: languageKey(language) === "he" ? "נפתחו לאחרונה" : "Recently opened",
+        items: personalization.recentRecords.slice(0, 5).map((record) => ({
+          kind: "recentRecord",
+          id: record.id,
+          route: record.route,
+          title: record.title,
+          description:
+            languageKey(language) === "he"
+              ? "המשך מהמקום שבו היית"
+              : "Continue where you left off",
+        })),
+      });
+    }
+
     if (hasQuery) {
       nextGroups.push(...groupResults(recordResults, text.records));
     }
@@ -216,7 +286,7 @@ export default function CommandPalette() {
     }
 
     return nextGroups.filter((group) => group.items.length > 0);
-  }, [commands, language, query, recentSearches, recordResults, text]);
+  }, [commands, language, personalization, query, recentSearches, recordResults, text]);
 
   const flatItems = groups.flatMap((group) => group.items);
 
@@ -292,6 +362,17 @@ export default function CommandPalette() {
     if (item.kind === "recent") {
       setQuery(item.query);
       setActiveIndex(0);
+      return;
+    }
+
+    if (item.kind === "favorite" || item.kind === "recentRecord") {
+      trackTelemetryEvent({
+        name: "result_opened",
+        module: "app",
+        properties: { module: item.kind, route: item.route },
+      });
+      closePalette();
+      router.push(item.route);
       return;
     }
 
@@ -502,6 +583,8 @@ export default function CommandPalette() {
                             ? getModuleIcon(item.result.module)
                             : item.kind === "create"
                               ? item.icon
+                              : item.kind === "recentRecord"
+                                ? "dashboard"
                               : "spark";
                       const title =
                         item.kind === "command"
@@ -510,6 +593,8 @@ export default function CommandPalette() {
                             ? item.result.title
                             : item.kind === "create"
                               ? item.title
+                              : item.kind === "favorite" || item.kind === "recentRecord"
+                                ? item.title
                               : item.query;
                       const description =
                         item.kind === "command"
@@ -536,14 +621,19 @@ export default function CommandPalette() {
                           </span>
                           <span className="min-w-0 flex-1">
                             <span className="block truncate text-sm font-black">
-                              {title}
+                              <HighlightedText text={title} query={query} />
                             </span>
                             {description && (
                               <span className="mt-0.5 block truncate text-xs font-semibold text-slate-500">
-                                {description}
+                                <HighlightedText text={description} query={query} />
                               </span>
                             )}
                           </span>
+                          {item.kind === "result" ? (
+                            <span className="hidden shrink-0 rounded-full bg-[#fafafb] px-2 py-1 text-[10px] font-black text-slate-500 ring-1 ring-[#edf0f4] sm:inline-flex">
+                              {item.result.module}
+                            </span>
+                          ) : null}
                         </button>
                       );
                     })}

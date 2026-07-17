@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import AppShell from "@/components/layout/AppShell";
 import HomeHero from "@/components/home/HomeHero";
 import HomeQuickActions from "@/components/home/HomeQuickActions";
@@ -9,7 +10,9 @@ import {
   HomeSectionHeader,
   type HomeArea,
 } from "@/components/home/HomeAreas";
+import { usePersonalization } from "@/hooks/usePersonalization";
 import { useLanguage } from "@/i18n/useLanguage";
+import type { HomeSectionId } from "@/types/personalization";
 
 const homeAreasByLanguage: Record<"he" | "en", HomeArea[]> = {
   he: [
@@ -121,27 +124,36 @@ const sectionCopy = {
 
 export default function HomePage() {
   const { language } = useLanguage();
+  const personalization = usePersonalization();
   const languageKey = language === "en" ? "en" : "he";
   const copy = sectionCopy[languageKey];
   const homeAreas = homeAreasByLanguage[languageKey];
+  const visibleHomeSections = personalization.homeSections.filter(
+    (section) => section.visible
+  );
+  const sectionRenderers: Record<HomeSectionId, ReactNode> = {
+    quickActions: <HomeQuickActions />,
+    importantToday: <ImportantToday />,
+    moreAreas: (
+      <section className="home-more-section rounded-[24px] border border-white/80 bg-gradient-to-br from-white/92 via-[#fffdf8]/92 to-white/82 p-3 shadow-[0_12px_30px_rgba(33,43,63,0.055)] ring-1 ring-[#eadfcd]/55">
+        <HomeSectionHeader title={copy.title} subtitle={copy.subtitle} />
+        <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
+          {homeAreas.map((area) => (
+            <HomeAreaCard key={area.href} area={area} />
+          ))}
+        </div>
+      </section>
+    ),
+  };
 
   return (
     <AppShell>
       <div className="space-y-3.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.5rem)] lg:space-y-4 lg:pb-0">
         <HomeHero />
 
-        <HomeQuickActions />
-
-        <ImportantToday />
-
-        <section className="home-more-section rounded-[24px] border border-white/80 bg-gradient-to-br from-white/92 via-[#fffdf8]/92 to-white/82 p-3 shadow-[0_12px_30px_rgba(33,43,63,0.055)] ring-1 ring-[#eadfcd]/55">
-          <HomeSectionHeader title={copy.title} subtitle={copy.subtitle} />
-          <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
-            {homeAreas.map((area) => (
-              <HomeAreaCard key={area.href} area={area} />
-            ))}
-          </div>
-        </section>
+        {visibleHomeSections.map((section) => (
+          <div key={section.id}>{sectionRenderers[section.id]}</div>
+        ))}
       </div>
     </AppShell>
   );

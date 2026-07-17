@@ -1,4 +1,4 @@
-import type { AppLanguage } from "@/i18n/config";
+﻿import type { AppLanguage } from "@/i18n/config";
 import { brand } from "@/lib/branding";
 
 export type CommonDictionary = {
@@ -19,6 +19,7 @@ export type CommonDictionary = {
     | "vehicles"
     | "family"
     | "knowledge"
+    | "legacy"
     | "birthdays"
     | "shopping"
     | "permissions"
@@ -76,6 +77,7 @@ const hebrewDictionary: CommonDictionary = {
     vehicles: "רכבים",
     family: "משפחה",
     knowledge: "מידע משפחתי",
+    legacy: "מורשת משפחתית",
     birthdays: "אירועי משפחה",
     shopping: "קניות",
     permissions: "הרשאות",
@@ -132,6 +134,7 @@ const englishDictionary: CommonDictionary = {
     vehicles: "Vehicles",
     family: "Family",
     knowledge: "Family Knowledge",
+    legacy: "מורשת משפחתית",
     birthdays: "Family Events",
     shopping: "Shopping",
     permissions: "Sharing",
@@ -183,3 +186,4 @@ export const dictionaries: Record<AppLanguage, CommonDictionary> = {
 export function getDictionary(language: AppLanguage) {
   return dictionaries[language] ?? dictionaries.he;
 }
+
