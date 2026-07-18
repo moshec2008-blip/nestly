@@ -1,4 +1,4 @@
-import { getAIProvider } from "@/lib/ai";
+import { getAIProviderForInput } from "@/lib/ai";
 import {
   createAIError,
   validateAIRequestFiles,
@@ -19,7 +19,7 @@ export async function analyzeDocumentService(
     throw requestError;
   }
 
-  const provider = getAIProvider();
+  const provider = getAIProviderForInput(input);
   const result = await provider.analyzeDocument(input);
   const resultError = validateAnalyzeResult(result);
 

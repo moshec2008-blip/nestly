@@ -18,18 +18,29 @@ function readBoolean(value: string | undefined, fallback: boolean) {
   return value === "true" || value === "1";
 }
 
-function readProvider(value: string | undefined): AIProviderId {
+// ברירת מחדל: אם מוגדר GEMINI_API_KEY — הניתוח האמיתי פעיל, בלי צורך
+// בהגדרות נוספות. AI_PROVIDER=mock/disabled עוקף זאת במפורש (שימושי לבדיקות).
+function readProvider(
+  value: string | undefined,
+  geminiConfigured: boolean
+): AIProviderId {
   if (value === "disabled" || value === "gemini" || value === "future") {
     return value;
   }
 
-  return "mock";
+  if (value === "mock") {
+    return "mock";
+  }
+
+  return geminiConfigured ? "gemini" : "mock";
 }
 
 export function getAIConfig(): AIConfig {
   const enabled = readBoolean(process.env.AI_ENABLED, true);
-  const provider = enabled ? readProvider(process.env.AI_PROVIDER) : "disabled";
   const geminiConfigured = Boolean(process.env.GEMINI_API_KEY);
+  const provider = enabled
+    ? readProvider(process.env.AI_PROVIDER, geminiConfigured)
+    : "disabled";
   const canUseLiveGemini = provider === "gemini" && geminiConfigured;
 
   return {

@@ -809,7 +809,6 @@ export default function SmartCaptureLauncher() {
                         return (
                           <ReceiptScanPreview
                             key={option.source}
-                            userMode="basic"
                             triggerClassName="flex min-h-[76px] cursor-pointer items-center justify-between gap-3 rounded-[20px] border border-[#ebe4d8] bg-[#fffdf8] p-3 text-right shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
                             triggerContent={
                               <>

@@ -818,7 +818,6 @@ export default function FinanceManager() {
         onAddTransaction={handleStartAddTransaction}
         scanSlot={
           <ReceiptScanPreview
-            userMode="demo"
             onConfirmExpense={handleConfirmReceiptExpense}
           />
         }

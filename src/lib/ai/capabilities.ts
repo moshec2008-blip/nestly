@@ -11,15 +11,9 @@ export function canUseAI(userMode: AIUserMode): AICapabilityCheck {
     return { allowed: true, reason: "מצב הדגמה משתמש בניתוח mock בלבד." };
   }
 
-  if (userMode === "basic") {
-    return {
-      allowed: false,
-      requiresAuth: true,
-      reason:
-        "סריקת מסמכים רגישה זמינה רק במרחב משפחתי מאובטח. במצב בסיסי המידע נשמר במכשיר בלבד.",
-    };
-  }
-
+  // סריקה רגילה זמינה גם במצב בסיסי (ללא התחברות): הקובץ נשלח לניתוח חד-פעמי
+  // בלבד, התוצאה נשמרת רק במכשיר, וקוד הגישה המשפחתי מגן על קרדיט ה-AI.
+  // מסמכים רפואיים נשארים מאחורי התחברות — ראו canProcessMedicalDocuments.
   return { allowed: true };
 }
 

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Live AI document analysis via Google Gemini: all five AI routes (receipt, bill, medical document, general document, document classification) now call the real Gemini API when `GEMINI_API_KEY` is set, with graceful mock fallback when it is not. Demo mode always stays on the free local mock. User mode is now derived from actual app state (demo/guest/signed-in) instead of hardcoded values, and non-medical scanning is available without sign-in (protected by the family AI access code and rate limiting).
+
 ### Fixed
 
 - Six storage keys (vehicle profiles, driver licenses, fines, knowledge revisions, legacy collections and archive) were stored device-globally instead of per family space, causing cross-space data leakage, demo-mode contamination and omission from backups. They are now scoped, existing global data is migrated once into the active space, and restoring older backups maps them into the active space.

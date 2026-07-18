@@ -3,6 +3,7 @@ import {
   analyzeDocumentWithAnthropic,
   hasAnalyzableFileData,
 } from "@/lib/ai/anthropicDocumentAnalyzer";
+import { analyzeDocumentWithGemini } from "@/lib/ai/geminiDocumentAnalyzer";
 import { analyzeDocumentWithMock } from "@/lib/ai";
 import type {
   DocumentAnalysisFile,
@@ -117,9 +118,15 @@ function sanitizeInput(value: unknown): DocumentAnalysisInput | null {
   };
 }
 
+// Gemini הוא הספק הראשי; Anthropic נתמך כחלופה כשמוגדר רק המפתח שלו.
 function getAiStatus() {
+  const geminiConfigured = Boolean(process.env.GEMINI_API_KEY);
+  const anthropicConfigured = Boolean(process.env.ANTHROPIC_API_KEY);
+
   return {
-    aiConfigured: Boolean(process.env.ANTHROPIC_API_KEY),
+    geminiConfigured,
+    anthropicConfigured,
+    aiConfigured: geminiConfigured || anthropicConfigured,
     requiresAccessCode: Boolean(process.env.NESTLY_AI_ACCESS_CODE),
   };
 }
@@ -181,10 +188,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const analysis = await analyzeDocumentWithAnthropic(
-      input,
-      process.env.ANTHROPIC_API_KEY as string
-    );
+    const analysis = status.geminiConfigured
+      ? await analyzeDocumentWithGemini(
+          input,
+          process.env.GEMINI_API_KEY as string
+        )
+      : await analyzeDocumentWithAnthropic(
+          input,
+          process.env.ANTHROPIC_API_KEY as string
+        );
 
     return NextResponse.json({ mode: "live", analysis });
   } catch {

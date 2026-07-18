@@ -65,6 +65,7 @@ export function buildBaseAnalyzeInput(
     familySpaceId: raw.familySpaceId,
     locale: normalizeLocale(raw.locale),
     preferredResponseLanguage: raw.preferredResponseLanguage || "he",
+    userMode: raw.userMode,
     files: (raw.files ?? []).map((file) => ({
       fileName: normalizeFileName(file.fileName || file.name || "document"),
       mimeType: normalizeMimeType(file.mimeType || file.type),

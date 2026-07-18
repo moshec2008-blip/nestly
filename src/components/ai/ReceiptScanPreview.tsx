@@ -9,13 +9,15 @@ import {
   type ChangeEvent,
   type ReactNode,
 } from "react";
+import { useSession } from "next-auth/react";
 import AIReviewDialog from "@/components/ai/AIReviewDialog";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
+import { isDemoModeActive } from "@/lib/demoMode";
 import {
   formatMoneyForReview,
   normalizeAmount,
 } from "@/lib/ai/normalization/amount";
-import type { AnalyzeReceiptResult } from "@/lib/ai/types";
+import type { AIUserMode, AnalyzeReceiptResult } from "@/lib/ai/types";
 import { getStoredAiAccessCode } from "@/services/documentAiClient";
 import { createProcessedReceiptCapture } from "@/services/captureEngine";
 import { recordMeaningfulActivity } from "@/services/timelineService";
@@ -35,7 +37,6 @@ import {
 } from "@/services/telemetry";
 
 type ReceiptScanPreviewProps = {
-  userMode?: "demo" | "basic" | "authenticated";
   triggerClassName?: string;
   triggerContent?: ReactNode;
   onConfirmExpense?: (expense: ReceiptScanConfirmedExpense) => void;
@@ -139,12 +140,18 @@ function getInitialReviewValues(result: AnalyzeReceiptResult | null) {
 }
 
 export default function ReceiptScanPreview({
-  userMode = "demo",
   triggerClassName = defaultTriggerClassName,
   triggerContent,
   onConfirmExpense,
 }: ReceiptScanPreviewProps) {
   const { toast } = useFeedback();
+  const { status: sessionStatus } = useSession();
+  // מצב המשתמש נגזר מהמציאות: דמו פעיל → mock בלבד; מחובר → מלא; אחרת בסיסי.
+  const userMode: AIUserMode = isDemoModeActive()
+    ? "demo"
+    : sessionStatus === "authenticated"
+      ? "authenticated"
+      : "basic";
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const isConfirmingRef = useRef(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

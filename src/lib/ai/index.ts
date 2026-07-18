@@ -18,6 +18,7 @@ import { getAIConfig } from "@/lib/ai/config";
 import { geminiAIProvider } from "@/lib/ai/providers/gemini-provider";
 import { mockAIProvider } from "@/lib/ai/providers/mock-provider";
 import type { AIProvider } from "@/lib/ai/providers/ai-provider.interface";
+import type { BaseAnalyzeInput } from "@/lib/ai/types";
 
 export function getAIProvider(): AIProvider {
   const config = getAIConfig();
@@ -27,4 +28,13 @@ export function getAIProvider(): AIProvider {
   }
 
   return mockAIProvider;
+}
+
+// מצב דמו לעולם לא קורא לספק AI בתשלום — תמיד mock, גם כשמפתח מוגדר.
+export function getAIProviderForInput(input: BaseAnalyzeInput): AIProvider {
+  if (input.userMode === "demo") {
+    return mockAIProvider;
+  }
+
+  return getAIProvider();
 }

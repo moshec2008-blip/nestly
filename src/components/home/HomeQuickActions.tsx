@@ -108,7 +108,6 @@ export default function HomeQuickActions() {
 
       {showReceiptScan ? (
         <ReceiptScanPreview
-        userMode="demo"
         triggerClassName={[
           "flex min-h-[58px] cursor-pointer items-center justify-between gap-3 rounded-[18px] border border-[#eadfcd] bg-gradient-to-l from-[#fbf7ff] via-white to-[#fffdf8] px-3.5 py-2.5 shadow-[0_8px_18px_rgba(33,43,63,0.055)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.09)] focus-within:ring-2 focus-within:ring-[#eadfcd]",
           direction === "rtl" ? "text-right" : "text-left",

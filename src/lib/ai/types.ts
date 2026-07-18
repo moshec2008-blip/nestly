@@ -68,6 +68,7 @@ export type BaseAnalyzeInput = {
   familySpaceId?: string;
   locale: string;
   preferredResponseLanguage: "he" | "en" | "yi";
+  userMode?: AIUserMode;
   files: AIFileInput[];
   text?: string;
   mockScenario?: MockScenarioId;

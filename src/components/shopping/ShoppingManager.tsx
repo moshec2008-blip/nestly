@@ -645,7 +645,6 @@ export default function ShoppingManager() {
               פרטים נוספים
             </button>
             <ReceiptScanPreview
-              userMode="demo"
               triggerClassName="inline-flex min-h-9 cursor-pointer items-center justify-center whitespace-nowrap rounded-full border border-[#eadfcd] bg-white px-3 text-[11px] font-black text-[#7a5212] transition hover:bg-[#fff8eb]"
               onConfirmExpense={handleConfirmReceiptExpense}
             />

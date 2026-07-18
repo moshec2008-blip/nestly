@@ -1,4 +1,4 @@
-import { getAIProvider } from "@/lib/ai";
+import { getAIProviderForInput } from "@/lib/ai";
 import {
   validateAIRequestFiles,
   validateAnalyzeResult,
@@ -17,7 +17,7 @@ export async function analyzeMedicalDocumentService(
     throw requestError;
   }
 
-  const provider = getAIProvider();
+  const provider = getAIProviderForInput(input);
   const result = await provider.analyzeMedicalDocument(input);
   const resultError = validateAnalyzeResult(result);
 
