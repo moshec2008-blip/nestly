@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import AppIcon from "@/components/ui/AppIcon";
 import { useLanguage } from "@/i18n/useLanguage";
 import {
@@ -117,27 +118,32 @@ export default function FirstRunWelcomePopup() {
         ].join(" ")}
         role="dialog"
       >
-        <div
-          aria-hidden="true"
-          className="absolute inset-x-0 top-0 h-1.5 bg-[linear-gradient(90deg,#d8a447,#9db4d4,#e8d7b8)]"
-        />
-
-        <div className="flex items-start justify-between gap-3">
+        <div className="relative flex items-start justify-center">
           <button
             type="button"
             onClick={dismissWelcome}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-[#efe4d2] bg-white/75 text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#9db4d4]"
+            className={[
+              "absolute top-0 grid h-10 w-10 shrink-0 place-items-center rounded-2xl border border-[#efe4d2] bg-white/75 text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#9db4d4]",
+              direction === "rtl" ? "left-0" : "right-0",
+            ].join(" ")}
             aria-label={text.close}
           >
             <AppIcon name="close" className="h-5 w-5" />
           </button>
 
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[#fff7e8] text-[#7a5212] shadow-sm">
-            <AppIcon name="home" className="h-5 w-5" />
+          <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[22px] border border-[#efe4d2] bg-white/82 shadow-[0_12px_26px_rgba(126,86,28,0.12)]">
+            <Image
+              src="/nestly-logo.png"
+              alt="Nestly"
+              width={34}
+              height={34}
+              className="h-8.5 w-8.5 object-contain"
+              priority
+            />
           </span>
         </div>
 
-        <div className="mt-3">
+        <div className="mt-4">
           <h2
             id="first-run-welcome-title"
             className="text-[1.7rem] font-black leading-[1.12] text-slate-950 sm:text-3xl"
