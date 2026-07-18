@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
   getTaskStats,
   initialFamilyTasks,
+  isFamilyTask,
   type FamilyTask,
 } from "@/data/tasks";
 import TaskFilters from "@/components/tasks/TaskFilters";
@@ -92,7 +93,8 @@ export default function TaskManager() {
   const { confirm, toast } = useFeedback();
   const [tasks, setTasks] = usePersistentArrayState<FamilyTask>(
     storageKeys.tasks,
-    initialFamilyTasks
+    initialFamilyTasks,
+    isFamilyTask
   );
   const [taskForm, setTaskForm] = useState<TaskFormValues>(getInitialTaskForm);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);

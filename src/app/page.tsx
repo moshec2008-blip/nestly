@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import AppShell from "@/components/layout/AppShell";
 import HomeHero from "@/components/home/HomeHero";
+import HomeLifeEvents from "@/components/home/HomeLifeEvents";
 import HomeQuickActions from "@/components/home/HomeQuickActions";
 import ImportantToday from "@/components/home/ImportantToday";
 import {
@@ -135,7 +136,7 @@ export default function HomePage() {
     quickActions: <HomeQuickActions />,
     importantToday: <ImportantToday />,
     moreAreas: (
-      <section className="home-more-section rounded-[22px] border border-[#eadfcd]/70 bg-white/68 p-3 shadow-[0_8px_22px_rgba(33,43,63,0.04)]">
+      <section className="home-more-section w-full max-w-full overflow-hidden rounded-[24px] bg-white/58 p-3 shadow-[0_10px_26px_rgba(33,43,63,0.045)]">
         <HomeSectionHeader title={copy.title} subtitle={copy.subtitle} />
         <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
           {homeAreas.map((area) => (
@@ -148,8 +149,9 @@ export default function HomePage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-5xl space-y-3 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.5rem)] lg:space-y-4 lg:pb-0">
+      <div className="mx-auto w-full max-w-5xl space-y-3 overflow-hidden pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.5rem)] lg:space-y-4 lg:pb-0">
         <HomeHero />
+        <HomeLifeEvents />
 
         {visibleHomeSections.map((section) => (
           <div key={section.id}>{sectionRenderers[section.id]}</div>

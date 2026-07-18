@@ -8,9 +8,10 @@ import {
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { storageKeys } from "@/lib/storageKeys";
-import type {
-  FamilyPermissionUser,
-  ModulePermission,
+import {
+  isFamilyPermissionUser,
+  type FamilyPermissionUser,
+  type ModulePermission,
 } from "@/types/permissions";
 
 type PermissionKey = keyof Pick<
@@ -29,7 +30,8 @@ export default function PermissionsManager() {
   const [users, setUsers] =
     usePersistentArrayState<FamilyPermissionUser>(
       storageKeys.permissions,
-      initialPermissionUsers
+      initialPermissionUsers,
+      isFamilyPermissionUser
     );
   const [selectedUserId, setSelectedUserId] = useState(initialPermissionUsers[0].id);
   const [inviteName, setInviteName] = useState("");

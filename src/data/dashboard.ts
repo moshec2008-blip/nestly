@@ -51,6 +51,12 @@ export const appModules: NavigationItem[] = [
     status: "פעיל",
   },
   {
+    label: "סיפורי חיים",
+    href: "/life",
+    description: "הפרקים הגדולים של המשפחה: משימות, מסמכים, כסף ותזכורות בסיפור אחד.",
+    status: "פעיל",
+  },
+  {
     label: "בריאות",
     href: "/health",
     description: "תורים, בדיקות, תרופות ומעקב בריאות משפחתי.",

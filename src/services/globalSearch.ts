@@ -17,6 +17,7 @@ import type { AppLanguage } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { matchesSearchQuery } from "@/lib/search/searchNormalization";
 import { storageKeys } from "@/lib/storageKeys";
+import { getActiveLifeEvents } from "@/services/lifeEventsService";
 import { readKnowledgeItems } from "@/services/familyKnowledge";
 import { getTimelineItems } from "@/services/timelineService";
 import { toSmartDocumentView } from "@/services/smartDocuments";
@@ -70,6 +71,7 @@ function moduleNames(language: AppLanguage) {
     birthdays: dictionary.nav.birthdays,
     knowledge: dictionary.nav.knowledge,
     timeline: dictionary.nav.timeline,
+    life: dictionary.nav.life,
     shopping: dictionary.nav.shopping,
     permissions: dictionary.nav.permissions,
     captures: language === "en" ? "Smart Inbox" : "Smart Inbox",
@@ -217,8 +219,30 @@ export function getGlobalSearchResults(
     search: query,
     limit: 8,
   }).items;
+  const lifeEvents = getActiveLifeEvents();
 
   const results: GlobalSearchResult[] = [
+    ...lifeEvents
+      .filter((event) =>
+        matchesQuery(query, [
+          event.title,
+          event.subtitle,
+          event.story,
+          event.owner,
+          event.location,
+          event.type,
+          ...event.tags,
+          ...event.milestones.map((milestone) => milestone.title),
+          ...event.linkedEntities.map((entity) => entity.title),
+        ])
+      )
+      .map((event) => ({
+        id: `life-${event.id}`,
+        title: event.title,
+        description: `${event.subtitle} · ${event.progress}%`,
+        module: names.life,
+        href: "/life" as const,
+      })),
     ...timelineItems.map((item) => ({
       id: `timeline-${item.id}`,
       title: item.title,

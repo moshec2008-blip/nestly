@@ -33,6 +33,7 @@ const userScopedStorageKeys = new Set([
   "nestly-family-legacy-collections",
   "nestly-family-legacy-archive",
   "nestly-family-timeline",
+  "nestly-life-events",
   "nestly-entity-relations",
   "nestly-ai-suggestions",
   "nestly-ai-audit",

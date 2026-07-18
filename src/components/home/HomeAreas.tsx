@@ -80,7 +80,7 @@ export function HomeAreaCard({ area }: { area: HomeArea }) {
   return (
     <Link
       href={area.href}
-      className={`home-area-card relative flex min-h-[84px] flex-col justify-between overflow-hidden rounded-[18px] border border-[#eadfcd]/66 bg-white/78 p-3 shadow-[0_6px_16px_rgba(33,43,63,0.035)] transition duration-200 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${direction === "rtl" ? "text-right" : "text-left"}`}
+      className={`home-area-card relative flex min-h-[84px] flex-col justify-between overflow-hidden rounded-[18px] bg-white/72 p-3 shadow-[0_7px_18px_rgba(33,43,63,0.035)] transition duration-200 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${direction === "rtl" ? "text-right" : "text-left"}`}
     >
       <span
         className={[
@@ -92,7 +92,7 @@ export function HomeAreaCard({ area }: { area: HomeArea }) {
       />
       <div className="flex items-start justify-between gap-2">
         <span
-          className={`grid h-8 w-8 shrink-0 place-items-center rounded-2xl ring-1 ${area.accentClass}`}
+          className={`grid h-8 w-8 shrink-0 place-items-center rounded-2xl ${area.accentClass}`}
         >
           <AppIcon name={area.icon} className="h-4 w-4" />
         </span>

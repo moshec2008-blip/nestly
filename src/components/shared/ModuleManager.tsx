@@ -5,7 +5,11 @@ import DateInput from "@/components/ui/DateInput";
 import EmptyState from "@/components/ui/EmptyState";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
-import type { ModuleRecord, ModuleRecordStatus } from "@/types/modules";
+import {
+  isModuleRecord,
+  type ModuleRecord,
+  type ModuleRecordStatus,
+} from "@/types/modules";
 
 type ModuleManagerProps = {
   storageKey: string;
@@ -79,7 +83,8 @@ export default function ModuleManager({
   const { confirm, toast } = useFeedback();
   const [records, setRecords] = usePersistentArrayState<ModuleRecord>(
     storageKey,
-    initialRecords
+    initialRecords,
+    isModuleRecord
   );
   const [form, setForm] = useState<RecordForm>(() =>
     getInitialForm(defaultCategory)

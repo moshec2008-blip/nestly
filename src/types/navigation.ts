@@ -6,6 +6,7 @@ export type AppRoute =
   | "/command-center"
   | "/assistant"
   | "/timeline"
+  | "/life"
   | "/health"
   | "/documents"
   | "/vehicles"

@@ -287,12 +287,12 @@ export function NestlyAiInsightCard({ insight }: { insight: HomeInsight }) {
   return (
     <div
       className={[
-        "rounded-[18px] border border-[#eadfcd]/70 bg-[#fffaf1]/72 px-3 py-2.5",
+        "rounded-[20px] bg-gradient-to-l from-[#fff6e3] via-[#fffaf1] to-white/88 px-3 py-3 shadow-[0_10px_24px_rgba(126,86,28,0.06)]",
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
-        <span className="grid h-9 w-9 place-items-center rounded-2xl bg-white/82 text-[#8a5b16] ring-1 ring-[#eadfcd]">
+        <span className="grid h-9 w-9 place-items-center rounded-2xl bg-white/78 text-[#8a5b16] shadow-sm">
           <AppIcon name="spark" className="h-4.5 w-4.5" />
         </span>
 
@@ -307,7 +307,7 @@ export function NestlyAiInsightCard({ insight }: { insight: HomeInsight }) {
 
         <Link
           href={insight.href}
-          className="grid min-h-10 shrink-0 place-items-center rounded-2xl border border-[#eadfcd] bg-white/72 px-3 text-xs font-black text-[#111827] transition hover:bg-white"
+          className="grid min-h-10 shrink-0 place-items-center rounded-2xl bg-white/76 px-3 text-xs font-black text-[#111827] shadow-sm transition hover:bg-white"
         >
           {copy.open}
         </Link>
@@ -332,17 +332,20 @@ export default function ImportantToday() {
   return (
     <section
       className={[
-        "rounded-[24px] border border-[#eadfcd]/76 bg-white/90 p-4 shadow-[0_12px_30px_rgba(33,43,63,0.06)] sm:p-5",
+        "w-full max-w-full overflow-hidden rounded-[26px] bg-white/92 p-4 shadow-[0_18px_42px_rgba(33,43,63,0.075)] sm:p-5",
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
-      <div>
-        <p className="text-[11px] font-black text-slate-400">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+        <p className="text-[11px] font-black text-[#9a6b17]">
           {copy.sectionEyebrow}
         </p>
-        <h2 className="mt-0.5 text-xl font-black leading-7 text-[#111827]">
+        <h2 className="mt-0.5 text-[22px] font-black leading-7 text-[#111827]">
           {copy.sectionTitle}
         </h2>
+        </div>
+        <span className="h-1.5 w-12 rounded-full bg-gradient-to-l from-[#d8b470] to-[#8fb9d9]" />
       </div>
 
       {data?.insight && (
@@ -360,15 +363,20 @@ export default function ImportantToday() {
           {copy.empty}
         </p>
       ) : (
-        <ul className="mt-4 divide-y divide-[#eef0f4]">
-          {data.rows.map((row) => (
+        <ul className="mt-4 space-y-2">
+          {data.rows.map((row, index) => (
             <li key={row.id}>
               <Link
                 href={row.href}
-                className="group flex min-h-[64px] min-w-0 items-center gap-3 rounded-2xl px-1 py-2.5 transition duration-200 hover:bg-[#fffdf8] active:scale-[0.99]"
+                className={[
+                  "group flex min-h-[66px] min-w-0 items-center gap-3 rounded-[20px] px-2.5 py-2.5 transition duration-200 active:scale-[0.99]",
+                  index === 0
+                    ? "bg-[#fff8eb] shadow-[0_10px_24px_rgba(126,86,28,0.055)]"
+                    : "bg-[#fafafb]/78 hover:bg-[#fffdf8]",
+                ].join(" ")}
               >
                 <span
-                  className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ring-1 ${row.iconClass}`}
+                  className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ${row.iconClass}`}
                 >
                   <AppIcon name={row.icon} className="h-4.5 w-4.5" />
                 </span>
@@ -383,7 +391,7 @@ export default function ImportantToday() {
                       {row.title}
                     </span>
                     <span
-                      className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ring-1 ${row.statusClass}`}
+                      className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-black ${row.statusClass}`}
                     >
                       {row.statusLabel}
                     </span>

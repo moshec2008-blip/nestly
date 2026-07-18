@@ -7,7 +7,11 @@ import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { initialHealthRecords } from "@/data/modules";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
-import type { ModuleRecord, ModuleRecordStatus } from "@/types/modules";
+import {
+  isModuleRecord,
+  type ModuleRecord,
+  type ModuleRecordStatus,
+} from "@/types/modules";
 
 type HealthForm = {
   title: string;
@@ -84,7 +88,8 @@ export default function HealthManager() {
   const { confirm, toast } = useFeedback();
   const [records, setRecords] = usePersistentArrayState<ModuleRecord>(
     storageKeys.health,
-    initialHealthRecords
+    initialHealthRecords,
+    isModuleRecord
   );
   const [form, setForm] = useState<HealthForm>(() => getInitialForm());
   const [editingRecordId, setEditingRecordId] = useState<string | null>(null);

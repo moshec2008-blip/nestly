@@ -190,7 +190,11 @@ export default function HomeHero() {
   ];
 
   return (
-    <section className="relative overflow-hidden rounded-[24px] border border-[#eadfcd]/76 bg-white/90 p-4 shadow-[0_12px_30px_rgba(33,43,63,0.06)] backdrop-blur-xl sm:p-5">
+    <section className="relative w-full max-w-full overflow-hidden rounded-[26px] bg-gradient-to-br from-white/96 via-[#fff8eb]/88 to-[#eef7ff]/76 p-5 shadow-[0_18px_46px_rgba(33,43,63,0.075)] backdrop-blur-xl sm:p-6">
+      <span
+        className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-l from-transparent via-[#d8b470]/50 to-transparent"
+        aria-hidden="true"
+      />
       <div
         className={[
           "relative min-w-0",
@@ -198,7 +202,7 @@ export default function HomeHero() {
         ].join(" ")}
       >
         <div className="flex items-center justify-between gap-3">
-          <span className="inline-flex h-8 shrink-0 items-center rounded-2xl border border-[#eadfcd] bg-[#fffdf8] px-3 text-[11px] font-black tabular-nums text-slate-600 shadow-[0_8px_18px_rgba(33,43,63,0.05)]">
+          <span className="inline-flex h-8 shrink-0 items-center rounded-2xl bg-white/62 px-3 text-[11px] font-black tabular-nums text-slate-600 shadow-[0_8px_18px_rgba(33,43,63,0.045)]">
             {copy.updatedAt}
             {timeLabel}
           </span>
@@ -206,13 +210,13 @@ export default function HomeHero() {
             {getTodayLabel(language)}
           </p>
         </div>
-        <h1 className="mt-1 text-[25px] font-black leading-8 text-[#0f172a]">
+        <h1 className="mt-2 text-[27px] font-black leading-8 text-[#0f172a]">
           {getGreeting(language)}
         </h1>
         <p className="mt-1 max-w-[20rem] text-sm font-black leading-5 text-[#111827]">
           {copy.subtitle}
         </p>
-        <p className="mt-1 max-w-[20rem] text-[13px] font-semibold leading-5 text-slate-500">
+        <p className="mt-1.5 max-w-[21rem] text-[13px] font-semibold leading-5 text-slate-500">
           {statusText}
         </p>
         <p className="mt-1 truncate text-[11px] font-semibold text-slate-400">
@@ -220,15 +224,15 @@ export default function HomeHero() {
         </p>
       </div>
 
-      <div className="relative mt-4 grid grid-cols-3 overflow-hidden rounded-[18px] border border-[#eee3d2] bg-[#fffaf1]/78">
+      <div className="relative mt-5 grid min-w-0 grid-cols-3 gap-2">
         {stats.map((stat) => (
           <Link
             key={stat.id}
             href={stat.href}
-            className="min-w-0 border-l border-[#eee3d2] px-2 py-2.5 text-center transition duration-200 first:border-l-0 hover:bg-white active:scale-[0.99]"
+            className="min-w-0 rounded-[18px] bg-white/56 px-2 py-2.5 text-center shadow-[0_8px_18px_rgba(33,43,63,0.035)] transition duration-200 hover:bg-white/82 active:scale-[0.99]"
           >
             <span
-              className={`mx-auto grid h-7 w-7 place-items-center rounded-xl ring-1 ${stat.chipClass}`}
+              className={`mx-auto grid h-7 w-7 place-items-center rounded-xl ${stat.chipClass}`}
             >
               <AppIcon name={stat.icon} className="h-4 w-4" />
             </span>

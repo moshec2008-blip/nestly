@@ -49,6 +49,12 @@ const sidebarLinks: SidebarLink[] = [
     description: "מה קרה לאחרונה בבית",
   },
   {
+    label: "סיפורי חיים",
+    href: "/life",
+    icon: "timeline",
+    description: "הפרקים הגדולים של המשפחה",
+  },
+  {
     label: "קניות",
     href: "/shopping",
     icon: "shopping",
@@ -184,6 +190,15 @@ const navigationAccents: Record<
     glow: "bg-stone-400/20",
     shadow: "0 12px 30px rgba(120,113,108,0.22)",
     activeShadow: "0 16px 38px rgba(87,83,78,0.34)",
+  },
+  "/life": {
+    dot: "bg-amber-400",
+    icon: "border-amber-200 bg-amber-100 text-amber-950",
+    active: "border-amber-200 bg-amber-50 text-[#111827] ring-1 ring-amber-200/80",
+    hover: "hover:bg-amber-50/90",
+    glow: "bg-amber-400/20",
+    shadow: "0 12px 30px rgba(217,119,6,0.22)",
+    activeShadow: "0 16px 38px rgba(180,83,9,0.32)",
   },
   "/health": {
     dot: "bg-rose-400",
@@ -328,6 +343,7 @@ export default function Sidebar({
       <aside
         className={[
           "nestly-sidebar-panel premium-scrollbar fixed right-3 z-50 w-[clamp(300px,84vw,360px)] overflow-y-auto overscroll-contain rounded-[22px] border border-white/80 bg-white/92 p-1.5 text-right shadow-[0_24px_70px_rgba(33,43,63,0.18)] backdrop-blur-xl transition-all duration-300 ease-out lg:sticky lg:right-auto lg:top-auto lg:z-10 lg:h-auto lg:shrink-0 lg:p-1.5 lg:shadow-[0_12px_30px_rgba(33,43,63,0.075)]",
+          isMobileOpen ? "block" : "hidden lg:block",
           isMobileOpen
             ? "translate-x-0"
             : "translate-x-[calc(100%+1rem)]",

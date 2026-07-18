@@ -7,7 +7,11 @@ import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { initialVehicleRecords } from "@/data/modules";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
-import type { ModuleRecord, ModuleRecordStatus } from "@/types/modules";
+import {
+  isModuleRecord,
+  type ModuleRecord,
+  type ModuleRecordStatus,
+} from "@/types/modules";
 
 type VehicleForm = {
   title: string;
@@ -61,6 +65,51 @@ type VehicleFineForm = Omit<VehicleFine, "id" | "amount" | "status"> & {
   amount: string;
   status: VehicleFine["status"];
 };
+
+function isVehicleProfile(value: unknown): value is VehicleProfile {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const profile = value as Partial<VehicleProfile>;
+
+  return (
+    typeof profile.id === "string" &&
+    profile.id.length > 0 &&
+    typeof profile.plateNumber === "string" &&
+    typeof profile.makeModel === "string"
+  );
+}
+
+function isDriverLicense(value: unknown): value is DriverLicense {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const license = value as Partial<DriverLicense>;
+
+  return (
+    typeof license.id === "string" &&
+    license.id.length > 0 &&
+    typeof license.memberName === "string" &&
+    typeof license.expiryDate === "string"
+  );
+}
+
+function isVehicleFine(value: unknown): value is VehicleFine {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const fine = value as Partial<VehicleFine>;
+
+  return (
+    typeof fine.id === "string" &&
+    fine.id.length > 0 &&
+    typeof fine.vehicleId === "string" &&
+    (fine.status === "open" || fine.status === "paid" || fine.status === "filed")
+  );
+}
 
 const vehicleCategories = ["הכל", "רישוי", "תחזוקה", "ביטוח", "הוצאות"];
 
@@ -239,20 +288,24 @@ export default function VehiclesManager() {
   const [vehicleProfiles, setVehicleProfiles] =
     usePersistentArrayState<VehicleProfile>(
       storageKeys.vehicleProfiles,
-      initialVehicleProfiles
+      initialVehicleProfiles,
+      isVehicleProfile
     );
   const [driverLicenses, setDriverLicenses] =
     usePersistentArrayState<DriverLicense>(
       storageKeys.vehicleDriverLicenses,
-      initialDriverLicenses
+      initialDriverLicenses,
+      isDriverLicense
     );
   const [vehicleFines, setVehicleFines] = usePersistentArrayState<VehicleFine>(
     storageKeys.vehicleFines,
-    initialVehicleFines
+    initialVehicleFines,
+    isVehicleFine
   );
   const [records, setRecords] = usePersistentArrayState<ModuleRecord>(
     storageKeys.vehicles,
-    initialVehicleRecords
+    initialVehicleRecords,
+    isModuleRecord
   );
   const [selectedVehicleId, setSelectedVehicleId] = useState(
     () => vehicleProfiles[0]?.id ?? ""

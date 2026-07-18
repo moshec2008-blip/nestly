@@ -9,6 +9,21 @@ export type FamilyTask = {
   dueDate: string;
 };
 
+export function isFamilyTask(value: unknown): value is FamilyTask {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const task = value as Partial<FamilyTask>;
+
+  return (
+    typeof task.id === "string" &&
+    task.id.length > 0 &&
+    typeof task.title === "string" &&
+    (task.status === "open" || task.status === "done")
+  );
+}
+
 export const initialFamilyTasks: FamilyTask[] = [
   {
     id: "1",

@@ -17,6 +17,7 @@ type QuickAction = {
     en: string;
   };
   accentClass: string;
+  surfaceClass: string;
 };
 
 const quickActions: QuickAction[] = [
@@ -26,6 +27,7 @@ const quickActions: QuickAction[] = [
     icon: "shopping",
     labels: { he: "רשימת קניות", en: "Shopping list" },
     accentClass: "bg-sky-50 text-sky-700 ring-sky-100",
+    surfaceClass: "bg-gradient-to-br from-[#e6f5ff] via-[#f8fcff] to-white",
   },
   {
     id: "tasks",
@@ -33,6 +35,7 @@ const quickActions: QuickAction[] = [
     icon: "check",
     labels: { he: "משימות לביצוע", en: "Open tasks" },
     accentClass: "bg-amber-50 text-amber-700 ring-amber-100",
+    surfaceClass: "bg-gradient-to-br from-[#fff6dc] via-[#fffdf7] to-white",
   },
   {
     id: "finance",
@@ -40,6 +43,7 @@ const quickActions: QuickAction[] = [
     icon: "finance",
     labels: { he: "תקציב משפחתי", en: "Family budget" },
     accentClass: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+    surfaceClass: "bg-gradient-to-br from-[#e7f8ec] via-[#fbfffc] to-white",
   },
   {
     id: "events",
@@ -47,6 +51,7 @@ const quickActions: QuickAction[] = [
     icon: "calendar",
     labels: { he: "אירועים", en: "Events" },
     accentClass: "bg-rose-50 text-rose-700 ring-rose-100",
+    surfaceClass: "bg-gradient-to-br from-[#fff0eb] via-[#fffafa] to-white",
   },
 ];
 
@@ -79,21 +84,21 @@ export default function HomeQuickActions() {
   const showReceiptScan = pinnedActions.has("scanReceipt");
 
   return (
-    <section aria-label={copy.aria} className="space-y-2.5">
+    <section aria-label={copy.aria} className="w-full max-w-full space-y-2.5 overflow-hidden">
       {visibleActions.length > 0 ? (
-        <nav className="grid grid-cols-2 gap-2 rounded-[22px] border border-[#eadfcd]/76 bg-white/76 p-1.5 shadow-[0_10px_24px_rgba(33,43,63,0.045)] sm:grid-cols-4">
+        <nav className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4">
           {visibleActions.map((action) => (
           <Link
             key={action.href}
             href={action.href}
-            className="flex min-h-[54px] items-center justify-center gap-2 rounded-[17px] px-2.5 py-2 text-center transition hover:bg-[#fffaf1] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99]"
+            className={`flex min-h-[64px] min-w-0 items-center justify-center gap-2 overflow-hidden rounded-[19px] px-2.5 py-2.5 text-center shadow-[0_10px_22px_rgba(33,43,63,0.055)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(33,43,63,0.075)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${action.surfaceClass}`}
           >
             <span
-              className={`grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white/52 ring-1 ${action.accentClass}`}
+              className={`grid h-8 w-8 shrink-0 place-items-center rounded-2xl bg-white/64 ${action.accentClass}`}
             >
-              <AppIcon name={action.icon} className="h-3.5 w-3.5" />
+              <AppIcon name={action.icon} className="h-4 w-4" />
             </span>
-            <span className="min-w-0 text-[12px] font-black leading-4 text-[#0f172a]">
+            <span className="min-w-0 flex-1 truncate text-[12px] font-black leading-4 text-[#0f172a]">
               {action.labels[labelKey]}
             </span>
           </Link>
@@ -104,13 +109,13 @@ export default function HomeQuickActions() {
       {showReceiptScan ? (
         <ReceiptScanPreview
         triggerClassName={[
-          "flex min-h-[58px] cursor-pointer items-center justify-between gap-3 rounded-[18px] border border-[#dcc9aa] bg-[#fffaf1] px-3.5 py-2.5 shadow-[0_8px_18px_rgba(33,43,63,0.045)] transition hover:bg-white focus-within:ring-2 focus-within:ring-[#eadfcd] active:scale-[0.99]",
+          "flex min-h-[64px] min-w-0 cursor-pointer items-center justify-between gap-3 overflow-hidden rounded-[20px] bg-gradient-to-l from-[#fff4dc] via-[#fffaf1] to-white px-3.5 py-3 shadow-[0_12px_28px_rgba(126,86,28,0.075)] transition hover:-translate-y-0.5 hover:bg-white focus-within:ring-2 focus-within:ring-[#eadfcd] active:scale-[0.99]",
           direction === "rtl" ? "text-right" : "text-left",
         ].join(" ")}
         triggerContent={
           <>
             <span className="flex items-center gap-2 text-xs font-black text-slate-500">
-              <span className="rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-black text-violet-700 ring-1 ring-violet-100">
+              <span className="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-black text-[#7a5212] shadow-sm">
                 AI
               </span>
             </span>
@@ -128,7 +133,7 @@ export default function HomeQuickActions() {
                   {copy.subtitle}
                 </span>
               </span>
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl bg-white text-[#7a5212] shadow-sm ring-1 ring-[#eadfcd]">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white/76 text-[#7a5212] shadow-sm">
                 <AppIcon name="document" className="h-4 w-4" />
               </span>
             </span>

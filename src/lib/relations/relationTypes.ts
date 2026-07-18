@@ -21,6 +21,7 @@ export const entityTypeLabels: Record<EntityRelationType, string> = {
   smart_capture: "לכידה",
   smart_inbox_item: "פריט נכנס",
   timeline_item: "עדכון בציר הזמן",
+  life_event: "סיפור חיים",
   command_center_item: "פריט מרכז פיקוד",
   custom_record: "פריט",
 };
@@ -50,6 +51,8 @@ export const relationshipLabels: Record<EntityRelationshipType, string> = {
   paid_by: "שולם על ידי",
   created_by: "נוצר על ידי",
   reviewed_by: "נבדק על ידי",
+  part_of_life_event: "חלק מסיפור חיים",
+  life_event_context: "הקשר של סיפור חיים",
 };
 
 export const entityTypeRoutes: Partial<Record<EntityRelationType, AppRoute>> = {
@@ -68,6 +71,7 @@ export const entityTypeRoutes: Partial<Record<EntityRelationType, AppRoute>> = {
   smart_capture: "/command-center",
   smart_inbox_item: "/command-center",
   timeline_item: "/timeline",
+  life_event: "/life",
   command_center_item: "/command-center",
 };
 
@@ -88,6 +92,7 @@ export const entityTypeIcons: Record<EntityRelationType, string> = {
   smart_capture: "✦",
   smart_inbox_item: "↳",
   timeline_item: "↺",
+  life_event: "★",
   command_center_item: "!",
   custom_record: "•",
 };

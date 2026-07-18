@@ -77,6 +77,11 @@ const englishModuleCopy: Record<
     description: "Meaningful history of family progress and activity.",
     status: "Active",
   },
+  "/life": {
+    label: "Life Stories",
+    description: "Living workspaces for major family chapters and decisions.",
+    status: "Active",
+  },
   "/health": {
     label: "Health",
     description: "Appointments, tests, medication and family health tracking.",

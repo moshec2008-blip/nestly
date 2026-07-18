@@ -24,6 +24,7 @@ export const storageKeys = {
   familyLegacyCollections: "nestly-family-legacy-collections",
   familyLegacyArchive: "nestly-family-legacy-archive",
   timeline: "nestly-family-timeline",
+  lifeEvents: "nestly-life-events",
   entityRelations: "nestly-entity-relations",
   aiSuggestions: "nestly-ai-suggestions",
   aiAudit: "nestly-ai-audit",

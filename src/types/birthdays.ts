@@ -41,3 +41,19 @@ export type BirthdayPerson = {
 };
 
 export type FamilyEvent = BirthdayPerson;
+
+export function isFamilyEvent(value: unknown): value is FamilyEvent {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const event = value as Partial<FamilyEvent>;
+
+  return (
+    typeof event.id === "string" &&
+    event.id.length > 0 &&
+    typeof event.name === "string" &&
+    typeof event.gregorianDate === "string" &&
+    Array.isArray(event.reminders)
+  );
+}

@@ -17,6 +17,7 @@ export type EntityRelationType =
   | "smart_capture"
   | "smart_inbox_item"
   | "timeline_item"
+  | "life_event"
   | "command_center_item"
   | "custom_record";
 
@@ -44,7 +45,9 @@ export type EntityRelationshipType =
   | "assigned_to"
   | "paid_by"
   | "created_by"
-  | "reviewed_by";
+  | "reviewed_by"
+  | "part_of_life_event"
+  | "life_event_context";
 
 export type EntityRelationDirection = "one_way" | "bidirectional";
 export type EntityRelationSource =

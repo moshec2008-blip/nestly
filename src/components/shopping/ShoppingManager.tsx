@@ -19,7 +19,7 @@ import {
 } from "@/services/telemetry";
 import { parseShoppingText } from "@/services/ai/contextualSuggestionService";
 import type { AISuggestion } from "@/types/aiSuggestions";
-import type { ShoppingItem } from "@/types/shopping";
+import { isShoppingItem, type ShoppingItem } from "@/types/shopping";
 
 type ShoppingForm = Omit<ShoppingItem, "id" | "purchased">;
 type PurchaseFilter = "remaining" | "all" | "purchased";
@@ -89,7 +89,8 @@ function groupByDepartment(items: ShoppingItem[]) {
 export default function ShoppingManager() {
   const [items, setItems] = usePersistentArrayState<ShoppingItem>(
     storageKeys.shopping,
-    initialShoppingItems
+    initialShoppingItems,
+    isShoppingItem
   );
   const [form, setForm] = useState<ShoppingForm>(getInitialForm);
   const [quickTitle, setQuickTitle] = useState("");

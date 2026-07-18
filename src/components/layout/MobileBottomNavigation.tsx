@@ -89,6 +89,14 @@ const moreItems: MoreItem[] = [
     background: "bg-stone-100",
   },
   {
+    href: "/life",
+    icon: "timeline",
+    title: "סיפורי חיים",
+    description: "הפרקים הגדולים של המשפחה",
+    accent: "text-amber-700",
+    background: "bg-amber-50",
+  },
+  {
     href: "/vehicles",
     icon: "car",
     title: "רכבים",
@@ -319,7 +327,7 @@ export default function MobileBottomNavigation() {
 
       <nav
         ref={navRef}
-        className="fixed inset-x-2 bottom-2.5 z-40 rounded-[24px] border border-[#e6d9c9] bg-[#fffdf8]/96 px-2 py-2 shadow-[0_18px_48px_rgba(33,43,63,0.16)] backdrop-blur-2xl lg:hidden"
+        className="fixed inset-x-2 bottom-2.5 z-40 rounded-[26px] bg-white/88 px-2 py-2 shadow-[0_14px_36px_rgba(33,43,63,0.12)] backdrop-blur-2xl lg:hidden"
         aria-label="ניווט תחתון"
       >
         <div className="grid grid-cols-5 gap-1.5">
@@ -336,7 +344,7 @@ export default function MobileBottomNavigation() {
                 className={[
                   "relative flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[18px] px-1.5 py-1.5 text-[10px] font-black ring-offset-2 ring-offset-[#fffdf8] transition duration-200 active:scale-[0.98]",
                   isActive
-                    ? "border border-[#d8caba] bg-[#fff8eb] text-[#111827] shadow-[0_8px_18px_rgba(33,43,63,0.08)] ring-1 ring-[#d8b470]/28"
+                    ? "border border-transparent bg-[#fff3d8] text-[#111827] shadow-[0_8px_18px_rgba(126,86,28,0.12)]"
                     : "border border-transparent bg-transparent text-slate-600 hover:bg-white/72 hover:text-[#111827]",
                 ].join(" ")}
               >
@@ -354,7 +362,7 @@ export default function MobileBottomNavigation() {
             className={[
               "flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 rounded-[18px] border px-1.5 py-1.5 text-[10px] font-black transition duration-200 active:scale-[0.98]",
               isMoreActive || isMoreOpen
-                ? "border-[#d8caba] bg-[#fff8eb] text-[#111827] shadow-[0_8px_18px_rgba(33,43,63,0.08)] ring-1 ring-[#d8b470]/28"
+                ? "border-transparent bg-[#fff3d8] text-[#111827] shadow-[0_8px_18px_rgba(126,86,28,0.12)]"
                 : "border-transparent bg-transparent text-slate-600 hover:bg-white/72 hover:text-[#111827]",
             ].join(" ")}
             aria-label="פתיחת כל אזורי נסטלי"

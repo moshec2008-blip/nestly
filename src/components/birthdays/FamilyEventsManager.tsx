@@ -8,11 +8,12 @@ import { useFeedback } from "@/components/ui/FeedbackProvider";
 import { initialBirthdays } from "@/data/birthdays";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
-import type {
-  BirthdayCalendarType,
-  BirthdayReminder,
-  FamilyEvent,
-  FamilyEventType,
+import {
+  isFamilyEvent,
+  type BirthdayCalendarType,
+  type BirthdayReminder,
+  type FamilyEvent,
+  type FamilyEventType,
 } from "@/types/birthdays";
 import {
   getBirthdayAge,
@@ -709,7 +710,8 @@ export default function FamilyEventsManager() {
   const { confirm } = useFeedback();
   const [events, setEvents] = usePersistentArrayState<FamilyEvent>(
     storageKeys.birthdays,
-    initialBirthdays
+    initialBirthdays,
+    isFamilyEvent
   );
   const [searchValue, setSearchValue] = useState("");
   const [eventFilter, setEventFilter] = useState<EventFilter>("all");

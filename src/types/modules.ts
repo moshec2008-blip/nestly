@@ -9,3 +9,18 @@ export type ModuleRecord = {
   date: string;
   status: ModuleRecordStatus;
 };
+
+export function isModuleRecord(value: unknown): value is ModuleRecord {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const record = value as Partial<ModuleRecord>;
+
+  return (
+    typeof record.id === "string" &&
+    record.id.length > 0 &&
+    typeof record.title === "string" &&
+    (record.status === "open" || record.status === "done")
+  );
+}

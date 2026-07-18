@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
@@ -206,6 +207,7 @@ function suggestionTypeLabel(type: CaptureSuggestion["type"], language: string) 
 
 export default function SmartCaptureLauncher() {
   const { language, direction } = useLanguage();
+  const pathname = usePathname();
   const { toast } = useFeedback();
   const text = language === "en" ? copy.en : copy.he;
   const [isOpen, setIsOpen] = useState(false);
@@ -674,7 +676,7 @@ export default function SmartCaptureLauncher() {
     ? { left: buttonPosition.x, top: buttonPosition.y }
     : undefined;
 
-  if (!showFloatingCapture) {
+  if (!showFloatingCapture || pathname === "/") {
     return null;
   }
 

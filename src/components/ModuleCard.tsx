@@ -77,6 +77,16 @@ const moduleVisuals: Record<AppRoute, ModuleVisual> = {
     border: "#e7e5e4",
     surface: "#fafaf9",
   },
+  "/life": {
+    fallbackStat: "סיפורים פעילים",
+    icon: "timeline",
+    iconTone: "text-amber-800",
+    iconBg: "bg-amber-50",
+    glow: "bg-amber-400/10",
+    accent: "#b45309",
+    border: "#fde68a",
+    surface: "#fffbeb",
+  },
   "/finance": {
     fallbackStat: "תזרים ותקציב",
     icon: "finance",
