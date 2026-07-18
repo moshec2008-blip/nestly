@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Six storage keys (vehicle profiles, driver licenses, fines, knowledge revisions, legacy collections and archive) were stored device-globally instead of per family space, causing cross-space data leakage, demo-mode contamination and omission from backups. They are now scoped, existing global data is migrated once into the active space, and restoring older backups maps them into the active space.
+
 ## 2.0 RC - Product Excellence Preparation
 
 This release candidate focuses on product maturity, trust and operational readiness.

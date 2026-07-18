@@ -57,6 +57,12 @@ function getRestoreKey(key: string, activeScope: string | null) {
   const scopedParts = getScopedKeyParts(key);
 
   if (!scopedParts) {
+    // גיבויים ישנים שמרו מפתחות תלויי-מרחב בצורה גלובלית (לפני תיקון הבידוד) —
+    // ממפים אותם אל המרחב הפעיל כדי שהנתונים יופיעו מיד אחרי השחזור.
+    if (isUserScopedStorageKey(key)) {
+      return getScopedStorageKeyForScope(activeScope, key) ?? key;
+    }
+
     return key;
   }
 

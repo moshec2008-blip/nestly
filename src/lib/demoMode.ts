@@ -4,6 +4,7 @@ import {
   getActiveStorageUserScope,
   getScopedStorageKeyForScope,
   guestStorageScope,
+  migrateLegacyUnscopedStorageData,
   setActiveStorageUserScope,
 } from "@/utils/storage";
 
@@ -59,4 +60,5 @@ export function exitDemoMode() {
   window.localStorage.removeItem(previousScopeStorageKey);
 
   setActiveStorageUserScope(previousScope);
+  migrateLegacyUnscopedStorageData();
 }

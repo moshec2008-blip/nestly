@@ -19,6 +19,9 @@ const userScopedStorageKeys = new Set([
   "beit-cohen-shor-documents",
   "beit-cohen-shor-receipt-documents",
   "beit-cohen-shor-vehicle-records",
+  "nestly-vehicle-profiles",
+  "nestly-vehicle-driver-licenses",
+  "nestly-vehicle-fines",
   "beit-cohen-shor-family-records",
   "nestly-family-tree",
   "beit-cohen-shor-birthdays",
@@ -26,6 +29,9 @@ const userScopedStorageKeys = new Set([
   "beit-cohen-shor-permissions",
   "nestly-smart-captures",
   "nestly-family-knowledge",
+  "nestly-family-knowledge-revisions",
+  "nestly-family-legacy-collections",
+  "nestly-family-legacy-archive",
   "nestly-family-timeline",
   "nestly-entity-relations",
   "nestly-ai-suggestions",
@@ -146,6 +152,65 @@ export function clearActiveScopedStorageData() {
   }
 
   return removedCount;
+}
+
+// מפתחות שנשמרו בעבר בלי בידוד מרחב (באג היסטורי): הנתונים שלהם ישבו במפתח
+// גלובלי אחד משותף לכל המרחבים באותו דפדפן. המפתחות נוספו מאז ל-userScopedStorageKeys,
+// והפונקציה הזו מעבירה חד-פעמית נתונים קיימים מהמפתח הגלובלי אל המרחב הפעיל.
+const legacyUnscopedStorageKeys = [
+  "nestly-vehicle-profiles",
+  "nestly-vehicle-driver-licenses",
+  "nestly-vehicle-fines",
+  "nestly-family-knowledge-revisions",
+  "nestly-family-legacy-collections",
+  "nestly-family-legacy-archive",
+] as const;
+
+// המרחב הפעיל הראשון (אורח או משפחה, לא דמו) מאמץ את הנתונים הגלובליים הישנים.
+// המפתח הגלובלי נמחק רק אחרי העתקה מוצלחת, כדי שדמו ומרחבים אחרים לא ידלפו אליו.
+export function migrateLegacyUnscopedStorageData() {
+  if (typeof window === "undefined") {
+    return 0;
+  }
+
+  const scope = getActiveStorageUserScope();
+
+  if (!scope || scope === demoStorageScope) {
+    return 0;
+  }
+
+  let migratedCount = 0;
+
+  for (const key of legacyUnscopedStorageKeys) {
+    const legacyValue = window.localStorage.getItem(key);
+
+    if (legacyValue === null) {
+      continue;
+    }
+
+    const scopedKey = getScopedStorageKeyForScope(scope, key);
+
+    if (!scopedKey || scopedKey === key) {
+      continue;
+    }
+
+    try {
+      if (window.localStorage.getItem(scopedKey) === null) {
+        window.localStorage.setItem(scopedKey, legacyValue);
+        migratedCount += 1;
+      }
+
+      window.localStorage.removeItem(key);
+    } catch {
+      // אין מקום — משאירים את המפתח הגלובלי כדי לא לאבד נתונים.
+    }
+  }
+
+  if (migratedCount > 0) {
+    window.dispatchEvent(new CustomEvent(storageScopeEventName));
+  }
+
+  return migratedCount;
 }
 
 export function hasStoredValue(key: string) {

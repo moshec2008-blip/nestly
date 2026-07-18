@@ -17,6 +17,7 @@ import {
   getScopedStorageKeyForScope,
   getStorageScopeEventName,
   guestStorageScope,
+  migrateLegacyUnscopedStorageData,
   setActiveStorageUserScope,
 } from "@/utils/storage";
 
@@ -110,6 +111,7 @@ export default function AuthStorageScope() {
       });
 
       setActiveStorageUserScope(familySpace?.id ?? accountKey);
+      migrateLegacyUnscopedStorageData();
       const targetScope = familySpace?.id ?? accountKey;
       const hasGuestData = migratableStorageKeys.some((storageKey) => {
         const guestKey = getScopedStorageKeyForScope(guestStorageScope, storageKey);
@@ -145,6 +147,7 @@ export default function AuthStorageScope() {
 
     if (status === "unauthenticated" && !isDemoModeActive()) {
       setActiveStorageUserScope(guestStorageScope);
+      migrateLegacyUnscopedStorageData();
     }
   }, [accountKey, status, userEmail, userImage, userName]);
 
