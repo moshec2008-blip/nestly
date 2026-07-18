@@ -13,11 +13,13 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 ```
 
-Optional AI:
+AI (Gemini is the primary provider — setting GEMINI_API_KEY enables live analysis):
 
 ```env
-ANTHROPIC_API_KEY=
 GEMINI_API_KEY=
+NESTLY_AI_ACCESS_CODE=
+# Optional secondary provider for document classification only
+ANTHROPIC_API_KEY=
 ```
 
 Feedback:

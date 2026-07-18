@@ -77,7 +77,7 @@ Version 2.0 RC preparation improves product consistency, operations, support, mo
 | --- | --- | --- |
 | Provider abstraction | Complete | AI provider layer supports mock/disabled/live direction. |
 | Mock AI mode | Complete | Safe for demos and local testing. |
-| Real AI provider | Partial | Requires server env vars and cost controls. |
+| Real AI provider | Complete | Google Gemini via `GEMINI_API_KEY`; mock fallback without it; demo always mock. Verified end-to-end 2026-07-18. |
 | User review before save | Complete | AI results should be reviewed before records are created. |
 | Sensitive content handling | Partial | Server-side routes avoid client secrets; production privacy policy still required. |
 | AI rate limiting | Partial | In-memory per-process limiter exists, not distributed. |

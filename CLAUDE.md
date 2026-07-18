@@ -25,9 +25,14 @@ this reduce mental effort for the family?"* If not, it doesn't belong.
 3. **Medical AI** — scan referrals/Form 17/results → group into a "Medical
    Journey": case, checklist, appointments, reminders, timeline.
 
-Server-side AI lives in `src/app/api/ai/*` (Claude API, key in env vars only).
-Client never holds API keys. Demo mode always uses the local mock. When no
-`ANTHROPIC_API_KEY` is configured the whole AI layer degrades to the mock.
+Server-side AI lives in `src/app/api/ai/*`. The live provider is **Google
+Gemini** (direct REST, no SDK dependency — `src/lib/ai/providers/gemini-provider.ts`,
+default model `gemini-3.5-flash`, override via `GEMINI_MODEL`). Setting
+`GEMINI_API_KEY` alone enables live analysis. Client never holds API keys.
+Demo mode always uses the local mock (enforced server-side in
+`getAIProviderForInput`). When no `GEMINI_API_KEY` is configured the whole AI
+layer degrades to the mock. `ANTHROPIC_API_KEY` is an optional secondary path
+for document classification only.
 
 ## Data & modes
 
