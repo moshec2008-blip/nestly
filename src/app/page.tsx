@@ -135,7 +135,7 @@ export default function HomePage() {
     quickActions: <HomeQuickActions />,
     importantToday: <ImportantToday />,
     moreAreas: (
-      <section className="home-more-section rounded-[24px] border border-white/80 bg-gradient-to-br from-white/92 via-[#fffdf8]/92 to-white/82 p-3 shadow-[0_12px_30px_rgba(33,43,63,0.055)] ring-1 ring-[#eadfcd]/55">
+      <section className="home-more-section rounded-[22px] border border-[#eadfcd]/70 bg-white/68 p-3 shadow-[0_8px_22px_rgba(33,43,63,0.04)]">
         <HomeSectionHeader title={copy.title} subtitle={copy.subtitle} />
         <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
           {homeAreas.map((area) => (
@@ -148,7 +148,7 @@ export default function HomePage() {
 
   return (
     <AppShell>
-      <div className="space-y-3.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.5rem)] lg:space-y-4 lg:pb-0">
+      <div className="mx-auto max-w-5xl space-y-3 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.5rem)] lg:space-y-4 lg:pb-0">
         <HomeHero />
 
         {visibleHomeSections.map((section) => (

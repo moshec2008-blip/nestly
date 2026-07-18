@@ -190,16 +190,7 @@ export default function HomeHero() {
   ];
 
   return (
-    <section className="relative overflow-hidden rounded-[26px] border border-white/80 bg-white/95 p-5 shadow-[0_18px_42px_rgba(33,43,63,0.085)] ring-1 ring-[#eadfcd]/65 backdrop-blur-xl">
-      <span
-        className="pointer-events-none absolute -left-12 -top-12 h-28 w-28 rounded-full bg-sky-100/40 blur-2xl"
-        aria-hidden="true"
-      />
-      <span
-        className="pointer-events-none absolute -bottom-14 right-1 h-32 w-32 rounded-full bg-emerald-100/36 blur-2xl"
-        aria-hidden="true"
-      />
-
+    <section className="relative overflow-hidden rounded-[24px] border border-[#eadfcd]/76 bg-white/90 p-4 shadow-[0_12px_30px_rgba(33,43,63,0.06)] backdrop-blur-xl sm:p-5">
       <div
         className={[
           "relative min-w-0",
@@ -215,7 +206,7 @@ export default function HomeHero() {
             {getTodayLabel(language)}
           </p>
         </div>
-        <h1 className="mt-1 text-[26px] font-black leading-8 text-[#0f172a]">
+        <h1 className="mt-1 text-[25px] font-black leading-8 text-[#0f172a]">
           {getGreeting(language)}
         </h1>
         <p className="mt-1 max-w-[20rem] text-sm font-black leading-5 text-[#111827]">
@@ -229,15 +220,15 @@ export default function HomeHero() {
         </p>
       </div>
 
-      <div className="relative mt-4 grid grid-cols-3 gap-2.5">
+      <div className="relative mt-4 grid grid-cols-3 overflow-hidden rounded-[18px] border border-[#eee3d2] bg-[#fffaf1]/78">
         {stats.map((stat) => (
           <Link
             key={stat.id}
             href={stat.href}
-            className="rounded-[18px] bg-[#fafafb]/92 p-2.5 text-center ring-1 ring-[#e6e8ec]/65 transition duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_12px_28px_rgba(33,43,63,0.08)] active:scale-[0.99]"
+            className="min-w-0 border-l border-[#eee3d2] px-2 py-2.5 text-center transition duration-200 first:border-l-0 hover:bg-white active:scale-[0.99]"
           >
             <span
-              className={`mx-auto grid h-8 w-8 place-items-center rounded-2xl ring-1 ${stat.chipClass}`}
+              className={`mx-auto grid h-7 w-7 place-items-center rounded-xl ring-1 ${stat.chipClass}`}
             >
               <AppIcon name={stat.icon} className="h-4 w-4" />
             </span>

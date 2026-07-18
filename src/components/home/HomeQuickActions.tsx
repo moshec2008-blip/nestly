@@ -17,7 +17,6 @@ type QuickAction = {
     en: string;
   };
   accentClass: string;
-  tileClass: string;
 };
 
 const quickActions: QuickAction[] = [
@@ -27,7 +26,6 @@ const quickActions: QuickAction[] = [
     icon: "shopping",
     labels: { he: "רשימת קניות", en: "Shopping list" },
     accentClass: "bg-sky-50 text-sky-700 ring-sky-100",
-    tileClass: "bg-gradient-to-br from-[#d9eefb] to-[#8fb9d9]",
   },
   {
     id: "tasks",
@@ -35,7 +33,6 @@ const quickActions: QuickAction[] = [
     icon: "check",
     labels: { he: "משימות לביצוע", en: "Open tasks" },
     accentClass: "bg-amber-50 text-amber-700 ring-amber-100",
-    tileClass: "bg-gradient-to-br from-[#fff8d8] to-[#f6e9ad]",
   },
   {
     id: "finance",
@@ -43,7 +40,6 @@ const quickActions: QuickAction[] = [
     icon: "finance",
     labels: { he: "תקציב משפחתי", en: "Family budget" },
     accentClass: "bg-emerald-50 text-emerald-700 ring-emerald-100",
-    tileClass: "bg-gradient-to-br from-[#dcf7df] to-[#a8d8b5]",
   },
   {
     id: "events",
@@ -51,7 +47,6 @@ const quickActions: QuickAction[] = [
     icon: "calendar",
     labels: { he: "אירועים", en: "Events" },
     accentClass: "bg-rose-50 text-rose-700 ring-rose-100",
-    tileClass: "bg-gradient-to-br from-[#ffe4dd] to-[#ffad9e]",
   },
 ];
 
@@ -86,12 +81,12 @@ export default function HomeQuickActions() {
   return (
     <section aria-label={copy.aria} className="space-y-2.5">
       {visibleActions.length > 0 ? (
-        <nav className="grid grid-cols-2 gap-2.5">
+        <nav className="grid grid-cols-2 gap-2 rounded-[22px] border border-[#eadfcd]/76 bg-white/76 p-1.5 shadow-[0_10px_24px_rgba(33,43,63,0.045)] sm:grid-cols-4">
           {visibleActions.map((action) => (
           <Link
             key={action.href}
             href={action.href}
-            className={`flex min-h-[56px] flex-col items-center justify-center gap-1.5 rounded-[17px] border border-white/70 px-2.5 py-2 text-center shadow-[0_7px_16px_rgba(33,43,63,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.1)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] ${action.tileClass}`}
+            className="flex min-h-[54px] items-center justify-center gap-2 rounded-[17px] px-2.5 py-2 text-center transition hover:bg-[#fffaf1] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99]"
           >
             <span
               className={`grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-white/52 ring-1 ${action.accentClass}`}
@@ -109,7 +104,7 @@ export default function HomeQuickActions() {
       {showReceiptScan ? (
         <ReceiptScanPreview
         triggerClassName={[
-          "flex min-h-[58px] cursor-pointer items-center justify-between gap-3 rounded-[18px] border border-[#eadfcd] bg-gradient-to-l from-[#fbf7ff] via-white to-[#fffdf8] px-3.5 py-2.5 shadow-[0_8px_18px_rgba(33,43,63,0.055)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.09)] focus-within:ring-2 focus-within:ring-[#eadfcd]",
+          "flex min-h-[58px] cursor-pointer items-center justify-between gap-3 rounded-[18px] border border-[#dcc9aa] bg-[#fffaf1] px-3.5 py-2.5 shadow-[0_8px_18px_rgba(33,43,63,0.045)] transition hover:bg-white focus-within:ring-2 focus-within:ring-[#eadfcd] active:scale-[0.99]",
           direction === "rtl" ? "text-right" : "text-left",
         ].join(" ")}
         triggerContent={

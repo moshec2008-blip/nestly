@@ -115,18 +115,16 @@ body::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    linear-gradient(135deg, rgba(255, 252, 245, 0.94) 0%, rgba(246, 249, 255, 0.96) 48%, rgba(249, 244, 235, 0.9) 100%),
-    linear-gradient(90deg, rgba(17, 24, 39, 0.025) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(17, 24, 39, 0.02) 1px, transparent 1px);
-  background-size: auto, 48px 48px, 48px 48px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 253, 248, 0.98) 0%,
+    rgba(248, 250, 252, 0.96) 54%,
+    rgba(247, 242, 232, 0.94) 100%
+  );
 }
 
 .nestly-page-shell {
-  background:
-    radial-gradient(circle at 82% 8%, rgba(216, 180, 112, 0.16), transparent 32%),
-    radial-gradient(circle at 12% 18%, rgba(29, 78, 216, 0.08), transparent 30%),
-    linear-gradient(135deg, #fffdf8 0%, #f8fafc 42%, #f7f0e6 100%);
+  background: linear-gradient(180deg, #fffdf8 0%, #f8fafc 46%, #f6f1e8 100%);
 }
 
 .nestly-card {

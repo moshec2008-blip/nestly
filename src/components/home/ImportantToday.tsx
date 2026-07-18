@@ -285,14 +285,14 @@ export function NestlyAiInsightCard({ insight }: { insight: HomeInsight }) {
   const copy = getCopy(language);
 
   return (
-    <section
+    <div
       className={[
-        "rounded-[22px] border border-white/80 bg-gradient-to-l from-violet-100/70 via-sky-50/88 to-emerald-50/82 p-3 shadow-[0_12px_28px_rgba(76,29,149,0.09)]",
+        "rounded-[18px] border border-[#eadfcd]/70 bg-[#fffaf1]/72 px-3 py-2.5",
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
-        <span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/76 text-violet-700 shadow-sm ring-1 ring-violet-100">
+        <span className="grid h-9 w-9 place-items-center rounded-2xl bg-white/82 text-[#8a5b16] ring-1 ring-[#eadfcd]">
           <AppIcon name="spark" className="h-4.5 w-4.5" />
         </span>
 
@@ -307,12 +307,12 @@ export function NestlyAiInsightCard({ insight }: { insight: HomeInsight }) {
 
         <Link
           href={insight.href}
-          className="grid min-h-10 shrink-0 place-items-center rounded-2xl border border-white/80 bg-white/72 px-3 text-xs font-black text-[#111827] shadow-sm transition hover:bg-white"
+          className="grid min-h-10 shrink-0 place-items-center rounded-2xl border border-[#eadfcd] bg-white/72 px-3 text-xs font-black text-[#111827] transition hover:bg-white"
         >
           {copy.open}
         </Link>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -332,7 +332,7 @@ export default function ImportantToday() {
   return (
     <section
       className={[
-        "rounded-[26px] border border-white/80 bg-white/96 p-5 shadow-[0_18px_44px_rgba(33,43,63,0.085)] ring-1 ring-[#eadfcd]/65",
+        "rounded-[24px] border border-[#eadfcd]/76 bg-white/90 p-4 shadow-[0_12px_30px_rgba(33,43,63,0.06)] sm:p-5",
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
@@ -365,10 +365,10 @@ export default function ImportantToday() {
             <li key={row.id}>
               <Link
                 href={row.href}
-                className="group flex min-h-[72px] min-w-0 items-center gap-3 rounded-2xl px-1 py-3 transition duration-200 hover:bg-[#fffdf8] active:scale-[0.99]"
+                className="group flex min-h-[64px] min-w-0 items-center gap-3 rounded-2xl px-1 py-2.5 transition duration-200 hover:bg-[#fffdf8] active:scale-[0.99]"
               >
                 <span
-                  className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ring-1 ${row.iconClass}`}
+                  className={`grid h-10 w-10 shrink-0 place-items-center rounded-2xl ring-1 ${row.iconClass}`}
                 >
                   <AppIcon name={row.icon} className="h-4.5 w-4.5" />
                 </span>

@@ -6,7 +6,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type MouseEvent,
 } from "react";
 import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
@@ -18,9 +17,6 @@ import type { AppRoute } from "@/types/navigation";
 type PrimaryTab = {
   href: AppRoute;
   icon: AppIconName;
-  glow: string;
-  shadow: string;
-  activeShadow: string;
 };
 
 type MoreItem = {
@@ -36,30 +32,18 @@ const primaryTabs: PrimaryTab[] = [
   {
     href: "/",
     icon: "home",
-    glow: "bg-indigo-400/20",
-    shadow: "0 12px 28px rgba(99,102,241,0.22)",
-    activeShadow: "0 14px 34px rgba(99,102,241,0.34)",
   },
   {
     href: "/tasks",
     icon: "check",
-    glow: "bg-orange-400/20",
-    shadow: "0 12px 28px rgba(249,115,22,0.24)",
-    activeShadow: "0 14px 34px rgba(249,115,22,0.36)",
   },
   {
     href: "/shopping",
     icon: "shopping",
-    glow: "bg-cyan-400/20",
-    shadow: "0 12px 28px rgba(6,182,212,0.24)",
-    activeShadow: "0 14px 34px rgba(6,182,212,0.36)",
   },
   {
     href: "/finance",
     icon: "finance",
-    glow: "bg-emerald-400/20",
-    shadow: "0 12px 28px rgba(16,185,129,0.24)",
-    activeShadow: "0 14px 34px rgba(16,185,129,0.36)",
   },
 ];
 
@@ -344,27 +328,18 @@ export default function MobileBottomNavigation() {
               tab.href === "/"
                 ? pathname === "/"
                 : pathname.startsWith(tab.href);
-            const tabStyle = {
-              "--tab-shadow": isActive ? tab.activeShadow : tab.shadow,
-            } as CSSProperties;
-
             return (
               <Link
                 key={tab.href}
                 href={tab.href}
-                style={tabStyle}
                 aria-current={isActive ? "page" : undefined}
                 className={[
-                  "relative flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[18px] px-1.5 py-1.5 text-[10px] font-black shadow-[var(--tab-shadow)] ring-offset-2 ring-offset-[#fffdf8] transition duration-200 active:scale-[0.98]",
+                  "relative flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[18px] px-1.5 py-1.5 text-[10px] font-black ring-offset-2 ring-offset-[#fffdf8] transition duration-200 active:scale-[0.98]",
                   isActive
-                    ? "border border-[#111827]/12 bg-[#fff8eb] text-[#111827] ring-1 ring-[#d8b470]/35"
-                    : "border border-[#eadfcd] bg-white text-slate-700 hover:-translate-y-0.5 hover:bg-[#fff8eb] hover:text-[#111827]",
+                    ? "border border-[#d8caba] bg-[#fff8eb] text-[#111827] shadow-[0_8px_18px_rgba(33,43,63,0.08)] ring-1 ring-[#d8b470]/28"
+                    : "border border-transparent bg-transparent text-slate-600 hover:bg-white/72 hover:text-[#111827]",
                 ].join(" ")}
               >
-                <span
-                  className={`pointer-events-none absolute -top-4 h-9 w-9 rounded-full blur-xl ${tab.glow}`}
-                  aria-hidden="true"
-                />
                 <AppIcon name={tab.icon} className="relative h-5 w-5" />
                 <span className="relative truncate leading-none">
                   {getRouteLabel(tab.href, dictionary)}
@@ -379,8 +354,8 @@ export default function MobileBottomNavigation() {
             className={[
               "flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 rounded-[18px] border px-1.5 py-1.5 text-[10px] font-black transition duration-200 active:scale-[0.98]",
               isMoreActive || isMoreOpen
-                ? "border-[#111827]/12 bg-[#fff8eb] text-[#111827] shadow-[0_14px_34px_rgba(154,107,23,0.24)] ring-1 ring-[#d8b470]/35"
-                : "border-[#eadfcd] bg-white text-slate-700 shadow-[0_12px_28px_rgba(33,43,63,0.1)] hover:-translate-y-0.5 hover:bg-[#fff8eb] hover:text-[#111827]",
+                ? "border-[#d8caba] bg-[#fff8eb] text-[#111827] shadow-[0_8px_18px_rgba(33,43,63,0.08)] ring-1 ring-[#d8b470]/28"
+                : "border-transparent bg-transparent text-slate-600 hover:bg-white/72 hover:text-[#111827]",
             ].join(" ")}
             aria-label="פתיחת כל אזורי נסטלי"
             aria-expanded={isMoreOpen}

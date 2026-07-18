@@ -80,7 +80,7 @@ export function HomeAreaCard({ area }: { area: HomeArea }) {
   return (
     <Link
       href={area.href}
-      className={`home-area-card relative flex min-h-[88px] flex-col justify-between overflow-hidden rounded-[18px] border border-white/80 p-3 shadow-[0_8px_18px_rgba(33,43,63,0.04)] ring-1 ring-[#eadfcd]/50 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(33,43,63,0.08)] focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${direction === "rtl" ? "text-right" : "text-left"} ${area.tintClass ?? "bg-white"}`}
+      className={`home-area-card relative flex min-h-[84px] flex-col justify-between overflow-hidden rounded-[18px] border border-[#eadfcd]/66 bg-white/78 p-3 shadow-[0_6px_16px_rgba(33,43,63,0.035)] transition duration-200 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${direction === "rtl" ? "text-right" : "text-left"}`}
     >
       <span
         className={[
