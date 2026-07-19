@@ -22,8 +22,6 @@ const allAppRoutes: AppRoute[] = [
   "/",
   "/finance",
   "/tasks",
-  "/dashboard",
-  "/command-center",
   "/handle",
   "/memory",
   "/assistant",
@@ -155,13 +153,15 @@ describe("Release 1 navigation model", () => {
 
     expect(moreRoutes).toEqual(
       expect.arrayContaining([
-        "/dashboard",
-        "/command-center",
         "/knowledge",
         "/timeline",
         "/life",
         "/legacy",
       ])
+    );
+    // המסכים הישנים נפרשו — אסור שיחזרו לניווט.
+    expect(moreRoutes).not.toEqual(
+      expect.arrayContaining(["/dashboard", "/command-center"])
     );
     expect(primaryIds).not.toEqual(
       expect.arrayContaining([

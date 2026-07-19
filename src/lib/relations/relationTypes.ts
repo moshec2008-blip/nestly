@@ -68,11 +68,11 @@ export const entityTypeRoutes: Partial<Record<EntityRelationType, AppRoute>> = {
   family_event: "/birthdays",
   family_knowledge: "/knowledge",
   reminder: "/tasks",
-  smart_capture: "/command-center",
-  smart_inbox_item: "/command-center",
+  smart_capture: "/handle",
+  smart_inbox_item: "/handle",
   timeline_item: "/timeline",
   life_event: "/life",
-  command_center_item: "/command-center",
+  command_center_item: "/handle",
 };
 
 export const entityTypeIcons: Record<EntityRelationType, string> = {

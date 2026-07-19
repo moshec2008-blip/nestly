@@ -143,22 +143,6 @@ export const releaseWorkspaceNavigation: ReleaseNavigationRouteItem[] = [
 
 export const releaseSecondaryNavigation: ReleaseNavigationRouteItem[] = [
   {
-    id: "command-center",
-    kind: "route",
-    href: "/command-center",
-    icon: "dashboard",
-    label: { he: "מרכז המשפחה", en: "Command Center" },
-    description: { he: "סקירת טיפול ישנה", en: "Legacy action overview" },
-  },
-  {
-    id: "dashboard",
-    kind: "route",
-    href: "/dashboard",
-    icon: "dashboard",
-    label: { he: "סקירה", en: "Overview" },
-    description: { he: "סקירת מודולים", en: "Module overview" },
-  },
-  {
     id: "knowledge",
     kind: "route",
     href: "/knowledge",

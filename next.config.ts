@@ -3,6 +3,13 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   devIndicators: false,
   reactCompiler: true,
+  // מסכים שנפרשו — קישורים ישנים מופנים ליורשים שלהם.
+  async redirects() {
+    return [
+      { source: "/command-center", destination: "/handle", permanent: false },
+      { source: "/dashboard", destination: "/", permanent: false },
+    ];
+  },
   async headers() {
     const securityHeaders = [
       {

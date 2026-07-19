@@ -1,28 +1,6 @@
 import type { NavigationItem } from "@/types/navigation";
 
-export const dashboardStats = [
-  {
-    title: "משימות פתוחות",
-    value: "2",
-    note: "דורשות טיפול",
-  },
-  {
-    title: "פעולות כספים",
-    value: "18",
-    note: "בדמו הנוכחי",
-  },
-  {
-    title: "מודולים פעילים",
-    value: "13",
-    note: "כל אזורי הבית מחוברים",
-  },
-  {
-    title: "שמירה מקומית",
-    value: "פעילה",
-    note: "בדפדפן המשתמש",
-  },
-];
-
+// אינדקס המודולים לחיפוש הגלובלי (services/globalSearch.ts).
 export const appModules: NavigationItem[] = [
   {
     label: "כספים",
@@ -36,12 +14,6 @@ export const appModules: NavigationItem[] = [
     href: "/tasks",
     description:
       "משימות בית, אחראים, תאריכי יעד, עדיפויות, חיפוש וסינון.",
-    status: "פעיל",
-  },
-  {
-    label: "מרכז המשפחה",
-    href: "/command-center",
-    description: "פעולה מומלצת, דחופים, היום ומה שמתקרב.",
     status: "פעיל",
   },
   {

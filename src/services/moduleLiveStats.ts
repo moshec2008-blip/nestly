@@ -11,7 +11,6 @@ import { getTaskStats, initialFamilyTasks } from "@/data/tasks";
 import type { AppLanguage } from "@/i18n/config";
 import { storageKeys } from "@/lib/storageKeys";
 import { readKnowledgeItems } from "@/services/familyKnowledge";
-import { getCommandCenterSections } from "@/services/commandCenterService";
 import { getRecentTimelineItems } from "@/services/timelineService";
 import type { AppRoute } from "@/types/navigation";
 import {
@@ -60,14 +59,6 @@ export function getModuleLiveStat(
     const tasks = readStorageArray(storageKeys.tasks, initialFamilyTasks);
     const openTasks = getTaskStats(tasks).openTasks;
     return language === "en" ? `${openTasks} open` : `${openTasks} פתוחות`;
-  }
-
-  if (href === "/command-center") {
-    const sections = getCommandCenterSections();
-    const attentionCount = sections.urgent.length + sections.today.length;
-    return language === "en"
-      ? `${attentionCount} need attention`
-      : `${attentionCount} לטיפול`;
   }
 
   if (href === "/timeline") {
