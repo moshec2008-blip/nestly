@@ -7,6 +7,7 @@ export type FamilyTask = {
   priority: "low" | "medium" | "high";
   status: "open" | "done";
   dueDate: string;
+  completedAt?: string;
 };
 
 export function isFamilyTask(value: unknown): value is FamilyTask {
@@ -20,7 +21,8 @@ export function isFamilyTask(value: unknown): value is FamilyTask {
     typeof task.id === "string" &&
     task.id.length > 0 &&
     typeof task.title === "string" &&
-    (task.status === "open" || task.status === "done")
+    (task.status === "open" || task.status === "done") &&
+    (task.completedAt === undefined || typeof task.completedAt === "string")
   );
 }
 

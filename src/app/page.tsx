@@ -108,12 +108,12 @@ const homeAreasByLanguage: Record<"he" | "en", HomeArea[]> = {
 
 const sectionCopy = {
   he: {
-    title: "עוד בבית",
-    subtitle: "כל האזורים הפחות דחופים, במקום אחד",
+    title: "שאר הבית",
+    subtitle: "כל מה שלא דחוף, מחכה כאן בשקט.",
   },
   en: {
-    title: "More at home",
-    subtitle: "Less urgent areas, all in one place",
+    title: "The rest of home",
+    subtitle: "Everything less urgent, waiting quietly.",
   },
 } as const;
 
@@ -125,12 +125,12 @@ export default function HomePage() {
 
   return (
     <AppShell>
-      <div className="mx-auto w-full max-w-5xl space-y-3 overflow-hidden pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.5rem)] lg:space-y-4 lg:pb-0">
+      <div className="mx-auto w-full max-w-5xl space-y-6 overflow-hidden pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.5rem)] lg:space-y-7 lg:pb-0">
         <HomeDailyCommandCenter />
 
-        <section className="home-more-section w-full max-w-full overflow-hidden rounded-[24px] bg-white/58 p-3 shadow-[0_10px_26px_rgba(33,43,63,0.045)]">
+        <section className="home-more-section w-full max-w-full overflow-hidden">
           <HomeSectionHeader title={copy.title} subtitle={copy.subtitle} />
-          <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
+          <div className="grid grid-cols-1 gap-2 min-[360px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
             {homeAreas.map((area) => (
               <HomeAreaCard key={area.href} area={area} />
             ))}

@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import { Button } from "@/components/ui/Button";
 import DateInput from "@/components/ui/DateInput";
 import EmptyState from "@/components/ui/EmptyState";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
+import StatusPill from "@/components/ui/StatusPill";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import {
   isModuleRecord,
@@ -190,7 +192,9 @@ export default function ModuleManager({
     setRecords((currentRecords) =>
       currentRecords.map((record) =>
         record.id === id
-          ? { ...record, status: record.status === "done" ? "open" : "done" }
+          ? record.status === "done"
+            ? { ...record, status: "open", completedAt: undefined }
+            : { ...record, status: "done", completedAt: new Date().toISOString() }
           : record
       )
     );
@@ -325,21 +329,18 @@ export default function ModuleManager({
             inputClassName="min-h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-right text-slate-950 outline-none focus:border-slate-400"
           />
 
-          <button
-            type="submit"
-            className="rounded-2xl bg-[#111827] px-5 py-3 text-sm font-black text-white shadow-[0_10px_24px_rgba(17,24,39,0.18)] transition hover:-translate-y-0.5 hover:bg-slate-800"
-          >
+          <Button type="submit" tone="primary" size="md">
             {editingRecordId ? "שמור שינויים" : "שמור"}
-          </button>
+          </Button>
 
           {editingRecordId && (
-            <button
-              type="button"
+            <Button
               onClick={cancelEdit}
-              className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-800 transition hover:bg-slate-50"
+              tone="secondary"
+              size="md"
             >
               ביטול עריכה
-            </button>
+            </Button>
           )}
 
           <textarea
@@ -358,16 +359,17 @@ export default function ModuleManager({
 
       <section className="rounded-[22px] border border-slate-200/80 bg-white/92 p-3 text-right text-slate-950 shadow-[0_14px_36px_rgba(15,23,42,0.08)] backdrop-blur">
         <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <button
-            type="button"
+          <Button
             onClick={() => {
               setSearchValue("");
               setStatusFilter("all");
             }}
-            className="w-fit rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-bold text-slate-800 transition hover:bg-white"
+            tone="secondary"
+            size="sm"
+            className="w-fit"
           >
             נקה סינון
-          </button>
+          </Button>
 
           <div>
             <p className="mb-1 text-xs font-bold text-slate-500">
@@ -444,12 +446,12 @@ export default function ModuleManager({
 
                   <div className="max-w-3xl">
                     <div className="mb-2 flex flex-wrap justify-end gap-2 text-xs font-bold">
-                      <span className="rounded-full bg-white px-3 py-1 text-slate-700 ring-1 ring-slate-200">
+                      <StatusPill size="sm">
                         {getStatusLabel(record.status)}
-                      </span>
-                      <span className="rounded-full bg-white px-3 py-1 text-slate-700 ring-1 ring-slate-200">
+                      </StatusPill>
+                      <StatusPill size="sm">
                         {record.category}
-                      </span>
+                      </StatusPill>
                     </div>
                     <h3 className="text-base font-black text-slate-950">{record.title}</h3>
                     <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-600">

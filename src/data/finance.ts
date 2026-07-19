@@ -14,6 +14,7 @@ export type FinanceTransaction = {
   originalTotal?: number;
   reimbursementAmount?: number;
   aiConfidence?: number;
+  completedAt?: string;
 };
 
 export function isFinanceTransaction(
@@ -51,7 +52,9 @@ export function isFinanceTransaction(
     (transaction.reimbursementAmount === undefined ||
       typeof transaction.reimbursementAmount === "number") &&
     (transaction.aiConfidence === undefined ||
-      typeof transaction.aiConfidence === "number")
+      typeof transaction.aiConfidence === "number") &&
+    (transaction.completedAt === undefined ||
+      typeof transaction.completedAt === "string")
   );
 }
 

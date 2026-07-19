@@ -308,7 +308,9 @@ export default function TaskManager() {
     setTasks((currentTasks) =>
       currentTasks.map((task) =>
         task.id === id
-          ? { ...task, status: task.status === "done" ? "open" : "done" }
+          ? task.status === "done"
+            ? { ...task, status: "open", completedAt: undefined }
+            : { ...task, status: "done", completedAt: new Date().toISOString() }
           : task
       )
     );

@@ -2,156 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type MouseEvent,
-} from "react";
-import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
-import { getDictionary } from "@/i18n/dictionaries";
-import { getRouteLabel } from "@/i18n/navigation";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
+import AppIcon from "@/components/ui/AppIcon";
 import { useLanguage } from "@/i18n/useLanguage";
-import type { AppRoute } from "@/types/navigation";
-
-type PrimaryTab = {
-  href: AppRoute;
-  icon: AppIconName;
-};
-
-type MoreItem = {
-  href: AppRoute;
-  icon: AppIconName;
-  title: string;
-  description: string;
-  accent: string;
-  background: string;
-};
-
-const primaryTabs: PrimaryTab[] = [
-  {
-    href: "/",
-    icon: "home",
-  },
-  {
-    href: "/tasks",
-    icon: "check",
-  },
-  {
-    href: "/shopping",
-    icon: "shopping",
-  },
-  {
-    href: "/finance",
-    icon: "finance",
-  },
-];
-
-const moreItems: MoreItem[] = [
-  {
-    href: "/health",
-    icon: "health",
-    title: "בריאות",
-    description: "תרופות, בדיקות ומעקב משפחתי",
-    accent: "text-rose-700",
-    background: "bg-rose-50",
-  },
-  {
-    href: "/documents",
-    icon: "document",
-    title: "מסמכים",
-    description: "מסמכים חשובים במקום אחד",
-    accent: "text-sky-700",
-    background: "bg-sky-50",
-  },
-  {
-    href: "/command-center",
-    icon: "dashboard",
-    title: "מרכז המשפחה",
-    description: "מה דורש טיפול עכשיו",
-    accent: "text-cyan-700",
-    background: "bg-cyan-50",
-  },
-  {
-    href: "/assistant",
-    icon: "spark",
-    title: "העוזר של Nestly",
-    description: "תשובות מתוך המידע המשפחתי",
-    accent: "text-violet-700",
-    background: "bg-violet-50",
-  },
-  {
-    href: "/timeline",
-    icon: "timeline",
-    title: "ציר הזמן",
-    description: "מה קרה לאחרונה בבית",
-    accent: "text-stone-700",
-    background: "bg-stone-100",
-  },
-  {
-    href: "/life",
-    icon: "timeline",
-    title: "סיפורי חיים",
-    description: "הפרקים הגדולים של המשפחה",
-    accent: "text-amber-700",
-    background: "bg-amber-50",
-  },
-  {
-    href: "/vehicles",
-    icon: "car",
-    title: "רכבים",
-    description: "טיפולים, ביטוחים וטסטים",
-    accent: "text-amber-700",
-    background: "bg-amber-50",
-  },
-  {
-    href: "/family",
-    icon: "family",
-    title: "משפחה",
-    description: "מידע, קשרים ותפקידים",
-    accent: "text-violet-700",
-    background: "bg-violet-50",
-  },
-  {
-    href: "/knowledge",
-    icon: "knowledge",
-    title: "מידע משפחתי",
-    description: "דברים שהבית צריך לזכור",
-    accent: "text-teal-700",
-    background: "bg-teal-50",
-  },
-  {
-    href: "/birthdays",
-    icon: "calendar",
-    title: "אירועי משפחה",
-    description: "ימי הולדת ואירועים חשובים",
-    accent: "text-orange-700",
-    background: "bg-orange-50",
-  },
-  {
-    href: "/security",
-    icon: "lock",
-    title: "אבטחה",
-    description: "הרשאות ומידע רגיש",
-    accent: "text-slate-700",
-    background: "bg-slate-100",
-  },
-  {
-    href: "/settings",
-    icon: "settings",
-    title: "הגדרות",
-    description: "העדפות והתאמה אישית",
-    accent: "text-stone-700",
-    background: "bg-stone-100",
-  },
-];
+import {
+  getNavigationItemDescription,
+  getNavigationItemLabel,
+  isMoreActive,
+  isRouteActive,
+  releaseMoreNavigation,
+  releasePrimaryNavigation,
+} from "@/services/releaseNavigation";
 
 export default function MobileBottomNavigation() {
   const pathname = usePathname();
   const { language } = useLanguage();
-  const dictionary = getDictionary(language);
   const navRef = useRef<HTMLElement | null>(null);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const moreActive = isMoreActive(pathname);
+  const languageKey = language === "en" ? "en" : "he";
 
   useEffect(() => {
     const navElement = navRef.current;
@@ -223,12 +92,14 @@ export default function MobileBottomNavigation() {
     }
   }
 
-  function openCommandPalette() {
+  function openInbox() {
     closeMoreMenu();
-    window.dispatchEvent(new CustomEvent("nestly-open-command-palette"));
+    window.dispatchEvent(
+      new CustomEvent("nestly-open-universal-inbox", {
+        detail: { source: "text", mode: "text" },
+      })
+    );
   }
-
-  const isMoreActive = moreItems.some((item) => pathname.startsWith(item.href));
 
   return (
     <>
@@ -241,80 +112,57 @@ export default function MobileBottomNavigation() {
           <section
             id="mobile-more-navigation"
             className="mx-auto flex max-h-[min(72vh,34rem)] w-full max-w-md flex-col overflow-hidden rounded-[26px] border border-[#e6d9c9] bg-[#fffdf8] text-[#111827] shadow-[0_24px_70px_rgba(33,43,63,0.24)]"
-            aria-label="כל האזורים בנסטלי"
+            aria-label={languageKey === "en" ? "More areas" : "עוד אזורים"}
             aria-modal="true"
-            dir="rtl"
+            dir={languageKey === "he" ? "rtl" : "ltr"}
             role="dialog"
           >
             <div className="flex items-start justify-between gap-3 border-b border-[#efe5d7] px-4 py-3">
-              <div className="text-right">
+              <div className={languageKey === "he" ? "text-right" : "text-left"}>
                 <p className="text-[11px] font-black text-[#8a5b16]">
-                  כל האזורים
+                  {languageKey === "en" ? "Workspaces" : "אזורי עבודה"}
                 </p>
                 <h2 className="text-lg font-black text-[#111827]">
-                  לאן ממשיכים?
+                  {languageKey === "en" ? "Everything else" : "כל מה שלא דחוף עכשיו"}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={closeMoreMenu}
                 className="grid min-h-11 min-w-11 place-items-center rounded-2xl border border-[#eadfcd] bg-white text-slate-700 transition active:scale-95"
-                aria-label="סגירת תפריט האזורים"
+                aria-label={languageKey === "en" ? "Close more menu" : "סגור תפריט עוד"}
               >
                 <AppIcon name="close" className="h-5 w-5" />
               </button>
             </div>
 
             <div className="grid gap-1.5 overflow-y-auto p-2.5">
-              <button
-                type="button"
-                onClick={openCommandPalette}
-                className="flex min-h-[60px] items-center gap-3 rounded-[20px] bg-white px-3 py-2 text-right shadow-sm ring-1 ring-[#eadfcd] transition active:scale-[0.99]"
-              >
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#fff8eb] text-[#7a5212]">
-                  <AppIcon name="spark" className="h-5 w-5" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-black text-[#111827]">
-                    חיפוש ופעולות
-                  </span>
-                  <span className="block truncate text-[12px] font-semibold text-slate-600">
-                    מצאו כל דבר או פתחו פעולה מהירה
-                  </span>
-                </span>
-              </button>
-
-              {moreItems.map((item) => {
-                const isActive = pathname.startsWith(item.href);
+              {releaseMoreNavigation.map((item) => {
+                const active = isRouteActive(pathname, item.href);
 
                 return (
                   <Link
-                    key={item.href}
+                    key={item.id}
                     href={item.href}
                     onClick={closeMoreMenu}
-                    aria-current={isActive ? "page" : undefined}
+                    aria-current={active ? "page" : undefined}
                     className={[
-                      "flex min-h-[58px] items-center gap-3 rounded-[20px] px-3 py-2 text-right transition active:scale-[0.99]",
-                      isActive
+                      "flex min-h-[58px] items-center gap-3 rounded-[20px] px-3 py-2 transition active:scale-[0.99]",
+                      languageKey === "he" ? "text-right" : "text-left",
+                      active
                         ? "bg-[#fff8eb] shadow-[inset_0_0_0_1px_rgba(154,107,23,0.18)]"
                         : "hover:bg-white",
                     ].join(" ")}
                   >
-                    <span
-                      className={[
-                        "grid h-11 w-11 shrink-0 place-items-center rounded-2xl",
-                        item.background,
-                        item.accent,
-                      ].join(" ")}
-                    >
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-[#7a5212] ring-1 ring-[#eadfcd]">
                       <AppIcon name={item.icon} className="h-5 w-5" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-black text-[#111827]">
-                        {item.title}
+                        {getNavigationItemLabel(item, language)}
                       </span>
                       <span className="block truncate text-[12px] font-semibold text-slate-600">
-                        {item.description}
+                        {getNavigationItemDescription(item, language)}
                       </span>
                     </span>
                   </Link>
@@ -326,31 +174,47 @@ export default function MobileBottomNavigation() {
       )}
 
       <nav
+        data-nestly-bottom-nav="true"
         ref={navRef}
-        className="fixed inset-x-2 bottom-2.5 z-40 rounded-[26px] bg-white/88 px-2 py-2 shadow-[0_14px_36px_rgba(33,43,63,0.12)] backdrop-blur-2xl lg:hidden"
-        aria-label="ניווט תחתון"
+        className="fixed inset-x-3 bottom-2.5 z-40 rounded-[24px] bg-white/76 px-1.5 py-1.5 shadow-[0_10px_26px_rgba(33,43,63,0.085)] ring-1 ring-white/70 backdrop-blur-2xl lg:hidden"
+        aria-label={languageKey === "en" ? "Primary navigation" : "ניווט ראשי"}
       >
-        <div className="grid grid-cols-5 gap-1.5">
-          {primaryTabs.map((tab) => {
-            const isActive =
-              tab.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(tab.href);
+        <div className="grid grid-cols-5 gap-1">
+          {releasePrimaryNavigation.map((item) => {
+            if (item.kind === "action") {
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={openInbox}
+                  className="relative flex min-h-[48px] min-w-[48px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[17px] border border-transparent bg-[#111827] px-1 py-1 text-[10px] font-black text-white shadow-[0_6px_14px_rgba(17,24,39,0.13)] transition duration-200 active:scale-[0.98]"
+                  aria-label={getNavigationItemLabel(item, language)}
+                >
+                  <AppIcon name={item.icon} className="relative h-5 w-5" />
+                  <span className="relative truncate leading-none">
+                    {getNavigationItemLabel(item, language)}
+                  </span>
+                </button>
+              );
+            }
+
+            const active = isRouteActive(pathname, item.href);
+
             return (
               <Link
-                key={tab.href}
-                href={tab.href}
-                aria-current={isActive ? "page" : undefined}
+                key={item.id}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
                 className={[
-                  "relative flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[18px] px-1.5 py-1.5 text-[10px] font-black ring-offset-2 ring-offset-[#fffdf8] transition duration-200 active:scale-[0.98]",
-                  isActive
-                    ? "border border-transparent bg-[#fff3d8] text-[#111827] shadow-[0_8px_18px_rgba(126,86,28,0.12)]"
+                  "relative flex min-h-[48px] min-w-[48px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[17px] px-1 py-1 text-[10px] font-black ring-offset-2 ring-offset-[#fffdf8] transition duration-200 active:scale-[0.98]",
+                  active
+                    ? "border border-transparent bg-[#fff8eb] text-[#111827] shadow-[0_6px_14px_rgba(126,86,28,0.09)]"
                     : "border border-transparent bg-transparent text-slate-600 hover:bg-white/72 hover:text-[#111827]",
                 ].join(" ")}
               >
-                <AppIcon name={tab.icon} className="relative h-5 w-5" />
+                <AppIcon name={item.icon} className="relative h-5 w-5" />
                 <span className="relative truncate leading-none">
-                  {getRouteLabel(tab.href, dictionary)}
+                  {getNavigationItemLabel(item, language)}
                 </span>
               </Link>
             );
@@ -360,17 +224,19 @@ export default function MobileBottomNavigation() {
             type="button"
             onClick={() => setIsMoreOpen((currentValue) => !currentValue)}
             className={[
-              "flex min-h-[52px] min-w-[52px] flex-col items-center justify-center gap-1 rounded-[18px] border px-1.5 py-1.5 text-[10px] font-black transition duration-200 active:scale-[0.98]",
-              isMoreActive || isMoreOpen
-                ? "border-transparent bg-[#fff3d8] text-[#111827] shadow-[0_8px_18px_rgba(126,86,28,0.12)]"
+              "flex min-h-[48px] min-w-[48px] flex-col items-center justify-center gap-1 rounded-[17px] border px-1 py-1 text-[10px] font-black transition duration-200 active:scale-[0.98]",
+              moreActive || isMoreOpen
+                ? "border-transparent bg-[#fff8eb] text-[#111827] shadow-[0_6px_14px_rgba(126,86,28,0.09)]"
                 : "border-transparent bg-transparent text-slate-600 hover:bg-white/72 hover:text-[#111827]",
             ].join(" ")}
-            aria-label="פתיחת כל אזורי נסטלי"
+            aria-label={languageKey === "en" ? "Open more areas" : "פתח עוד אזורים"}
             aria-expanded={isMoreOpen}
             aria-controls="mobile-more-navigation"
           >
             <AppIcon name="dashboard" className="h-5 w-5" />
-            <span className="leading-none">עוד</span>
+            <span className="leading-none">
+              {languageKey === "en" ? "More" : "עוד"}
+            </span>
           </button>
         </div>
       </nav>

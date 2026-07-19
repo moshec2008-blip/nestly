@@ -103,6 +103,10 @@ export default function AddTransactionForm({
       type: formValues.type,
       date: formValues.date,
       status: formValues.status,
+      completedAt:
+        formValues.status === "done"
+          ? editingTransaction?.completedAt ?? new Date().toISOString()
+          : undefined,
       reminderDate:
         formValues.status === "pending" && formValues.reminderDate
           ? formValues.reminderDate

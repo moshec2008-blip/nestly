@@ -466,7 +466,12 @@ export default function FinanceManager() {
     setTransactions((currentTransactions) =>
       currentTransactions.map((transaction) =>
         transaction.id === activeReminderTransaction.id
-          ? { ...transaction, status: "done", reminderDate: undefined }
+          ? {
+              ...transaction,
+              status: "done",
+              reminderDate: undefined,
+              completedAt: new Date().toISOString(),
+            }
           : transaction
       )
     );
@@ -554,6 +559,7 @@ export default function FinanceManager() {
       type: "expense",
       date: expense.date,
       status: "done",
+      completedAt: new Date().toISOString(),
       notes: expense.notes,
       source: expense.source,
       receiptReference: expense.receiptReference,
@@ -636,7 +642,9 @@ export default function FinanceManager() {
     setTransactions((currentTransactions) =>
       currentTransactions.map((item) =>
         item.id === id
-          ? { ...item, status: item.status === "done" ? "pending" : "done" }
+          ? item.status === "done"
+            ? { ...item, status: "pending", completedAt: undefined }
+            : { ...item, status: "done", completedAt: new Date().toISOString() }
           : item
       )
     );

@@ -12,6 +12,8 @@ export type CommonDictionary = {
     | "tasks"
     | "dashboard"
     | "commandCenter"
+    | "handle"
+    | "memory"
     | "assistant"
     | "timeline"
     | "life"
@@ -71,6 +73,8 @@ const hebrewDictionary: CommonDictionary = {
     tasks: "משימות",
     dashboard: "סקירה",
     commandCenter: "מרכז המשפחה",
+    handle: "לטיפול",
+    memory: "למצוא",
     assistant: "העוזר של Nestly",
     timeline: "ציר הזמן",
     life: "סיפורי חיים",
@@ -129,6 +133,8 @@ const englishDictionary: CommonDictionary = {
     tasks: "Tasks",
     dashboard: "Overview",
     commandCenter: "Command Center",
+    handle: "Handle",
+    memory: "Find",
     assistant: "Nestly Assistant",
     timeline: "Timeline",
     life: "Life Stories",

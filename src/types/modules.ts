@@ -8,6 +8,7 @@ export type ModuleRecord = {
   category: string;
   date: string;
   status: ModuleRecordStatus;
+  completedAt?: string;
 };
 
 export function isModuleRecord(value: unknown): value is ModuleRecord {
@@ -21,6 +22,7 @@ export function isModuleRecord(value: unknown): value is ModuleRecord {
     typeof record.id === "string" &&
     record.id.length > 0 &&
     typeof record.title === "string" &&
-    (record.status === "open" || record.status === "done")
+    (record.status === "open" || record.status === "done") &&
+    (record.completedAt === undefined || typeof record.completedAt === "string")
   );
 }

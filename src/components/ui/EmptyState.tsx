@@ -17,6 +17,7 @@ export default function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
+      role="status"
       className={[
         "rounded-[22px] border border-dashed border-[#d8caba] bg-[#fffdf8] p-6 text-center text-[#111827]",
         className,

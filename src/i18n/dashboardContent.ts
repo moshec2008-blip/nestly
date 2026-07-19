@@ -67,6 +67,16 @@ const englishModuleCopy: Record<
     description: "Recommended next action, urgent items and what is coming soon.",
     status: "Active",
   },
+  "/handle": {
+    label: "Handle",
+    description: "A unified queue of open household work from every workspace.",
+    status: "MVP",
+  },
+  "/memory": {
+    label: "Memory",
+    description: "A search-first place to find household information across workspaces.",
+    status: "MVP",
+  },
   "/assistant": {
     label: "Nestly Assistant",
     description: "Source-backed answers from the family records.",

@@ -21,7 +21,7 @@ export function HomeSectionHeader({
   return (
     <div
       className={[
-        "mb-2.5 flex items-start justify-between gap-3",
+        "mb-3 flex items-end justify-between gap-3 px-1",
         direction === "rtl" ? "text-right" : "text-left",
       ].join(" ")}
     >
@@ -29,7 +29,7 @@ export function HomeSectionHeader({
       <div className="min-w-0">
         <h2 className="text-base font-black leading-6 text-[#111827]">{title}</h2>
         {subtitle && (
-          <p className="mt-0.5 text-xs font-semibold leading-4 text-slate-500">
+          <p className="mt-0.5 max-w-[18rem] text-xs font-semibold leading-5 text-slate-500">
             {subtitle}
           </p>
         )}
@@ -80,34 +80,21 @@ export function HomeAreaCard({ area }: { area: HomeArea }) {
   return (
     <Link
       href={area.href}
-      className={`home-area-card relative flex min-h-[84px] flex-col justify-between overflow-hidden rounded-[18px] bg-white/72 p-3 shadow-[0_7px_18px_rgba(33,43,63,0.035)] transition duration-200 hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${direction === "rtl" ? "text-right" : "text-left"}`}
+      className={`home-area-card group flex min-h-[74px] items-center gap-3 overflow-hidden rounded-[22px] bg-white/46 px-3 py-2.5 transition duration-200 hover:bg-white/72 focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${direction === "rtl" ? "text-right" : "text-left"}`}
     >
       <span
-        className={[
-          "absolute inset-y-3 w-0.5",
-          direction === "rtl" ? "right-0 rounded-l-full" : "left-0 rounded-r-full",
-          area.accentClass,
-        ].join(" ")}
-        aria-hidden="true"
-      />
-      <div className="flex items-start justify-between gap-2">
-        <span
-          className={`grid h-8 w-8 shrink-0 place-items-center rounded-2xl ${area.accentClass}`}
-        >
-          <AppIcon name={area.icon} className="h-4 w-4" />
+        className={`grid h-9 w-9 shrink-0 place-items-center rounded-2xl ring-1 ${area.accentClass}`}
+      >
+        <AppIcon name={area.icon} className="h-4 w-4" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="home-area-title block truncate text-[13px] font-black text-[#111827]">
+          {area.title}
         </span>
-        <div className="min-w-0">
-          <h3 className="home-area-title truncate text-[13px] font-black text-[#111827]">
-            {area.title}
-          </h3>
-          <p className="home-area-subtitle truncate text-[11px] font-semibold text-slate-500">
-            {area.subtitle}
-          </p>
-        </div>
-      </div>
-      <p className="home-area-stat truncate text-[11px] font-black text-slate-600">
-        {liveStat}
-      </p>
+        <span className="home-area-stat mt-0.5 block truncate text-[11px] font-bold text-slate-500">
+          {liveStat}
+        </span>
+      </span>
     </Link>
   );
 }

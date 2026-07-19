@@ -42,6 +42,8 @@ const routeMeta: AppRoute[] = [
   "/tasks",
   "/dashboard",
   "/command-center",
+  "/handle",
+  "/memory",
   "/assistant",
   "/timeline",
   "/life",
@@ -373,7 +375,7 @@ export default function TopNavigation({
               aria-expanded={isMobileMenuOpen}
             >
               <MenuGlyph isOpen={isMobileMenuOpen} />
-              <span className="hidden min-[360px]:inline">
+              <span className="hidden min-[430px]:inline">
                 {dictionary.openMenu}
               </span>
             </button>

@@ -4,6 +4,8 @@ export type AppRoute =
   | "/tasks"
   | "/dashboard"
   | "/command-center"
+  | "/handle"
+  | "/memory"
   | "/assistant"
   | "/timeline"
   | "/life"

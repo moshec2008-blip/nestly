@@ -8,6 +8,7 @@ export type ShoppingItem = {
   buyer: string;
   notes: string;
   purchased: boolean;
+  purchasedAt?: string;
 };
 
 export function isShoppingItem(value: unknown): value is ShoppingItem {
@@ -21,6 +22,7 @@ export function isShoppingItem(value: unknown): value is ShoppingItem {
     typeof item.id === "string" &&
     item.id.length > 0 &&
     typeof item.title === "string" &&
-    typeof item.purchased === "boolean"
+    typeof item.purchased === "boolean" &&
+    (item.purchasedAt === undefined || typeof item.purchasedAt === "string")
   );
 }

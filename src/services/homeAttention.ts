@@ -181,6 +181,8 @@ function createAttentionItem(input: {
   dueAt?: string;
   relatedLabel?: string;
   actionLabel: string;
+  actionEventName?: string;
+  actionEventDetail?: Record<string, string>;
   sourceEntityId?: string;
 }): AttentionItem {
   return {
@@ -188,7 +190,9 @@ function createAttentionItem(input: {
     confidence: input.confidence ?? 0.86,
     action: {
       label: input.actionLabel,
-      href: input.href,
+      href: input.actionEventName ? undefined : input.href,
+      eventName: input.actionEventName,
+      eventDetail: input.actionEventDetail,
     },
   };
 }
@@ -415,6 +419,11 @@ function collectInboxItems(language: AppLanguage): AttentionItem[] {
         score: 88 + Math.min(item.actions.length, 4),
         relatedLabel: "Universal Inbox",
         actionLabel: language === "en" ? "Review" : "סקירה",
+        actionEventName: "nestly-open-universal-inbox",
+        actionEventDetail: {
+          source: item.source,
+          mode: item.files.length > 0 ? "files" : "text",
+        },
         sourceEntityId: item.id,
       })
     );
@@ -538,7 +547,9 @@ function buildQuietItem(language: AppLanguage): AttentionItem {
     severity: "calm",
     score: 0,
     confidence: 1,
-    actionLabel: language === "en" ? "Open Inbox" : "פתח Inbox",
+    actionEventName: "nestly-open-universal-inbox",
+    actionEventDetail: { source: "text", mode: "text" },
+    actionLabel: language === "en" ? "Add something" : "הוסף משהו",
   });
 }
 

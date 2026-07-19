@@ -449,7 +449,11 @@ export default function ShoppingManager() {
 
     setItems((currentItems) =>
       currentItems.map((item) =>
-        item.id === id ? { ...item, purchased: !item.purchased } : item
+        item.id === id
+          ? item.purchased
+            ? { ...item, purchased: false, purchasedAt: undefined }
+            : { ...item, purchased: true, purchasedAt: new Date().toISOString() }
+          : item
       )
     );
 
@@ -485,7 +489,7 @@ export default function ShoppingManager() {
             setItems((currentItems) =>
               currentItems.map((currentItem) =>
                 currentItem.id === item.id
-                  ? { ...currentItem, purchased: false }
+                  ? { ...currentItem, purchased: false, purchasedAt: undefined }
                   : currentItem
               )
             );

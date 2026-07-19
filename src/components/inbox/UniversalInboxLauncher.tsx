@@ -116,6 +116,7 @@ export default function UniversalInboxLauncher() {
   const [files, setFiles] = useState<UniversalInboxFile[]>([]);
   const [items, setItems] = useState<UniversalInboxItem[]>([]);
   const [reviewItem, setReviewItem] = useState<UniversalInboxItem | null>(null);
+  const [lastSavedMessage, setLastSavedMessage] = useState("");
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const recentItems = useMemo(
@@ -135,6 +136,7 @@ export default function UniversalInboxLauncher() {
       setSource(customEvent.detail?.source ?? "text");
       setMode(customEvent.detail?.mode ?? "text");
       setReviewItem(null);
+      setLastSavedMessage("");
     }
 
     function openLegacyCapture(event: Event) {
@@ -147,6 +149,7 @@ export default function UniversalInboxLauncher() {
 
       setIsOpen(true);
       setReviewItem(null);
+      setLastSavedMessage("");
 
       if (legacyMode === "receipt" || legacySource === "receipt_scan") {
         setSource("camera_scan");
@@ -230,6 +233,7 @@ export default function UniversalInboxLauncher() {
     setDraft("");
     setFiles([]);
     setReviewItem(item);
+    setLastSavedMessage("");
     refreshItems();
     toast({
       title: "נכנס ל-Universal Inbox",
@@ -268,6 +272,9 @@ export default function UniversalInboxLauncher() {
     const result = confirmUniversalInboxItem(reviewItem);
     refreshItems();
     setReviewItem(null);
+    setLastSavedMessage(
+      `${result.created} פעולות נוצרו, ${result.relationships} קשרים נשמרו.`
+    );
     toast({
       title: "נשמר לאחר אישור",
       description: `${result.created} פעולות נוצרו, ${result.relationships} קשרים נשמרו.`,
@@ -288,19 +295,25 @@ export default function UniversalInboxLauncher() {
     return null;
   }
 
+  const showFloatingButton =
+    pathname !== "/" && pathname !== "/handle" && pathname !== "/memory";
+
   return (
     <>
+      {showFloatingButton && (
       <button
+        data-nestly-floating-inbox="true"
         type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+0.75rem)] right-3 z-[65] inline-flex min-h-12 min-w-[6.5rem] items-center justify-center gap-2 rounded-2xl border border-[#d8b470] bg-[#fff8eb]/98 px-3 text-sm font-black text-[#111827] shadow-[0_18px_46px_rgba(33,43,63,0.22)] backdrop-blur transition active:scale-[0.98] lg:bottom-4 lg:right-4 lg:min-w-0 lg:px-4"
+        className="fixed bottom-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] right-3 z-[45] inline-flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-2xl border border-[#eadfcd] bg-white/90 px-2.5 text-sm font-black text-[#111827] shadow-[0_12px_30px_rgba(33,43,63,0.12)] backdrop-blur transition active:scale-[0.98] lg:bottom-4 lg:right-4 lg:min-w-0 lg:px-4"
         aria-label="פתח Universal Inbox"
       >
-        <span className="grid h-8 w-8 place-items-center rounded-xl bg-white text-[#7a5212] shadow-sm ring-1 ring-[#eadfcd]">
+        <span className="grid h-8 w-8 place-items-center rounded-xl bg-[#fff8eb] text-[#7a5212] ring-1 ring-[#eadfcd]">
           <AppIcon name="spark" className="h-4.5 w-4.5" />
         </span>
-        <span>Inbox</span>
+        <span className="hidden sm:inline">Inbox</span>
       </button>
+      )}
 
       {isOpen && (
         <div
@@ -588,6 +601,36 @@ export default function UniversalInboxLauncher() {
                       >
                         אשר ושמור
                       </button>
+                    </div>
+                  </section>
+                )}
+
+                {lastSavedMessage && !reviewItem && (
+                  <section className="rounded-[24px] bg-[#fff8eb] p-4 ring-1 ring-[#eadfcd]">
+                    <p className="text-xs font-black text-[#8a5b16]">
+                      נשמר במקום
+                    </p>
+                    <h3 className="mt-1 text-xl font-black text-[#111827]">
+                      זה כבר חלק מהבית
+                    </h3>
+                    <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
+                      {lastSavedMessage}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Link
+                        href="/handle"
+                        onClick={() => setIsOpen(false)}
+                        className="inline-flex min-h-10 items-center rounded-2xl bg-[#111827] px-4 text-xs font-black text-white"
+                      >
+                        לראות מה לטיפול
+                      </Link>
+                      <Link
+                        href="/memory"
+                        onClick={() => setIsOpen(false)}
+                        className="inline-flex min-h-10 items-center rounded-2xl border border-[#eadfcd] bg-white/70 px-4 text-xs font-black text-[#111827]"
+                      >
+                        למצוא בזיכרון
+                      </Link>
                     </div>
                   </section>
                 )}

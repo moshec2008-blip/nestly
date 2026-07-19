@@ -73,7 +73,10 @@ export default function AppShell({ children }: AppShellProps) {
     setIsMobileMenuOpen(false);
   }
 
-  const showGlobalAssists = pathname !== "/login" && pathname !== "/settings";
+  const isPrimaryDestination =
+    pathname === "/" || pathname === "/handle" || pathname === "/memory";
+  const showGlobalAssists =
+    pathname !== "/login" && pathname !== "/settings" && !isPrimaryDestination;
 
   return (
     <main
