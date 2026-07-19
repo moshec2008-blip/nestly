@@ -9,6 +9,7 @@ export type TelemetryEventName =
   | "task_reopened"
   | "shopping_item_created"
   | "shopping_item_purchased"
+  | "shopping_list_shared"
   | "receipt_scanned"
   | "receipt_confirmed"
   | "expense_created"

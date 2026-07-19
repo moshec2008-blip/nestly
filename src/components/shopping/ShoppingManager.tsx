@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import AISuggestionCard from "@/components/ai/AISuggestionCard";
 import ReceiptScanPreview from "@/components/ai/ReceiptScanPreview";
+import AppIcon from "@/components/ui/AppIcon";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import {
   initialFinanceTransactions,
@@ -12,6 +13,7 @@ import {
 import { initialShoppingItems, shoppingLists } from "@/data/shopping";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { getDelightMessage } from "@/lib/delightMessages";
+import { shareFamilyText } from "@/lib/share";
 import { storageKeys } from "@/lib/storageKeys";
 import {
   markFirstUsefulAction,
@@ -311,6 +313,39 @@ export default function ShoppingManager() {
   function handleQuickAdd(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     addItemFromTitle(quickTitle);
+  }
+
+  // שיתוף הרשימה למי שבסופר — דרך שיתוף המכשיר או וואטסאפ, בלי שרת.
+  async function handleShareList() {
+    const itemsToShare = scopeItems.filter((item) => !item.purchased);
+
+    if (itemsToShare.length === 0) {
+      return;
+    }
+
+    const listTitle =
+      activeList === "all" ? "רשימת הקניות שלנו" : `רשימת קניות · ${activeList}`;
+    const lines = itemsToShare.map((item) => {
+      const quantity = getQuantityNumber(item.quantity);
+      return `▫️ ${item.title}${quantity > 1 ? ` (${quantity})` : ""}`;
+    });
+    const shareText = `🛒 ${listTitle}\n${lines.join("\n")}`;
+
+    const outcome = await shareFamilyText(shareText, listTitle);
+
+    trackTelemetryEvent({
+      name: "shopping_list_shared",
+      module: "shopping",
+      properties: { outcome, itemCount: itemsToShare.length },
+    });
+
+    if (outcome === "failed") {
+      toast({
+        title: "השיתוף לא הצליח",
+        description: "אפשר לנסות שוב, או לצלם מסך של הרשימה.",
+        tone: "danger",
+      });
+    }
   }
 
   function requestShoppingSuggestions() {
@@ -709,6 +744,19 @@ export default function ShoppingManager() {
           >
             הצעות חכמות
           </button>
+          {scopeRemaining > 0 && (
+            <button
+              type="button"
+              onClick={() => void handleShareList()}
+              className="group ms-auto inline-flex min-h-9 items-center gap-1.5 rounded-full bg-emerald-600 px-3.5 text-xs font-black text-white shadow-[0_8px_18px_rgba(16,185,129,0.35)] transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 hover:shadow-[0_12px_24px_rgba(16,185,129,0.45)] active:scale-95"
+            >
+              <AppIcon
+                name="whatsapp"
+                className="h-4 w-4 transition-transform duration-200 group-hover:-rotate-12 group-hover:scale-110"
+              />
+              שתף בוואטסאפ
+            </button>
+          )}
         </div>
         {suggestionNotice ? (
           <p className="mt-2 rounded-2xl bg-[#fff8eb] px-3 py-2 text-xs font-bold text-[#7a5212]">

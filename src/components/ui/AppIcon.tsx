@@ -10,6 +10,7 @@ export type AppIconName =
   | "flag"
   | "search"
   | "shield"
+  | "whatsapp"
   | "check"
   | "chevron-left"
   | "chevron-right"
@@ -58,6 +59,10 @@ function getIconPath(name: AppIconName) {
     ],
     shield: [
       "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z",
+    ],
+    whatsapp: [
+      "M20.5 11.6a8.5 8.5 0 0 1-12.5 7.5L3.5 20.5l1.5-4.3a8.5 8.5 0 1 1 15.5-4.6Z",
+      "M9.2 8.6c.2-.4.5-.4.8-.4h.5c.2 0 .4.1.5.4l.7 1.7c.1.2.1.4-.1.6l-.5.6c-.1.2-.1.3 0 .5a5.5 5.5 0 0 0 2.6 2.4c.2.1.4.1.5-.1l.5-.5c.2-.2.4-.2.6-.1l1.7.8c.3.1.4.3.4.5v.6c0 .3-.2.6-.5.7-.5.2-1.3.4-2.4-.1a9 9 0 0 1-4.3-4.1c-.5-1.1-.2-2 0-2.5Z",
     ],
     calendar: [
       "M8 2v4",
