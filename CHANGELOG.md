@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Cleaned
+
+- Duplication and redundancy audit: removed 20 confirmed-orphan files (legacy home components, smart-capture launcher superseded by the universal inbox, unused AI prompt files and services, dead API versioning helper), removed dead controls (hidden finance attach button, inert permissions invite form, orphan smart-capture event listener), replaced permanently-disabled integration buttons with status badges, and gave every navigation destination a unique icon (new: book, flag, chat, clipboard, search, shield).
+
 ### Added
 
 - First automated test suite (vitest, 22 tests) covering the riskiest local-data paths: family-space isolation invariant, legacy-key migration, backup/restore round-trip, demo-mode isolation, and AI provider selection. Tests run in CI.

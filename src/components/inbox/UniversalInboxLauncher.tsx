@@ -139,34 +139,10 @@ export default function UniversalInboxLauncher() {
       setLastSavedMessage("");
     }
 
-    function openLegacyCapture(event: Event) {
-      const customEvent = event as CustomEvent<{
-        source?: string;
-        mode?: "text" | "brain" | "receipt";
-      }>;
-      const legacySource = customEvent.detail?.source;
-      const legacyMode = customEvent.detail?.mode;
-
-      setIsOpen(true);
-      setReviewItem(null);
-      setLastSavedMessage("");
-
-      if (legacyMode === "receipt" || legacySource === "receipt_scan") {
-        setSource("camera_scan");
-        setMode("files");
-        return;
-      }
-
-      setSource("text");
-      setMode(legacyMode === "brain" ? "text" : "text");
-    }
-
     window.addEventListener("nestly-open-universal-inbox", openInbox);
-    window.addEventListener("nestly-open-smart-capture", openLegacyCapture);
 
     return () => {
       window.removeEventListener("nestly-open-universal-inbox", openInbox);
-      window.removeEventListener("nestly-open-smart-capture", openLegacyCapture);
     };
   }, []);
 

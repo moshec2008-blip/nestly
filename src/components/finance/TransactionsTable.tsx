@@ -899,13 +899,6 @@ export default function TransactionsTable({
                 >
                   מחיקה
                 </ActionButton>
-                <button
-                  type="button"
-                  disabled
-                  className="hidden min-h-11 rounded-2xl border border-dashed border-[#d8b470] bg-[#fff8eb] px-4 text-sm font-black text-[#7a5212] opacity-70 sm:col-span-2"
-                >
-                  צירוף מסמך יתחבר בהמשך
-                </button>
               </div>
             )}
           </div>

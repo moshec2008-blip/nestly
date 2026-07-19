@@ -2,8 +2,14 @@ import type { SVGProps } from "react";
 
 export type AppIconName =
   | "bell"
+  | "book"
   | "calendar"
   | "car"
+  | "chat"
+  | "clipboard"
+  | "flag"
+  | "search"
+  | "shield"
   | "check"
   | "chevron-left"
   | "chevron-right"
@@ -30,6 +36,28 @@ function getIconPath(name: AppIconName) {
     bell: [
       "M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9",
       "M13.73 21a2 2 0 0 1-3.46 0",
+    ],
+    book: [
+      "M4 19.5A2.5 2.5 0 0 1 6.5 17H20",
+      "M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z",
+    ],
+    chat: [
+      "M21 11.5a8.5 8.5 0 0 1-8.5 8.5c-1.56 0-3.04-.42-4.3-1.15L3 20l1.15-5.2A8.5 8.5 0 1 1 21 11.5Z",
+    ],
+    clipboard: [
+      "M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2",
+      "M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z",
+    ],
+    flag: [
+      "M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z",
+      "M4 22v-7",
+    ],
+    search: [
+      "M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16Z",
+      "m21 21-4.35-4.35",
+    ],
+    shield: [
+      "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z",
     ],
     calendar: [
       "M8 2v4",

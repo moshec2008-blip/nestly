@@ -246,16 +246,18 @@ export default function NestlyAssistantPage() {
             <div className="rounded-[1.75rem] bg-white p-4 shadow-[0_14px_40px_rgba(15,23,42,0.06)] ring-1 ring-[#edf0f4]">
               <h3 className="text-sm font-black text-[#111827]">{t.actions}</h3>
               <div className="mt-3 space-y-2">
-                {answer.relatedActions.map((action) => (
-                  <Link
-                    href={action.route ?? "/"}
-                    key={action.id}
-                    className="flex min-h-12 items-center justify-between gap-3 rounded-2xl border border-[#e9dfcf] bg-white px-3 text-sm font-black text-[#6f4b18] transition hover:-translate-y-0.5 hover:bg-[#fffaf1]"
-                  >
-                    <span className="truncate">{action.label}</span>
-                    <AppIcon name="chevron-left" className="h-4 w-4" />
-                  </Link>
-                ))}
+                {answer.relatedActions
+                  .filter((action) => Boolean(action.route))
+                  .map((action) => (
+                    <Link
+                      href={action.route as string}
+                      key={action.id}
+                      className="flex min-h-12 items-center justify-between gap-3 rounded-2xl border border-[#e9dfcf] bg-white px-3 text-sm font-black text-[#6f4b18] transition hover:-translate-y-0.5 hover:bg-[#fffaf1]"
+                    >
+                      <span className="truncate">{action.label}</span>
+                      <AppIcon name="chevron-left" className="h-4 w-4" />
+                    </Link>
+                  ))}
                 {answer.relatedActions.length === 0 ? (
                   <p className="text-sm font-semibold text-slate-500">
                     {t.noSources}

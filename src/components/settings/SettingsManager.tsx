@@ -1274,26 +1274,26 @@ export default function SettingsManager() {
                         ? "Server key"
                         : "מפתח שרת"}
                   </span>
-                  <button
-                    type="button"
-                    disabled={!isConnectable}
-                    onClick={() =>
-                      trackTelemetryEvent({
-                        name: "integration_status_viewed",
-                        module: "settings",
-                        properties: { provider: provider.id },
-                      })
-                    }
-                    className="min-h-10 rounded-2xl border border-[#d8caba] bg-white px-4 text-xs font-black text-slate-700 shadow-sm transition hover:bg-[#fff8eb] disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400 disabled:shadow-none"
-                  >
-                    {isConnectable
-                      ? languageKey === "en"
-                        ? "Manage"
-                        : "ניהול"
-                      : languageKey === "en"
-                        ? "Not available yet"
-                        : "עדיין לא זמין"}
-                  </button>
+                  {isConnectable ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        trackTelemetryEvent({
+                          name: "integration_status_viewed",
+                          module: "settings",
+                          properties: { provider: provider.id },
+                        })
+                      }
+                      className="min-h-10 rounded-2xl border border-[#d8caba] bg-white px-4 text-xs font-black text-slate-700 shadow-sm transition hover:bg-[#fff8eb]"
+                    >
+                      {languageKey === "en" ? "Manage" : "ניהול"}
+                    </button>
+                  ) : (
+                    // לא לחצן: אינטגרציה שעוד לא זמינה מוצגת כסטטוס, לא כפעולה מתה.
+                    <span className="rounded-full bg-slate-50 px-3 py-1.5 text-[11px] font-black text-slate-400">
+                      {languageKey === "en" ? "Coming soon" : "בקרוב"}
+                    </span>
+                  )}
                 </div>
               </article>
             );

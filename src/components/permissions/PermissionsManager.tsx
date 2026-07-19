@@ -34,7 +34,6 @@ export default function PermissionsManager() {
       isFamilyPermissionUser
     );
   const [selectedUserId, setSelectedUserId] = useState(initialPermissionUsers[0].id);
-  const [inviteName, setInviteName] = useState("");
 
   const selectedUser = useMemo(
     () => users.find((user) => user.id === selectedUserId) ?? users[0] ?? null,
@@ -157,24 +156,6 @@ export default function PermissionsManager() {
                   </p>
                 </div>
               </div>
-              <input
-                value={inviteName}
-                onChange={(event) => setInviteName(event.target.value)}
-                disabled
-                aria-describedby="family-invite-disabled-reason"
-                className="mb-3 w-full cursor-not-allowed rounded-xl border border-[#ebe4d8] bg-white/70 px-4 py-3 text-right text-slate-500 outline-none placeholder:text-slate-400"
-                placeholder="שם להזמנה"
-              />
-              <p id="family-invite-disabled-reason" className="sr-only">
-                {invitationDisabledReason}
-              </p>
-              <button
-                type="button"
-                disabled
-                className="w-full cursor-not-allowed rounded-xl border border-dashed border-[#d8cdbc] bg-white/70 px-4 py-3 text-sm font-black text-slate-400"
-              >
-                דורש חיבור ענן
-              </button>
             </div>
           </aside>
 
