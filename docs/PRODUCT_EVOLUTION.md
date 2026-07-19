@@ -45,3 +45,28 @@ Risk signals:
 ## Next Backend Step
 
 The next production step is a secure cloud event sink that stores only privacy-safe event metadata per family space.
+
+## Planned: Contextual Item Notes (post-cloud)
+
+Decision (2026-07-19): Nestly will NOT build a free-form family chat.
+Families already live in WhatsApp; a competing inbox adds mental load
+instead of reducing it.
+
+What we build instead, once cloud sync exists:
+
+- **Item notes** — a short comment thread attached to a specific task,
+  shopping item, document, appointment or expense ("bought it already",
+  "the appointment moved to 16:00"). The conversation lives where the
+  thing lives, which is the one job WhatsApp cannot do.
+- **Family note of the day** — a single calm line on Home ("Dad is back
+  late today"). Not a feed, no replies required.
+- Audience follows context (a note on Dana's appointment reaches
+  whoever cares for Dana). No separate "personal vs general" chat
+  concept.
+
+Hard dependency: cloud persistence + sync (notes written on one device
+must reach the rest of the family). Do not start before that layer is
+live.
+
+Interim bridge available today without a server: "Share to WhatsApp"
+actions on items — use the existing habit instead of fighting it.
