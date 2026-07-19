@@ -17,6 +17,7 @@ import type {
 import type { CommandCenterItem } from "@/types/commandCenter";
 import type { TimelineItem } from "@/types/timeline";
 import type { AppRoute } from "@/types/navigation";
+import { createUuid } from "@/utils/ids";
 
 const noSavedInfo = {
   he: "לא מצאתי מידע שמור על זה.",
@@ -40,7 +41,7 @@ const defaultQuestions = {
 
 function createId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `${prefix}_${crypto.randomUUID()}`;
+    return `${prefix}_${createUuid()}`;
   }
 
   return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;

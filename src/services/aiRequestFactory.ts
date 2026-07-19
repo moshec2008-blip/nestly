@@ -6,6 +6,7 @@ import type {
   SupportedDocumentMimeType,
 } from "@/lib/ai/types";
 import { normalizeFileName, normalizeLocale } from "@/lib/ai/normalization/text";
+import { createUuid } from "@/utils/ids";
 
 type RawAIFile = {
   fileName?: string;
@@ -35,7 +36,7 @@ export type RawAnalyzeRequest = {
 
 function createRequestId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
+    return createUuid();
   }
 
   return `ai-${Date.now()}`;

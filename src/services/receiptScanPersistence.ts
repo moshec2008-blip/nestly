@@ -4,6 +4,7 @@ import { storageKeys } from "@/lib/storageKeys";
 import { createRelation } from "@/services/entityRelationsService";
 import { recordMeaningfulActivity } from "@/services/timelineService";
 import { readStorageArray, writeStorage } from "@/utils/storage";
+import { createUuid } from "@/utils/ids";
 
 export type ReceiptDocumentMetadata = {
   id: string;
@@ -72,7 +73,7 @@ function buildReceiptDocumentId(transactionId: string) {
 }
 
 export function buildReceiptScanRecords(input: ReceiptScanSaveInput) {
-  const transactionId = input.id || crypto.randomUUID();
+  const transactionId = input.id || createUuid();
   const documentId = buildReceiptDocumentId(transactionId);
   const title = input.merchant.trim() || "קבלה";
   const createdAt = new Date().toISOString();

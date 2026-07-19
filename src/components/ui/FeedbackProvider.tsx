@@ -13,6 +13,7 @@ import {
 import { useLanguage } from "@/i18n/useLanguage";
 import { Button } from "@/components/ui/Button";
 import { trackTelemetryEvent } from "@/services/telemetry";
+import { createUuid } from "@/utils/ids";
 
 type ToastTone = "success" | "info" | "warning" | "danger";
 
@@ -78,7 +79,7 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
 
   const toast = useCallback(
     (message: Omit<ToastMessage, "id">) => {
-      const id = crypto.randomUUID();
+      const id = createUuid();
       const durationMs =
         message.durationMs ?? (message.actionLabel ? 7600 : 4200);
 

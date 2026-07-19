@@ -22,6 +22,7 @@ import {
 import { parseShoppingText } from "@/services/ai/contextualSuggestionService";
 import type { AISuggestion } from "@/types/aiSuggestions";
 import { isShoppingItem, type ShoppingItem } from "@/types/shopping";
+import { createUuid } from "@/utils/ids";
 
 type ShoppingForm = Omit<ShoppingItem, "id" | "purchased">;
 type PurchaseFilter = "remaining" | "all" | "purchased";
@@ -176,7 +177,7 @@ export default function ShoppingManager() {
   }) {
     setFinanceTransactions((currentTransactions) => [
       {
-        id: expense.id ?? crypto.randomUUID(),
+        id: expense.id ?? createUuid(),
         title: expense.title,
         category: expense.category,
         amount: expense.amount,
@@ -275,7 +276,7 @@ export default function ShoppingManager() {
 
     setItems((currentItems) => [
       {
-        id: crypto.randomUUID(),
+        id: createUuid(),
         listName: getDefaultListName(),
         title: cleanTitle,
         quantity: "1",
@@ -379,7 +380,7 @@ export default function ShoppingManager() {
       const newItems: ShoppingItem[] = parsedItems
         .filter((item) => item.title?.trim())
         .map((item) => ({
-          id: crypto.randomUUID(),
+          id: createUuid(),
           listName: getDefaultListName(),
           title: item.title?.trim() ?? "",
           quantity: item.quantity || "1",
@@ -471,7 +472,7 @@ export default function ShoppingManager() {
 
     setItems((currentItems) => [
       {
-        id: crypto.randomUUID(),
+        id: createUuid(),
         ...form,
         title: cleanTitle,
         quantity: cleanQuantity,

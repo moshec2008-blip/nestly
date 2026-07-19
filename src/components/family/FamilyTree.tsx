@@ -8,6 +8,7 @@ import { useFeedback } from "@/components/ui/FeedbackProvider";
 import HebrewDateInput from "@/components/ui/HebrewDateInput";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
+import { createUuid } from "@/utils/ids";
 
 type FamilySide = "צד אבא" | "צד אמא" | "בית";
 
@@ -205,7 +206,7 @@ function isFamilyTreePerson(value: unknown): value is FamilyTreePerson {
 
 function createPersonId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
+    return createUuid();
   }
 
   return `family-tree-${Date.now()}`;

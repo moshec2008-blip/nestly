@@ -5,6 +5,7 @@ import {
   type TelemetryEvent,
   type TelemetryModule,
 } from "@/services/telemetry";
+import { createUuid } from "@/utils/ids";
 
 export type BetaFeedbackType = "bug" | "suggestion" | "confusing" | "love";
 
@@ -59,7 +60,7 @@ const maxStoredFeedback = 200;
 
 function createId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `${prefix}_${crypto.randomUUID()}`;
+    return `${prefix}_${createUuid()}`;
   }
 
   return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;

@@ -4,6 +4,7 @@ import type {
   BackgroundJobStatus,
   CreateBackgroundJobInput,
 } from "./types";
+import { createUuid } from "@/utils/ids";
 
 const jobsStorageKey = "nestly-background-jobs";
 const jobsChangedEventName = "nestly-background-jobs-change";
@@ -11,7 +12,7 @@ const maxStoredJobs = 80;
 
 function createJobId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `job_${crypto.randomUUID()}`;
+    return `job_${createUuid()}`;
   }
 
   return `job_${Date.now()}_${Math.random().toString(16).slice(2)}`;

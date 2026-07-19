@@ -4,6 +4,7 @@ import { useRef, type ChangeEvent } from "react";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import type { FinanceTransaction } from "@/data/finance";
 import { normalizeDateString } from "@/utils/isoDate";
+import { createUuid } from "@/utils/ids";
 
 type JsonBackupControlsProps = {
   transactions: FinanceTransaction[];
@@ -53,7 +54,7 @@ function normalizeTransaction(value: unknown): FinanceTransaction | null {
     id:
       typeof value.id === "string" && value.id.trim()
         ? value.id
-        : crypto.randomUUID(),
+        : createUuid(),
     title,
     category,
     date,
@@ -150,7 +151,7 @@ export default function JsonBackupControls({
           .map((item) => {
             // מזהה כפול שובר עריכה ומחיקה — מקצים חדש במקום.
             if (seenIds.has(item.id)) {
-              return { ...item, id: crypto.randomUUID() };
+              return { ...item, id: createUuid() };
             }
 
             seenIds.add(item.id);

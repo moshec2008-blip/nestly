@@ -25,6 +25,7 @@ import {
   trackTelemetryEvent,
 } from "@/services/telemetry";
 import { recordMeaningfulActivity } from "@/services/timelineService";
+import { createUuid } from "@/utils/ids";
 
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
@@ -74,7 +75,7 @@ function sortTasks(tasks: FamilyTask[]) {
 
 function createTaskId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
+    return createUuid();
   }
 
   return `task-${Date.now()}`;

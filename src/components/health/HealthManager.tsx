@@ -12,6 +12,7 @@ import {
   type ModuleRecord,
   type ModuleRecordStatus,
 } from "@/types/modules";
+import { createUuid } from "@/utils/ids";
 
 type HealthForm = {
   title: string;
@@ -321,7 +322,7 @@ export default function HealthManager() {
     }
 
     const record: ModuleRecord = {
-      id: crypto.randomUUID(),
+      id: createUuid(),
       title: cleanTitle,
       description: cleanDescription || "תזכורת רפואית ללא פירוט נוסף.",
       owner: cleanOwner,

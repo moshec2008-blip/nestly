@@ -6,6 +6,7 @@ import type { FinanceDraft } from "@/lib/actionDrafts";
 import { Button } from "@/components/ui/Button";
 import DateInput from "@/components/ui/DateInput";
 import FormField from "@/components/ui/FormField";
+import { createUuid } from "@/utils/ids";
 
 type AddTransactionFormProps = {
   editingTransaction: FinanceTransaction | null;
@@ -96,7 +97,7 @@ export default function AddTransactionForm({
     }
 
     onSave({
-      id: editingTransaction?.id ?? crypto.randomUUID(),
+      id: editingTransaction?.id ?? createUuid(),
       title: cleanTitle,
       category: cleanCategory,
       amount: numericAmount,

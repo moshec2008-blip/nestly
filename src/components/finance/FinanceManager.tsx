@@ -44,6 +44,7 @@ import {
   readStorage,
   writeStorage,
 } from "@/utils/storage";
+import { createUuid } from "@/utils/ids";
 
 function getTodayKey() {
   return new Intl.DateTimeFormat("en-CA", {
@@ -552,7 +553,7 @@ export default function FinanceManager() {
     aiConfidence?: number;
   }) {
     handleSaveTransaction({
-      id: expense.id ?? crypto.randomUUID(),
+      id: expense.id ?? createUuid(),
       title: expense.title,
       category: expense.category,
       amount: expense.amount,

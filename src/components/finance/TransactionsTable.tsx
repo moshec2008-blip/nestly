@@ -11,6 +11,7 @@ import {
   formatIlsCurrency,
   formatSignedIlsCurrency,
 } from "@/utils/formatters";
+import { createUuid } from "@/utils/ids";
 
 type TransactionsTableProps = {
   transactions: FinanceTransaction[];
@@ -384,7 +385,7 @@ export default function TransactionsTable({
   function duplicateTransaction(transaction: FinanceTransaction) {
     onSave({
       ...transaction,
-      id: crypto.randomUUID(),
+      id: createUuid(),
       title: `${transaction.title} - עותק`,
       date: new Date().toISOString().slice(0, 10),
       status: "pending",

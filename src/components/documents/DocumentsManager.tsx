@@ -43,6 +43,7 @@ import {
   trackTelemetryError,
   trackTelemetryEvent,
 } from "@/services/telemetry";
+import { createUuid } from "@/utils/ids";
 
 type DocumentStatus = "open" | "done";
 
@@ -238,7 +239,7 @@ async function fileToAttachment(
   file: File,
   source: Attachment["source"] = "upload"
 ): Promise<Attachment> {
-  const id = crypto.randomUUID();
+  const id = createUuid();
   const dataUrl = await readFileAsDataUrl(file);
   const metadata: Attachment = {
     id,
@@ -370,7 +371,7 @@ export default function DocumentsManager() {
             continue;
           }
 
-          const id = file.id ?? crypto.randomUUID();
+          const id = file.id ?? createUuid();
 
           try {
             await saveAttachmentData(id, file.dataUrl);
@@ -758,7 +759,7 @@ export default function DocumentsManager() {
     }
 
     const documentItem: DocumentItem = {
-      id: crypto.randomUUID(),
+      id: createUuid(),
       ...documentPayload,
       status: "open",
       attachments: newAttachments,

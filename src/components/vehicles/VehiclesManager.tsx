@@ -12,6 +12,7 @@ import {
   type ModuleRecord,
   type ModuleRecordStatus,
 } from "@/types/modules";
+import { createUuid } from "@/utils/ids";
 
 type VehicleForm = {
   title: string;
@@ -145,7 +146,7 @@ function getTodayDate() {
 
 function createId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `${prefix}-${crypto.randomUUID()}`;
+    return `${prefix}-${createUuid()}`;
   }
 
   return `${prefix}-${Date.now()}`;

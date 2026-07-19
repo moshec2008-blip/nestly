@@ -24,6 +24,7 @@ import type {
   UniversalInboxItem,
   UniversalInboxSuggestedAction,
 } from "@/types/universalInbox";
+import { createUuid } from "@/utils/ids";
 
 type InboxMode = "text" | "files" | "clipboard";
 
@@ -84,7 +85,7 @@ function sourceFromFile(file: File): UniversalInboxInputSource {
 
 function fileToInboxFile(file: File): UniversalInboxFile {
   return {
-    id: crypto.randomUUID(),
+    id: createUuid(),
     name: file.name,
     type: file.type || "application/octet-stream",
     size: file.size,

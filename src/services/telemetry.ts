@@ -1,5 +1,7 @@
 "use client";
 
+import { createUuid } from "@/utils/ids";
+
 export type TelemetryEventName =
   | "app_opened"
   | "page_viewed"
@@ -130,7 +132,7 @@ const sensitivePropertyKeyFragments = [
 
 function createId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `${prefix}_${crypto.randomUUID()}`;
+    return `${prefix}_${createUuid()}`;
   }
 
   return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;

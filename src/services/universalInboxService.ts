@@ -22,6 +22,7 @@ import {
   type UniversalInboxSuggestedAction,
 } from "@/types/universalInbox";
 import { readStorageArray, writeStorage } from "@/utils/storage";
+import { createUuid } from "@/utils/ids";
 
 export type UniversalInboxCreateInput = {
   source: UniversalInboxInputSource;
@@ -73,7 +74,7 @@ function nowIso() {
 
 function makeId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `${prefix}-${crypto.randomUUID()}`;
+    return `${prefix}-${createUuid()}`;
   }
 
   return `${prefix}-${Date.now()}`;

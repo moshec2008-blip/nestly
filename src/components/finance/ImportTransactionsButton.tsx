@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
 import type { FinanceTransaction } from "@/data/finance";
 import { normalizeDateString } from "@/utils/isoDate";
+import { createUuid } from "@/utils/ids";
 
 type ImportTransactionsButtonProps = {
   onImport: (transactions: FinanceTransaction[]) => void;
@@ -124,7 +125,7 @@ function rowToTransaction(row: CsvRow): FinanceTransaction | null {
   }
 
   return {
-    id: crypto.randomUUID(),
+    id: createUuid(),
     date,
     title,
     category,

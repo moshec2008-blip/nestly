@@ -17,10 +17,11 @@ import type {
 } from "@/types/legacy";
 import type { TimelineItem } from "@/types/timeline";
 import { readStorageArray, writeStorage } from "@/utils/storage";
+import { createUuid } from "@/utils/ids";
 
 function createId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `${prefix}_${crypto.randomUUID()}`;
+    return `${prefix}_${createUuid()}`;
   }
 
   return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;

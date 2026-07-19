@@ -16,10 +16,11 @@ import {
   inferTimelineImportance,
   shouldRecordMeaningfulEvent,
 } from "@/lib/timeline/timelineRules";
+import { createUuid } from "@/utils/ids";
 
 function createId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
+    return createUuid();
   }
 
   return `timeline-${Date.now()}`;

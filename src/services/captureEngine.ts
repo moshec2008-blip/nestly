@@ -13,6 +13,7 @@ import type { AppRoute } from "@/types/navigation";
 import type { ShoppingItem } from "@/types/shopping";
 import { readStorageArray, writeStorage } from "@/utils/storage";
 import type { FamilyTask } from "@/data/tasks";
+import { createUuid } from "@/utils/ids";
 
 export type CreateCaptureInput = {
   source: CaptureSource;
@@ -95,7 +96,7 @@ function makeSuggestion(
   dueDate?: string
 ): CaptureSuggestion {
   return {
-    id: crypto.randomUUID(),
+    id: createUuid(),
     type,
     title,
     description,
@@ -299,7 +300,7 @@ export function writeCaptures(captures: SmartCapture[]) {
 export function createCapture(input: CreateCaptureInput) {
   const timestamp = nowIso();
   const capture: SmartCapture = {
-    id: crypto.randomUUID(),
+    id: createUuid(),
     source: input.source,
     title: input.title?.trim() || inferTitle(input.content),
     content: input.content.trim(),
@@ -355,7 +356,7 @@ export function createProcessedReceiptCapture(input: ProcessedReceiptCaptureInpu
 
 function suggestionToTask(suggestion: CaptureSuggestion): FamilyTask {
   return {
-    id: `capture-task-${crypto.randomUUID()}`,
+    id: `capture-task-${createUuid()}`,
     title: suggestion.title,
     description: suggestion.description ?? "",
     owner: "הבית",
@@ -368,7 +369,7 @@ function suggestionToTask(suggestion: CaptureSuggestion): FamilyTask {
 
 function suggestionToShoppingItem(suggestion: CaptureSuggestion): ShoppingItem {
   return {
-    id: `capture-shopping-${crypto.randomUUID()}`,
+    id: `capture-shopping-${createUuid()}`,
     listName: "רשימת קניות",
     title: suggestion.title,
     quantity: "1",

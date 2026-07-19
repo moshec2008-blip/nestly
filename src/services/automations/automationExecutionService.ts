@@ -14,10 +14,11 @@ import {
   upsertAutomationReviewItem,
 } from "@/repositories/automationRepository";
 import { recordAutomationExecution } from "@/services/automations/automationHistoryService";
+import { createUuid } from "@/utils/ids";
 
 function createId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `${prefix}-${crypto.randomUUID()}`;
+    return `${prefix}-${createUuid()}`;
   }
 
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;

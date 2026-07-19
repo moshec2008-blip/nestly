@@ -33,10 +33,11 @@ import type { ModuleRecord } from "@/types/modules";
 import type { ShoppingItem } from "@/types/shopping";
 import type { FamilyTask } from "@/data/tasks";
 import { readStorageArray } from "@/utils/storage";
+import { createUuid } from "@/utils/ids";
 
 function createId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `${prefix}-${crypto.randomUUID()}`;
+    return `${prefix}-${createUuid()}`;
   }
 
   return `${prefix}-${Date.now()}`;

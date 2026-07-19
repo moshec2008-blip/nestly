@@ -12,6 +12,7 @@ import type {
 } from "@/types/knowledge";
 import { isFamilyKnowledgeItem } from "@/types/knowledge";
 import { readStorageArray, writeStorage } from "@/utils/storage";
+import { createUuid } from "@/utils/ids";
 
 export const defaultKnowledgeCategories: KnowledgeCategory[] = [
   {
@@ -186,7 +187,7 @@ export function createKnowledgeItem(input: KnowledgeCreateInput) {
   const category = input.category?.trim() || "אחר";
   const tags = splitTags(input.tags);
   const item: FamilyKnowledgeItem = {
-    id: crypto.randomUUID(),
+    id: createUuid(),
     title: input.title.trim() || "מידע משפחתי",
     content: input.content.trim(),
     category,

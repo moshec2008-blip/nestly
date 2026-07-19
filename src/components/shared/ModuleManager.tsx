@@ -12,6 +12,7 @@ import {
   type ModuleRecord,
   type ModuleRecordStatus,
 } from "@/types/modules";
+import { createUuid } from "@/utils/ids";
 
 type ModuleManagerProps = {
   storageKey: string;
@@ -170,7 +171,7 @@ export default function ModuleManager({
     }
 
     const record: ModuleRecord = {
-      id: crypto.randomUUID(),
+      id: createUuid(),
       title: cleanTitle,
       description: cleanDescription || `${itemLabel} חדש ללא פירוט נוסף.`,
       owner: cleanOwner,
