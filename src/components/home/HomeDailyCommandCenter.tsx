@@ -15,6 +15,7 @@ import {
   snoozeAttentionItem,
 } from "@/services/homeAttention";
 import { trackTelemetryEvent } from "@/services/telemetry";
+import { formatHebrewDate } from "@/utils/hebrewDate";
 import type {
   AttentionItem,
   HomeAttentionState,
@@ -396,6 +397,9 @@ export default function HomeDailyCommandCenter() {
           <p className="line-clamp-1 text-[11px] font-black text-[#8a5b16]">
             {languageKey === "en" ? "Today at home" : "היום בבית"} ·{" "}
             {getTodayLabel(language)}
+            {languageKey === "he"
+              ? ` · ${formatHebrewDate(new Date())}`
+              : ""}
           </p>
           <h1 className="mt-1 text-[22px] font-black leading-7 text-[#0f172a] sm:text-[26px] sm:leading-8">
             {headline}
