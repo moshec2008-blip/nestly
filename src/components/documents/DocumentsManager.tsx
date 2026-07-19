@@ -75,6 +75,21 @@ type DocumentItem = {
   localTemporaryReference?: string;
 };
 
+function isDocumentItem(value: unknown): value is DocumentItem {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const item = value as Partial<DocumentItem>;
+
+  return (
+    typeof item.id === "string" &&
+    item.id.length > 0 &&
+    typeof item.title === "string" &&
+    Array.isArray(item.attachments)
+  );
+}
+
 type DocumentForm = {
   title: string;
   description: string;
@@ -300,7 +315,8 @@ export default function DocumentsManager() {
   const scanInputRef = useRef<HTMLInputElement | null>(null);
   const [documents, setDocuments] = usePersistentArrayState<DocumentItem>(
     storageKeys.documents,
-    initialDocuments
+    initialDocuments,
+    isDocumentItem
   );
   const [form, setForm] = useState<DocumentForm>(getInitialForm);
   const [editingDocumentId, setEditingDocumentId] = useState<string | null>(

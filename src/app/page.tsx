@@ -12,6 +12,24 @@ import { useLanguage } from "@/i18n/useLanguage";
 const homeAreasByLanguage: Record<"he" | "en", HomeArea[]> = {
   he: [
     {
+      href: "/shopping",
+      icon: "shopping",
+      title: "קניות",
+      subtitle: "הרשימה המשותפת",
+      statFallback: "הרשימה ריקה",
+      accentClass: "bg-sky-50 text-sky-600 ring-sky-100",
+      tintClass: "bg-gradient-to-br from-sky-50/70 via-white to-white",
+    },
+    {
+      href: "/finance",
+      icon: "finance",
+      title: "כספים",
+      subtitle: "הוצאות והכנסות",
+      statFallback: "אין פעולות החודש",
+      accentClass: "bg-emerald-50 text-emerald-600 ring-emerald-100",
+      tintClass: "bg-gradient-to-br from-emerald-50/70 via-white to-white",
+    },
+    {
       href: "/family",
       icon: "family",
       title: "משפחה",
@@ -58,6 +76,24 @@ const homeAreasByLanguage: Record<"he" | "en", HomeArea[]> = {
     },
   ],
   en: [
+    {
+      href: "/shopping",
+      icon: "shopping",
+      title: "Shopping",
+      subtitle: "The shared list",
+      statFallback: "List is empty",
+      accentClass: "bg-sky-50 text-sky-600 ring-sky-100",
+      tintClass: "bg-gradient-to-br from-sky-50/70 via-white to-white",
+    },
+    {
+      href: "/finance",
+      icon: "finance",
+      title: "Finance",
+      subtitle: "Spending and income",
+      statFallback: "No activity this month",
+      accentClass: "bg-emerald-50 text-emerald-600 ring-emerald-100",
+      tintClass: "bg-gradient-to-br from-emerald-50/70 via-white to-white",
+    },
     {
       href: "/family",
       icon: "family",

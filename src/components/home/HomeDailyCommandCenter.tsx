@@ -55,13 +55,6 @@ function getLocale(language: AppLanguage) {
   return language === "en" ? "en-US" : "he-IL";
 }
 
-function getTimeLabel(language: AppLanguage) {
-  return new Intl.DateTimeFormat(getLocale(language), {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date());
-}
-
 function getTodayLabel(language: AppLanguage) {
   return new Intl.DateTimeFormat(getLocale(language), {
     weekday: "long",
@@ -203,23 +196,6 @@ function SupportingItem({ item }: { item: AttentionItem }) {
   );
 }
 
-function useClock(language: AppLanguage) {
-  const [timeLabel, setTimeLabel] = useState("--:--");
-
-  useEffect(() => {
-    const updateTimeLabel = () => setTimeLabel(getTimeLabel(language));
-    const timeoutId = window.setTimeout(updateTimeLabel, 0);
-    const intervalId = window.setInterval(updateTimeLabel, 60_000);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-      window.clearInterval(intervalId);
-    };
-  }, [language]);
-
-  return timeLabel;
-}
-
 export function getActionDisplayLabel(action: HomeQuickAction, languageKey: "he" | "en") {
   if (action.id === "universal-inbox") {
     return "Inbox";
@@ -302,7 +278,6 @@ export default function HomeDailyCommandCenter() {
   const [state, setState] = useState<HomeAttentionState | null>(null);
   const [handleState, setHandleState] = useState<HandleQueueState | null>(null);
   const languageKey = language === "en" ? "en" : "he";
-  const timeLabel = useClock(language);
   const text = useMemo(
     () =>
       languageKey === "en"
@@ -404,42 +379,41 @@ export default function HomeDailyCommandCenter() {
       ? text.urgentHeadline
       : text.activeHeadline;
   const journeyActions = getJourneyActions(languageKey, handleState);
+  // "לטפל" מודגש כשיש עבודה ממתינה; אחרת "הוסף" הוא הכלי הראשי.
+  const hasPendingWork = (handleState?.summary.total ?? 0) > 0;
+  const primaryActionId = hasPendingWork ? "handle" : "capture";
   const visibleTodayItems = state.todayItems.slice(0, 2);
   const story = state.lifeEventItems[0];
 
   return (
     <div className="w-full max-w-full overflow-hidden" dir={direction}>
+      {/* Hero קטן וממוקד: דבר אחד + פעולה אחת. שום קישוט מיותר. */}
       <section
         data-nestly-home-hero="true"
-        className={`relative overflow-hidden rounded-[28px] bg-gradient-to-br ${stateAccentClasses[primary.severity]} px-5 pb-5 pt-4 text-right shadow-[0_8px_24px_rgba(33,43,63,0.035)] sm:px-6 sm:pb-6 lg:px-7`}
+        className={`relative overflow-hidden rounded-[28px] bg-gradient-to-br ${stateAccentClasses[primary.severity]} px-5 py-4 text-right shadow-[0_8px_24px_rgba(33,43,63,0.035)] sm:px-6`}
       >
-        <span
-          className="pointer-events-none absolute inset-x-12 top-0 h-px bg-gradient-to-l from-transparent via-[#d8b470]/60 to-transparent"
-          aria-hidden="true"
-        />
-
-        <div className="relative flex items-center justify-between gap-3 text-[11px] font-black text-slate-500">
-          <span className="min-w-0 truncate text-[#8a5b16]">
-            {languageKey === "en" ? "Today at home" : "היום בבית"}
-          </span>
-          <span className="shrink-0 tabular-nums">
-            {timeLabel}
-          </span>
-        </div>
-
-        <div className="relative mt-5 max-w-[37rem]">
-          <p className="line-clamp-1 text-[12px] font-bold text-slate-500">
+        <div className="relative max-w-[37rem]">
+          <p className="line-clamp-1 text-[11px] font-black text-[#8a5b16]">
+            {languageKey === "en" ? "Today at home" : "היום בבית"} ·{" "}
             {getTodayLabel(language)}
           </p>
-          <h1 className="mt-1 text-[26px] font-black leading-[2rem] text-[#0f172a] min-[360px]:text-[29px] min-[360px]:leading-[2.18rem] sm:text-4xl sm:leading-[2.75rem]">
+          <h1 className="mt-1 text-[22px] font-black leading-7 text-[#0f172a] sm:text-[26px] sm:leading-8">
             {headline}
           </h1>
-          <p className="mt-3 max-w-xl text-[15px] font-bold leading-7 text-slate-600">
+          <p className="mt-1.5 max-w-xl text-sm font-bold leading-6 text-slate-600">
             {state.quiet ? state.daySummary : primary.summary}
           </p>
+          {!state.quiet && (
+            <p
+              className={`mt-1 text-xs font-bold leading-5 ${quietReasonClasses[primary.severity]}`}
+            >
+              {primary.reason}
+              {primary.relatedLabel ? ` · ${primary.relatedLabel}` : ""}
+            </p>
+          )}
         </div>
 
-        <div className="relative mt-5 flex flex-col gap-3 min-[380px]:flex-row min-[380px]:items-center">
+        <div className="relative mt-3 flex flex-col gap-2 min-[380px]:flex-row min-[380px]:items-center">
           <PrimaryAction item={primary} fallback={text.primaryFallback} />
           {!state.quiet && (
             <div className="flex items-center gap-3 px-1 text-xs font-black text-slate-500">
@@ -461,48 +435,59 @@ export default function HomeDailyCommandCenter() {
             </div>
           )}
         </div>
-
-        <p className={`relative mt-4 text-xs font-bold leading-5 ${quietReasonClasses[primary.severity]}`}>
-          {primary.reason}
-          {primary.relatedLabel ? ` · ${primary.relatedLabel}` : ""}
-        </p>
       </section>
 
       <nav
         aria-label={languageKey === "en" ? "Quick actions" : "פעולות מהירות"}
         className="mt-3 grid grid-cols-1 gap-2 min-[430px]:grid-cols-3"
       >
-        {journeyActions.map((action, index) => (
-          <JourneyActionShell
-            key={action.id}
-            action={action}
-            primary={index === 0}
-          >
-            <span
-              className={[
-                "grid h-8 w-8 shrink-0 place-items-center rounded-2xl",
-                index === 0
-                  ? "bg-white/12 text-[#f5d99f]"
-                  : "bg-[#fff8eb] text-[#8a5b16]",
-              ].join(" ")}
+        {journeyActions.map((action) => {
+          const isPrimary = action.id === primaryActionId;
+
+          return (
+            <JourneyActionShell
+              key={action.id}
+              action={action}
+              primary={isPrimary}
             >
-              <AppIcon name={action.icon} className="h-4 w-4" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-[13px] font-black leading-4">
-                {action.label}
-              </span>
               <span
                 className={[
-                  "mt-0.5 block line-clamp-2 text-[10px] font-bold leading-4",
-                  index === 0 ? "text-white/64" : "text-slate-500",
+                  "grid h-8 w-8 shrink-0 place-items-center rounded-2xl",
+                  isPrimary
+                    ? "bg-white/12 text-[#f5d99f]"
+                    : "bg-[#fff8eb] text-[#8a5b16]",
                 ].join(" ")}
               >
-                {action.description}
+                <AppIcon name={action.icon} className="h-4 w-4" />
               </span>
-            </span>
-          </JourneyActionShell>
-        ))}
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center justify-between gap-1 text-[13px] font-black leading-4">
+                  <span>{action.label}</span>
+                  {action.id === "handle" && hasPendingWork ? (
+                    <span
+                      className={[
+                        "grid h-5 min-w-5 shrink-0 place-items-center rounded-full px-1 text-[10px] font-black tabular-nums",
+                        isPrimary
+                          ? "bg-[#f5d99f] text-[#111827]"
+                          : "bg-[#fff3d8] text-[#8a5b16]",
+                      ].join(" ")}
+                    >
+                      {action.count}
+                    </span>
+                  ) : null}
+                </span>
+                <span
+                  className={[
+                    "mt-0.5 block line-clamp-2 text-[10px] font-bold leading-4",
+                    isPrimary ? "text-white/64" : "text-slate-500",
+                  ].join(" ")}
+                >
+                  {action.description}
+                </span>
+              </span>
+            </JourneyActionShell>
+          );
+        })}
       </nav>
 
       <section className="mt-5 px-1 text-right">

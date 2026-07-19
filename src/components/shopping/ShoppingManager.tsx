@@ -124,8 +124,31 @@ export default function ShoppingManager() {
   }, [isFormOpen, activeItemId]);
 
   const isEditing = Boolean(editingItemId);
-  const remainingItems = items.filter((item) => !item.purchased);
   const purchasedItems = items.filter((item) => item.purchased);
+
+  // התקדמות הקנייה בהקשר הרשימה הפעילה — הלב של תחושת ההתקדמות.
+  const scopeItems =
+    activeList === "all"
+      ? items
+      : items.filter((item) => item.listName === activeList);
+  const scopeDone = scopeItems.filter((item) => item.purchased).length;
+  const scopeTotal = scopeItems.length;
+  const scopeRemaining = scopeTotal - scopeDone;
+  const progressPercent =
+    scopeTotal === 0 ? 0 : Math.round((scopeDone / scopeTotal) * 100);
+  const isListComplete = scopeTotal > 0 && scopeRemaining === 0;
+  const isAlmostDone =
+    scopeRemaining > 0 && scopeRemaining <= 3 && scopeDone > 0;
+
+  const progressLine = isListComplete
+    ? "הכול נאסף — אפשר לסיים את הקנייה בשקט"
+    : isAlmostDone
+      ? scopeRemaining === 1
+        ? "כמעט שם — נשאר פריט אחרון"
+        : `כמעט שם — נשארו ${scopeRemaining} פריטים`
+      : scopeTotal === 0
+        ? "הרשימה ריקה ומוכנה לפריט הראשון"
+        : `נאספו ${scopeDone} מתוך ${scopeTotal}`;
   const { confirm, toast } = useFeedback();
   const [, setFinanceTransactions] =
     usePersistentArrayState<FinanceTransaction>(
@@ -600,26 +623,11 @@ export default function ShoppingManager() {
 
   return (
     <section className="space-y-2.5 pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1rem)] text-right lg:pb-0">
-      <section className="rounded-[22px] border border-[#eadfcd] bg-[#fffdf8] p-2.5 shadow-[0_10px_24px_rgba(33,43,63,0.05)]">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex shrink-0 items-center gap-2 rounded-2xl bg-white px-3 py-2 shadow-sm">
-            <span className="text-lg font-black text-[#111827]">
-              {remainingItems.length}
-            </span>
-            <span className="text-xs font-black text-slate-500">לקנות</span>
-          </div>
-
-          <div className="min-w-0">
-            <p className="text-xs font-black text-[#9a6b17]">קניות</p>
-            <h1 className="truncate text-xl font-black text-[#111827]">
-              מה צריך להביא הביתה?
-            </h1>
-          </div>
-        </div>
-
+      <section className="rounded-[22px] bg-[#fffdf8] p-3 shadow-[0_10px_24px_rgba(33,43,63,0.05)]">
+        {/* ההוספה היא נקודת הפתיחה — לפני כל דבר אחר. */}
         <form
           onSubmit={handleQuickAdd}
-          className="mt-2.5 flex min-h-12 items-center overflow-hidden rounded-2xl border border-[#d8caba] bg-white p-1 shadow-sm focus-within:border-[#d8b470] focus-within:ring-4 focus-within:ring-[#d8b470]/12"
+          className="flex min-h-[52px] items-center overflow-hidden rounded-2xl bg-white p-1 shadow-sm ring-1 ring-[#d8caba]/60 focus-within:ring-2 focus-within:ring-[#d8b470]"
         >
           <label className="sr-only" htmlFor="quick-shopping-item">
             הוסף מוצר מהיר
@@ -628,42 +636,79 @@ export default function ShoppingManager() {
             id="quick-shopping-item"
             value={quickTitle}
             onChange={(event) => setQuickTitle(event.target.value)}
-            className="min-h-11 min-w-0 flex-1 bg-transparent px-3 text-right text-base font-black text-[#111827] outline-none placeholder:text-slate-600"
-            placeholder="להוסיף לרשימה..."
+            className="min-h-11 min-w-0 flex-1 bg-transparent px-3 text-right text-base font-black text-[#111827] outline-none placeholder:text-slate-500"
+            placeholder="מה להוסיף לרשימה?"
           />
           <button
             type="submit"
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#d8caba] bg-[#fffdf8] text-xl font-black text-[#111827] shadow-[0_10px_22px_rgba(33,43,63,0.08)] transition hover:bg-white active:scale-[0.98]"
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#111827] text-xl font-black text-white transition hover:bg-[#2a3142] active:scale-[0.98]"
             aria-label="הוסף מוצר לרשימה"
           >
             +
           </button>
         </form>
 
-        <div className="mt-2 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={openNewProductForm}
-              className="min-h-9 rounded-full border border-[#eadfcd] bg-white px-3 text-[11px] font-black text-slate-700 transition hover:bg-[#fff8eb]"
+        {/* התקדמות במבט אחד: כמה נשאר, כמה כבר נאסף. */}
+        <div className="mt-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <span
+              className={[
+                "text-xs font-black",
+                isListComplete
+                  ? "text-emerald-700"
+                  : isAlmostDone
+                    ? "text-[#9a6b17]"
+                    : "text-slate-600",
+              ].join(" ")}
             >
-              פרטים נוספים
-            </button>
-            <ReceiptScanPreview
-              triggerClassName="inline-flex min-h-9 cursor-pointer items-center justify-center whitespace-nowrap rounded-full border border-[#eadfcd] bg-white px-3 text-[11px] font-black text-[#7a5212] transition hover:bg-[#fff8eb]"
-              onConfirmExpense={handleConfirmReceiptExpense}
-            />
-            <button
-              type="button"
-              onClick={requestShoppingSuggestions}
-              className="min-h-9 rounded-full border border-sky-100 bg-sky-50/70 px-3 text-[11px] font-black text-sky-800 transition hover:bg-sky-50"
-            >
-              הצעות חכמות
-            </button>
+              {progressLine}
+            </span>
+            {scopeTotal > 0 && (
+              <span className="text-xs font-bold tabular-nums text-slate-500">
+                {scopeRemaining > 0 ? `${scopeRemaining} לקנות` : "🎉"}
+              </span>
+            )}
           </div>
-          <p className="truncate text-xs font-semibold text-slate-500">
-            הקלדה, פלוס, ממשיכים לקנות.
-          </p>
+          {scopeTotal > 0 && (
+            <div
+              className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#efe9dd]"
+              role="progressbar"
+              aria-valuenow={progressPercent}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="התקדמות הקנייה"
+            >
+              <div
+                className={[
+                  "h-full rounded-full transition-all duration-500",
+                  isListComplete ? "bg-emerald-500" : "bg-[#d8b470]",
+                ].join(" ")}
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* פעולות תומכות — שקטות, לא מתחרות בהוספה. */}
+        <div className="mt-2.5 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={openNewProductForm}
+            className="min-h-9 text-xs font-black text-slate-500 transition hover:text-[#111827]"
+          >
+            + פרטים נוספים
+          </button>
+          <ReceiptScanPreview
+            triggerClassName="inline-flex min-h-9 cursor-pointer items-center text-xs font-black text-slate-500 transition hover:text-[#7a5212]"
+            onConfirmExpense={handleConfirmReceiptExpense}
+          />
+          <button
+            type="button"
+            onClick={requestShoppingSuggestions}
+            className="min-h-9 text-xs font-black text-slate-500 transition hover:text-sky-800"
+          >
+            הצעות חכמות
+          </button>
         </div>
         {suggestionNotice ? (
           <p className="mt-2 rounded-2xl bg-[#fff8eb] px-3 py-2 text-xs font-bold text-[#7a5212]">
@@ -688,7 +733,7 @@ export default function ShoppingManager() {
         ) : null}
       </section>
 
-      <section className="nestly-sticky-below-header sticky z-20 rounded-[22px] border border-[#e6e8ec] bg-white/95 p-2.5 shadow-[0_10px_26px_rgba(15,23,42,0.06)] backdrop-blur-xl">
+      <section className="nestly-sticky-below-header sticky z-20 rounded-[22px] bg-white/90 px-1 py-1.5 backdrop-blur-xl">
         <div className="flex items-center justify-between gap-2">
           <div className="flex shrink-0 gap-1.5">
             {purchaseFilters.map((filter) => {
@@ -700,10 +745,10 @@ export default function ShoppingManager() {
                   type="button"
                   onClick={() => setPurchaseFilter(filter.id)}
                   className={[
-                    "min-h-10 rounded-full px-3 text-xs font-black transition",
+                    "min-h-10 rounded-full px-3.5 text-xs font-black transition",
                     isActive
-                      ? "border border-[#d8caba] bg-[#fffdf8] text-[#111827] shadow-sm"
-                      : "border border-[#e6e8ec] bg-[#fafafb] text-slate-700",
+                      ? "bg-[#111827] text-white shadow-sm"
+                      : "text-slate-600 hover:bg-[#fff8eb]",
                   ].join(" ")}
                 >
                   {filter.label}
@@ -715,7 +760,12 @@ export default function ShoppingManager() {
           <button
             type="button"
             onClick={() => setShowFilters((currentValue) => !currentValue)}
-            className="min-h-10 rounded-full border border-[#e6e8ec] bg-white px-3 text-xs font-black text-slate-700"
+            className={[
+              "min-h-10 rounded-full px-3.5 text-xs font-black transition",
+              showFilters
+                ? "bg-[#fff8eb] text-[#7a5212]"
+                : "text-slate-500 hover:bg-[#fff8eb]",
+            ].join(" ")}
             aria-expanded={showFilters}
           >
             סינון
@@ -798,33 +848,71 @@ export default function ShoppingManager() {
         )}
       </section>
 
-      <section className="overflow-hidden rounded-[22px] border border-[#e6e8ec] bg-white shadow-[0_12px_30px_rgba(15,23,42,0.055)]">
-        <div className="flex min-h-9 items-center justify-between border-b border-[#eef0f3] bg-[#fafafb] px-3">
-          <span className="text-xs font-black text-slate-500">
-            {visibleItems.length} מוצגים
-          </span>
-          <h2 className="text-sm font-black text-[#111827]">הרשימה לקנייה</h2>
-        </div>
-
+      <section className="overflow-hidden rounded-[22px] bg-white shadow-[0_8px_22px_rgba(15,23,42,0.04)]">
         {departmentEntries.length === 0 ? (
-          <div className="px-5 py-8 text-center">
-            <div className="mx-auto grid h-14 w-14 place-items-center rounded-3xl bg-[#fff8eb] text-2xl">
-              +
+          isListComplete && purchaseFilter === "remaining" ? (
+            // הרשימה הושלמה — רגע של הצלחה, לא מסך ריק.
+            <div className="px-5 py-8 text-center">
+              <div className="mx-auto grid h-14 w-14 place-items-center rounded-3xl bg-emerald-50 text-2xl">
+                🎉
+              </div>
+              <p className="mt-3 text-base font-black text-emerald-800">
+                כל הרשימה נאספה!
+              </p>
+              <p className="mt-1 text-sm font-semibold text-slate-600">
+                אפשר לסיים את הקנייה בשקט, או להתחיל רשימה חדשה.
+              </p>
+              <div className="mt-3 flex justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => void clearPurchasedFromCurrentView()}
+                  className="min-h-10 rounded-full bg-emerald-700 px-4 text-xs font-black text-white transition hover:bg-emerald-800"
+                >
+                  נקה ותתחיל רשימה חדשה
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPurchaseFilter("purchased")}
+                  className="min-h-10 rounded-full bg-slate-100 px-4 text-xs font-black text-slate-700 transition hover:bg-white"
+                >
+                  מה נקנה
+                </button>
+              </div>
             </div>
-            <p className="mt-3 text-base font-black text-[#111827]">
-              הרשימה מחכה למוצר הראשון
-            </p>
-            <p className="mt-1 text-sm font-semibold text-slate-600">
-              כתוב מוצר בשדה למעלה ולחץ פלוס.
-            </p>
-          </div>
+          ) : purchaseFilter === "purchased" ? (
+            <div className="px-5 py-8 text-center">
+              <div className="mx-auto grid h-14 w-14 place-items-center rounded-3xl bg-[#fff8eb] text-2xl">
+                🛒
+              </div>
+              <p className="mt-3 text-base font-black text-[#111827]">
+                עוד לא סומנו פריטים כנרכשו
+              </p>
+              <p className="mt-1 text-sm font-semibold text-slate-600">
+                בזמן הקנייה, נגיעה בעיגול ליד מוצר מסמנת שהוא בעגלה.
+              </p>
+            </div>
+          ) : (
+            <div className="px-5 py-8 text-center">
+              <div className="mx-auto grid h-14 w-14 place-items-center rounded-3xl bg-[#fff8eb] text-2xl">
+                +
+              </div>
+              <p className="mt-3 text-base font-black text-[#111827]">
+                הרשימה מחכה למוצר הראשון
+              </p>
+              <p className="mt-1 text-sm font-semibold text-slate-600">
+                כתבו מוצר בשדה למעלה ולחצו פלוס — זה כל מה שצריך.
+              </p>
+            </div>
+          )
         ) : (
-          <div className="divide-y divide-[#eef0f3]">
+          <div className="space-y-1">
             {departmentEntries.map(([department, departmentItems]) => (
               <div key={department}>
-                <div className="flex h-8 items-center justify-between bg-[#fffdf8] px-3">
-                  <span className="text-[11px] font-black text-slate-500">
-                    {departmentItems.filter((item) => !item.purchased).length} לקנות
+                <div className="flex h-8 items-center justify-between px-3 pt-1">
+                  <span className="text-[11px] font-bold text-slate-400">
+                    {departmentItems.filter((item) => !item.purchased).length > 0
+                      ? `${departmentItems.filter((item) => !item.purchased).length} לקנות`
+                      : "✓"}
                   </span>
                   <span className="text-xs font-black text-[#9a6b17]">
                     {department}
