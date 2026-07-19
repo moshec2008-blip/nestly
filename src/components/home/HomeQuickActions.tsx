@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import ReceiptScanPreview from "@/components/ai/ReceiptScanPreview";
 import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { usePersonalization } from "@/hooks/usePersonalization";
 import { useLanguage } from "@/i18n/useLanguage";
@@ -58,13 +57,13 @@ const quickActions: QuickAction[] = [
 const receiptCopy = {
   he: {
     aria: "פעולות מהירות",
-    title: "סריקת קבלה",
-    subtitle: "הוסף הוצאה תוך כמה שניות",
+    title: "Universal Inbox",
+    subtitle: "שמרו כל דבר, Nestly תציע מה לעשות",
   },
   en: {
     aria: "Quick actions",
-    title: "Scan receipt",
-    subtitle: "Add an expense in seconds",
+    title: "Universal Inbox",
+    subtitle: "Save anything, Nestly suggests the next step",
   },
 } as const;
 
@@ -107,12 +106,20 @@ export default function HomeQuickActions() {
       ) : null}
 
       {showReceiptScan ? (
-        <ReceiptScanPreview
-        triggerClassName={[
+        <button
+        type="button"
+        onClick={() =>
+          window.dispatchEvent(
+            new CustomEvent("nestly-open-universal-inbox", {
+              detail: { source: "text", mode: "text" },
+            })
+          )
+        }
+        className={[
           "flex min-h-[64px] min-w-0 cursor-pointer items-center justify-between gap-3 overflow-hidden rounded-[20px] bg-gradient-to-l from-[#fff4dc] via-[#fffaf1] to-white px-3.5 py-3 shadow-[0_12px_28px_rgba(126,86,28,0.075)] transition hover:-translate-y-0.5 hover:bg-white focus-within:ring-2 focus-within:ring-[#eadfcd] active:scale-[0.99]",
           direction === "rtl" ? "text-right" : "text-left",
         ].join(" ")}
-        triggerContent={
+        >
           <>
             <span className="flex items-center gap-2 text-xs font-black text-slate-500">
               <span className="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-black text-[#7a5212] shadow-sm">
@@ -134,12 +141,11 @@ export default function HomeQuickActions() {
                 </span>
               </span>
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white/76 text-[#7a5212] shadow-sm">
-                <AppIcon name="document" className="h-4 w-4" />
+                <AppIcon name="spark" className="h-4 w-4" />
               </span>
             </span>
           </>
-        }
-        />
+        </button>
       ) : null}
     </section>
   );

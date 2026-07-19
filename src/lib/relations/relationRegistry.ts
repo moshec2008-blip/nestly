@@ -103,6 +103,13 @@ export const relationRegistry: RelationRegistryEntry[] = [
     confirmationRequired: true,
   },
   {
+    sourceType: "life_event",
+    targetType: "smart_inbox_item",
+    relationshipTypes: ["related_to", "part_of_life_event", "life_event_context"],
+    bidirectional: true,
+    confirmationRequired: true,
+  },
+  {
     sourceType: "receipt",
     targetType: "finance_transaction",
     relationshipTypes: ["linked_transaction", "created_from"],

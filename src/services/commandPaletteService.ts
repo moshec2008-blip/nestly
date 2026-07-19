@@ -6,13 +6,13 @@ const commandsByLanguage: Record<"he" | "en", CommandPaletteCommand[]> = {
   he: [
     {
       id: "quick_note",
-      label: "פתק מהיר",
-      description: "לכוד מחשבה, רעיון או פרט קטן",
-      keywords: ["פתק", "לכידה", "רשום", "רעיון", "מחשבה"],
+      label: "Universal Inbox",
+      description: "שמור כל דבר, ו-Nestly תציע לאן זה שייך",
+      keywords: ["inbox", "שמירה", "לכידה", "סריקה", "קובץ", "פתק", "קבלה"],
       icon: "spark",
       category: "capture",
-      eventName: "nestly-open-smart-capture",
-      eventDetail: { source: "quick_note", mode: "text" },
+      eventName: "nestly-open-universal-inbox",
+      eventDetail: { source: "text", mode: "text" },
       priority: 100,
     },
     {
@@ -22,8 +22,8 @@ const commandsByLanguage: Record<"he" | "en", CommandPaletteCommand[]> = {
       keywords: ["סרוק", "קבלה", "חשבונית", "הוצאה", "סופר"],
       icon: "document",
       category: "quick_action",
-      eventName: "nestly-open-smart-capture",
-      eventDetail: { source: "receipt_scan", mode: "receipt" },
+      eventName: "nestly-open-universal-inbox",
+      eventDetail: { source: "camera_scan", mode: "files" },
       priority: 98,
     },
     {
@@ -100,13 +100,13 @@ const commandsByLanguage: Record<"he" | "en", CommandPaletteCommand[]> = {
   en: [
     {
       id: "quick_note",
-      label: "Quick note",
-      description: "Capture a thought, idea or small detail",
-      keywords: ["note", "capture", "idea", "thought"],
+      label: "Universal Inbox",
+      description: "Save anything and let Nestly suggest where it belongs",
+      keywords: ["inbox", "save", "capture", "scan", "file", "note", "receipt"],
       icon: "spark",
       category: "capture",
-      eventName: "nestly-open-smart-capture",
-      eventDetail: { source: "quick_note", mode: "text" },
+      eventName: "nestly-open-universal-inbox",
+      eventDetail: { source: "text", mode: "text" },
       priority: 100,
     },
     {
@@ -116,8 +116,8 @@ const commandsByLanguage: Record<"he" | "en", CommandPaletteCommand[]> = {
       keywords: ["receipt", "scan", "expense", "bill"],
       icon: "document",
       category: "quick_action",
-      eventName: "nestly-open-smart-capture",
-      eventDetail: { source: "receipt_scan", mode: "receipt" },
+      eventName: "nestly-open-universal-inbox",
+      eventDetail: { source: "camera_scan", mode: "files" },
       priority: 98,
     },
     {

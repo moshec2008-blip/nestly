@@ -21,6 +21,7 @@ import { getActiveLifeEvents } from "@/services/lifeEventsService";
 import { readKnowledgeItems } from "@/services/familyKnowledge";
 import { getTimelineItems } from "@/services/timelineService";
 import { toSmartDocumentView } from "@/services/smartDocuments";
+import { readUniversalInboxItems } from "@/services/universalInboxService";
 import type { BirthdayPerson } from "@/types/birthdays";
 import { isSmartCapture, type SmartCapture } from "@/types/capture";
 import type { ModuleRecord } from "@/types/modules";
@@ -75,6 +76,7 @@ function moduleNames(language: AppLanguage) {
     shopping: dictionary.nav.shopping,
     permissions: dictionary.nav.permissions,
     captures: language === "en" ? "Smart Inbox" : "Smart Inbox",
+    universalInbox: language === "en" ? "Universal Inbox" : "Universal Inbox",
   };
 }
 
@@ -220,8 +222,28 @@ export function getGlobalSearchResults(
     limit: 8,
   }).items;
   const lifeEvents = getActiveLifeEvents();
+  const universalInboxItems = readUniversalInboxItems();
 
   const results: GlobalSearchResult[] = [
+    ...universalInboxItems
+      .filter((item) =>
+        matchesQuery(query, [
+          item.title,
+          item.summary,
+          item.normalizedText,
+          item.source,
+          ...item.classifications.map((classification) => classification.type),
+          ...item.actions.map((action) => action.title),
+          ...item.entities.map((entity) => entity.label),
+        ])
+      )
+      .map((item) => ({
+        id: `universal-inbox-${item.id}`,
+        title: item.title,
+        description: `${item.status} · ${item.actions.length} הצעות`,
+        module: names.universalInbox,
+        href: "/" as const,
+      })),
     ...lifeEvents
       .filter((event) =>
         matchesQuery(query, [

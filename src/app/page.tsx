@@ -1,19 +1,13 @@
 "use client";
 
-import type { ReactNode } from "react";
 import AppShell from "@/components/layout/AppShell";
-import HomeHero from "@/components/home/HomeHero";
-import HomeLifeEvents from "@/components/home/HomeLifeEvents";
-import HomeQuickActions from "@/components/home/HomeQuickActions";
-import ImportantToday from "@/components/home/ImportantToday";
+import HomeDailyCommandCenter from "@/components/home/HomeDailyCommandCenter";
 import {
   HomeAreaCard,
   HomeSectionHeader,
   type HomeArea,
 } from "@/components/home/HomeAreas";
-import { usePersonalization } from "@/hooks/usePersonalization";
 import { useLanguage } from "@/i18n/useLanguage";
-import type { HomeSectionId } from "@/types/personalization";
 
 const homeAreasByLanguage: Record<"he" | "en", HomeArea[]> = {
   he: [
@@ -125,37 +119,23 @@ const sectionCopy = {
 
 export default function HomePage() {
   const { language } = useLanguage();
-  const personalization = usePersonalization();
   const languageKey = language === "en" ? "en" : "he";
   const copy = sectionCopy[languageKey];
   const homeAreas = homeAreasByLanguage[languageKey];
-  const visibleHomeSections = personalization.homeSections.filter(
-    (section) => section.visible
-  );
-  const sectionRenderers: Record<HomeSectionId, ReactNode> = {
-    quickActions: <HomeQuickActions />,
-    importantToday: <ImportantToday />,
-    moreAreas: (
-      <section className="home-more-section w-full max-w-full overflow-hidden rounded-[24px] bg-white/58 p-3 shadow-[0_10px_26px_rgba(33,43,63,0.045)]">
-        <HomeSectionHeader title={copy.title} subtitle={copy.subtitle} />
-        <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
-          {homeAreas.map((area) => (
-            <HomeAreaCard key={area.href} area={area} />
-          ))}
-        </div>
-      </section>
-    ),
-  };
 
   return (
     <AppShell>
       <div className="mx-auto w-full max-w-5xl space-y-3 overflow-hidden pb-[calc(var(--nestly-bottom-nav-height)+var(--nestly-safe-bottom-gap)+1.5rem)] lg:space-y-4 lg:pb-0">
-        <HomeHero />
-        <HomeLifeEvents />
+        <HomeDailyCommandCenter />
 
-        {visibleHomeSections.map((section) => (
-          <div key={section.id}>{sectionRenderers[section.id]}</div>
-        ))}
+        <section className="home-more-section w-full max-w-full overflow-hidden rounded-[24px] bg-white/58 p-3 shadow-[0_10px_26px_rgba(33,43,63,0.045)]">
+          <HomeSectionHeader title={copy.title} subtitle={copy.subtitle} />
+          <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-5">
+            {homeAreas.map((area) => (
+              <HomeAreaCard key={area.href} area={area} />
+            ))}
+          </div>
+        </section>
       </div>
     </AppShell>
   );

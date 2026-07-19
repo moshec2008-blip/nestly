@@ -197,7 +197,7 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
 
       <div
         className={[
-          "nestly-toast-stack pointer-events-none fixed z-[90] flex w-full max-w-sm flex-col gap-3 px-4",
+          "nestly-toast-stack pointer-events-none fixed z-[90] flex w-[calc(100vw-2rem)] max-w-sm flex-col gap-3 px-0",
           direction === "rtl" ? "left-4" : "right-4",
         ].join(" ")}
         aria-live="polite"
