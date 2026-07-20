@@ -23,6 +23,7 @@ import {
 } from "@/types/universalInbox";
 import { readStorageArray, writeStorage } from "@/utils/storage";
 import { createUuid } from "@/utils/ids";
+import { nowIso } from "@/utils/dateTime";
 
 export type UniversalInboxCreateInput = {
   source: UniversalInboxInputSource;
@@ -67,10 +68,6 @@ const classificationKeywords: Record<
   photo: ["תמונה", "צילום", "photo", "image", "jpg", "png"],
   unknown: [],
 };
-
-function nowIso() {
-  return new Date().toISOString();
-}
 
 function makeId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {

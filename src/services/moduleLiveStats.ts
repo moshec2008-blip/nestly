@@ -18,10 +18,7 @@ import {
   normalizeFamilyEvent,
 } from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
-
-function getLocale(language: AppLanguage) {
-  return language === "en" ? "en-US" : "he-IL";
-}
+import { getLocale } from "@/i18n/locale";
 
 function formatCurrency(amount: number, language: AppLanguage) {
   return new Intl.NumberFormat(getLocale(language), {

@@ -34,6 +34,7 @@ import type { ShoppingItem } from "@/types/shopping";
 import type { FamilyTask } from "@/data/tasks";
 import { readStorageArray } from "@/utils/storage";
 import { createUuid } from "@/utils/ids";
+import { nowIso } from "@/utils/dateTime";
 
 function createId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -41,10 +42,6 @@ function createId(prefix: string) {
   }
 
   return `${prefix}-${Date.now()}`;
-}
-
-function nowIso() {
-  return new Date().toISOString();
 }
 
 function notifyRelationsChanged() {

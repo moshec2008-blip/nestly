@@ -18,6 +18,7 @@ import type {
 import type { TimelineItem } from "@/types/timeline";
 import { readStorageArray, writeStorage } from "@/utils/storage";
 import { createUuid } from "@/utils/ids";
+import { nowIso } from "@/utils/dateTime";
 
 function createId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -25,10 +26,6 @@ function createId(prefix: string) {
   }
 
   return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-}
-
-function nowIso() {
-  return new Date().toISOString();
 }
 
 function yearFromDate(value: string) {

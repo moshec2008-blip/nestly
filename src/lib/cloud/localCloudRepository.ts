@@ -14,6 +14,7 @@ import type {
   NestlyCloudRepository,
   UpsertRecordInput,
 } from "@/lib/cloud/repository";
+import { nowIso } from "@/utils/dateTime";
 
 const localCloudKey = "nestly-cloud-foundation";
 
@@ -35,10 +36,6 @@ function getEmptyState(): LocalCloudState {
     records: [],
     migrations: [],
   };
-}
-
-function nowIso() {
-  return new Date().toISOString();
 }
 
 function normalizeId(value: string) {

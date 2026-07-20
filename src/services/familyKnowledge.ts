@@ -13,6 +13,7 @@ import type {
 import { isFamilyKnowledgeItem } from "@/types/knowledge";
 import { readStorageArray, writeStorage } from "@/utils/storage";
 import { createUuid } from "@/utils/ids";
+import { nowIso } from "@/utils/dateTime";
 
 export const defaultKnowledgeCategories: KnowledgeCategory[] = [
   {
@@ -104,10 +105,6 @@ export const defaultKnowledgeCategories: KnowledgeCategory[] = [
     linkedModule: "general",
   },
 ];
-
-function nowIso() {
-  return new Date().toISOString();
-}
 
 function normalize(value: string) {
   return value

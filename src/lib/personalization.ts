@@ -11,6 +11,7 @@ import type {
 import type { AppRoute } from "@/types/navigation";
 import { readStorage, writeStorage } from "@/utils/storage";
 import { createUuid } from "@/utils/ids";
+import { nowIso } from "@/utils/dateTime";
 
 export const personalizationChangedEventName = "nestly-personalization-change";
 
@@ -92,10 +93,6 @@ function createId(prefix: string) {
   }
 
   return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-}
-
-function nowIso() {
-  return new Date().toISOString();
 }
 
 function normalizePreferences(

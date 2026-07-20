@@ -25,6 +25,8 @@ import type {
   HandleQueueState,
   HandleUrgency,
 } from "@/types/handleQueue";
+import { nowIso } from "@/utils/dateTime";
+import { getLocale } from "@/i18n/locale";
 
 type CollectResult<T> = {
   items: T[];
@@ -45,14 +47,6 @@ function getDaysUntilDate(value: string | undefined, referenceDate = new Date())
   }
 
   return Math.ceil((target.getTime() - reference.getTime()) / 86_400_000);
-}
-
-function getLocale(language: AppLanguage) {
-  return language === "en" ? "en-US" : "he-IL";
-}
-
-function nowIso() {
-  return new Date().toISOString();
 }
 
 function isValidTimestamp(value: string | undefined) {

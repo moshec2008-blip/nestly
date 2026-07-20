@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getAIConfig, getAISetupMessage } from "@/lib/ai/config";
 import { getCapabilityForAnalysis } from "@/lib/ai/capabilities";
+import {
+  getClientKeyFromRequest,
+  isRateLimited,
+} from "@/lib/ai/rateLimiter";
 import type { AIUserMode, AnalysisType, AISafeError } from "@/lib/ai/types";
 import {
   buildBaseAnalyzeInput,
@@ -9,11 +13,6 @@ import {
 import { toSafeAIError } from "@/services/documentAnalysisService";
 
 export const aiRouteMaxDuration = 60;
-
-// הגנת קצב בסיסית בזיכרון (פר-מופע) — מגינה על קרדיט ה-AI מפני שימוש לרעה.
-const rateWindowMs = 60_000;
-const maxRequestsPerWindow = 10;
-const requestLog = new Map<string, number[]>();
 
 // קוד גישה משפחתי + הגבלת קצב — רצים לפני כל ניתוח בתשלום.
 // חשוב: userMode שמגיע מהלקוח אינו מחסום אבטחה; רק הבדיקות כאן.
@@ -32,27 +31,12 @@ export function assertAIRequestSecurity(request: Request) {
     }
   }
 
-  const clientKey =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const now = Date.now();
-  const recentRequests = (requestLog.get(clientKey) ?? []).filter(
-    (timestamp) => now - timestamp < rateWindowMs
-  );
-
-  if (recentRequests.length >= maxRequestsPerWindow) {
-    requestLog.set(clientKey, recentRequests);
+  if (isRateLimited(getClientKeyFromRequest(request))) {
     throw {
       code: "provider_rate_limited",
       message: "יותר מדי בקשות ניתוח ברצף — נסו שוב בעוד דקה.",
       status: 429,
     } satisfies AISafeError;
-  }
-
-  recentRequests.push(now);
-  requestLog.set(clientKey, recentRequests);
-
-  if (requestLog.size > 500) {
-    requestLog.clear();
   }
 }
 

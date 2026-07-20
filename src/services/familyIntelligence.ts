@@ -20,6 +20,7 @@ import type { ModuleRecord } from "@/types/modules";
 import type { ShoppingItem } from "@/types/shopping";
 import { getDaysUntilBirthday } from "@/utils/birthdayCalendar";
 import { readStorageArray } from "@/utils/storage";
+import { getLocale } from "@/i18n/locale";
 
 export type IntelligenceTone = "good" | "info" | "warning" | "danger";
 
@@ -70,10 +71,6 @@ type IntelligenceSnapshot = {
 };
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
-
-function getLocale(language: AppLanguage) {
-  return language === "en" ? "en-US" : "he-IL";
-}
 
 function formatCurrency(amount: number, language: AppLanguage) {
   return new Intl.NumberFormat(getLocale(language), {

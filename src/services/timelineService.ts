@@ -17,6 +17,7 @@ import {
   shouldRecordMeaningfulEvent,
 } from "@/lib/timeline/timelineRules";
 import { createUuid } from "@/utils/ids";
+import { nowIso } from "@/utils/dateTime";
 
 function createId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -24,10 +25,6 @@ function createId() {
   }
 
   return `timeline-${Date.now()}`;
-}
-
-function nowIso() {
-  return new Date().toISOString();
 }
 
 export function createTimelineItem(input: TimelineCreateInput) {

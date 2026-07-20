@@ -22,6 +22,7 @@ import type {
   HomeQuickAction,
 } from "@/types/homeAttention";
 import type { HandleQueueState } from "@/types/handleQueue";
+import { getLocale } from "@/i18n/locale";
 
 const stateAccentClasses: Record<AttentionItem["severity"], string> = {
   critical: "from-rose-200/90 via-[#fff7f4] to-[#fffdf8]",
@@ -51,10 +52,6 @@ const quietReasonClasses: Record<AttentionItem["severity"], string> = {
   low: "text-slate-500",
   calm: "text-emerald-700",
 };
-
-function getLocale(language: AppLanguage) {
-  return language === "en" ? "en-US" : "he-IL";
-}
 
 function getTodayLabel(language: AppLanguage) {
   return new Intl.DateTimeFormat(getLocale(language), {

@@ -5,6 +5,10 @@ import {
 } from "@/lib/ai/anthropicDocumentAnalyzer";
 import { analyzeDocumentWithGemini } from "@/lib/ai/geminiDocumentAnalyzer";
 import { analyzeDocumentWithMock } from "@/lib/ai";
+import {
+  getClientKeyFromRequest,
+  isRateLimited,
+} from "@/lib/ai/rateLimiter";
 import type {
   DocumentAnalysisFile,
   DocumentAnalysisInput,
@@ -17,39 +21,6 @@ const maxFiles = 4;
 const maxTextFieldLength = 2_000;
 // base64 של תמונה מכווצת ~200-500K תווים; תקרה נדיבה אך בטוחה.
 const maxTotalFileDataLength = 4_000_000;
-
-// הגבלת קצב בסיסית בזיכרון (פר-מופע של הפונקציה) — הגנה על קרדיט ה-API.
-const rateWindowMs = 60_000;
-const maxRequestsPerWindow = 10;
-const requestLog = new Map<string, number[]>();
-
-function isRateLimited(clientKey: string) {
-  const now = Date.now();
-  const recentRequests = (requestLog.get(clientKey) ?? []).filter(
-    (timestamp) => now - timestamp < rateWindowMs
-  );
-
-  if (recentRequests.length >= maxRequestsPerWindow) {
-    requestLog.set(clientKey, recentRequests);
-    return true;
-  }
-
-  recentRequests.push(now);
-  requestLog.set(clientKey, recentRequests);
-
-  // ניקוי בסיסי כדי שהמפה לא תגדל בלי סוף
-  if (requestLog.size > 500) {
-    requestLog.clear();
-  }
-
-  return false;
-}
-
-function getClientKey(request: Request) {
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
-  );
-}
 
 function sanitizeFile(value: unknown): DocumentAnalysisFile | null {
   if (!value || typeof value !== "object") {
@@ -183,7 +154,7 @@ export async function POST(request: Request) {
     }
   }
 
-  if (isRateLimited(getClientKey(request))) {
+  if (isRateLimited(getClientKeyFromRequest(request))) {
     return NextResponse.json({ error: "rate-limited" }, { status: 429 });
   }
 

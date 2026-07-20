@@ -28,6 +28,7 @@ import {
   normalizeFamilyEvent,
 } from "@/utils/birthdayCalendar";
 import { readStorage, readStorageArray, writeStorage } from "@/utils/storage";
+import { nowIso } from "@/utils/dateTime";
 
 const defaultPreference: HomeAttentionPreference = {
   dismissed: {},
@@ -36,10 +37,6 @@ const defaultPreference: HomeAttentionPreference = {
 };
 
 export const homeAttentionChangedEventName = "nestly-home-attention-change";
-
-function nowIso() {
-  return new Date().toISOString();
-}
 
 function startOfDay(date: Date) {
   const normalized = new Date(date);

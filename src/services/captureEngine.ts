@@ -14,6 +14,7 @@ import type { ShoppingItem } from "@/types/shopping";
 import { readStorageArray, writeStorage } from "@/utils/storage";
 import type { FamilyTask } from "@/data/tasks";
 import { createUuid } from "@/utils/ids";
+import { nowIso } from "@/utils/dateTime";
 
 export type CreateCaptureInput = {
   source: CaptureSource;
@@ -70,10 +71,6 @@ const vehicleWords = ["רכב", "טסט", "ביטוח", "מוסך", "car", "vehi
 const documentWords = ["מסמך", "קובץ", "ביטוח", "חשבונית", "document", "file", "invoice"];
 const financeWords = ["תשלום", "חשבון", "כסף", "החזר", "payment", "bill", "refund"];
 const eventWords = ["יום הולדת", "אירוע", "חתונה", "אזכרה", "birthday", "event"];
-
-function nowIso() {
-  return new Date().toISOString();
-}
 
 function nextWeekIso() {
   const date = new Date();

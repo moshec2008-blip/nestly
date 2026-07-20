@@ -30,6 +30,7 @@ import type {
   MemoryRecentItem,
   MemoryState,
 } from "@/types/memory";
+import { getLocale } from "@/i18n/locale";
 
 const recentViewsKey = "nestly-memory-recent-views";
 const maxRecentViews = 12;
@@ -104,10 +105,6 @@ function getDomainCopy(language: AppLanguage) {
       description: he ? "דברים שנקלטו ועדיין חיים בצינור" : "Captured things still in the pipeline",
     },
   } satisfies Record<MemoryDomain, { label: string; description: string }>;
-}
-
-function getLocale(language: AppLanguage) {
-  return language === "en" ? "en-US" : "he-IL";
 }
 
 function formatCurrency(amount: number, language: AppLanguage) {
