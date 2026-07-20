@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import AppIcon from "@/components/ui/AppIcon";
 import { useLanguage } from "@/i18n/useLanguage";
 import { brand } from "@/lib/branding";
+import { getRouteVisual } from "@/lib/routeVisuals";
 import {
   getNavigationItemDescription,
   getNavigationItemLabel,
@@ -47,6 +48,7 @@ function RouteLink({
   const { language } = useLanguage();
   const active = isRouteActive(pathname, item.href);
   const showText = !isCollapsed || isMobileOpen;
+  const visual = getRouteVisual(item.href);
 
   return (
     <Link
@@ -64,10 +66,11 @@ function RouteLink({
     >
       <span
         className={[
-          "grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white shadow-[0_6px_16px_rgba(15,23,42,0.045)]",
-          active
-            ? "text-[#7a5212] ring-1 ring-[#eadfcd]"
-            : "text-slate-700 group-hover:text-[#111827]",
+          "grid h-8 w-8 shrink-0 place-items-center rounded-xl shadow-[0_6px_16px_rgba(15,23,42,0.045)]",
+          // צבע לפי מודול תמיד קיים; העמוד הפעיל מקבל גם טבעת מודגשת מעליו,
+          // כדי שברור גם "איזה מודול" וגם "איפה אני עכשיו".
+          visual.className,
+          active ? "ring-2 ring-[#d8b470]" : "",
         ].join(" ")}
         aria-hidden="true"
       >

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
 import AppIcon from "@/components/ui/AppIcon";
 import { useLanguage } from "@/i18n/useLanguage";
+import { getRouteVisual } from "@/lib/routeVisuals";
 import {
   getNavigationItemDescription,
   getNavigationItemLabel,
@@ -139,6 +140,7 @@ export default function MobileBottomNavigation() {
             <div className="grid gap-1.5 overflow-y-auto p-2.5">
               {releaseMoreNavigation.map((item) => {
                 const active = isRouteActive(pathname, item.href);
+                const visual = getRouteVisual(item.href);
 
                 return (
                   <Link
@@ -154,7 +156,13 @@ export default function MobileBottomNavigation() {
                         : "hover:bg-white",
                     ].join(" ")}
                   >
-                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-[#7a5212] ring-1 ring-[#eadfcd]">
+                    <span
+                      className={[
+                        "grid h-11 w-11 shrink-0 place-items-center rounded-2xl",
+                        visual.className,
+                        active ? "ring-2 ring-[#d8b470]" : "",
+                      ].join(" ")}
+                    >
                       <AppIcon name={item.icon} className="h-5 w-5" />
                     </span>
                     <span className="min-w-0 flex-1">

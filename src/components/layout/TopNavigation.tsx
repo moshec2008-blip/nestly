@@ -11,12 +11,13 @@ import {
   useState,
   type MouseEvent,
 } from "react";
-import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
+import AppIcon from "@/components/ui/AppIcon";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { getDictionary, type CommonDictionary } from "@/i18n/dictionaries";
 import { getRouteLabel } from "@/i18n/navigation";
 import { useLanguage } from "@/i18n/useLanguage";
 import { brand } from "@/lib/branding";
+import { getRouteVisual } from "@/lib/routeVisuals";
 import { getUserProfileEventName, readUserProfile } from "@/lib/userProfile";
 import {
   getGlobalSearchResults,
@@ -96,38 +97,6 @@ function getNotificationToneClass(tone: "info" | "warning" | "danger") {
   return "bg-emerald-300";
 }
 
-// צבע ואייקון לפי מודול — בלי זה כל תוצאות החיפוש נראות זהות (ובלתי ניתנות
-// להבחנה זו מזו במבט חטוף).
-const searchResultVisuals: Record<
-  string,
-  { icon: AppIconName; className: string }
-> = {
-  "/": { icon: "home", className: "bg-slate-100 text-slate-700" },
-  "/tasks": { icon: "check", className: "bg-amber-50 text-amber-700" },
-  "/shopping": { icon: "shopping", className: "bg-sky-50 text-sky-700" },
-  "/finance": { icon: "finance", className: "bg-emerald-50 text-emerald-700" },
-  "/documents": { icon: "document", className: "bg-purple-50 text-purple-700" },
-  "/health": { icon: "health", className: "bg-rose-50 text-rose-700" },
-  "/vehicles": { icon: "car", className: "bg-blue-50 text-blue-700" },
-  "/family": { icon: "family", className: "bg-violet-50 text-violet-700" },
-  "/birthdays": { icon: "calendar", className: "bg-pink-50 text-pink-700" },
-  "/knowledge": { icon: "knowledge", className: "bg-teal-50 text-teal-700" },
-  "/timeline": { icon: "timeline", className: "bg-stone-100 text-stone-700" },
-  "/life": { icon: "flag", className: "bg-indigo-50 text-indigo-700" },
-  "/legacy": { icon: "book", className: "bg-orange-50 text-orange-700" },
-  "/permissions": { icon: "lock", className: "bg-slate-100 text-slate-700" },
-  "/settings": { icon: "settings", className: "bg-slate-100 text-slate-700" },
-};
-
-function getSearchResultVisual(href: string) {
-  return (
-    searchResultVisuals[href] ?? {
-      icon: "search" as const,
-      className: "bg-slate-100 text-slate-500",
-    }
-  );
-}
-
 type SearchBoxProps = {
   searchValue: string;
   results: GlobalSearchResult[];
@@ -169,7 +138,7 @@ function SearchBox({
           {results.length > 0 ? (
             <div className="space-y-1">
               {results.map((result) => {
-                const visual = getSearchResultVisual(result.href);
+                const visual = getRouteVisual(result.href);
 
                 return (
                   <Link
