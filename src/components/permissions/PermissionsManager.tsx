@@ -11,6 +11,7 @@ import { storageKeys } from "@/lib/storageKeys";
 import {
   isFamilyPermissionUser,
   type FamilyPermissionUser,
+  type FamilyRole,
   type ModulePermission,
 } from "@/types/permissions";
 
@@ -18,6 +19,18 @@ type PermissionKey = keyof Pick<
   ModulePermission,
   "view" | "create" | "edit" | "delete"
 >;
+
+// צבע לפי תפקיד — בלי זה כל בני המשפחה נראים אותו כרטיס לבן, רק עם שם אחר.
+const roleAvatarClass: Record<FamilyRole, string> = {
+  admin: "bg-amber-100 text-amber-800",
+  spouse: "bg-violet-100 text-violet-800",
+  child: "bg-sky-100 text-sky-800",
+  limited: "bg-slate-200 text-slate-700",
+};
+
+function getInitial(name: string) {
+  return name.trim().slice(0, 1).toUpperCase() || "?";
+}
 
 const permissionLabels: Record<PermissionKey, string> = {
   view: "צפייה",
@@ -124,23 +137,41 @@ export default function PermissionsManager() {
 
         <div className="grid gap-3 lg:grid-cols-[260px_1fr]">
           <aside className="space-y-2">
-            {users.map((user) => (
-              <button
-                key={user.id}
-                type="button"
-                onClick={() => setSelectedUserId(user.id)}
-                className={
-                  selectedUser?.id === user.id
-                    ? "w-full rounded-2xl bg-[#111827] p-4 text-right text-white shadow-[0_14px_34px_rgba(17,24,39,0.16)]"
-                    : "w-full rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] p-4 text-right text-slate-800 transition hover:-translate-y-0.5 hover:bg-white"
-                }
-              >
-                <span className="block text-base font-black">{user.name}</span>
-                <span className="mt-1 block text-sm opacity-75">
-                  {roleLabels[user.role]}
-                </span>
-              </button>
-            ))}
+            {users.map((user) => {
+              const isSelected = selectedUser?.id === user.id;
+
+              return (
+                <button
+                  key={user.id}
+                  type="button"
+                  onClick={() => setSelectedUserId(user.id)}
+                  className={
+                    isSelected
+                      ? "flex w-full items-center gap-3 rounded-2xl bg-[#111827] p-4 text-right text-white shadow-[0_14px_34px_rgba(17,24,39,0.16)]"
+                      : "flex w-full items-center gap-3 rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] p-4 text-right text-slate-800 transition hover:-translate-y-0.5 hover:bg-white"
+                  }
+                >
+                  <span
+                    className={[
+                      "grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-base font-black",
+                      roleAvatarClass[user.role],
+                      isSelected ? "ring-2 ring-white/70" : "",
+                    ].join(" ")}
+                    aria-hidden="true"
+                  >
+                    {getInitial(user.name)}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-base font-black">
+                      {user.name}
+                    </span>
+                    <span className="mt-1 block text-sm opacity-75">
+                      {roleLabels[user.role]}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
 
             <div className="rounded-2xl border border-[#ebe4d8] bg-[#fffdf8] p-3">
               <div className="mb-2 flex items-start justify-between gap-2">
