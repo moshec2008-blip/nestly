@@ -11,7 +11,7 @@ import {
   useState,
   type MouseEvent,
 } from "react";
-import AppIcon from "@/components/ui/AppIcon";
+import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import LanguageSwitcher from "@/components/ui/LanguageSwitcher";
 import { getDictionary, type CommonDictionary } from "@/i18n/dictionaries";
 import { getRouteLabel } from "@/i18n/navigation";
@@ -96,6 +96,38 @@ function getNotificationToneClass(tone: "info" | "warning" | "danger") {
   return "bg-emerald-300";
 }
 
+// צבע ואייקון לפי מודול — בלי זה כל תוצאות החיפוש נראות זהות (ובלתי ניתנות
+// להבחנה זו מזו במבט חטוף).
+const searchResultVisuals: Record<
+  string,
+  { icon: AppIconName; className: string }
+> = {
+  "/": { icon: "home", className: "bg-slate-100 text-slate-700" },
+  "/tasks": { icon: "check", className: "bg-amber-50 text-amber-700" },
+  "/shopping": { icon: "shopping", className: "bg-sky-50 text-sky-700" },
+  "/finance": { icon: "finance", className: "bg-emerald-50 text-emerald-700" },
+  "/documents": { icon: "document", className: "bg-purple-50 text-purple-700" },
+  "/health": { icon: "health", className: "bg-rose-50 text-rose-700" },
+  "/vehicles": { icon: "car", className: "bg-blue-50 text-blue-700" },
+  "/family": { icon: "family", className: "bg-violet-50 text-violet-700" },
+  "/birthdays": { icon: "calendar", className: "bg-pink-50 text-pink-700" },
+  "/knowledge": { icon: "knowledge", className: "bg-teal-50 text-teal-700" },
+  "/timeline": { icon: "timeline", className: "bg-stone-100 text-stone-700" },
+  "/life": { icon: "flag", className: "bg-indigo-50 text-indigo-700" },
+  "/legacy": { icon: "book", className: "bg-orange-50 text-orange-700" },
+  "/permissions": { icon: "lock", className: "bg-slate-100 text-slate-700" },
+  "/settings": { icon: "settings", className: "bg-slate-100 text-slate-700" },
+};
+
+function getSearchResultVisual(href: string) {
+  return (
+    searchResultVisuals[href] ?? {
+      icon: "search" as const,
+      className: "bg-slate-100 text-slate-500",
+    }
+  );
+}
+
 type SearchBoxProps = {
   searchValue: string;
   results: GlobalSearchResult[];
@@ -136,24 +168,41 @@ function SearchBox({
         <div className="absolute left-0 right-0 top-12 z-50 rounded-2xl border border-[#d9dde5] bg-white/98 p-2 shadow-[0_22px_70px_rgba(15,23,42,0.14)] backdrop-blur-xl">
           {results.length > 0 ? (
             <div className="space-y-1">
-              {results.map((result) => (
-                <Link
-                  key={result.id}
-                  href={result.href}
-                  onClick={onNavigate}
-                  className={[
-                    "block rounded-xl px-3 py-2 transition hover:bg-[#f6f7f9]",
-                    direction === "rtl" ? "text-right" : "text-left",
-                  ].join(" ")}
-                >
-                  <span className="block text-sm font-black text-[#111827]">
-                    {result.title}
-                  </span>
-                  <span className="mt-1 block text-xs font-semibold text-slate-600">
-                    {result.module} / {result.description}
-                  </span>
-                </Link>
-              ))}
+              {results.map((result) => {
+                const visual = getSearchResultVisual(result.href);
+
+                return (
+                  <Link
+                    key={result.id}
+                    href={result.href}
+                    onClick={onNavigate}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 transition hover:bg-[#f6f7f9]"
+                  >
+                    <span
+                      className={[
+                        "grid h-9 w-9 shrink-0 place-items-center rounded-xl",
+                        visual.className,
+                      ].join(" ")}
+                      aria-hidden="true"
+                    >
+                      <AppIcon name={visual.icon} className="h-4 w-4" />
+                    </span>
+                    <span
+                      className={[
+                        "min-w-0 flex-1",
+                        direction === "rtl" ? "text-right" : "text-left",
+                      ].join(" ")}
+                    >
+                      <span className="block truncate text-sm font-black text-[#111827]">
+                        {result.title}
+                      </span>
+                      <span className="mt-1 block truncate text-xs font-semibold text-slate-600">
+                        {result.module} / {result.description}
+                      </span>
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           ) : (
             <p className="px-3 py-4 text-center text-sm font-semibold text-slate-600">

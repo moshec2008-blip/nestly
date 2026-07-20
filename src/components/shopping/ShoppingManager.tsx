@@ -13,7 +13,11 @@ import {
 import { initialShoppingItems, shoppingLists } from "@/data/shopping";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { getDelightMessage } from "@/lib/delightMessages";
-import { shareFamilyText } from "@/lib/share";
+import {
+  formatShareListMessage,
+  shareFamilyText,
+  shareFamilyTextByEmail,
+} from "@/lib/share";
 import { storageKeys } from "@/lib/storageKeys";
 import {
   markFirstUsefulAction,
@@ -316,34 +320,67 @@ export default function ShoppingManager() {
     addItemFromTitle(quickTitle);
   }
 
+  function getShareableItems() {
+    return scopeItems
+      .filter((item) => !item.purchased)
+      .map((item) => ({
+        title: item.title,
+        quantity: getQuantityNumber(item.quantity),
+      }));
+  }
+
+  function getShareListTitle() {
+    return activeList === "all" ? "רשימת הקניות שלנו" : `רשימת קניות · ${activeList}`;
+  }
+
   // שיתוף הרשימה למי שבסופר — דרך שיתוף המכשיר או וואטסאפ, בלי שרת.
   async function handleShareList() {
-    const itemsToShare = scopeItems.filter((item) => !item.purchased);
+    const itemsToShare = getShareableItems();
 
     if (itemsToShare.length === 0) {
       return;
     }
 
-    const listTitle =
-      activeList === "all" ? "רשימת הקניות שלנו" : `רשימת קניות · ${activeList}`;
-    const lines = itemsToShare.map((item) => {
-      const quantity = getQuantityNumber(item.quantity);
-      return `▫️ ${item.title}${quantity > 1 ? ` (${quantity})` : ""}`;
-    });
-    const shareText = `🛒 ${listTitle}\n${lines.join("\n")}`;
-
+    const listTitle = getShareListTitle();
+    const shareText = formatShareListMessage(itemsToShare, listTitle, "whatsapp");
     const outcome = await shareFamilyText(shareText, listTitle);
 
     trackTelemetryEvent({
       name: "shopping_list_shared",
       module: "shopping",
-      properties: { outcome, itemCount: itemsToShare.length },
+      properties: { outcome, itemCount: itemsToShare.length, channel: "whatsapp" },
     });
 
     if (outcome === "failed") {
       toast({
         title: "השיתוף לא הצליח",
         description: "אפשר לנסות שוב, או לצלם מסך של הרשימה.",
+        tone: "danger",
+      });
+    }
+  }
+
+  function handleShareListByEmail() {
+    const itemsToShare = getShareableItems();
+
+    if (itemsToShare.length === 0) {
+      return;
+    }
+
+    const listTitle = getShareListTitle();
+    const shareText = formatShareListMessage(itemsToShare, listTitle, "plain");
+    const outcome = shareFamilyTextByEmail(listTitle, shareText);
+
+    trackTelemetryEvent({
+      name: "shopping_list_shared",
+      module: "shopping",
+      properties: { outcome, itemCount: itemsToShare.length, channel: "email" },
+    });
+
+    if (outcome === "failed") {
+      toast({
+        title: "פתיחת האימייל לא הצליחה",
+        description: "ודאו שיש אפליקציית מייל מוגדרת במכשיר.",
         tone: "danger",
       });
     }
@@ -746,17 +783,30 @@ export default function ShoppingManager() {
             הצעות חכמות
           </button>
           {scopeRemaining > 0 && (
-            <button
-              type="button"
-              onClick={() => void handleShareList()}
-              className="group ms-auto inline-flex min-h-9 items-center gap-1.5 rounded-full bg-emerald-600 px-3.5 text-xs font-black text-white shadow-[0_8px_18px_rgba(16,185,129,0.35)] transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 hover:shadow-[0_12px_24px_rgba(16,185,129,0.45)] active:scale-95"
-            >
-              <AppIcon
-                name="whatsapp"
-                className="h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:-rotate-12 group-hover:scale-110"
-              />
-              שתף בוואטסאפ
-            </button>
+            <div className="ms-auto flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleShareListByEmail}
+                className="group inline-flex min-h-9 items-center gap-1.5 rounded-full bg-blue-600 px-3.5 text-xs font-black text-white shadow-[0_8px_18px_rgba(37,99,235,0.35)] transition duration-200 hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-[0_12px_24px_rgba(37,99,235,0.45)] active:scale-95"
+              >
+                <AppIcon
+                  name="mail"
+                  className="h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:scale-110"
+                />
+                אימייל
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleShareList()}
+                className="group inline-flex min-h-9 items-center gap-1.5 rounded-full bg-emerald-600 px-3.5 text-xs font-black text-white shadow-[0_8px_18px_rgba(16,185,129,0.35)] transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 hover:shadow-[0_12px_24px_rgba(16,185,129,0.45)] active:scale-95"
+              >
+                <AppIcon
+                  name="whatsapp"
+                  className="h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:-rotate-12 group-hover:scale-110"
+                />
+                וואטסאפ
+              </button>
+            </div>
           )}
         </div>
         {suggestionNotice ? (
