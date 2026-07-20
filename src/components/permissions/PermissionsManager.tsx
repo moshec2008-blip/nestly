@@ -208,62 +208,111 @@ export default function PermissionsManager() {
             )}
 
             {selectedUser && selectedPermissions.length > 0 ? (
-              <div className="overflow-x-auto rounded-2xl border border-[#ebe4d8] bg-white">
-                <table className="w-full min-w-[760px] text-right text-sm">
-                  <thead className="bg-[#fffdf8]">
-                    <tr className="border-b border-[#ebe4d8] text-slate-600">
-                      <th className="px-3 py-3">מודול</th>
-                      <th className="px-3 py-3">אזור</th>
-                      {Object.values(permissionLabels).map((label) => (
-                        <th key={label} className="px-3 py-3">
-                          {label}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedPermissions.map((permission) => (
-                      <tr
-                        key={permission.label}
-                        className="border-b border-[#ebe4d8] text-slate-700 last:border-b-0"
-                      >
-                        <td className="px-3 py-3 font-black text-slate-950">
+              <>
+                {/* מובייל: כרטיס לכל מודול, כל 4 ההרשאות גלויות בלי גלילה צדדית. */}
+                <div className="grid gap-2 lg:hidden">
+                  {selectedPermissions.map((permission) => (
+                    <div
+                      key={permission.label}
+                      className="rounded-2xl border border-[#ebe4d8] bg-white p-3"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
+                          {permission.isPrivate ? "פרטי" : "משותף"}
+                        </span>
+                        <p className="font-black text-slate-950">
                           {permission.label}
-                        </td>
-                        <td className="px-3 py-3">
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
-                            {permission.isPrivate ? "פרטי" : "משותף"}
-                          </span>
-                        </td>
+                        </p>
+                      </div>
+                      <div className="mt-2.5 grid grid-cols-2 gap-2">
                         {(Object.keys(permissionLabels) as PermissionKey[]).map(
                           (permissionKey) => (
-                            <td key={permissionKey} className="px-3 py-3">
-                              <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full bg-[#fffdf8] px-3 py-2">
-                                <input
-                                  type="checkbox"
-                                  checked={permission[permissionKey]}
-                                  disabled={!cloudPermissionsEnabled}
-                                  onChange={() =>
-                                    togglePermission(
-                                      selectedUser.id,
-                                      permission.label,
-                                      permissionKey
-                                    )
-                                  }
-                                  className="h-4 w-4 accent-[#111827] disabled:cursor-not-allowed disabled:opacity-40"
-                                />
-                                <span className="text-xs font-bold text-slate-600">
-                                  {permission[permissionKey] ? "כן" : "לא"}
-                                </span>
-                              </label>
-                            </td>
+                            <label
+                              key={permissionKey}
+                              className="flex min-h-11 cursor-pointer items-center justify-between gap-2 rounded-xl bg-[#fffdf8] px-3 py-2"
+                            >
+                              <span className="text-xs font-bold text-slate-600">
+                                {permissionLabels[permissionKey]}
+                              </span>
+                              <input
+                                type="checkbox"
+                                checked={permission[permissionKey]}
+                                disabled={!cloudPermissionsEnabled}
+                                onChange={() =>
+                                  togglePermission(
+                                    selectedUser.id,
+                                    permission.label,
+                                    permissionKey
+                                  )
+                                }
+                                className="h-4 w-4 accent-[#111827] disabled:cursor-not-allowed disabled:opacity-40"
+                              />
+                            </label>
                           )
                         )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* מחשב: טבלה מלאה, כל העמודות גלויות בלי גלילה. */}
+                <div className="hidden overflow-x-auto rounded-2xl border border-[#ebe4d8] bg-white lg:block">
+                  <table className="w-full min-w-[760px] text-right text-sm">
+                    <thead className="bg-[#fffdf8]">
+                      <tr className="border-b border-[#ebe4d8] text-slate-600">
+                        <th className="px-3 py-3">מודול</th>
+                        <th className="px-3 py-3">אזור</th>
+                        {Object.values(permissionLabels).map((label) => (
+                          <th key={label} className="px-3 py-3">
+                            {label}
+                          </th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {selectedPermissions.map((permission) => (
+                        <tr
+                          key={permission.label}
+                          className="border-b border-[#ebe4d8] text-slate-700 last:border-b-0"
+                        >
+                          <td className="px-3 py-3 font-black text-slate-950">
+                            {permission.label}
+                          </td>
+                          <td className="px-3 py-3">
+                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
+                              {permission.isPrivate ? "פרטי" : "משותף"}
+                            </span>
+                          </td>
+                          {(Object.keys(permissionLabels) as PermissionKey[]).map(
+                            (permissionKey) => (
+                              <td key={permissionKey} className="px-3 py-3">
+                                <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full bg-[#fffdf8] px-3 py-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={permission[permissionKey]}
+                                    disabled={!cloudPermissionsEnabled}
+                                    onChange={() =>
+                                      togglePermission(
+                                        selectedUser.id,
+                                        permission.label,
+                                        permissionKey
+                                      )
+                                    }
+                                    className="h-4 w-4 accent-[#111827] disabled:cursor-not-allowed disabled:opacity-40"
+                                  />
+                                  <span className="text-xs font-bold text-slate-600">
+                                    {permission[permissionKey] ? "כן" : "לא"}
+                                  </span>
+                                </label>
+                              </td>
+                            )
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             ) : (
               <div className="rounded-2xl border border-[#ebe4d8] bg-white p-5 text-center">
                 <p className="text-base font-black text-slate-950">
