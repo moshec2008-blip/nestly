@@ -753,7 +753,7 @@ export default function ShoppingManager() {
             >
               <AppIcon
                 name="whatsapp"
-                className="h-4 w-4 transition-transform duration-200 group-hover:-rotate-12 group-hover:scale-110"
+                className="h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:-rotate-12 group-hover:scale-110"
               />
               שתף בוואטסאפ
             </button>
