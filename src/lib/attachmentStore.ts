@@ -6,8 +6,19 @@
 const databaseName = "nestly-files";
 const storeName = "attachments";
 
+function isIndexedDbSupported() {
+  return typeof window !== "undefined" && Boolean(window.indexedDB);
+}
+
 function openDatabase() {
   return new Promise<IDBDatabase>((resolve, reject) => {
+    // IndexedDB אינו קיים בכל הקשר (למשל דפדוף פרטי בספארי ישן, webview
+    // מוגבל) — נכשלים בבירור כאן במקום להישען על כל קורא שיזכור try/catch.
+    if (!isIndexedDbSupported()) {
+      reject(new Error("indexeddb-unsupported"));
+      return;
+    }
+
     const request = window.indexedDB.open(databaseName, 1);
 
     request.onupgradeneeded = () => {
