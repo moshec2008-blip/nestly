@@ -102,6 +102,7 @@ type SearchBoxProps = {
   results: GlobalSearchResult[];
   dictionary: CommonDictionary;
   direction: "rtl" | "ltr";
+  language: string;
   onSearchChange: (value: string) => void;
   onNavigate: () => void;
 };
@@ -111,13 +112,31 @@ function SearchBox({
   results,
   dictionary,
   direction,
+  language,
   onSearchChange,
   onNavigate,
 }: SearchBoxProps) {
+  const [isFocused, setIsFocused] = useState(false);
   const hasSearch = searchValue.trim().length > 0;
+  const quickRoutes: AppRoute[] = [
+    "/documents",
+    "/family",
+    "/birthdays",
+    "/vehicles",
+    "/finance",
+    "/shopping",
+  ];
 
   return (
-    <div className="relative">
+    <div
+      className="relative"
+      onFocus={() => setIsFocused(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setIsFocused(false);
+        }
+      }}
+    >
       <label className="sr-only" htmlFor="global-search">
         {dictionary.searchLabel}
       </label>
@@ -133,9 +152,44 @@ function SearchBox({
         ].join(" ")}
       />
 
-      {hasSearch && (
-        <div className="absolute left-0 right-0 top-12 z-50 rounded-2xl border border-[#d9dde5] bg-white/98 p-2 shadow-[0_22px_70px_rgba(15,23,42,0.14)] backdrop-blur-xl">
-          {results.length > 0 ? (
+      {isFocused && (
+        <div className="absolute left-0 right-0 top-12 z-50 min-w-[19rem] rounded-[22px] border border-[#e6d9c9] bg-[#fffdf8]/98 p-2 shadow-[0_22px_70px_rgba(15,23,42,0.16)] backdrop-blur-xl">
+          {!hasSearch ? (
+            <div>
+              <p className={`px-2 pb-2 pt-1 text-[11px] font-black text-[#8a5b16] ${direction === "rtl" ? "text-right" : "text-left"}`}>
+                {language === "en" ? "Search by area" : "חיפוש מהיר לפי אזור"}
+              </p>
+              <div className="grid grid-cols-3 gap-1.5">
+                {quickRoutes.map((route) => {
+                  const visual = getRouteVisual(route);
+
+                  return (
+                    <Link
+                      key={route}
+                      href={route}
+                      onClick={onNavigate}
+                      className="flex min-w-0 flex-col items-center gap-1.5 rounded-2xl border border-[#eee5d8] bg-white/72 px-1.5 py-2.5 text-center transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm"
+                    >
+                      <span className={`grid h-9 w-9 place-items-center rounded-xl ${visual.className}`}>
+                        <AppIcon name={visual.icon} className="h-4 w-4" />
+                      </span>
+                      <span className="w-full truncate text-[11px] font-black text-[#111827]">
+                        {getRouteLabel(route, dictionary)}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent("nestly-open-command-palette"))}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#111827] px-3 py-2.5 text-xs font-black text-white transition hover:bg-[#273244]"
+              >
+                <AppIcon name="spark" className="h-4 w-4 text-[#e4c17f]" />
+                {language === "en" ? "All search and actions" : "כל החיפוש והפעולות"}
+              </button>
+            </div>
+          ) : results.length > 0 ? (
             <div className="space-y-1">
               {results.map((result) => {
                 const visual = getRouteVisual(result.href);
@@ -478,22 +532,22 @@ export default function TopNavigation({
               <Link
                 href="/"
                 onClick={handleLogoHomeClick}
-                className="flex h-11 shrink-0 items-center gap-2 rounded-2xl px-1.5 text-sm font-black text-[#111827] transition hover:bg-[#fff8eb] lg:h-9 lg:border lg:border-[#eadfcd]/70 lg:bg-white/62 lg:px-3 lg:text-xs lg:shadow-[0_8px_18px_rgba(33,43,63,0.045)]"
+                className="flex h-11 min-w-0 shrink items-center gap-2 rounded-2xl px-1.5 text-sm font-black text-[#111827] transition hover:bg-[#fff8eb] lg:h-9 lg:border lg:border-[#eadfcd]/70 lg:bg-white/62 lg:px-3 lg:text-xs lg:shadow-[0_8px_18px_rgba(33,43,63,0.045)]"
                 aria-label={`${brand.productName} - ${brand.workspaceName}`}
               >
                 <span
-                  className="grid h-8 w-8 place-items-center lg:h-5 lg:w-5"
+                  className="grid h-8 w-8 shrink-0 place-items-center lg:h-5 lg:w-5"
                   aria-hidden="true"
                 >
                   <BrandMark compact />
                 </span>
-                <span>{brand.productName}</span>
-                <span className="hidden text-xs font-bold text-slate-500 lg:inline">
+                <span className="shrink-0">{brand.productName}</span>
+                <span className="hidden min-w-0 truncate text-xs font-bold text-slate-500 lg:inline">
                   {brand.workspaceName}
                 </span>
               </Link>
 
-              <h1 className="min-w-0 truncate text-base font-black text-[#111827] sm:text-lg md:text-xl">
+              <h1 className="shrink-0 truncate text-base font-black text-[#111827] sm:text-lg md:text-xl">
                 {getRouteLabel(currentRoute, dictionary)}
               </h1>
             </div>
@@ -505,6 +559,7 @@ export default function TopNavigation({
               results={searchResults}
               dictionary={dictionary}
               direction={direction}
+              language={language}
               onSearchChange={setSearchValue}
               onNavigate={handleNavigate}
             />

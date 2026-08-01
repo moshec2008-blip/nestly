@@ -80,18 +80,30 @@ export function HomeAreaCard({ area }: { area: HomeArea }) {
   return (
     <Link
       href={area.href}
-      className={`home-area-card group flex min-h-[74px] items-center gap-3 overflow-hidden rounded-[22px] bg-white/46 px-3 py-2.5 transition duration-200 hover:bg-white/72 focus:outline-none focus:ring-2 focus:ring-[#eadfcd] active:scale-[0.99] ${direction === "rtl" ? "text-right" : "text-left"}`}
+      className={`home-area-card group relative flex min-h-[142px] flex-col items-stretch justify-between gap-4 overflow-hidden rounded-[26px] border border-white/70 px-4 py-4 shadow-[0_14px_32px_rgba(33,43,63,0.12)] transition duration-200 hover:-translate-y-1 hover:border-white hover:shadow-[0_22px_42px_rgba(33,43,63,0.16)] focus:outline-none focus:ring-2 focus:ring-[#d8b470]/65 active:translate-y-0 active:scale-[0.99] ${area.tintClass ?? "bg-white/70"} ${direction === "rtl" ? "text-right" : "text-left"}`}
     >
       <span
-        className={`grid h-9 w-9 shrink-0 place-items-center rounded-2xl ring-1 ${area.accentClass}`}
-      >
-        <AppIcon name={area.icon} className="h-4 w-4" />
+        className="pointer-events-none absolute -top-10 end-1 h-32 w-32 rounded-full bg-white/55 blur-2xl transition duration-300 group-hover:scale-125"
+        aria-hidden="true"
+      />
+      <span className="relative flex items-start justify-between gap-3">
+        <span
+          className={`grid h-14 w-14 shrink-0 place-items-center rounded-[20px] bg-white/78 text-[#111827] shadow-[0_10px_22px_rgba(33,43,63,0.12)] ring-1 ring-white/80 transition duration-200 group-hover:scale-110`}
+        >
+          <AppIcon name={area.icon} className="h-6 w-6" />
+        </span>
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-white/38 text-lg font-black text-[#111827]/75 backdrop-blur-sm transition group-hover:bg-white/65" aria-hidden="true">
+          {direction === "rtl" ? "‹" : "›"}
+        </span>
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="home-area-title block truncate text-[13px] font-black text-[#111827]">
+      <span className="relative min-w-0">
+        <span className="home-area-title block text-[17px] font-black leading-6 text-[#111827]">
           {area.title}
         </span>
-        <span className="home-area-stat mt-0.5 block truncate text-[11px] font-bold text-slate-500">
+        <span className="mt-0.5 block truncate text-[12px] font-bold text-[#253044]/70">
+          {area.subtitle}
+        </span>
+        <span className="home-area-stat mt-2 block truncate text-[11px] font-black text-[#111827]/72">
           {liveStat}
         </span>
       </span>
