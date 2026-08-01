@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import GregorianDateInput from "@/components/ui/GregorianDateInput";
 import HebrewDateInput from "@/components/ui/HebrewDateInput";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
+import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { initialBirthdays } from "@/data/birthdays";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
@@ -805,6 +806,72 @@ export default function FamilyEventsManager() {
 
   const selectedEvent =
     normalizedEvents.find((event) => event.id === selectedEventId) ?? null;
+  const nearestEvent = [...normalizedEvents].sort(
+    (first, second) =>
+      getDaysUntilFamilyEvent(first) - getDaysUntilFamilyEvent(second)
+  )[0];
+  const currentMonth = new Date().getMonth();
+  const currentMonthCount = normalizedEvents.filter(
+    (event) => new Date(event.gregorianDate).getMonth() === currentMonth
+  ).length;
+  const missingGiftEvents = normalizedEvents.filter(
+    (event) => event.eventType === "birthday" && !event.giftPlan?.ideas
+  );
+
+  const quickAreas: Array<{
+    id: string;
+    title: string;
+    value: string;
+    icon: AppIconName;
+    tone: string;
+    onClick: () => void;
+  }> = [
+    {
+      id: "next",
+      title: "האירוע הקרוב",
+      value: nearestEvent
+        ? `${getDisplayName(nearestEvent)} · ${getDaysUntilFamilyEvent(nearestEvent)} ימים`
+        : "אין אירועים",
+      icon: "calendar",
+      tone: "bg-gradient-to-br from-orange-200 via-amber-100 to-white",
+      onClick: () => nearestEvent && setSelectedEventId(nearestEvent.id),
+    },
+    {
+      id: "month",
+      title: "החודש",
+      value: `${currentMonthCount} אירועים`,
+      icon: "timeline",
+      tone: "bg-gradient-to-br from-sky-200 via-blue-100 to-white",
+      onClick: () => {
+        setEventFilter("all");
+        setMonthFilter(String(currentMonth));
+        setCalendarFilter("all");
+      },
+    },
+    {
+      id: "birthdays",
+      title: "ימי הולדת",
+      value: `${normalizedEvents.filter((event) => event.eventType === "birthday").length} אנשים`,
+      icon: "family",
+      tone: "bg-gradient-to-br from-pink-200 via-rose-100 to-white",
+      onClick: () => {
+        setEventFilter("birthday");
+        setMonthFilter("all");
+        setCalendarFilter("all");
+      },
+    },
+    {
+      id: "gifts",
+      title: "רעיונות למתנות",
+      value: missingGiftEvents.length
+        ? `${missingGiftEvents.length} מחכים לרעיון`
+        : "הכול מוכן",
+      icon: "spark",
+      tone: "bg-gradient-to-br from-violet-200 via-purple-100 to-white",
+      onClick: () =>
+        missingGiftEvents[0] && setSelectedEventId(missingGiftEvents[0].id),
+    },
+  ];
 
   function updateEvent(id: string, patch: Partial<FamilyEvent>) {
     setEvents((currentEvents) =>
@@ -891,6 +958,29 @@ export default function FamilyEventsManager() {
         isAddFormOpen={showAddForm}
         onToggleAddForm={() => setShowAddForm((currentValue) => !currentValue)}
       />
+
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        {quickAreas.map((area) => (
+          <button
+            key={area.id}
+            type="button"
+            onClick={area.onClick}
+            className={`flex min-h-[72px] items-center gap-2.5 overflow-hidden rounded-[20px] border border-white/75 px-3 text-right shadow-[0_8px_20px_rgba(33,43,63,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.12)] active:translate-y-0 active:scale-[0.99] ${area.tone}`}
+          >
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[14px] bg-white/78 text-[#111827] shadow-sm ring-1 ring-white/80">
+              <AppIcon name={area.icon} className="h-4 w-4" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[12px] font-black text-[#111827] sm:text-[13px]">
+                {area.title}
+              </span>
+              <span className="mt-0.5 block truncate text-[10px] font-bold text-[#111827]/65">
+                {area.value}
+              </span>
+            </span>
+          </button>
+        ))}
+      </div>
 
       <section className="rounded-[18px] bg-white/78 p-2 shadow-[0_8px_22px_rgba(33,43,63,0.04)] ring-1 ring-[#eadfcd]/70">
         <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
