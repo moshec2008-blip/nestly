@@ -174,16 +174,16 @@ export default function HomePage() {
           <button
             type="button"
             onClick={openSearch}
-            className="mb-3 flex min-h-16 w-full items-center gap-3 rounded-[24px] border border-[#dfd2c0] bg-white/92 px-4 text-start shadow-[0_12px_28px_rgba(33,43,63,0.09)] transition active:scale-[0.99] md:hidden"
+            className="mb-2.5 flex min-h-14 w-full items-center gap-2.5 rounded-[20px] border border-[#dfd2c0] bg-white/92 px-3 text-start shadow-[0_8px_20px_rgba(33,43,63,0.08)] transition active:scale-[0.99] md:hidden"
           >
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#111827] text-white shadow-[0_8px_18px_rgba(17,24,39,0.18)]">
-              <AppIcon name="search" className="h-5 w-5" />
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[14px] bg-[#111827] text-white shadow-[0_6px_14px_rgba(17,24,39,0.16)]">
+              <AppIcon name="search" className="h-4 w-4" />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-sm font-black text-[#111827]">
+              <span className="block text-[13px] font-black text-[#111827]">
                 {languageKey === "en" ? "Search everything" : "חיפוש בכל הבית"}
               </span>
-              <span className="block truncate text-xs font-semibold text-slate-500">
+              <span className="block truncate text-[10px] font-semibold text-slate-500">
                 {languageKey === "en" ? "Documents, people, events and more" : "מסמכים, אנשים, אירועים ועוד"}
               </span>
             </span>
