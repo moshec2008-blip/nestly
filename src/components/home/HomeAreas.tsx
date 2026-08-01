@@ -80,30 +80,30 @@ export function HomeAreaCard({ area }: { area: HomeArea }) {
   return (
     <Link
       href={area.href}
-      className={`home-area-card group relative flex min-h-[142px] flex-col items-stretch justify-between gap-4 overflow-hidden rounded-[26px] border border-white/70 px-4 py-4 shadow-[0_14px_32px_rgba(33,43,63,0.12)] transition duration-200 hover:-translate-y-1 hover:border-white hover:shadow-[0_22px_42px_rgba(33,43,63,0.16)] focus:outline-none focus:ring-2 focus:ring-[#d8b470]/65 active:translate-y-0 active:scale-[0.99] ${area.tintClass ?? "bg-white/70"} ${direction === "rtl" ? "text-right" : "text-left"}`}
+      className={`home-area-card group relative flex min-h-[112px] flex-col items-stretch justify-between gap-2.5 overflow-hidden rounded-[22px] border border-white/70 px-3 py-3 shadow-[0_10px_24px_rgba(33,43,63,0.1)] transition duration-200 hover:-translate-y-0.5 hover:border-white hover:shadow-[0_16px_32px_rgba(33,43,63,0.14)] focus:outline-none focus:ring-2 focus:ring-[#d8b470]/65 active:translate-y-0 active:scale-[0.99] sm:min-h-[118px] sm:rounded-[24px] sm:px-3.5 ${area.tintClass ?? "bg-white/70"} ${direction === "rtl" ? "text-right" : "text-left"}`}
     >
       <span
-        className="pointer-events-none absolute -top-10 end-1 h-32 w-32 rounded-full bg-white/55 blur-2xl transition duration-300 group-hover:scale-125"
+        className="pointer-events-none absolute -top-10 end-1 h-24 w-24 rounded-full bg-white/55 blur-2xl transition duration-300 group-hover:scale-125"
         aria-hidden="true"
       />
       <span className="relative flex items-start justify-between gap-3">
         <span
-          className={`grid h-14 w-14 shrink-0 place-items-center rounded-[20px] bg-white/78 text-[#111827] shadow-[0_10px_22px_rgba(33,43,63,0.12)] ring-1 ring-white/80 transition duration-200 group-hover:scale-110`}
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-[15px] bg-white/78 text-[#111827] shadow-[0_8px_18px_rgba(33,43,63,0.1)] ring-1 ring-white/80 transition duration-200 group-hover:scale-105 sm:h-11 sm:w-11 sm:rounded-[17px]"
         >
-          <AppIcon name={area.icon} className="h-6 w-6" />
+          <AppIcon name={area.icon} className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
         </span>
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-white/38 text-lg font-black text-[#111827]/75 backdrop-blur-sm transition group-hover:bg-white/65" aria-hidden="true">
+        <span className="grid h-7 w-7 place-items-center rounded-full bg-white/38 text-base font-black text-[#111827]/75 backdrop-blur-sm transition group-hover:bg-white/65" aria-hidden="true">
           {direction === "rtl" ? "‹" : "›"}
         </span>
       </span>
       <span className="relative min-w-0">
-        <span className="home-area-title block text-[17px] font-black leading-6 text-[#111827]">
+        <span className="home-area-title block text-[14px] font-black leading-5 text-[#111827] sm:text-[15px]">
           {area.title}
         </span>
-        <span className="mt-0.5 block truncate text-[12px] font-bold text-[#253044]/70">
+        <span className="mt-0.5 block truncate text-[10px] font-bold text-[#253044]/70 sm:text-[11px]">
           {area.subtitle}
         </span>
-        <span className="home-area-stat mt-2 block truncate text-[11px] font-black text-[#111827]/72">
+        <span className="home-area-stat mt-1 block truncate text-[10px] font-black text-[#111827]/72">
           {liveStat}
         </span>
       </span>

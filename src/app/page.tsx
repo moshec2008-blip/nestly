@@ -189,7 +189,7 @@ export default function HomePage() {
             </span>
             <AppIcon name="spark" className="h-5 w-5 shrink-0 text-[#a46f1d]" />
           </button>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {homeAreas.map((area) => (
               <HomeAreaCard key={area.href} area={area} />
             ))}
