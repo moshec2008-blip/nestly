@@ -4,6 +4,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import DateInput from "@/components/ui/DateInput";
 import EmptyState from "@/components/ui/EmptyState";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
+import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { initialVehicleRecords } from "@/data/modules";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
@@ -357,6 +358,56 @@ export default function VehiclesManager() {
     (record) => getDaysUntil(record.date) < 0
   ).length;
   const openFineCount = vehicleFines.filter((fine) => fine.status === "open").length;
+  const vehicleQuickAreas: Array<{
+    id: string;
+    title: string;
+    value: string;
+    icon: AppIconName;
+    tone: string;
+    onClick: () => void;
+  }> = [
+    {
+      id: "next",
+      title: "הטיפול הקרוב",
+      value: nextRecord ? nextRecord.title : "אין תזכורות פתוחות",
+      icon: "calendar",
+      tone: "bg-gradient-to-br from-sky-200 via-cyan-100 to-white",
+      onClick: () => {
+        setCategoryFilter("הכל");
+        setStatusFilter("open");
+      },
+    },
+    {
+      id: "attention",
+      title: "דורשים טיפול",
+      value: `${overdueCount} באיחור`,
+      icon: "flag",
+      tone: "bg-gradient-to-br from-rose-200 via-orange-100 to-white",
+      onClick: () => {
+        setCategoryFilter("הכל");
+        setStatusFilter("open");
+      },
+    },
+    {
+      id: "fines",
+      title: "דוחות פתוחים",
+      value: `${openFineCount} דוחות`,
+      icon: "document",
+      tone: "bg-gradient-to-br from-amber-200 via-yellow-100 to-white",
+      onClick: () => setIsFineFormOpen(true),
+    },
+    {
+      id: "add",
+      title: "תזכורת חדשה",
+      value: "טסט, ביטוח או טיפול",
+      icon: "car",
+      tone: "bg-gradient-to-br from-violet-200 via-purple-100 to-white",
+      onClick: () => {
+        resetReminderForm();
+        setIsFormOpen(true);
+      },
+    },
+  ];
 
   const visibleRecords = useMemo(() => {
     const normalizedSearch = searchValue.trim().toLowerCase();
@@ -1191,7 +1242,30 @@ export default function VehiclesManager() {
           </button>
         </div>
 
-        <div className="mt-3 grid gap-2 md:grid-cols-3">
+        <div className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
+          {vehicleQuickAreas.map((area) => (
+            <button
+              key={area.id}
+              type="button"
+              onClick={area.onClick}
+              className={`flex min-h-[72px] items-center gap-2.5 overflow-hidden rounded-[20px] border border-white/75 px-3 text-right shadow-[0_8px_20px_rgba(33,43,63,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.12)] active:translate-y-0 active:scale-[0.99] ${area.tone}`}
+            >
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[14px] bg-white/78 text-[#111827] shadow-sm ring-1 ring-white/80">
+                <AppIcon name={area.icon} className="h-4 w-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[12px] font-black text-[#111827] sm:text-[13px]">
+                  {area.title}
+                </span>
+                <span className="mt-0.5 block truncate text-[10px] font-bold text-[#111827]/65">
+                  {area.value}
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="hidden gap-2 md:grid-cols-3">
           <div className="rounded-2xl bg-[#fff8eb] p-3 ring-1 ring-[#eadfcd]">
             <p className="text-[11px] font-black text-[#7a5212]">
               התזכורת הקרובה

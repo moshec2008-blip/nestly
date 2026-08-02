@@ -20,6 +20,7 @@ import {
 } from "@/lib/attachmentStore";
 import DateInput from "@/components/ui/DateInput";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
+import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
 import {
@@ -440,6 +441,58 @@ export default function DocumentsManager() {
   const displayedDocuments = showAllDocuments
     ? visibleDocumentViews
     : visibleDocumentViews.slice(0, 5);
+
+  const documentQuickAreas: Array<{
+    id: string;
+    title: string;
+    value: string;
+    icon: AppIconName;
+    tone: string;
+    onClick: () => void;
+  }> = [
+    {
+      id: "all",
+      title: "כל המסמכים",
+      value: `${smartStats.total} מסמכים`,
+      icon: "document",
+      tone: "bg-gradient-to-br from-sky-200 via-cyan-100 to-white",
+      onClick: () => {
+        setSmartFilter("all");
+        setStatusFilter("all");
+        setSearchValue("");
+      },
+    },
+    {
+      id: "review",
+      title: "דורשים בדיקה",
+      value: `${smartStats.needsReview} לטיפול`,
+      icon: "flag",
+      tone: "bg-gradient-to-br from-amber-200 via-orange-100 to-white",
+      onClick: () => {
+        setSmartFilter("needs_review");
+        setStatusFilter("all");
+      },
+    },
+    {
+      id: "expiring",
+      title: "תוקף קרוב",
+      value: `${smartStats.expiringSoon} מסמכים`,
+      icon: "calendar",
+      tone: "bg-gradient-to-br from-rose-200 via-pink-100 to-white",
+      onClick: () => {
+        setSmartFilter("expiring");
+        setStatusFilter("all");
+      },
+    },
+    {
+      id: "scan",
+      title: "הוספת מסמך",
+      value: "סריקה או העלאה",
+      icon: "search",
+      tone: "bg-gradient-to-br from-violet-200 via-purple-100 to-white",
+      onClick: () => setIsFormOpen(true),
+    },
+  ];
 
   function resetForm() {
     setForm(getInitialForm());
@@ -898,7 +951,30 @@ export default function DocumentsManager() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        {documentQuickAreas.map((area) => (
+          <button
+            key={area.id}
+            type="button"
+            onClick={area.onClick}
+            className={`flex min-h-[72px] items-center gap-2.5 overflow-hidden rounded-[20px] border border-white/75 px-3 text-right shadow-[0_8px_20px_rgba(33,43,63,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.12)] active:translate-y-0 active:scale-[0.99] ${area.tone}`}
+          >
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[14px] bg-white/78 text-[#111827] shadow-sm ring-1 ring-white/80">
+              <AppIcon name={area.icon} className="h-4 w-4" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[12px] font-black text-[#111827] sm:text-[13px]">
+                {area.title}
+              </span>
+              <span className="mt-0.5 block truncate text-[10px] font-bold text-[#111827]/65">
+                {area.value}
+              </span>
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <div className="hidden grid-cols-2 gap-2 sm:grid-cols-4">
         <div className="nestly-card rounded-[16px] p-3 text-right">
           <p className="truncate text-[11px] font-bold text-slate-600">מסמכים</p>
           <p className="mt-0.5 text-lg font-black">{smartStats.total}</p>

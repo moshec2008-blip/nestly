@@ -4,6 +4,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import DateInput from "@/components/ui/DateInput";
 import EmptyState from "@/components/ui/EmptyState";
 import { useFeedback } from "@/components/ui/FeedbackProvider";
+import AppIcon, { type AppIconName } from "@/components/ui/AppIcon";
 import { initialHealthRecords } from "@/data/modules";
 import { usePersistentArrayState } from "@/hooks/usePersistentArrayState";
 import { storageKeys } from "@/lib/storageKeys";
@@ -206,6 +207,58 @@ export default function HealthManager() {
         return b.openCount - a.openCount;
       });
   }, [records, openRecords]);
+
+  const healthQuickAreas: Array<{
+    id: string;
+    title: string;
+    value: string;
+    icon: AppIconName;
+    tone: string;
+    onClick: () => void;
+  }> = [
+    {
+      id: "upcoming",
+      title: "תורים קרובים",
+      value: `${upcoming.length} במעקב`,
+      icon: "calendar",
+      tone: "bg-gradient-to-br from-sky-200 via-cyan-100 to-white",
+      onClick: () => {
+        setCategoryFilter("הכל");
+        setStatusFilter("open");
+        setIsManageOpen(true);
+      },
+    },
+    {
+      id: "attention",
+      title: "דורש תשומת לב",
+      value: `${needsAttention.length} לטיפול`,
+      icon: "flag",
+      tone: "bg-gradient-to-br from-amber-200 via-orange-100 to-white",
+      onClick: () => {
+        setStatusFilter("open");
+        setIsManageOpen(true);
+      },
+    },
+    {
+      id: "family",
+      title: "בני המשפחה",
+      value: `${familyStatus.length} בתיק הבריאות`,
+      icon: "family",
+      tone: "bg-gradient-to-br from-emerald-200 via-green-100 to-white",
+      onClick: () => setIsManageOpen(true),
+    },
+    {
+      id: "add",
+      title: "הוספה למעקב",
+      value: "תור, בדיקה או תרופה",
+      icon: "health",
+      tone: "bg-gradient-to-br from-violet-200 via-purple-100 to-white",
+      onClick: () => {
+        resetForm();
+        setIsFormOpen(true);
+      },
+    },
+  ];
 
   // המשפט הראשון שהורה רואה — עונה על "הכול בסדר?" בלי מספרים.
   const careHeadline = useMemo(() => {
@@ -497,6 +550,29 @@ export default function HealthManager() {
           </div>
         )}
       </section>
+
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        {healthQuickAreas.map((area) => (
+          <button
+            key={area.id}
+            type="button"
+            onClick={area.onClick}
+            className={`flex min-h-[72px] items-center gap-2.5 overflow-hidden rounded-[20px] border border-white/75 px-3 text-right shadow-[0_8px_20px_rgba(33,43,63,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_26px_rgba(33,43,63,0.12)] active:translate-y-0 active:scale-[0.99] ${area.tone}`}
+          >
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[14px] bg-white/78 text-[#111827] shadow-sm ring-1 ring-white/80">
+              <AppIcon name={area.icon} className="h-4 w-4" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[12px] font-black text-[#111827] sm:text-[13px]">
+                {area.title}
+              </span>
+              <span className="mt-0.5 block truncate text-[10px] font-bold text-[#111827]/65">
+                {area.value}
+              </span>
+            </span>
+          </button>
+        ))}
+      </div>
 
       {isFormOpen && (
         <section className="nestly-card p-3 text-right">
